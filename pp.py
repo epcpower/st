@@ -99,9 +99,12 @@ class Frame(QObject, can.Listener):
         # pad for unused bits
         padded_signals = []
         for signal in self.frame._signals:
-            if signal._startbit < bit:
+            startbit = signal._startbit
+            if signal._byteorder == 0:
+                startbit -= min(signal._signalsize, 7)
+            if startbit < bit:
                 raise Exception('too far ahead!')
-            padding = signal._startbit - bit
+            padding = startbit - bit
             if padding:
                 pad = Pad(bit, padding)
                 padded_signals.append(pad)
@@ -212,12 +215,12 @@ if __name__ == '__main__':
 
         while True:
             time.sleep(0.010)
-            if time.monotonic() - start_time > 0.30:
+            if time.monotonic() - start_time > 0.100:
                 dt = time.monotonic() - start_time
                 value = math.sin(dt) / 2
                 value += 0.5
                 value = round(value * 100)
-                print(value)
+                print('{}: {}'.format(dt, value))
                 message.data = frame.pack([0, value])
                 bus.send(message)
         sys.exit(0)
