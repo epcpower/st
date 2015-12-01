@@ -178,6 +178,31 @@ class Frame(QObject, can.Listener):
         # print('message_received: stopped')
 
 
+import generated.pp_ui as ui
+from PyQt5 import QtCore, QtWidgets, QtGui
+class Window(QtWidgets.QMainWindow):
+    def __init__(self, matrix, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent)
+
+        self.ui = ui.Ui_MainWindow()
+        self.ui.setupUi(self)
+
+        children = self.findChildren(QtCore.QObject)
+        targets = [c for c in children if
+                   c.property('frame') and c.property('signal')]
+
+        for target in targets:
+            frame_name = target.property('frame')
+            signal_name = target.property('signal')
+
+            frame = Frame(matrix.frameByName(frame_name))
+            signal = Signal(frame.frame.signalByName(signal_name))
+
+            signal.connect(target.setValue)
+            target.setMinimum(0)#signal._min)
+            target.setMaximum(100)#signal._max)
+
+
 if __name__ == '__main__':
     import argparse
     import sys
@@ -200,14 +225,14 @@ if __name__ == '__main__':
 
     notifier = can.Notifier(bus, frames)
 
-    frame_name = 'MasterMeasuredPower'
-    signal_name = 'ReactivePower_measured'
-    frame = Frame(matrix.frameByName(frame_name))
-    signal = Signal(frame.frame.signalByName(signal_name))
-
     if args.generate:
         print('generating')
         start_time = time.monotonic()
+
+        frame_name = 'MasterMeasuredPower'
+        signal_name = 'ReactivePower_measured'
+        frame = Frame(matrix.frameByName(frame_name))
+        signal = Signal(frame.frame.signalByName(signal_name))
 
         message = can.Message(extended_id=frame.frame._extended,
                               arbitration_id=frame.frame._Id,
@@ -227,17 +252,11 @@ if __name__ == '__main__':
 
     print(threading.current_thread())
 
-    from PyQt5.QtWidgets import QApplication, QMainWindow, QProgressBar
+    from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    progress = QProgressBar()
 
-    signal.connect(progress.setValue)
-    progress.setMinimum(0)#signal._min)
-    progress.setMaximum(100)#signal._max)
-
-    window = QMainWindow()
-    window.setCentralWidget(progress)
+    window = Window(matrix)
 
     window.show()
     sys.exit(app.exec_())
