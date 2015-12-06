@@ -238,14 +238,17 @@ if __name__ == '__main__':
                               arbitration_id=frame.frame._Id,
                               dlc=frame.frame._Size)
 
+        last_send = 0
         while True:
             time.sleep(0.010)
-            if time.monotonic() - start_time > 0.100:
-                dt = time.monotonic() - start_time
-                value = math.sin(dt) / 2
+            now = time.monotonic()
+            if now - last_send > 0.100:
+                last_send = now
+                elapsed_time = time.monotonic() - start_time
+                value = math.sin(elapsed_time) / 2
                 value += 0.5
                 value = round(value * 100)
-                print('{}: {}'.format(dt, value))
+                print('{:.3f}: {}'.format(elapsed_time, value))
                 message.data = frame.pack([0, value])
                 bus.send(message)
         sys.exit(0)
