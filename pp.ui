@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
-    <height>553</height>
+    <width>1384</width>
+    <height>950</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,6 +61,9 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QTreeView" name="txrx"/>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -68,7 +71,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>380</width>
+     <width>1384</width>
      <height>39</height>
     </rect>
    </property>

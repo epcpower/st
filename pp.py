@@ -42,6 +42,8 @@ from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 # print('overwritten')
 
 
+# TODO: all these QObjects should be able to take parents
+
 class Signal(QObject):
     _my_signal = pyqtSignal(int)
 
@@ -164,8 +166,6 @@ class Frame(QObject, can.Listener):
             print('\n'.join([e for e in l]))
 
     def on_message_received(self, msg):
-        # print('on_message_received: {} - {}'.format(threading.current_thread(), msg.timestamp))
-        # Hopefully this indirection provides some thread safety...
         self.message_received_signal.emit(copy.deepcopy(msg))
 
     @pyqtSlot(can.Message)
@@ -181,11 +181,13 @@ class Frame(QObject, can.Listener):
 import generated.pp_ui as ui
 from PyQt5 import QtCore, QtWidgets, QtGui
 class Window(QtWidgets.QMainWindow):
-    def __init__(self, matrix, parent=None):
+    def __init__(self, matrix, txrx_model, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
 
         self.ui = ui.Ui_MainWindow()
         self.ui.setupUi(self)
+
+        self.ui.txrx.setModel(txrx_model)
 
         children = self.findChildren(QtCore.QObject)
         targets = [c for c in children if
@@ -201,6 +203,324 @@ class Window(QtWidgets.QMainWindow):
             signal.connect(target.setValue)
             target.setMinimum(0)#signal._min)
             target.setMaximum(100)#signal._max)
+
+
+# class TxRxModel(QObject, can.Listener):
+#     message_received_signal = pyqtSignal(can.Message)
+#
+#     def __init__(self, tree_view, matrix, parent=None):
+#         QObject.__init__(self, parent)
+#         can.Listener.__init__(self)
+#
+#         self.frames = {}
+#         self.tree_view = tree_view
+#         self.matrix = matrix
+#
+#         self.message_received_signal.connect(self.message_received)
+#
+#     # TODO: make a class inheriting from can.Listener to translate it to Qt signals
+#
+#     def on_message_received(self, msg):
+#         # print('on_message_received: {} - {}'.format(threading.current_thread(), msg.timestamp))
+#         # Hopefully this indirection provides some thread safety...
+#         self.message_received_signal.emit(copy.deepcopy(msg))
+#
+#     @pyqtSlot(can.Message)
+#     def message_received(self, msg):
+#         self.frames[(msg.arbitration_id, msg.id_type)] = msg
+#
+#         # frame = self.matrix.byId(msg.arbitration_id)
+#         # if frame is not None:
+
+
+# TODO: move this up
+from PyQt5.QtCore import (Qt, QObject, QAbstractItemModel, QVariant,
+                          QModelIndex, pyqtSignal)
+
+class TreeNode:
+    def __init__(self,  parent=None):
+        self.last = None
+        # self.message = message
+
+        self.parent = None
+        self.set_parent(parent)
+        self.children = []
+
+    def set_parent(self, parent):
+        self.parent = parent
+        if self.parent is not None:
+            self.parent.append_child(self)
+
+    def append_child(self, child):
+        self.children.append(child)
+        child.parent = self
+
+    def child_at_row(self, row):
+        return self.children[row]
+
+    def row_of_child(self, child):
+        for i, item in enumerate(self.children):
+            if item == child:
+                return i
+        return -1
+
+    def remove_child(self, row):
+        value = self.children[row]
+        self.children.remove(value)
+
+        return True
+
+    def __len__(self):
+        return len(self.children)
+
+
+class MessageNode(TreeNode):
+    def __init__(self, message, parent=None):
+        TreeNode.__init__(self, parent)
+
+        self.last_time = None
+        self.extract_message(message)
+
+    def extract_message(self, message):
+        self.message = message
+
+        # TODO: should this formatting be done in the other place?
+        format = '0x{{:0{}X}}'
+        if message.id_type:
+            format = format.format(8)
+        else:
+            format = format.format(3)
+
+        self.id = format.format(message.arbitration_id)
+
+        self.length = message.dlc
+        self.message = 'fill in message'
+        self.signal = 'fill in signal'
+        self.value = ' '.join(['{:02X}'.format(byte) for byte in message.data])
+        if self.last_time is None:
+            self.dt = '-'
+        else:
+            self.dt = message.timestamp - self.last_time
+            self.dt = '{:.4f}'.format(self.dt)
+        self.last_time = message.timestamp
+
+    def unique(self):
+        return self.id
+        # return str((self.message.arbitration_id, self.message.id_type))
+        # return self.parent.unique() + ':' + str(self.subindex).zfill(3)
+
+
+class TxRx(TreeNode, can.Listener, QObject):
+    # TODO: just Rx?
+    changed = pyqtSignal(TreeNode, int)
+    added = pyqtSignal(TreeNode)
+    message_received_signal = pyqtSignal(can.Message)
+
+    def __init__(self, parent=None):
+        TreeNode.__init__(self, parent)
+        QObject.__init__(self)
+
+        self.messages = {}
+
+        self.message_received_signal.connect(self.message_received)
+
+    def add_index(self, index):
+        if isinstance(index, Index):
+            # self.indexes.append(index)
+            self.append_child(index)
+        else:
+            raise TypeError('Must be a Subindex')
+
+    def set_node_id(self, node_id):
+        self.node_id = node_id
+
+    def sdo_read(self, node):
+        self.bus.send(
+            ReadSdo(node=self.node_id, index=node.index,
+                    subindex=node.subindex).to_message())
+
+    def on_message_received(self, msg):
+        self.message_received_signal.emit(copy.deepcopy(msg))
+
+    @pyqtSlot(can.Message)
+    def message_received(self, msg):
+        id = (msg.arbitration_id, msg.id_type)
+
+        try:
+            self.messages[id].extract_message(msg)
+            # TODO: be more judicious in describing what changed
+            #       and also don't change just column 5...
+            self.changed.emit(self.messages[id], 4)
+            self.changed.emit(self.messages[id], 5)
+        except KeyError:
+            message_node = MessageNode(msg)
+            self.messages[id] = message_node
+            self.append_child(message_node)
+            self.added.emit(message_node)
+
+        # if self.node_id is None:
+        #     return
+        #
+        # # TODO  yuck and the whole do we save sub0 to the
+        # #       index or subindex thing
+        # if not msg.id_type:
+        #     if msg.arbitration_id == 0x580 + self.node_id:
+        #         if len(msg.data) == 8:
+        #             if msg.data[0] == 0x43 or msg.data[0] == 0x4f:
+        #                 index = int.from_bytes(msg.data[1:3],
+        #                                        byteorder='little')
+        #                 subindex = int(msg.data[3])
+        #                 value = int.from_bytes(msg.data[4:8],
+        #                                        byteorder='little')
+        #                 for i in self.children:
+        #                     if i.index == index:
+        #                         if subindex == 0:
+        #                             i.value = value
+        #                             self.changed.emit(i, 2)
+        #
+        #                         for s in i.children:
+        #                             if s.subindex == subindex:
+        #                                 s.value = value
+        #                                 self.changed.emit(s, 2)
+        #                                 break
+        #
+        #                         break
+
+    def unique(self):
+        # TODO  actually identify the object dictionary
+        return '-'
+
+    def __str__(self):
+        return 'Indexes: \n' + '\n'.join([str(i) for i in self.children])
+
+
+class TxRxModel(QAbstractItemModel):
+    # TODO: seems like a lot of boilerplate which could be put in an abstract class
+    #       (wrapping the abstract class?  hmmm)
+
+    def __init__(self, root, parent=None):
+        QAbstractItemModel.__init__(self, parent)
+
+        self.root = root
+        self.headers = ['ID', 'Length', 'Message', 'Signal', 'Value', 'dt']
+        # TODO: refactoring like below might make things quicker?
+        # headers = ['ID', 'Length', 'Message', 'Signal', 'Value', 'dt']
+        # self.headers = {}
+        # for i, header in enumerate(headers):
+        #     self.headers[header] = i
+        self.columns = len(self.headers)
+
+    def headerData(self, section, orientation, role):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return QVariant(self.headers[section])
+        return QVariant()
+
+    def index(self, row, column, parent):
+        node = self.node_from_index(parent)
+        return self.createIndex(row, column, node.child_at_row(row))
+        # if not parent.isValid():
+        #     parent_item = self.root
+        # else:
+        #     parent_item = parent.internalPointer()
+        #
+        # child_item = parent_item.children[row]
+        # if child_item:
+        #     return self.createIndex(row, column, child_item)
+        # else:
+        #     return QModelIndex()
+
+    def data(self, index, role):
+        if role == Qt.DecorationRole:
+            return QVariant()
+
+        if role == Qt.TextAlignmentRole:
+            return QVariant(int(Qt.AlignTop | Qt.AlignLeft))
+
+        if role != Qt.DisplayRole:
+            return QVariant()
+
+        node = self.node_from_index(index)
+
+        if index.column() == self.headers.index('ID'):
+            return QVariant(node.id)
+
+        elif index.column() == self.headers.index('Length'):
+            return QVariant(node.length)
+
+        elif index.column() == self.headers.index('Message'):
+            return QVariant(node.message)
+
+        elif index.column() == self.headers.index('Signal'):
+            return QVariant(node.signal)
+
+        elif index.column() == self.headers.index('Value'):
+            return QVariant(node.value)
+
+        elif index.column() == self.headers.index('dt'):
+            return QVariant(node.dt)
+
+        elif index.column() == len(self.headers):
+            return QVariant(node.unique())
+
+        else:
+            return QVariant()
+
+    def columnCount(self, parent):
+        return self.columns
+
+    def rowCount(self, parent):
+        node = self.node_from_index(parent)
+        if node is None:
+            return 0
+        return len(node)
+
+    def parent(self, child):
+        if not child.isValid():
+            return QModelIndex()
+
+        node = self.node_from_index(child)
+
+        if node is None:
+            return QModelIndex()
+
+        parent = node.parent
+
+        if parent is None:
+            return QModelIndex()
+
+        grandparent = parent.parent
+        if grandparent is None:
+            return QModelIndex()
+        row = grandparent.row_of_child(parent)
+
+        assert row != - 1
+        return self.createIndex(row, 0, parent)
+
+    def node_from_index(self, index):
+        if index.isValid():
+            return index.internalPointer()
+        else:
+            return self.root
+
+    def index_from_node(self, node):
+        # TODO  make up another role for identification?
+        return self.match(self.index(0, len(self.headers), QModelIndex()),
+                          Qt.DisplayRole,
+                          node.unique(),
+                          1,
+                          Qt.MatchRecursive)
+
+    @pyqtSlot(TreeNode, int)
+    def changed(self, node, column):
+        index = self.index_from_node(node)[0]
+        index = self.index(index.row(), column, index.parent())
+        self.dataChanged.emit(index, index)
+
+    @pyqtSlot(TreeNode)
+    def added(self, message):
+        # TODO: this is just a tad bit broad...
+        self.beginResetModel()
+        self.endResetModel()
 
 
 if __name__ == '__main__':
@@ -223,7 +543,12 @@ if __name__ == '__main__':
     }[platform.system()]
     bus = can.interface.Bus(**default)
 
-    notifier = can.Notifier(bus, frames)
+    txrx = TxRx()
+    txrx_model = TxRxModel(txrx)
+
+    txrx.changed.connect(txrx_model.changed)
+    txrx.added.connect(txrx_model.added)
+    notifier = can.Notifier(bus, frames + [txrx])
 
     if args.generate:
         print('generating')
@@ -259,7 +584,7 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
-    window = Window(matrix)
+    window = Window(matrix, txrx_model)
 
     window.show()
     sys.exit(app.exec_())

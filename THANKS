@@ -1,0 +1,7 @@
+Several years back Scott Ballard went the the hassle of figuring
+out how to make a QAbstractItemModel work and was kind enough to
+share a concise example.
+
+http://www.riverbankcomputing.com/pipermail/pyqt/2009-April/022729.html
+
+Scott was kind enough to allow me to freely use his work.  Thanks!
