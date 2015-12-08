@@ -215,7 +215,7 @@ class TreeNode:
 
 
 class MessageNode(TreeNode):
-    def __init__(self, message, parent=None):
+    def __init__(self, message, frame=None, parent=None):
         TreeNode.__init__(self, parent)
 
         self.id = None
@@ -225,6 +225,15 @@ class MessageNode(TreeNode):
         self.value = None
         self.dt = None
         self.last_time = None
+
+        self.frame = frame
+
+        try:
+            for signal in self.frame._signals:
+                self.append_child(SignalNode(signal))
+        except AttributeError:
+            pass
+
         self.extract_message(message)
 
     def extract_message(self, message, verify=True):
@@ -243,9 +252,13 @@ class MessageNode(TreeNode):
 
         self.id = format.format(message.arbitration_id)
 
-        self.length = message.dlc
-        self.message = 'fill in message'
-        self.signal = 'fill in signal'
+        try:
+            self.message = self.frame._name
+        except AttributeError:
+            self.message = '-'
+
+        self.length = '{} B'.format(message.dlc)
+        self.signal = ''
         self.value = ' '.join(['{:02X}'.format(byte) for byte in message.data])
         if self.last_time is None:
             self.dt = '-'
@@ -254,8 +267,32 @@ class MessageNode(TreeNode):
             self.dt = '{:.4f}'.format(self.dt)
         self.last_time = message.timestamp
 
+        for child in self.children:
+            child.update()
+
     def unique(self):
         return self.id
+
+
+class SignalNode(TreeNode):
+    def __init__(self, signal, parent=None):
+        TreeNode.__init__(self, parent)
+
+        self.id = signal._startbit
+        self.message = ''
+        self.signal_object = signal
+        self.signal = signal._name
+        self.length = '{} b'.format(signal._signalsize)
+        self.value = '-'
+        self.dt = None
+        self.last_time = None
+
+    def unique(self):
+        # TODO: make it more unique
+        return str(self.id) + '__'
+
+    def update(self):
+        self.value = self.signal_object.signal.value
 
 
 class TxRx(TreeNode, can.Listener, QObject):
@@ -264,15 +301,17 @@ class TxRx(TreeNode, can.Listener, QObject):
     added = pyqtSignal(TreeNode)
     message_received_signal = pyqtSignal(can.Message)
 
-    def __init__(self, parent=None):
+    def __init__(self, matrix=None, parent=None):
         TreeNode.__init__(self, parent)
         QObject.__init__(self)
 
+        self.matrix = matrix
         self.messages = {}
 
         self.message_received_signal.connect(self.message_received)
 
     def set_node_id(self, node_id):
+        # TODO: I think this can go away
         self.node_id = node_id
 
     def on_message_received(self, msg):
@@ -288,8 +327,15 @@ class TxRx(TreeNode, can.Listener, QObject):
             #       and also don't change just column 5...
             self.changed.emit(self.messages[id], 4)
             self.changed.emit(self.messages[id], 5)
+            for signal in self.messages[id].children:
+                self.changed.emit(signal, 4)
         except KeyError:
-            message_node = MessageNode(msg)
+            try:
+                frame = self.matrix.frameById(msg.arbitration_id)
+            except AttributeError:
+                frame = None
+
+            message_node = MessageNode(msg, frame=frame)
             self.messages[id] = message_node
             self.append_child(message_node)
             self.added.emit(message_node)
@@ -443,6 +489,8 @@ if __name__ == '__main__':
     print('importing')
     matrix = importany.importany(args.can)
     frames = [Frame(frame) for frame in matrix._fl._list]
+    for frame in frames:
+        [Signal(signal) for signal in frame.frame._signals]
 
     # TODO: get this outta here
     default = {
@@ -451,7 +499,7 @@ if __name__ == '__main__':
     }[platform.system()]
     bus = can.interface.Bus(**default)
 
-    txrx = TxRx()
+    txrx = TxRx(matrix=matrix)
     txrx_model = TxRxModel(txrx)
 
     txrx.changed.connect(txrx_model.changed)
