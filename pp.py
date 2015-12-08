@@ -16,30 +16,8 @@ import time
 import canmatrix.importany as importany
 import canmatrix.canmatrix as canmatrix
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
-
-# def swap_endianness(x, bytes):
-#     format = '{{:0{}x}}'.format(2*bytes)
-#     return bitstruct.byteswap('8', bytearray.fromhex(format.format(x)))
-
-
-# class Signal(QObject, canmatrix.Signal):
-#     _my_signal = pyqtSignal(int)
-#
-#     def __init__(self, *args, **kwargs):
-#         canmatrix.Signal.__init__(self, *args, **kwargs)
-#         # TODO: what about QObject
-#         print('boo')
-#
-#     def connect(self, target):
-#         self._my_signal.connect(target)
-#
-#     def set_value(self, value):
-#         self._my_value = value
-#         self._my_signal.emit(value)
-#
-# canmatrix.Signal = Signal
-# print('overwritten')
+from PyQt5.QtCore import (Qt, QObject, QAbstractItemModel, QVariant,
+                          QModelIndex, pyqtSignal, pyqtSlot)
 
 
 # TODO: all these QObjects should be able to take parents
@@ -163,19 +141,14 @@ class Frame(QObject, can.Listener):
                 except AttributeError:
                     pass
 
-            print('\n'.join([e for e in l]))
-
+    # TODO: make a class inheriting from can.Listener to translate it to Qt signals
     def on_message_received(self, msg):
         self.message_received_signal.emit(copy.deepcopy(msg))
 
     @pyqtSlot(can.Message)
     def message_received(self, msg):
-        # print('message_received: start')
-        # print('on_message_received: {} - {}'.format(threading.current_thread(), msg.timestamp))
         if msg.arbitration_id == self.frame._Id and msg.id_type == self.frame._extended:
-            print('Message {self.frame._name} received'.format(**locals()))
             self.unpack(msg.data)
-        # print('message_received: stopped')
 
 
 import generated.pp_ui as ui
@@ -205,42 +178,9 @@ class Window(QtWidgets.QMainWindow):
             target.setMaximum(100)#signal._max)
 
 
-# class TxRxModel(QObject, can.Listener):
-#     message_received_signal = pyqtSignal(can.Message)
-#
-#     def __init__(self, tree_view, matrix, parent=None):
-#         QObject.__init__(self, parent)
-#         can.Listener.__init__(self)
-#
-#         self.frames = {}
-#         self.tree_view = tree_view
-#         self.matrix = matrix
-#
-#         self.message_received_signal.connect(self.message_received)
-#
-#     # TODO: make a class inheriting from can.Listener to translate it to Qt signals
-#
-#     def on_message_received(self, msg):
-#         # print('on_message_received: {} - {}'.format(threading.current_thread(), msg.timestamp))
-#         # Hopefully this indirection provides some thread safety...
-#         self.message_received_signal.emit(copy.deepcopy(msg))
-#
-#     @pyqtSlot(can.Message)
-#     def message_received(self, msg):
-#         self.frames[(msg.arbitration_id, msg.id_type)] = msg
-#
-#         # frame = self.matrix.byId(msg.arbitration_id)
-#         # if frame is not None:
-
-
-# TODO: move this up
-from PyQt5.QtCore import (Qt, QObject, QAbstractItemModel, QVariant,
-                          QModelIndex, pyqtSignal)
-
 class TreeNode:
     def __init__(self,  parent=None):
         self.last = None
-        # self.message = message
 
         self.parent = None
         self.set_parent(parent)
@@ -278,10 +218,20 @@ class MessageNode(TreeNode):
     def __init__(self, message, parent=None):
         TreeNode.__init__(self, parent)
 
+        self.id = None
+        self.length = None
+        self.message = None
+        self.signal = None
+        self.value = None
+        self.dt = None
         self.last_time = None
         self.extract_message(message)
 
-    def extract_message(self, message):
+    def extract_message(self, message, verify=True):
+        if verify:
+            # TODO: make sure the message matches the id/type and length
+            pass
+
         self.message = message
 
         # TODO: should this formatting be done in the other place?
@@ -306,8 +256,6 @@ class MessageNode(TreeNode):
 
     def unique(self):
         return self.id
-        # return str((self.message.arbitration_id, self.message.id_type))
-        # return self.parent.unique() + ':' + str(self.subindex).zfill(3)
 
 
 class TxRx(TreeNode, can.Listener, QObject):
@@ -324,20 +272,8 @@ class TxRx(TreeNode, can.Listener, QObject):
 
         self.message_received_signal.connect(self.message_received)
 
-    def add_index(self, index):
-        if isinstance(index, Index):
-            # self.indexes.append(index)
-            self.append_child(index)
-        else:
-            raise TypeError('Must be a Subindex')
-
     def set_node_id(self, node_id):
         self.node_id = node_id
-
-    def sdo_read(self, node):
-        self.bus.send(
-            ReadSdo(node=self.node_id, index=node.index,
-                    subindex=node.subindex).to_message())
 
     def on_message_received(self, msg):
         self.message_received_signal.emit(copy.deepcopy(msg))
@@ -358,36 +294,8 @@ class TxRx(TreeNode, can.Listener, QObject):
             self.append_child(message_node)
             self.added.emit(message_node)
 
-        # if self.node_id is None:
-        #     return
-        #
-        # # TODO  yuck and the whole do we save sub0 to the
-        # #       index or subindex thing
-        # if not msg.id_type:
-        #     if msg.arbitration_id == 0x580 + self.node_id:
-        #         if len(msg.data) == 8:
-        #             if msg.data[0] == 0x43 or msg.data[0] == 0x4f:
-        #                 index = int.from_bytes(msg.data[1:3],
-        #                                        byteorder='little')
-        #                 subindex = int(msg.data[3])
-        #                 value = int.from_bytes(msg.data[4:8],
-        #                                        byteorder='little')
-        #                 for i in self.children:
-        #                     if i.index == index:
-        #                         if subindex == 0:
-        #                             i.value = value
-        #                             self.changed.emit(i, 2)
-        #
-        #                         for s in i.children:
-        #                             if s.subindex == subindex:
-        #                                 s.value = value
-        #                                 self.changed.emit(s, 2)
-        #                                 break
-        #
-        #                         break
-
     def unique(self):
-        # TODO  actually identify the object dictionary
+        # TODO: actually identify the object
         return '-'
 
     def __str__(self):
@@ -577,8 +485,6 @@ if __name__ == '__main__':
                 message.data = frame.pack([0, value])
                 bus.send(message)
         sys.exit(0)
-
-    print(threading.current_thread())
 
     from PyQt5.QtWidgets import QApplication
 
