@@ -51,7 +51,7 @@ def generic(extension, program, out_lambda, in_option=None, out_option=None,
         command_line = [e for e in command_line if e is not None]
 
         print('Executing: ' + ' '.join(command_line))
-        subprocess.call(command_line)
+        subprocess.call(command_line, shell=True)
 
 
 def generate():
