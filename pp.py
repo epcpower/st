@@ -105,7 +105,7 @@ class Frame(QObject, can.Listener):
     def format(self):
         # None is for handling padding
         types = {None: 'u', '+': 'u', '-': 's'}
-        order = {None: '>', 0: '<', 1: '>'}
+        order = {None: '<', 0: '>', 1: '<'}
 
         fmt = ['{}{}{}'.format(order[s._byteorder], types[s._valuetype], s._signalsize)
                for s in self.frame._signals]
