@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import platform
 import subprocess
 import sys
 
@@ -51,7 +52,8 @@ def generic(extension, program, out_lambda, in_option=None, out_option=None,
         command_line = [e for e in command_line if e is not None]
 
         print('Executing: ' + ' '.join(command_line))
-        subprocess.call(command_line, shell=True)
+        shell = platform.system() != 'Linux'
+        subprocess.call(command_line, shell=shell)
 
 
 def generate():
