@@ -61,7 +61,9 @@ class Frame(QObject, can.Listener):
 
     def pad(self):
         self.unpad()
-        self.frame._signals.sort(key=lambda x: x._startbit)
+        # TODO: use getMsbStartbit() if intel/little endian
+        #       and search for all other uses
+        self.frame._signals.sort(key=lambda x: x.getMsbReverseStartbit())
         Pad = lambda start_bit, length: canmatrix.Signal(name='__padding__',
                                                          startbit=start_bit,
                                                          signalsize=length,
@@ -79,9 +81,7 @@ class Frame(QObject, can.Listener):
         # pad for unused bits
         padded_signals = []
         for signal in self.frame._signals:
-            startbit = signal._startbit
-            if signal._byteorder == 0:
-                startbit -= min(signal._signalsize, 7)
+            startbit = signal.getMsbReverseStartbit()
             if startbit < bit:
                 raise Exception('too far ahead!')
             padding = startbit - bit
@@ -278,7 +278,7 @@ class SignalNode(TreeNode):
     def __init__(self, signal, parent=None):
         TreeNode.__init__(self, parent)
 
-        self.id = signal._startbit
+        self.id = signal.getMsbReverseStartbit()
         self.message = ''
         self.signal_object = signal
         self.signal = signal._name
