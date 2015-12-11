@@ -44,16 +44,29 @@ class Signal(QObject):
         self._my_signal.emit(value)
 
 
-class Frame(QObject, can.Listener):
+class QtCanListener(QObject, can.Listener):
     message_received_signal = pyqtSignal(can.Message)
 
-    def __init__(self, frame):
-        QObject.__init__(self)
+    def __init__(self, receiver=None, parent=None):
+        QObject.__init__(self, parent)
         can.Listener.__init__(self)
 
-        self.frame = frame
+        if receiver is not None:
+            self.receiver(receiver)
 
-        self.message_received_signal.connect(self.message_received)
+    def receiver(self, slot):
+        self.message_received_signal.connect(slot)
+
+    # TODO: make a class inheriting from can.Listener to translate it to Qt signals
+    def on_message_received(self, msg):
+        self.message_received_signal.emit(copy.deepcopy(msg))
+
+
+class Frame(QtCanListener):
+    def __init__(self, frame, parent=None):
+        QtCanListener.__init__(self, self.message_received, parent)
+
+        self.frame = frame
 
     def unpad(self):
         self.frame._signals = [s for s in self.frame._signals
@@ -140,10 +153,6 @@ class Frame(QObject, can.Listener):
                     s.signal.set_value(v)
                 except AttributeError:
                     pass
-
-    # TODO: make a class inheriting from can.Listener to translate it to Qt signals
-    def on_message_received(self, msg):
-        self.message_received_signal.emit(copy.deepcopy(msg))
 
     @pyqtSlot(can.Message)
     def message_received(self, msg):
@@ -295,27 +304,21 @@ class SignalNode(TreeNode):
         self.value = self.signal_object.signal.value
 
 
-class TxRx(TreeNode, can.Listener, QObject):
+class TxRx(TreeNode, QtCanListener):
     # TODO: just Rx?
     changed = pyqtSignal(TreeNode, int)
     added = pyqtSignal(TreeNode)
-    message_received_signal = pyqtSignal(can.Message)
 
     def __init__(self, matrix=None, parent=None):
-        TreeNode.__init__(self, parent)
-        QObject.__init__(self)
+        TreeNode.__init__(self)
+        QtCanListener.__init__(self, self.message_received, parent)
 
         self.matrix = matrix
         self.messages = {}
 
-        self.message_received_signal.connect(self.message_received)
-
     def set_node_id(self, node_id):
         # TODO: I think this can go away
         self.node_id = node_id
-
-    def on_message_received(self, msg):
-        self.message_received_signal.emit(copy.deepcopy(msg))
 
     @pyqtSlot(can.Message)
     def message_received(self, msg):
