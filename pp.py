@@ -20,16 +20,14 @@ from PyQt5.QtCore import (Qt, QObject, QAbstractItemModel, QVariant,
                           QModelIndex, pyqtSignal, pyqtSlot)
 
 
-# TODO: all these QObjects should be able to take parents
-
 class Signal(QObject):
     _my_signal = pyqtSignal(int)
 
-    def __init__(self, signal, connect=None):
+    def __init__(self, signal, connect=None, parent=None):
         signal.signal = self
         self.signal = signal
         # TODO: what about QObject parameters
-        QObject.__init__(self)
+        QObject.__init__(self, parent=parent)
         self.value = None
 
         if connect is not None:
@@ -48,7 +46,7 @@ class QtCanListener(QObject, can.Listener):
     message_received_signal = pyqtSignal(can.Message)
 
     def __init__(self, receiver=None, parent=None):
-        QObject.__init__(self, parent)
+        QObject.__init__(self, parent=parent)
         can.Listener.__init__(self)
 
         if receiver is not None:
@@ -64,8 +62,9 @@ class QtCanListener(QObject, can.Listener):
 
 class Frame(QtCanListener):
     def __init__(self, frame, parent=None):
-        QtCanListener.__init__(self, self.message_received, parent)
+        QtCanListener.__init__(self, self.message_received, parent=parent)
 
+        frame.frame = self
         self.frame = frame
 
     def unpad(self):
@@ -164,7 +163,7 @@ import generated.pp_ui as ui
 from PyQt5 import QtCore, QtWidgets, QtGui
 class Window(QtWidgets.QMainWindow):
     def __init__(self, matrix, txrx_model, parent=None):
-        QtWidgets.QMainWindow.__init__(self, parent)
+        QtWidgets.QMainWindow.__init__(self, parent=parent)
 
         self.ui = ui.Ui_MainWindow()
         self.ui.setupUi(self)
@@ -179,8 +178,8 @@ class Window(QtWidgets.QMainWindow):
             frame_name = target.property('frame')
             signal_name = target.property('signal')
 
-            frame = Frame(matrix.frameByName(frame_name))
-            signal = Signal(frame.frame.signalByName(signal_name))
+            frame = matrix.frameByName(frame_name).frame
+            signal = frame.frame.signalByName(signal_name).signal
 
             signal.connect(target.setValue)
             target.setMinimum(0)#signal._min)
@@ -191,18 +190,18 @@ class TreeNode:
     def __init__(self,  parent=None):
         self.last = None
 
-        self.parent = None
+        self.tree_parent = None
         self.set_parent(parent)
         self.children = []
 
     def set_parent(self, parent):
-        self.parent = parent
-        if self.parent is not None:
-            self.parent.append_child(self)
+        self.tree_parent = parent
+        if self.tree_parent is not None:
+            self.tree_parent.append_child(self)
 
     def append_child(self, child):
         self.children.append(child)
-        child.parent = self
+        child.tree_parent = self
 
     def child_at_row(self, row):
         return self.children[row]
@@ -277,12 +276,12 @@ class MessageNode(TreeNode):
         return self.fields.id
 
 
-class SignalNode(TreeNode):
-    def __init__(self, signal, parent=None):
-        TreeNode.__init__(self, parent)
+class SignalNode(Signal, TreeNode):
+    def __init__(self, signal, connect=None, tree_parent=None, parent=None):
+        Signal.__init__(self, signal=signal, connect=connect, parent=parent)
+        TreeNode.__init__(self, tree_parent)
 
-        self.signal_object = signal
-        self.fields = TxRxColumns(id=signal.getMsbReverseStartbit(),
+        self.fields = TxRxColumns(id=self.signal.getMsbReverseStartbit(),
                                   message='',
                                   signal=signal._name,
                                   length='{} b'.format(signal._signalsize),
@@ -295,7 +294,7 @@ class SignalNode(TreeNode):
         return str(self.fields.id) + '__'
 
     def update(self):
-        self.fields.value = self.signal_object.signal.value
+        self.fields.value = self.value
 
 
 class TxRx(TreeNode, QtCanListener):
@@ -305,7 +304,7 @@ class TxRx(TreeNode, QtCanListener):
 
     def __init__(self, matrix=None, parent=None):
         TreeNode.__init__(self)
-        QtCanListener.__init__(self, self.message_received, parent)
+        QtCanListener.__init__(self, self.message_received, parent=parent)
 
         self.matrix = matrix
         self.messages = {}
@@ -383,7 +382,7 @@ class TxRxModel(QAbstractItemModel):
     #       (wrapping the abstract class?  hmmm)
 
     def __init__(self, root, parent=None):
-        QAbstractItemModel.__init__(self, parent)
+        QAbstractItemModel.__init__(self, parent=parent)
 
         self.root = root
         self.headers = TxRxColumns(id='ID',
@@ -450,12 +449,12 @@ class TxRxModel(QAbstractItemModel):
         if node is None:
             return QModelIndex()
 
-        parent = node.parent
+        parent = node.tree_parent
 
         if parent is None:
             return QModelIndex()
 
-        grandparent = parent.parent
+        grandparent = parent.tree_parent
         if grandparent is None:
             return QModelIndex()
         row = grandparent.row_of_child(parent)
@@ -499,12 +498,6 @@ if __name__ == '__main__':
     parser.add_argument('--generate', '-g', action='store_true')
     args = parser.parse_args()
 
-    print('importing')
-    matrix = importany.importany(args.can)
-    frames = [Frame(frame) for frame in matrix._fl._list]
-    for frame in frames:
-        [Signal(signal) for signal in frame.frame._signals]
-
     # TODO: get this outta here
     default = {
         'Linux': {'bustype': 'socketcan', 'channel': 'vcan0'},
@@ -512,12 +505,22 @@ if __name__ == '__main__':
     }[platform.system()]
     bus = can.interface.Bus(**default)
 
+    # TODO: the repetition here is not so pretty
+    matrix = importany.importany(args.can)
+    matrix2 = copy.deepcopy(matrix)
+    frames = [Frame(frame) for frame in matrix._fl._list]
+    for frame in frames:
+        [Signal(signal) for signal in frame.frame._signals]
     txrx = TxRx(matrix=matrix)
     txrx_model = TxRxModel(txrx)
 
+    frames2 = [Frame(frame) for frame in matrix2._fl._list]
+    for frame in frames2:
+        [Signal(signal) for signal in frame.frame._signals]
+
     txrx.changed.connect(txrx_model.changed)
     txrx.added.connect(txrx_model.added)
-    notifier = can.Notifier(bus, frames + [txrx])
+    notifier = can.Notifier(bus, frames + frames2 + [txrx])
 
     if args.generate:
         print('generating')
@@ -525,7 +528,7 @@ if __name__ == '__main__':
 
         frame_name = 'MasterMeasuredPower'
         signal_name = 'ReactivePower_measured'
-        frame = Frame(matrix.frameByName(frame_name))
+        frame = Frame(matrix2.frameByName(frame_name))
         signal = Signal(frame.frame.signalByName(signal_name))
 
         message = can.Message(extended_id=frame.frame._extended,
@@ -551,7 +554,7 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
-    window = Window(matrix, txrx_model)
+    window = Window(matrix2, txrx_model)
 
     window.show()
     sys.exit(app.exec_())
