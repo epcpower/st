@@ -227,12 +227,7 @@ class MessageNode(TreeNode):
     def __init__(self, message, frame=None, parent=None):
         TreeNode.__init__(self, parent)
 
-        self.id = None
-        self.length = None
-        self.message = None
-        self.signal = None
-        self.value = None
-        self.dt = None
+        self.fields = TxRxColumns.none()
         self.last_time = None
 
         self.frame = frame
@@ -259,49 +254,48 @@ class MessageNode(TreeNode):
         else:
             format = format.format(3)
 
-        self.id = format.format(message.arbitration_id)
+        self.fields.id = format.format(message.arbitration_id)
 
         try:
-            self.message = self.frame._name
+            self.fields.message = self.frame._name
         except AttributeError:
-            self.message = '-'
+            self.fields.message = '-'
 
-        self.length = '{} B'.format(message.dlc)
-        self.signal = ''
-        self.value = ' '.join(['{:02X}'.format(byte) for byte in message.data])
+        self.fields.length = '{} B'.format(message.dlc)
+        self.fields.signal = ''
+        self.fields.value = ' '.join(['{:02X}'.format(byte) for byte in message.data])
         if self.last_time is None:
-            self.dt = '-'
+            self.fields.dt = '-'
         else:
-            self.dt = message.timestamp - self.last_time
-            self.dt = '{:.4f}'.format(self.dt)
+            self.fields.dt = '{:.4f}'.format(message.timestamp - self.last_time)
         self.last_time = message.timestamp
 
         for child in self.children:
             child.update()
 
     def unique(self):
-        return self.id
+        return self.fields.id
 
 
 class SignalNode(TreeNode):
     def __init__(self, signal, parent=None):
         TreeNode.__init__(self, parent)
 
-        self.id = signal.getMsbReverseStartbit()
-        self.message = ''
         self.signal_object = signal
-        self.signal = signal._name
-        self.length = '{} b'.format(signal._signalsize)
-        self.value = '-'
-        self.dt = None
+        self.fields = TxRxColumns(id=signal.getMsbReverseStartbit(),
+                                  message='',
+                                  signal=signal._name,
+                                  length='{} b'.format(signal._signalsize),
+                                  value='-',
+                                  dt=None)
         self.last_time = None
 
     def unique(self):
         # TODO: make it more unique
-        return str(self.id) + '__'
+        return str(self.fields.id) + '__'
 
     def update(self):
-        self.value = self.signal_object.signal.value
+        self.fields.value = self.signal_object.signal.value
 
 
 class TxRx(TreeNode, QtCanListener):
@@ -351,6 +345,39 @@ class TxRx(TreeNode, QtCanListener):
         return 'Indexes: \n' + '\n'.join([str(i) for i in self.children])
 
 
+class TxRxColumns:
+
+    def __init__(self, id, length, message, signal, value, dt):
+        self.id = id
+        self.length = length
+        self.message = message
+        self.signal = signal
+        self.value = value
+        self.dt = dt
+
+    def none():
+        return TxRxColumns(None, None, None, None, None, None)
+
+    def __len__(self):
+        return 6
+
+    def __getitem__(self, index):
+        if index == 0:
+            return self.id
+        if index == 1:
+            return self.length
+        if index == 2:
+            return self.message
+        if index == 3:
+            return self.signal
+        if index == 4:
+            return self.value
+        if index == 5:
+            return self.dt
+
+        raise IndexError('column index out of range')
+
+
 class TxRxModel(QAbstractItemModel):
     # TODO: seems like a lot of boilerplate which could be put in an abstract class
     #       (wrapping the abstract class?  hmmm)
@@ -359,13 +386,12 @@ class TxRxModel(QAbstractItemModel):
         QAbstractItemModel.__init__(self, parent)
 
         self.root = root
-        self.headers = ['ID', 'Length', 'Message', 'Signal', 'Value', 'dt']
-        # TODO: refactoring like below might make things quicker?
-        # headers = ['ID', 'Length', 'Message', 'Signal', 'Value', 'dt']
-        # self.headers = {}
-        # for i, header in enumerate(headers):
-        #     self.headers[header] = i
-        self.columns = len(self.headers)
+        self.headers = TxRxColumns(id='ID',
+                                   length='Length',
+                                   message='Message',
+                                   signal='Signal',
+                                   value='Value',
+                                   dt='dt')
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -398,32 +424,16 @@ class TxRxModel(QAbstractItemModel):
 
         node = self.node_from_index(index)
 
-        if index.column() == self.headers.index('ID'):
-            return QVariant(node.id)
-
-        elif index.column() == self.headers.index('Length'):
-            return QVariant(node.length)
-
-        elif index.column() == self.headers.index('Message'):
-            return QVariant(node.message)
-
-        elif index.column() == self.headers.index('Signal'):
-            return QVariant(node.signal)
-
-        elif index.column() == self.headers.index('Value'):
-            return QVariant(node.value)
-
-        elif index.column() == self.headers.index('dt'):
-            return QVariant(node.dt)
-
-        elif index.column() == len(self.headers):
+        if index.column() == len(self.headers):
             return QVariant(node.unique())
-
         else:
-            return QVariant()
+            try:
+                return QVariant(node.fields[index.column()])
+            except IndexError:
+                return QVariant()
 
     def columnCount(self, parent):
-        return self.columns
+        return len(self.headers)
 
     def rowCount(self, parent):
         node = self.node_from_index(parent)
