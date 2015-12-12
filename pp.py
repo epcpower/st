@@ -222,14 +222,13 @@ class TreeNode:
         return len(self.children)
 
 
-class MessageNode(TreeNode):
+class MessageNode(Frame, TreeNode):
     def __init__(self, message, frame=None, parent=None):
+        Frame.__init__(self, frame=frame, parent=parent)
         TreeNode.__init__(self, parent)
 
         self.fields = TxRxColumns.none()
         self.last_time = None
-
-        self.frame = frame
 
         try:
             for signal in self.frame._signals:
@@ -294,7 +293,7 @@ class SignalNode(Signal, TreeNode):
         return str(self.fields.id) + '__'
 
     def update(self):
-        self.fields.value = self.value
+        self.fields.value = str(self.value)
 
 
 class TxRx(TreeNode, QtCanListener):
@@ -331,7 +330,7 @@ class TxRx(TreeNode, QtCanListener):
             except AttributeError:
                 frame = None
 
-            message_node = MessageNode(msg, frame=frame)
+            message_node = frame.frame
             self.messages[id] = message_node
             self.append_child(message_node)
             self.added.emit(message_node)
@@ -508,9 +507,7 @@ if __name__ == '__main__':
     # TODO: the repetition here is not so pretty
     matrix = importany.importany(args.can)
     matrix2 = copy.deepcopy(matrix)
-    frames = [Frame(frame) for frame in matrix._fl._list]
-    for frame in frames:
-        [Signal(signal) for signal in frame.frame._signals]
+    frames = [MessageNode(can.Message(), frame=frame) for frame in matrix._fl._list]
     txrx = TxRx(matrix=matrix)
     txrx_model = TxRxModel(txrx)
 
