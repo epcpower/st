@@ -62,7 +62,14 @@
      </widget>
     </item>
     <item>
-     <widget class="QTreeView" name="txrx"/>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QTreeView" name="tx"/>
+      </item>
+      <item>
+       <widget class="QTreeView" name="rx"/>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>

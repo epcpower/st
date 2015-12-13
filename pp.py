@@ -23,12 +23,14 @@ from PyQt5.QtCore import (Qt, QObject, QAbstractItemModel, QVariant,
 class Signal(QObject):
     _my_signal = pyqtSignal(int)
 
-    def __init__(self, signal, connect=None, parent=None):
+    def __init__(self, signal, frame, connect=None, parent=None):
         signal.signal = self
         self.signal = signal
         # TODO: what about QObject parameters
         QObject.__init__(self, parent=parent)
         self.value = None
+
+        self.frame = frame
 
         if connect is not None:
             self.connect(connect)
@@ -55,12 +57,13 @@ class QtCanListener(QObject, can.Listener):
     def receiver(self, slot):
         self.message_received_signal.connect(slot)
 
-    # TODO: make a class inheriting from can.Listener to translate it to Qt signals
     def on_message_received(self, msg):
         self.message_received_signal.emit(copy.deepcopy(msg))
 
 
 class Frame(QtCanListener):
+    send = pyqtSignal(can.Message)
+
     def __init__(self, frame, parent=None):
         QtCanListener.__init__(self, self.message_received, parent=parent)
 
@@ -125,6 +128,21 @@ class Frame(QtCanListener):
 
     def pack(self, data):
         self.pad()
+
+        if data == self:
+            data = []
+            for signal in self.frame._signals:
+                try:
+                    value = signal.signal.value
+                except:
+                    value = 0
+
+                try:
+                    value = int(value)
+                except (TypeError, ValueError):
+                    value = 0
+                data.append(value)
+
         return bitstruct.pack(self.format(), *data)
 
     def unpack(self, data):
@@ -153,6 +171,17 @@ class Frame(QtCanListener):
                 except AttributeError:
                     pass
 
+    def update_from_signals(self):
+        # TODO: actually do this
+        self.data = self.pack(self)
+        # TODO: isn't this very MessageNode'y rather than Frame'y?
+        # TODO: quit repeating (98476589238759)
+        self.fields.value = ' '.join(['{:02X}'.format(byte) for byte in self.data])
+        self.send.emit(can.Message(extended_id=self.frame._extended,
+                                   arbitration_id=self.frame._Id,
+                                   dlc=self.frame._Size,
+                                   data=self.data))
+
     @pyqtSlot(can.Message)
     def message_received(self, msg):
         if msg.arbitration_id == self.frame._Id and msg.id_type == self.frame._extended:
@@ -162,13 +191,25 @@ class Frame(QtCanListener):
 import generated.pp_ui as ui
 from PyQt5 import QtCore, QtWidgets, QtGui
 class Window(QtWidgets.QMainWindow):
-    def __init__(self, matrix, txrx_model, parent=None):
+    def __init__(self, matrix, tx_model, rx_model, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
 
         self.ui = ui.Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.ui.txrx.setModel(txrx_model)
+        # TODO: CAMPy
+        self.ui.tx.setModel(tx_model)
+        self.ui.tx.header().setStretchLastSection(False)
+        for i in TxRxColumns.indexes:
+            self.ui.tx.header().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+        # TODO: would be nice to share between message and signal perhaps?
+        self.ui.tx.header().setSectionResizeMode(TxRxColumns.indexes.message, QtWidgets.QHeaderView.Stretch)
+        self.ui.rx.setModel(rx_model)
+        self.ui.rx.header().setStretchLastSection(False)
+        for i in TxRxColumns.indexes:
+            self.ui.rx.header().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+        # TODO: would be nice to share between message and signal perhaps?
+        self.ui.rx.header().setSectionResizeMode(TxRxColumns.indexes.message, QtWidgets.QHeaderView.Stretch)
 
         children = self.findChildren(QtCore.QObject)
         targets = [c for c in children if
@@ -180,6 +221,8 @@ class Window(QtWidgets.QMainWindow):
 
             frame = matrix.frameByName(frame_name).frame
             signal = frame.frame.signalByName(signal_name).signal
+            # TODO: get the frame into the signal constructor where it's called now
+            # signal = Signal(frame.frame.signalByName(signal_name), frame)
 
             signal.connect(target.setValue)
             target.setMinimum(0)#signal._min)
@@ -187,8 +230,10 @@ class Window(QtWidgets.QMainWindow):
 
 
 class TreeNode:
-    def __init__(self,  parent=None):
+    def __init__(self,  tx=False, parent=None):
         self.last = None
+
+        self.tx = tx
 
         self.tree_parent = None
         self.set_parent(parent)
@@ -223,28 +268,49 @@ class TreeNode:
 
 
 class MessageNode(Frame, TreeNode):
-    def __init__(self, message, frame=None, parent=None):
+    def __init__(self, message, tx=False, frame=None, parent=None):
         Frame.__init__(self, frame=frame, parent=parent)
         TreeNode.__init__(self, parent)
 
         self.fields = TxRxColumns.none()
         self.last_time = None
 
+        self.tx = tx
+
         try:
             for signal in self.frame._signals:
-                self.append_child(SignalNode(signal))
-        except AttributeError:
+                self.append_child(SignalNode(signal, frame=self, tx=self.tx))
+        except KeyError:
             pass
 
-        self.extract_message(message)
+        # TODO: quit doing this frame->fields in two places (098098234709572943)
+        format = '0x{{:0{}X}}'
+        if frame._extended:
+            format = format.format(8)
+        else:
+            format = format.format(3)
+
+        self.fields = TxRxColumns(id=format.format(self.frame._Id),
+                                  message=self.frame._name,
+                                  signal='',
+                                  length='{} B'.format(self.frame._Size),
+                                  value='-',
+                                  dt=None)
+
+        if message is not None:
+            self.extract_message(message)
 
     def extract_message(self, message, verify=True):
+        # TODO: stop calling this from txrx and use the standard Frame reception
+
         if verify:
             # TODO: make sure the message matches the id/type and length
             pass
 
-        self.message = message
+        # TODO: I think this is not needed
+        # self.message = message
 
+        # TODO: quit doing this frame->fields in two places (098098234709572943)
         # TODO: should this formatting be done in the other place?
         format = '0x{{:0{}X}}'
         if message.id_type:
@@ -261,24 +327,32 @@ class MessageNode(Frame, TreeNode):
 
         self.fields.length = '{} B'.format(message.dlc)
         self.fields.signal = ''
+        # TODO: quit repeating (98476589238759)
         self.fields.value = ' '.join(['{:02X}'.format(byte) for byte in message.data])
+        if self.last_time == message.timestamp:
+            raise Exception('message already received')
         if self.last_time is None:
             self.fields.dt = '-'
         else:
             self.fields.dt = '{:.4f}'.format(message.timestamp - self.last_time)
         self.last_time = message.timestamp
 
+        Frame.message_received(self, message)
         for child in self.children:
             child.update()
 
     def unique(self):
         return self.fields.id
 
+    def set_data(self, data):
+        self.fields.value = data
+        self.update()
+        self.frame.update_from_signals()
 
 class SignalNode(Signal, TreeNode):
-    def __init__(self, signal, connect=None, tree_parent=None, parent=None):
-        Signal.__init__(self, signal=signal, connect=connect, parent=parent)
-        TreeNode.__init__(self, tree_parent)
+    def __init__(self, signal, frame, tx=False, connect=None, tree_parent=None, parent=None):
+        Signal.__init__(self, signal=signal, frame=frame, connect=connect, parent=parent)
+        TreeNode.__init__(self, tx=tx, parent=tree_parent)
 
         self.fields = TxRxColumns(id=self.signal.getMsbReverseStartbit(),
                                   message='',
@@ -293,7 +367,12 @@ class SignalNode(Signal, TreeNode):
         return str(self.fields.id) + '__'
 
     def update(self):
-        self.fields.value = str(self.value)
+        self.fields.value = self.value
+
+    def set_data(self, data):
+        self.value = data
+        self.update()
+        self.frame.update_from_signals()
 
 
 class TxRx(TreeNode, QtCanListener):
@@ -301,16 +380,45 @@ class TxRx(TreeNode, QtCanListener):
     changed = pyqtSignal(TreeNode, int)
     added = pyqtSignal(TreeNode)
 
-    def __init__(self, matrix=None, parent=None):
+    def __init__(self, tx, matrix=None, bus=None, parent=None):
         TreeNode.__init__(self)
-        QtCanListener.__init__(self, self.message_received, parent=parent)
+        QtCanListener.__init__(self, parent=parent)
 
+        self.bus = bus
+
+        self.tx = tx
+        self.rx = not self.tx
         self.matrix = matrix
         self.messages = {}
+
+        if self.rx:
+            self.message_received_signal.connect(self.message_received)
+
+        if self.tx:
+            for frame in self.matrix._fl._list:
+                message = can.Message()
+                message.arbitration_id = frame._Id
+                message.id_type = frame._extended
+                message.dlc = frame._Size
+                self.add_message(message, tx=True)
 
     def set_node_id(self, node_id):
         # TODO: I think this can go away
         self.node_id = node_id
+
+    def add_message(self, message=can.Message(), tx=False):
+        try:
+            frame = self.matrix.frameById(message.arbitration_id)
+        except AttributeError:
+            frame = None
+
+        id = (message.arbitration_id, message.id_type)
+
+        message_node = frame.frame
+        message_node.send.connect(self.send)
+        self.messages[id] = message_node
+        self.append_child(message_node)
+        self.added.emit(message_node)
 
     @pyqtSlot(can.Message)
     def message_received(self, msg):
@@ -320,31 +428,26 @@ class TxRx(TreeNode, QtCanListener):
             self.messages[id].extract_message(msg)
             # TODO: be more judicious in describing what changed
             #       and also don't change just column 5...
-            self.changed.emit(self.messages[id], 4)
-            self.changed.emit(self.messages[id], 5)
+            self.changed.emit(self.messages[id], TxRxColumns.indexes.value)
+            self.changed.emit(self.messages[id], TxRxColumns.indexes.dt)
             for signal in self.messages[id].children:
-                self.changed.emit(signal, 4)
+                self.changed.emit(signal, TxRxColumns.indexes.value)
         except KeyError:
-            try:
-                frame = self.matrix.frameById(msg.arbitration_id)
-            except AttributeError:
-                frame = None
-
-            message_node = frame.frame
-            self.messages[id] = message_node
-            self.append_child(message_node)
-            self.added.emit(message_node)
+            self.add_message(msg)
 
     def unique(self):
         # TODO: actually identify the object
         return '-'
+
+    @pyqtSlot(can.Message)
+    def send(self, message):
+        bus.send(message)
 
     def __str__(self):
         return 'Indexes: \n' + '\n'.join([str(i) for i in self.children])
 
 
 class TxRxColumns:
-
     def __init__(self, id, length, message, signal, value, dt):
         self.id = id
         self.length = length
@@ -360,20 +463,22 @@ class TxRxColumns:
         return 6
 
     def __getitem__(self, index):
-        if index == 0:
+        if index == TxRxColumns.indexes.id:
             return self.id
-        if index == 1:
+        if index == TxRxColumns.indexes.length:
             return self.length
-        if index == 2:
+        if index == TxRxColumns.indexes.message:
             return self.message
-        if index == 3:
+        if index == TxRxColumns.indexes.signal:
             return self.signal
-        if index == 4:
+        if index == TxRxColumns.indexes.value:
             return self.value
-        if index == 5:
+        if index == TxRxColumns.indexes.dt:
             return self.dt
 
         raise IndexError('column index out of range')
+
+TxRxColumns.indexes = TxRxColumns(0, 1, 2, 3, 4, 5)
 
 
 class TxRxModel(QAbstractItemModel):
@@ -395,6 +500,25 @@ class TxRxModel(QAbstractItemModel):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return QVariant(self.headers[section])
         return QVariant()
+
+    def flags(self, index):
+        flags = QAbstractItemModel.flags(self, index)
+
+        # TODO: only if Tx
+        if self.node_from_index(index).tx:
+            if index.column() == TxRxColumns.indexes.value:
+                flags |= Qt.ItemIsEditable
+
+        return flags
+
+    def setData(self, index, data, role=None):
+        if role == QtCore.Qt.EditRole:
+            node = self.node_from_index(index)
+            node.set_data(data)
+            self.dataChanged.emit(index, index)
+            return True
+
+        return False
 
     def index(self, row, column, parent):
         node = self.node_from_index(parent)
@@ -505,19 +629,29 @@ if __name__ == '__main__':
     bus = can.interface.Bus(**default)
 
     # TODO: the repetition here is not so pretty
-    matrix = importany.importany(args.can)
-    matrix2 = copy.deepcopy(matrix)
-    frames = [MessageNode(can.Message(), frame=frame) for frame in matrix._fl._list]
-    txrx = TxRx(matrix=matrix)
-    txrx_model = TxRxModel(txrx)
+    matrix_rx = importany.importany(args.can)
+    matrix_tx = copy.deepcopy(matrix_rx)
+    matrix_widgets = copy.deepcopy(matrix_rx)
 
-    frames2 = [Frame(frame) for frame in matrix2._fl._list]
-    for frame in frames2:
-        [Signal(signal) for signal in frame.frame._signals]
+    frames_rx = [MessageNode(message=None, frame=frame) for frame in matrix_rx._fl._list]
+    frames_tx = [MessageNode(message=None, frame=frame, tx=True) for frame in matrix_tx._fl._list]
 
-    txrx.changed.connect(txrx_model.changed)
-    txrx.added.connect(txrx_model.added)
-    notifier = can.Notifier(bus, frames + frames2 + [txrx])
+    frames_widgets = [Frame(frame) for frame in matrix_widgets._fl._list]
+    for frame in frames_widgets:
+        [Signal(signal, frame=frame) for signal in frame.frame._signals]
+
+    rx = TxRx(tx=False, matrix=matrix_rx)
+    rx_model = TxRxModel(rx)
+
+    rx.changed.connect(rx_model.changed)
+    rx.added.connect(rx_model.added)
+
+    tx = TxRx(tx=True, matrix=matrix_tx, bus=bus)
+    tx_model = TxRxModel(tx)
+
+    tx.changed.connect(tx_model.changed)
+    tx.added.connect(tx_model.added)
+    notifier = can.Notifier(bus, frames_widgets + [rx])
 
     if args.generate:
         print('generating')
@@ -525,8 +659,8 @@ if __name__ == '__main__':
 
         frame_name = 'MasterMeasuredPower'
         signal_name = 'ReactivePower_measured'
-        frame = Frame(matrix2.frameByName(frame_name))
-        signal = Signal(frame.frame.signalByName(signal_name))
+        frame = Frame(matrix_tx.frameByName(frame_name))
+        signal = Signal(frame.frame.signalByName(signal_name), frame)
 
         message = can.Message(extended_id=frame.frame._extended,
                               arbitration_id=frame.frame._Id,
@@ -551,7 +685,7 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
-    window = Window(matrix2, txrx_model)
+    window = Window(matrix_widgets, tx_model=tx_model, rx_model=rx_model)
 
     window.show()
     sys.exit(app.exec_())
