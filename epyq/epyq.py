@@ -188,7 +188,7 @@ class Frame(QtCanListener):
             self.unpack(msg.data)
 
 
-import generated.pp_ui as ui
+import generated.main_ui as ui
 from PyQt5 import QtCore, QtWidgets, QtGui
 class Window(QtWidgets.QMainWindow):
     def __init__(self, matrix, tx_model, rx_model, parent=None):
@@ -621,7 +621,7 @@ class TxRxModel(QAbstractItemModel):
         self.endResetModel()
 
 
-if __name__ == '__main__':
+def main():
     import argparse
     import sys
 
@@ -698,3 +698,6 @@ if __name__ == '__main__':
 
     window.show()
     sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    main()
