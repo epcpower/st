@@ -1,0 +1,309 @@
+# portado desde C++ a Python por Fabián Inostroza
+# para codigo y licencia original ver:
+# http://qt-apps.org/content/show.php/QScale?content=148053
+
+from PyQt4 import QtGui, QtCore
+import sys
+from math import pi, isinf, sqrt, asin, ceil, cos, sin
+
+class QScale(QtGui.QWidget):
+    def __init__(self,parent=None):
+        super(QScale,self).__init__(parent)
+        self.m_minimum = 0
+        self.m_maximum = 100
+        self.m_value = 0
+
+        self.m_labelsVisible = True
+        self.m_scaleVisible = True
+
+        self.m_borderWidth = 6
+        self.m_labelsFormat = 'g'
+        self.m_labelsPrecision = -1
+        self.m_majorStepSize = 0
+        self.m_minorStepCount = 0
+
+        self.m_invertedAppearance = False
+        self.m_orientations = QtCore.Qt.Horizontal | QtCore.Qt.Vertical
+
+        self.setBackgroundRole(QtGui.QPalette.Base)
+
+        self.labelSample = ""
+        self.updateLabelSample()
+        self.setMinimumSize(80,60)
+        self.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+
+    def setMinimum(self,max):
+        if not isinf(max):
+            self.m_maximum = max
+        self.updateLabelSample()
+        self.update()
+
+    def maximum(self):
+        return self.m_maximum
+
+    def setRange(self,min,max):
+        if not isinf(min):
+            self.m_minimum = min
+        if not isinf(max):
+            self.m_maximum = max
+        self.updateLabelSample()
+        self.update()
+
+    def setValue(self, val):
+        self.m_value = val
+        self.update()
+
+    def value(self):
+        return self.m_value
+
+    def setLabelsVisible(self, visible):
+        self.m_labelsVisible = visible
+        self.update()
+
+    def isLabelsVisible(self):
+        return self.m_labelsVisible
+
+    def setScaleVisible(self,visible):
+        self.m_scaleVisible = visible
+        self.update()
+
+    def isScaleVisible(self):
+        return self.m_scaleVisible
+
+    def setBorderWidth(self,width):
+        self.m_borderWidth = width if width > 0 else 0
+        self.update()
+
+    def borderWidth(self):
+        return self.m_borderWidth
+
+    def setLabelsFormat(self, fmt, precision):
+        self.m_labelsFormat = fmt
+        self.m_labelsPrecision = precision
+        self.updateLabelSample()
+        self.update()
+
+    def setMajorStepSize(self,stepsize):
+        self.m_majorStepSize = stepsize
+        self.update()
+
+    def majorStepSize(self):
+        return self.m_majorStepSize
+
+    def setMinorStepSize(self,stepcount):
+        self.m_minorStepCount = stepcount
+        self.update()
+
+    def minorStepCount(self):
+        return self.m_minorStepCount
+
+    def setInvertedAppearance(self,invert):
+        self.m_invertedAppearance = invert
+        self.update()
+
+    def invertedAppearance(self):
+        return self.m_invertedAppearance
+
+    # orientations es Qt::Orientations
+    def setOrientations(self,orientations):
+        self.m_orientations = orientations
+        self.update()
+
+    def orientations(self):
+        return self.m_orientations
+
+    def resizeEvent(self,re):
+        super(QScale,self).resizeEvent(re)
+
+    def paintEvent(self, paintEvent):
+        painter = QtGui.QPainter(self)
+
+        if (not (self.m_orientations & QtCore.Qt.Vertical)) ^ (not (self.m_orientations & QtCore.Qt.Horizontal)):
+            vertical = self.m_orientations & QtCore.Qt.Vertical
+        else:
+            vertical = self.height() > self.width()
+
+        wWidget = self.width()
+        hWidget = self.height()
+
+        painter.setRenderHint(QtGui.QPainter.Antialiasing,True)
+
+        boundingRect = painter.boundingRect(QtCore.QRectF(0,0,self.width(),self.height()),
+                                                 QtCore.Qt.AlignBottom | QtCore.Qt.AlignHCenter,self.labelSample)
+
+        wLabel = boundingRect.width() if self.m_labelsVisible else 0
+        hLabel = boundingRect.height() if self.m_labelsVisible else 0
+
+        if vertical:
+            QtCore.qSwap(wWidget,hWidget)
+            QtCore.qSwap(wLabel,hLabel)
+
+        wScale = wWidget - wLabel - 2.0*self.m_borderWidth
+
+        hScale = 0.5*hWidget - hLabel - self.m_borderWidth
+
+        radius = 0.125*wScale**2/hScale + 0.5*hScale
+
+        if radius < hScale + 0.5*hWidget - self.m_borderWidth:
+            radius = (4.0*(hLabel+self.m_borderWidth) + \
+                        sqrt(4.0*(hLabel+self.m_borderWidth)**2 + 3.0*wScale**2))/3.0 - \
+                        hLabel - 2.0*self.m_borderWidth
+            center = QtCore.QPointF(0.5*wWidget,hWidget-self.m_borderWidth)
+        else:
+            center = QtCore.QPointF(0.5*wWidget,radius+hLabel+self.m_borderWidth)
+
+        angleSpan = -360.0/pi*asin(wScale/(2.0*radius))
+        angleStart = 90.0 - 0.5*angleSpan
+
+        valueSpan = self.m_maximum - self.m_minimum
+        majorStep = abs(valueSpan)*self.max(wLabel,1.5*boundingRect.height())/wScale
+        order = 0
+
+        while majorStep < 1:
+            majorStep *= 10
+            order -= 1
+
+        while majorStep >= 10:
+            majorStep /= 10
+            order += 1
+
+        if majorStep > 5:
+            majorStep = 10*10**order
+            minorSteps = 5
+        elif majorStep > 2:
+            majorStep = 5*10**order
+            minorSteps = 5
+        else:
+            majorStep = 2*10**order
+            minorSteps = 4
+
+        if self.m_majorStepSize > 0:
+            majorStep = self.m_majorStepSize
+        if self.m_minorStepCount > 0:
+            minorSteps = self.m_minorStepCount
+
+        painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Text),1))
+        if self.m_scaleVisible and majorStep != 0:
+            if vertical:
+                painter.rotate(90)
+                painter.translate(0,-hWidget+wLabel/4.0)
+
+            painter.translate(center)
+
+            painter.rotate(self.m_minimum%(float(majorStep)/float(minorSteps))/float(valueSpan)*angleSpan-angleStart)
+
+            offsetCount = (minorSteps-ceil(self.m_minimum%majorStep)/float(majorStep)*minorSteps)%minorSteps
+
+            scaleWidth = self.min(self.min(0.25*(hWidget-self.m_borderWidth),0.25*radius),2.5*boundingRect.height())
+
+            for i in range(0,minorSteps*valueSpan/majorStep+1):
+                if i%minorSteps == offsetCount:
+                    painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,radius,0))
+                else:
+                    painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,
+                                                   radius-scaleWidth*0.4,0))
+
+                painter.rotate(majorStep*angleSpan/(-valueSpan*minorSteps))
+
+            painter.resetMatrix()
+
+
+        # draw labels
+        if self.m_labelsVisible and majorStep != 0:
+            x= range(int(ceil(self.m_minimum/majorStep)), int(self.m_maximum/majorStep)+1)
+            for i in x:
+                u = pi/180.0*((majorStep*i-self.m_minimum)/float(valueSpan)*angleSpan+angleStart)
+                position = QtCore.QRect()
+                if vertical:
+                    align = QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter
+                    position = QtCore.QRect(self.width()-center.y()+radius*sin(u),0,
+                                            self.width(),self.height()+2*radius*cos(u))
+                else:
+                    align = QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom
+                    position = QtCore.QRect(0,0,2.0*(center.x()+radius*cos(u)),
+                                            center.y()-radius*sin(u))
+
+                painter.resetMatrix()
+                painter.drawText(position, align,
+                                      QtCore.QString.number(float(i*majorStep),
+                                        self.m_labelsFormat,self.m_labelsPrecision))
+
+        #draw neddle
+        if vertical:
+            painter.rotate(90)
+            painter.translate(0,-hWidget+wLabel/4.0)
+
+        painter.translate(center)
+        # ok
+        painter.rotate((self.m_minimum-self.m_value)/float(valueSpan)*angleSpan-angleStart)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setBrush(self.palette().color(QtGui.QPalette.Text))
+        self.polygon = QtGui.QPolygon()
+        # en python no se necesita el primer parametro (numero de puntos)
+        self.polygon.setPoints(0,-2,int(radius)-10,-2,int(radius),0,
+                          int(radius)-10,2,0,2)
+        #points = [0,-2,int(radius)-10,-2,int(radius),0,int(radius)-10,2,0,2]
+        #self.polygon.setPoints(points)
+        painter.drawConvexPolygon(self.polygon)
+        painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Base),2))
+        painter.drawLine(0,0,radius-15,0)
+        painter.resetMatrix()
+
+        #draw cover
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setBrush(self.palette().color(QtGui.QPalette.Mid))
+
+        if vertical:
+            painter.drawRect(QtCore.QRect(0,0,self.m_borderWidth,self.height()))
+            center = QtCore.QPoint(self.width()-center.y()-wLabel/4.0,0.5*self.height())
+            u = 0.25*(hWidget-wLabel)-center.x()-self.m_borderWidth
+        else:
+            pass
+            painter.drawRect(QtCore.QRect(0,hWidget,wWidget, -self.m_borderWidth))
+            u = center.y() - self.m_borderWidth - 0.75*hWidget
+
+        u = self.max(u,0.25*radius)
+        painter.drawEllipse(center,u,u)
+
+    def updateLabelSample(self):
+        margin = self.max(abs(self.m_minimum),abs(self.m_maximum))
+        if self.min(self.m_minimum,self.m_maximum) < 0:
+            wildcard = float(-8)
+        else:
+            wildcard = float(8)
+
+        while margin < 1:
+            margin *= 10
+            wildcard /= 10
+
+        while margin >= 10:
+            margin /= 10
+            wildcard *= 10
+
+        self.labelSample = QtCore.QString.number(wildcard,self.m_labelsFormat,self.m_labelsPrecision)
+
+    def max(self,val1,val2):
+        return val1 if val1 > val2 else val2
+
+    def min(self,val1,val2):
+        return val1 if val1 < val2 else val2
+
+if __name__ == '__main__':
+    global j
+    j = 100
+    def update():
+        global j
+        if j==0:
+            j=100
+        else:
+            j -= 1
+        scale.setValue(j)
+
+    app = QtGui.QApplication(sys.argv)
+    scale = QScale()
+    timer = QtCore.QTimer()
+    timer.setInterval(100)
+    timer.timeout.connect(update)
+    timer.start()
+    scale.show()
+    sys.exit(app.exec_())
