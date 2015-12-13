@@ -194,6 +194,7 @@ class Window(QtWidgets.QMainWindow):
     def __init__(self, matrix, tx_model, rx_model, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
 
+        # TODO: consider PyQt5.uic.loadUi()
         self.ui = ui.Ui_MainWindow()
         self.ui.setupUi(self)
 
@@ -211,6 +212,15 @@ class Window(QtWidgets.QMainWindow):
         # TODO: would be nice to share between message and signal perhaps?
         self.ui.rx.header().setSectionResizeMode(TxRxColumns.indexes.message, QtWidgets.QHeaderView.Stretch)
 
+        import qscale
+        qs = qscale.QScale()
+        self.ui.horizontalLayout.addWidget(qs)
+        qs.setOrientations(Qt.Vertical)
+        frame_name = 'MasterMeasuredPower'
+        signal_name = 'ReactivePower_measured'
+        qs.setProperty('frame', frame_name)
+        qs.setProperty('signal', signal_name)
+
         children = self.findChildren(QtCore.QObject)
         targets = [c for c in children if
                    c.property('frame') and c.property('signal')]
@@ -225,8 +235,7 @@ class Window(QtWidgets.QMainWindow):
             # signal = Signal(frame.frame.signalByName(signal_name), frame)
 
             signal.connect(target.setValue)
-            target.setMinimum(0)#signal._min)
-            target.setMaximum(100)#signal._max)
+            target.setRange(0, 100)#signal._min, signal._max)
 
 
 class TreeNode:

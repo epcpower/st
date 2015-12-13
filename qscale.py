@@ -2,13 +2,15 @@
 # para codigo y licencia original ver:
 # http://qt-apps.org/content/show.php/QScale?content=148053
 
-from PyQt4 import QtGui, QtCore
-import sys
-from math import pi, isinf, sqrt, asin, ceil, cos, sin
+# Based on http://pastebin.com/kzp7f7DS
 
-class QScale(QtGui.QWidget):
+from PyQt5 import QtCore, QtGui, QtWidgets
+import sys
+from math import pi, isinf, sqrt, asin, ceil, cos, sin, floor
+
+class QScale(QtWidgets.QWidget):
     def __init__(self,parent=None):
-        super(QScale,self).__init__(parent)
+        QtWidgets.QWidget.__init__(self, parent=parent)
         self.m_minimum = 0
         self.m_maximum = 100
         self.m_value = 0
@@ -30,7 +32,7 @@ class QScale(QtGui.QWidget):
         self.labelSample = ""
         self.updateLabelSample()
         self.setMinimumSize(80,60)
-        self.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Expanding)
 
     def setMinimum(self,max):
         if not isinf(max):
@@ -135,8 +137,8 @@ class QScale(QtGui.QWidget):
         hLabel = boundingRect.height() if self.m_labelsVisible else 0
 
         if vertical:
-            QtCore.qSwap(wWidget,hWidget)
-            QtCore.qSwap(wLabel,hLabel)
+            wWidget, hWidget = hWidget, wWidget
+            wLabel, hLabel = hLabel, wLabel
 
         wScale = wWidget - wLabel - 2.0*self.m_borderWidth
 
@@ -196,7 +198,7 @@ class QScale(QtGui.QWidget):
 
             scaleWidth = self.min(self.min(0.25*(hWidget-self.m_borderWidth),0.25*radius),2.5*boundingRect.height())
 
-            for i in range(0,minorSteps*valueSpan/majorStep+1):
+            for i in range(0, floor(minorSteps*valueSpan/majorStep)+1):
                 if i%minorSteps == offsetCount:
                     painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,radius,0))
                 else:
@@ -205,7 +207,7 @@ class QScale(QtGui.QWidget):
 
                 painter.rotate(majorStep*angleSpan/(-valueSpan*minorSteps))
 
-            painter.resetMatrix()
+            painter.resetTransform()
 
 
         # draw labels
@@ -223,10 +225,9 @@ class QScale(QtGui.QWidget):
                     position = QtCore.QRect(0,0,2.0*(center.x()+radius*cos(u)),
                                             center.y()-radius*sin(u))
 
-                painter.resetMatrix()
-                painter.drawText(position, align,
-                                      QtCore.QString.number(float(i*majorStep),
-                                        self.m_labelsFormat,self.m_labelsPrecision))
+                painter.resetTransform()
+                # TODO: add usage of m_labelsFormat and m_labelsPrecision
+                painter.drawText(position, align, '{}'.format(i*majorStep))
 
         #draw neddle
         if vertical:
@@ -247,7 +248,7 @@ class QScale(QtGui.QWidget):
         painter.drawConvexPolygon(self.polygon)
         painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Base),2))
         painter.drawLine(0,0,radius-15,0)
-        painter.resetMatrix()
+        painter.resetTransform()
 
         #draw cover
         painter.setPen(QtCore.Qt.NoPen)
@@ -280,13 +281,71 @@ class QScale(QtGui.QWidget):
             margin /= 10
             wildcard *= 10
 
-        self.labelSample = QtCore.QString.number(wildcard,self.m_labelsFormat,self.m_labelsPrecision)
+        # self.labelSample = QtCore.QString.number(wildcard, self.m_labelsFormat, self.m_labelsPrecision)
+        # TODO: add usage of m_labelsFormat and m_labelsPrecision
+        self.labelSample = '{}'.format(wildcard)
 
     def max(self,val1,val2):
         return val1 if val1 > val2 else val2
 
     def min(self,val1,val2):
         return val1 if val1 < val2 else val2
+
+from PyQt5 import QtDesigner
+class QScalePlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
+    # https://wiki.python.org/moin/PyQt/Using_Python_Custom_Widgets_in_Qt_Designer
+
+    def __init__(self, parent=None):
+        QtDesigner.QPyDesignerCustomWidgetPlugin.__init__(self)
+
+        self.initialized = False
+
+    def initialize(self, core):
+        if self.initialized:
+            return
+
+        self.initialized = True
+
+    def isInitialized(self):
+        return self.initialized
+
+    def createWidget(self, parent):
+        return QScalePlugin(parent)
+
+    def name(self):
+        return "QScale"
+
+    def group(self):
+        return "Custom"
+
+    # def icon(self):
+    #     return QtGui.QIcon(_logo_pixmap)
+
+    def toolTip(self):
+        return "QScale widget tool tip"
+
+    def whatsThis(self):
+        return "QScale widget what's this"
+
+    def isContainer(self):
+        return False
+
+    # def domXml(self):
+    #     return (
+    #            '<widget class="PyAnalogClock" name=\"analogClock\">\n'
+    #            " <property name=\"toolTip\" >\n"
+    #            "  <string>The current time</string>\n"
+    #            " </property>\n"
+    #            " <property name=\"whatsThis\" >\n"
+    #            "  <string>The analog clock widget displays "
+    #            "the current time.</string>\n"
+    #            " </property>\n"
+    #            "</widget>\n"
+    #            )
+
+    def includeFile(self):
+        return "qscale"
+
 
 if __name__ == '__main__':
     global j
