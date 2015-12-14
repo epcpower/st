@@ -1,6 +1,7 @@
+from PyQt5 import QtDesigner
 import qscale
 
-from PyQt5 import QtDesigner
+
 class QScalePlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     # https://wiki.python.org/moin/PyQt/Using_Python_Custom_Widgets_in_Qt_Designer
 
@@ -52,4 +53,4 @@ class QScalePlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
                )
 
     def includeFile(self):
-        return "qscale"
+        return "epyq.qscale"

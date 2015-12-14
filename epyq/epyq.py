@@ -188,7 +188,7 @@ class Frame(QtCanListener):
             self.unpack(msg.data)
 
 
-import generated.main_ui as ui
+import epyq.generated.main_ui as ui
 from PyQt5 import QtCore, QtWidgets, QtGui
 class Window(QtWidgets.QMainWindow):
     def __init__(self, matrix, tx_model, rx_model, parent=None):
