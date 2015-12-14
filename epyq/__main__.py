@@ -188,15 +188,14 @@ class Frame(QtCanListener):
             self.unpack(msg.data)
 
 
-import epyq.generated.main_ui as ui
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui, uic
+import os
 class Window(QtWidgets.QMainWindow):
     def __init__(self, matrix, tx_model, rx_model, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
 
-        # TODO: consider PyQt5.uic.loadUi()
-        self.ui = ui.Ui_MainWindow()
-        self.ui.setupUi(self)
+        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'main.ui')
+        self.ui = uic.loadUi(ui_file, self)
 
         # TODO: CAMPy
         self.ui.tx.setModel(tx_model)
