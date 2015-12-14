@@ -212,15 +212,6 @@ class Window(QtWidgets.QMainWindow):
         # TODO: would be nice to share between message and signal perhaps?
         self.ui.rx.header().setSectionResizeMode(TxRxColumns.indexes.message, QtWidgets.QHeaderView.Stretch)
 
-        import qscale
-        qs = qscale.QScale()
-        self.ui.horizontalLayout.addWidget(qs)
-        qs.setOrientations(Qt.Vertical)
-        frame_name = 'MasterMeasuredPower'
-        signal_name = 'ReactivePower_measured'
-        qs.setProperty('frame', frame_name)
-        qs.setProperty('signal', signal_name)
-
         children = self.findChildren(QtCore.QObject)
         targets = [c for c in children if
                    c.property('frame') and c.property('signal')]
