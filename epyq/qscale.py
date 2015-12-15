@@ -184,6 +184,33 @@ class QScale(QtWidgets.QWidget):
         if self.m_minorStepCount > 0:
             minorSteps = self.m_minorStepCount
 
+        scaleWidth = self.min(self.min(0.25*(hWidget-self.m_borderWidth),0.25*radius),2.5*boundingRect.height())
+
+        if vertical:
+            painter.rotate(90)
+            painter.translate(0,-hWidget+wLabel/4.0)
+
+        painter.setPen(QtCore.Qt.darkGreen)
+        painter.setBrush(QtCore.Qt.darkGreen)
+        qpp = QtGui.QPainterPath()
+        r = radius - 0.8 * scaleWidth
+        d = 2 * r
+        x = center.x() - r
+        y = center.y() - r
+        qpp.arcMoveTo(x, y, d, d, angleStart)
+        qpp.arcTo(x, y, d, d, angleStart, angleSpan)
+        outer = QtGui.QPainterPath()
+        r = radius - 0.6 * scaleWidth
+        d = 2 * r
+        x = center.x() - r
+        y = center.y() - r
+        outer.arcMoveTo(x, y, d, d, angleStart+angleSpan)
+        outer.arcTo(x, y, d, d, angleStart+angleSpan, -angleSpan)
+        qpp.connectPath(outer)
+        qpp.closeSubpath()
+        painter.drawPath(qpp)
+        painter.resetTransform()
+
         painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Text),1))
         if self.m_scaleVisible and majorStep != 0:
             if vertical:
@@ -195,8 +222,6 @@ class QScale(QtWidgets.QWidget):
             painter.rotate(self.m_minimum%(float(majorStep)/float(minorSteps))/float(valueSpan)*angleSpan-angleStart)
 
             offsetCount = (minorSteps-ceil(self.m_minimum%majorStep)/float(majorStep)*minorSteps)%minorSteps
-
-            scaleWidth = self.min(self.min(0.25*(hWidget-self.m_borderWidth),0.25*radius),2.5*boundingRect.height())
 
             for i in range(0, floor(minorSteps*valueSpan/majorStep)+1):
                 if i%minorSteps == offsetCount:
