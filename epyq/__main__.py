@@ -155,19 +155,17 @@ class Frame(QtCanListener):
             # TODO: endianness for bigger signals
             # bits required 2**math.ceil(math.log2(x))
             unpacked = bitstruct.unpack(self.format(), data)
-            l = []
             for s, v in zip(self.frame._signals, unpacked):
                 try:
-                    value = '{} ({})'.format(s._values[v], v)
+                    value = '{} ({})'.format(s._values[str(v)], v)
                 except KeyError:
-                    value = v
-                string = '  {}: {}'.format(s._name, value)
+                    value = str(v)
                 if s._unit is not None:
                     if len(s._unit) > 0:
-                        string += ' [{}]'.format(s._unit)
-                l.append(string)
+                        units = ' [{}]'.format(s._unit)
+                        value += units
                 try:
-                    s.signal.set_value(v)
+                    s.signal.set_value(value)
                 except AttributeError:
                     pass
 
