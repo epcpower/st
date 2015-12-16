@@ -206,7 +206,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.tx.header().setSectionResizeMode(TxRxColumns.indexes.message, QtWidgets.QHeaderView.Stretch)
         self.ui.rx.setModel(rx_model)
         self.ui.rx.header().setStretchLastSection(False)
-        for i in TxRxColumns.indexes:
+        do_not_resize = [TxRxColumns.indexes.value, TxRxColumns.indexes.dt]
+        for i in [i for i in TxRxColumns.indexes if i not in do_not_resize]:
             self.ui.rx.header().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
         # TODO: would be nice to share between message and signal perhaps?
         self.ui.rx.header().setSectionResizeMode(TxRxColumns.indexes.message, QtWidgets.QHeaderView.Stretch)
