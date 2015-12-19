@@ -440,7 +440,7 @@ class TxRx(TreeNode, QtCanListener):
 
     @pyqtSlot(can.Message)
     def send(self, message):
-        bus.send(message)
+        self.bus.send(message)
 
     def __str__(self):
         return 'Indexes: \n' + '\n'.join([str(i) for i in self.children])
