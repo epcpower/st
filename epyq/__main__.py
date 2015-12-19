@@ -157,15 +157,7 @@ class Frame(QtCanListener):
             unpacked = bitstruct.unpack(self.format(), data)
             for s, v in zip(self.frame._signals, unpacked):
                 try:
-                    value = '{} ({})'.format(s._values[str(v)], v)
-                except KeyError:
-                    value = str(v)
-                if s._unit is not None:
-                    if len(s._unit) > 0:
-                        units = ' [{}]'.format(s._unit)
-                        value += units
-                try:
-                    s.signal.set_value(value)
+                    s.signal.set_value(v)
                 except AttributeError:
                     pass
 
@@ -336,8 +328,6 @@ class MessageNode(Frame, TreeNode):
         self.last_time = message.timestamp
 
         Frame.message_received(self, message)
-        for child in self.children:
-            child.update()
 
     def unique(self):
         return self.fields.id
@@ -364,12 +354,23 @@ class SignalNode(Signal, TreeNode):
         # TODO: make it more unique
         return str(self.fields.id) + '__'
 
-    def update(self):
-        self.fields.value = self.value
+    def set_value(self, value):
+        Signal.set_value(self, value)
+        s = self.signal
+        v = str(self.value)
+        try:
+            value = '{} ({})'.format(s._values[str(v)], v)
+        except KeyError:
+            value = v
+
+        if s._unit is not None:
+            if len(s._unit) > 0:
+                value += ' [{}]'.format(s._unit)
+        self.fields.value = value
 
     def set_data(self, data):
         self.value = data
-        self.update()
+        self.fields.value = data
         self.frame.update_from_signals()
 
 
