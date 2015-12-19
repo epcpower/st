@@ -592,15 +592,20 @@ class TxRxModel(QAbstractItemModel):
 
     def index_from_node(self, node):
         # TODO  make up another role for identification?
-        return self.match(self.index(0, len(self.headers), QModelIndex()),
-                          Qt.DisplayRole,
-                          node.unique(),
-                          1,
-                          Qt.MatchRecursive)
+        try:
+            return node.index
+        except AttributeError:
+            node.index = self.match(self.index(0, len(self.headers), QModelIndex()),
+                                    Qt.DisplayRole,
+                                    node.unique(),
+                                    1,
+                                    Qt.MatchRecursive)[0]
+
+        return node.index
 
     @pyqtSlot(TreeNode, int)
     def changed(self, node, column):
-        index = self.index_from_node(node)[0]
+        index = self.index_from_node(node)
         index = self.index(index.row(), column, index.parent())
         self.dataChanged.emit(index, index)
 
