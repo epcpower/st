@@ -376,7 +376,7 @@ class SignalNode(Signal, TreeNode):
 
 class TxRx(TreeNode, QtCanListener):
     # TODO: just Rx?
-    changed = pyqtSignal(TreeNode, int)
+    changed = pyqtSignal(TreeNode, int, TreeNode, int)
     added = pyqtSignal(TreeNode)
 
     def __init__(self, tx, matrix=None, bus=None, parent=None):
@@ -427,10 +427,10 @@ class TxRx(TreeNode, QtCanListener):
             self.messages[id].extract_message(msg)
             # TODO: be more judicious in describing what changed
             #       and also don't change just column 5...
-            self.changed.emit(self.messages[id], TxRxColumns.indexes.value)
-            self.changed.emit(self.messages[id], TxRxColumns.indexes.dt)
-            for signal in self.messages[id].children:
-                self.changed.emit(signal, TxRxColumns.indexes.value)
+            self.changed.emit(self.messages[id], TxRxColumns.indexes.value,
+                              self.messages[id], TxRxColumns.indexes.dt)
+            self.changed.emit(self.messages[id].children[0], TxRxColumns.indexes.value,
+                              self.messages[id].children[-1], TxRxColumns.indexes.value)
         except KeyError:
             self.add_message(msg)
 
@@ -603,11 +603,16 @@ class TxRxModel(QAbstractItemModel):
 
         return node.index
 
-    @pyqtSlot(TreeNode, int)
-    def changed(self, node, column):
-        index = self.index_from_node(node)
-        index = self.index(index.row(), column, index.parent())
-        self.dataChanged.emit(index, index)
+    @pyqtSlot(TreeNode, int, TreeNode, int)
+    def changed(self, start_node, start_column, end_node, end_column):
+        start_index = self.index_from_node(start_node)
+        start_index = self.index(start_index.row(), start_column, start_index.parent())
+        if end_node is not start_node:
+            end_index = self.index_from_node(end_node)
+            end_index = self.index(end_index.row(), end_column, end_index.parent())
+        else:
+            end_index = start_index
+        self.dataChanged.emit(start_index, end_index)
 
     @pyqtSlot(TreeNode)
     def added(self, message):
