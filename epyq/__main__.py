@@ -58,7 +58,16 @@ class QtCanListener(QObject, can.Listener):
         self.message_received_signal.connect(slot)
 
     def on_message_received(self, msg):
-        self.message_received_signal.emit(copy.deepcopy(msg))
+        # TODO: Be careful since this is no longer being deep copied.
+        #       It seems safe based on looking at the socketcan and
+        #       pcan bus objects that construct a new Message() for
+        #       each one received.  The Notifier loop just forgets
+        #       about the message as soon as it is sent here.
+        #
+        #       This optimization is being justified by the 25% drop
+        #       in CPU usage.
+
+        self.message_received_signal.emit(msg)
 
 
 class Frame(QtCanListener):
