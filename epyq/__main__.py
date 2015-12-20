@@ -621,14 +621,16 @@ class TxRxModel(QAbstractItemModel):
         self.endResetModel()
 
 
-def main():
-    import argparse
+def main(args=None):
     import sys
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--can', default='../AFE_CAN_ID247_FACTORY.dbc')
-    parser.add_argument('--generate', '-g', action='store_true')
-    args = parser.parse_args()
+    if args is None:
+        import argparse
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--can', default='../AFE_CAN_ID247_FACTORY.dbc')
+        parser.add_argument('--generate', '-g', action='store_true')
+        args = parser.parse_args()
 
     # TODO: get this outta here
     default = {
@@ -697,7 +699,7 @@ def main():
     window = Window(matrix_widgets, tx_model=tx_model, rx_model=rx_model)
 
     window.show()
-    sys.exit(app.exec_())
+    return app.exec_()
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
