@@ -4,6 +4,7 @@
 
 # Based on http://pastebin.com/kzp7f7DS
 
+import itertools
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 from math import pi, isinf, sqrt, asin, ceil, cos, sin, floor
@@ -34,6 +35,10 @@ class QScale(QtWidgets.QWidget):
         self.setMinimumSize(80,60)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Expanding)
 
+        self.breakpoints = []
+        self.colors = []
+
+
     def setMinimum(self,max):
         if not isinf(max):
             self.m_maximum = max
@@ -50,6 +55,22 @@ class QScale(QtWidgets.QWidget):
             self.m_maximum = max
         self.updateLabelSample()
         self.update()
+
+    def setColorRanges(self, colors, breakpoints):
+        if len(colors) == 0:
+            # TODO: something better
+            raise Exception('no colors')
+
+        if not all(x < y for x, y in zip(breakpoints, breakpoints[1:])):
+            # TODO: something better
+            raise Exception('monotonicity')
+
+        if len(colors) - len(breakpoints) != 1:
+            # TODO: something better
+            raise Exception('bad set of color range lists')
+
+        self.breakpoints = breakpoints
+        self.colors = colors
 
     def setValue(self, val):
         self.m_value = val
@@ -190,26 +211,45 @@ class QScale(QtWidgets.QWidget):
             painter.rotate(90)
             painter.translate(0,-hWidget+wLabel/4.0)
 
-        painter.setPen(QtCore.Qt.darkGreen)
-        painter.setBrush(QtCore.Qt.darkGreen)
-        qpp = QtGui.QPainterPath()
-        r = radius - 0.8 * scaleWidth
-        d = 2 * r
-        x = center.x() - r
-        y = center.y() - r
-        qpp.arcMoveTo(x, y, d, d, angleStart)
-        qpp.arcTo(x, y, d, d, angleStart, angleSpan)
-        outer = QtGui.QPainterPath()
-        r = radius - 0.6 * scaleWidth
-        d = 2 * r
-        x = center.x() - r
-        y = center.y() - r
-        outer.arcMoveTo(x, y, d, d, angleStart+angleSpan)
-        outer.arcTo(x, y, d, d, angleStart+angleSpan, -angleSpan)
-        qpp.connectPath(outer)
-        qpp.closeSubpath()
-        painter.drawPath(qpp)
-        painter.resetTransform()
+        # draw color ranges
+        if len(self.colors) > 0:
+            valueSpan = self.m_maximum - self.m_minimum
+            rangeValueStart = self.m_minimum
+            for breakpoint, color in itertools.zip_longest(self.breakpoints, self.colors):
+                # Consider color for range [rangeValueStart, breakpoint]
+                if breakpoint is None or breakpoint > rangeValueStart:
+                    if rangeValueStart < self.m_maximum:
+                        rangeAngleStart = angleStart + angleSpan * rangeValueStart / valueSpan
+                        try:
+                            rangeAngleEnd = angleStart + angleSpan * breakpoint / valueSpan
+                        except TypeError:
+                            rangeAngleEnd = angleStart + angleSpan
+                        # max because of angles going counter clockwise...
+                        rangeAngleEnd = max(rangeAngleEnd, angleStart + angleSpan)
+                        rangeAngleSpan = rangeAngleEnd - rangeAngleStart
+
+                        painter.setPen(color)
+                        painter.setBrush(color)
+                        qpp = QtGui.QPainterPath()
+                        r = radius - 0.8 * scaleWidth
+                        d = 2 * r
+                        x = center.x() - r
+                        y = center.y() - r
+                        qpp.arcMoveTo(x, y, d, d, rangeAngleStart)
+                        qpp.arcTo(x, y, d, d, rangeAngleStart, rangeAngleSpan)
+                        outer = QtGui.QPainterPath()
+                        r = radius - 0.6 * scaleWidth
+                        d = 2 * r
+                        x = center.x() - r
+                        y = center.y() - r
+                        outer.arcMoveTo(x, y, d, d, rangeAngleStart+rangeAngleSpan)
+                        outer.arcTo(x, y, d, d, rangeAngleStart+rangeAngleSpan, -rangeAngleSpan)
+                        qpp.connectPath(outer)
+                        qpp.closeSubpath()
+                        painter.drawPath(qpp)
+                        painter.resetTransform()
+
+                        rangeValueStart = breakpoint
 
         painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Text),1))
         if self.m_scaleVisible and majorStep != 0:
