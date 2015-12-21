@@ -224,6 +224,14 @@ class Window(QtWidgets.QMainWindow):
             # TODO: get the frame into the signal constructor where it's called now
             # signal = Signal(frame.frame.signalByName(signal_name), frame)
 
+            breakpoints = [75, 90]
+            colors = [QtCore.Qt.darkGreen, QtCore.Qt.darkYellow, QtCore.Qt.darkRed]
+
+            try:
+                target.setColorRanges(colors, breakpoints)
+            except AttributeError:
+                pass
+
             signal.connect(target.setValue)
             target.setRange(0, 100)#signal._min, signal._max)
 
