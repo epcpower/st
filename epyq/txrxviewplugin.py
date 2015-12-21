@@ -1,8 +1,8 @@
 from PyQt5 import QtDesigner
-import epyq.qscale
+import epyq.txrxview
 
 
-class QScalePlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
+class TxRxViewPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     # https://wiki.python.org/moin/PyQt/Using_Python_Custom_Widgets_in_Qt_Designer
 
     def __init__(self, parent=None):
@@ -20,10 +20,10 @@ class QScalePlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return epyq.qscale.QScale(parent)
+        return epyq.txrxview.TxRxView(parent)
 
     def name(self):
-        return "QScale"
+        return "TxRxView"
 
     def group(self):
         return "Custom"
@@ -32,25 +32,25 @@ class QScalePlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     #     return QtGui.QIcon(_logo_pixmap)
 
     def toolTip(self):
-        return "QScale widget tool tip"
+        return "TxRxView widget tool tip"
 
     def whatsThis(self):
-        return "QScale widget what's this"
+        return "TxRxView widget what's this"
 
     def isContainer(self):
         return False
 
     def domXml(self):
         return (
-               '<widget class="QScale" name=\"scale\">\n'
+               '<widget class="TxRxView" name=\"txrxview\">\n'
                " <property name=\"toolTip\" >\n"
-               "  <string>analog simplicity</string>\n"
+               "  <string>canishness</string>\n"
                " </property>\n"
                " <property name=\"whatsThis\" >\n"
-               "  <string>A PyQScale</string>\n"
+               "  <string>A TxRxView</string>\n"
                " </property>\n"
                "</widget>\n"
                )
 
     def includeFile(self):
-        return "epyq.qscale"
+        return "epyq.txrxview"
