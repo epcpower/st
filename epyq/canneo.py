@@ -161,10 +161,22 @@ class Frame(QtCanListener):
         # TODO: isn't this very MessageNode'y rather than Frame'y?
         # TODO: quit repeating (98476589238759)
         self.fields.value = ' '.join(['{:02X}'.format(byte) for byte in self.data])
-        self.send.emit(can.Message(extended_id=self.frame._extended,
-                                   arbitration_id=self.frame._Id,
-                                   dlc=self.frame._Size,
-                                   data=self.data))
+        self._send()
+
+    @pyqtSlot()
+    def _send(self):
+        self.send.emit(self.to_message())
+
+    def to_message(self):
+        try:
+            data = self.data
+        except AttributeError:
+            data = [0] * self.frame._Size
+
+        return can.Message(extended_id=self.frame._extended,
+                           arbitration_id=self.frame._Id,
+                           dlc=self.frame._Size,
+                           data=data)
 
     @pyqtSlot(can.Message)
     def message_received(self, msg):

@@ -1,7 +1,8 @@
 import can
 import epyq.canneo
 from PyQt5.QtCore import (Qt, QAbstractItemModel, QVariant,
-                          QModelIndex, pyqtSignal, pyqtSlot)
+                          QModelIndex, pyqtSignal, pyqtSlot,
+                          QTimer)
 
 
 class TreeNode:
@@ -51,6 +52,9 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         self.last_time = None
 
         self.tx = tx
+        self._send_checked = False
+        self.timer = QTimer()
+        self.timer.timeout.connect(self._send)
 
         try:
             for signal in self.frame._signals:
@@ -74,6 +78,55 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
 
         if message is not None:
             self.extract_message(message)
+
+    @property
+    def send_checked(self):
+        return self._send_checked
+
+    @send_checked.setter
+    def send_checked(self, value):
+        old = self._send_checked
+
+        # TODO: move this validation to dt to check itself
+        if isinstance(self.dt, float):
+            self._send_checked = value
+        elif value == Qt.Unchecked:
+            self._send_checked = value
+        else:
+            # TODO: notify user why it's not accepted
+            raise ValueError('Unable to check send checkbox due to invalid dt')
+
+        if self._send_checked != old:
+            self.update_timer()
+
+    @property
+    def dt(self):
+        return self.fields.dt
+
+    @dt.setter
+    def dt(self, value):
+        old = self.fields.dt
+
+        if value == '':
+            self.fields.dt = value
+            self.send_checked = Qt.Unchecked
+        else:
+            # TODO: move this validation to dt to check itself
+            check_it = not isinstance(self.fields.dt, float)
+            self.fields.dt = float(value)
+            if check_it:
+                self.send_checked = Qt.Checked
+
+        if self.fields.dt != old:
+            self.update_timer()
+
+    def update_timer(self):
+        if self.send_checked == Qt.Unchecked:
+            self.timer.stop()
+        else:
+            self.timer.setInterval(int(self.dt * 1000))
+            if not self.timer.isActive():
+                self.timer.start()
 
     def extract_message(self, message, verify=True):
         # TODO: stop calling this from txrx and use the standard Frame reception
@@ -288,19 +341,39 @@ class TxRxModel(QAbstractItemModel):
     def flags(self, index):
         flags = QAbstractItemModel.flags(self, index)
 
-        # TODO: only if Tx
-        if self.node_from_index(index).tx:
+        node = self.node_from_index(index)
+        if node.tx:
             if index.column() == Columns.indexes.value:
                 flags |= Qt.ItemIsEditable
+            if index.column() == Columns.indexes.dt:
+                if isinstance(node, MessageNode):
+                    flags |= Qt.ItemIsEditable
+                    flags |= Qt.ItemIsUserCheckable
 
         return flags
 
     def setData(self, index, data, role=None):
-        if role == Qt.EditRole:
-            node = self.node_from_index(index)
-            node.set_data(data)
-            self.dataChanged.emit(index, index)
-            return True
+        if index.column() == Columns.indexes.value:
+            if role == Qt.EditRole:
+                node = self.node_from_index(index)
+                node.set_data(data)
+                self.dataChanged.emit(index, index)
+                return True
+
+        if index.column() == Columns.indexes.dt:
+            if role == Qt.EditRole:
+                node = self.node_from_index(index)
+                try:
+                    node.dt = data
+                except ValueError:
+                    return False
+
+                self.dataChanged.emit(index, index)
+                return True
+            if role == Qt.CheckStateRole:
+                node = self.node_from_index(index)
+                node.send_checked = data
+                return True
 
         return False
 
@@ -325,18 +398,39 @@ class TxRxModel(QAbstractItemModel):
         if role == Qt.TextAlignmentRole:
             return QVariant(int(Qt.AlignTop | Qt.AlignLeft))
 
-        if role != Qt.DisplayRole:
-            return QVariant()
+        if role == Qt.CheckStateRole:
+            if index.column() == Columns.indexes.dt:
+                if self.root.tx:
+                    node = self.node_from_index(index)
+                    try:
+                        return node.send_checked
+                    except AttributeError:
+                        return QVariant()
 
-        node = self.node_from_index(index)
+        if role == Qt.DisplayRole:
+            node = self.node_from_index(index)
 
-        if index.column() == len(self.headers):
-            return QVariant(node.unique())
-        else:
-            try:
-                return QVariant(node.fields[index.column()])
-            except IndexError:
-                return QVariant()
+            if index.column() == len(self.headers):
+                return QVariant(node.unique())
+            else:
+                try:
+                    return QVariant(node.fields[index.column()])
+                except IndexError:
+                    return QVariant()
+
+        if role == Qt.EditRole:
+            node = self.node_from_index(index)
+            value = node.fields[index.column()]
+
+            # TODO: totally dt specific
+            if isinstance(value, float):
+                string = str(value)
+            else:
+                string = ''
+
+            return QVariant(string)
+
+        return QVariant()
 
     def columnCount(self, parent):
         return len(self.headers)
