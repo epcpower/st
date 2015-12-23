@@ -41,8 +41,20 @@ class Window(QtWidgets.QMainWindow):
             # TODO: get the frame into the signal constructor where it's called now
             # signal = Signal(frame.frame.signalByName(signal_name), frame)
 
-            breakpoints = [75, 90]
-            colors = [QtCore.Qt.darkGreen, QtCore.Qt.darkYellow, QtCore.Qt.darkRed]
+            # TODO: clearly shouldn't be hardcoded
+            if frame_name == 'StatusControlVolts2':
+                if signal_name == 'n15V_Supply':
+                    breakpoints = [-17, -16, -14, -13]
+                    colors = [
+                        QtCore.Qt.darkRed,
+                        QtCore.Qt.darkYellow,
+                        QtCore.Qt.darkGreen,
+                        QtCore.Qt.darkYellow,
+                        QtCore.Qt.darkRed
+                    ]
+            else:
+                breakpoints = [75, 90]
+                colors = [QtCore.Qt.darkGreen, QtCore.Qt.darkYellow, QtCore.Qt.darkRed]
 
             try:
                 target.setColorRanges(colors, breakpoints)
@@ -50,7 +62,8 @@ class Window(QtWidgets.QMainWindow):
                 pass
 
             signal.connect(target.setValue)
-            target.setRange(0, 100)#signal._min, signal._max)
+            target.setRange(float(signal.signal._min),
+                            float(signal.signal._max))
 
 
 def main(args=None):

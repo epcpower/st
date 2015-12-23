@@ -30,12 +30,6 @@
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="frame" stdset="0">
-           <string>MasterMeasuredPower</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>ReactivePower_measured</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -46,6 +40,12 @@
           <property name="whatsThis">
            <string>A PyQScale</string>
           </property>
+          <property name="frame" stdset="0">
+           <string>StatusControlVolts2</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>n15V_Supply</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -55,12 +55,6 @@
           </property>
           <property name="whatsThis">
            <string>A PyQScale</string>
-          </property>
-          <property name="frame" stdset="0">
-           <string>MasterMeasuredPower</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>ReactivePower_measured</string>
           </property>
          </widget>
         </item>
@@ -96,7 +90,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1598</width>
+     <width>1000</width>
      <height>39</height>
     </rect>
    </property>

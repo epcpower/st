@@ -6,7 +6,8 @@ from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot)
 
 
 class Signal(QObject):
-    _my_signal = pyqtSignal(int)
+    # TODO: but some (progress bar, etc) require an int!
+    _my_signal = pyqtSignal(float)
 
     def __init__(self, signal, frame, connect=None, parent=None):
         signal.signal = self
