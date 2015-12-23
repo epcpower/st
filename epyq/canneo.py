@@ -53,7 +53,9 @@ class Signal(QObject):
                 if len(self.signal._unit) > 0:
                     self.full_string += ' [{}]'.format(self.signal._unit)
 
-        self._my_signal.emit(self.scaled_value)
+            value = self.scaled_value
+
+        self._my_signal.emit(value)
 
 
 class QtCanListener(QObject, can.Listener):
