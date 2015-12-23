@@ -220,9 +220,9 @@ class QScale(QtWidgets.QWidget):
                 # Consider color for range [rangeValueStart, breakpoint]
                 if breakpoint is None or breakpoint > rangeValueStart:
                     if rangeValueStart < self.m_maximum:
-                        rangeAngleStart = angleStart + angleSpan * rangeValueStart / valueSpan
+                        rangeAngleStart = angleStart + angleSpan * (rangeValueStart - self.m_minimum) / valueSpan
                         try:
-                            rangeAngleEnd = angleStart + angleSpan * breakpoint / valueSpan
+                            rangeAngleEnd = angleStart + angleSpan * (breakpoint - self.m_minimum) / valueSpan
                         except TypeError:
                             rangeAngleEnd = angleStart + angleSpan
                         # max because of angles going counter clockwise...
