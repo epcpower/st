@@ -194,17 +194,7 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
 
     def set_value(self, value):
         epyq.canneo.Signal.set_value(self, value)
-        s = self.signal
-        v = str(self.value)
-        try:
-            value = '{} ({})'.format(s._values[str(v)], v)
-        except KeyError:
-            value = v
-
-        if s._unit is not None:
-            if len(s._unit) > 0:
-                value += ' [{}]'.format(s._unit)
-        self.fields.value = value
+        self.fields.value = self.full_string
 
     def set_data(self, data):
         self.value = data

@@ -14,6 +14,8 @@ class Signal(QObject):
         # TODO: what about QObject parameters
         QObject.__init__(self, parent=parent)
         self.value = None
+        self.scaled_value = None
+        self.full_string = None
 
         self.frame = frame
 
@@ -26,6 +28,32 @@ class Signal(QObject):
     def set_value(self, value):
         value = copy.deepcopy(value)
         self.value = value
+
+        try:
+            enum_string = self.signal._values[str(value)]
+            self.full_string = '{} ({})'.format(enum_string, value)
+        except KeyError:
+            # TODO: and _offset...
+            factor = self.signal._factor.rstrip('0.')
+            decimal_point_index = factor.find('.')
+            if decimal_point_index >= 0:
+                decimal_places = len(factor) - decimal_point_index - 1
+            else:
+                decimal_places = 0
+
+            self.scaled_value = float(self.value) * float(factor)
+
+            f = '{{:.{}f}}'
+            f = f.format(decimal_places)
+            self.full_string = f.format(self.scaled_value)
+
+
+            if self.signal._unit is not None:
+                if len(self.signal._unit) > 0:
+                    self.full_string += ' [{}]'.format(self.signal._unit)
+
+            self.fields.value = value
+
         self._my_signal.emit(value)
 
 
