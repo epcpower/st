@@ -28,6 +28,10 @@ class Window(QtWidgets.QMainWindow):
         targets = [c for c in children if
                    c.property('frame') and c.property('signal')]
 
+        # TODO: make this accessible in Designer
+        self.ui.other_scale.setOrientations(QtCore.Qt.Vertical)
+        # self.ui.scale.setOrientations(QtCore.Qt.Horizontal)
+
         for target in targets:
             frame_name = target.property('frame')
             signal_name = target.property('signal')

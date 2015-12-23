@@ -213,6 +213,7 @@ class QScale(QtWidgets.QWidget):
 
         # draw color ranges
         if len(self.colors) > 0:
+            transform = painter.transform()
             valueSpan = self.m_maximum - self.m_minimum
             rangeValueStart = self.m_minimum
             for breakpoint, color in itertools.zip_longest(self.breakpoints, self.colors):
@@ -247,9 +248,11 @@ class QScale(QtWidgets.QWidget):
                         qpp.connectPath(outer)
                         qpp.closeSubpath()
                         painter.drawPath(qpp)
-                        painter.resetTransform()
+                        painter.setTransform(transform)
 
                         rangeValueStart = breakpoint
+
+        painter.resetTransform()
 
         painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Text),1))
         if self.m_scaleVisible and majorStep != 0:
