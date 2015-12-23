@@ -59,8 +59,14 @@ def main(args=None):
     if args is None:
         import argparse
 
+        can_file = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            '..',
+            'tests',
+            'AFE_CAN_ID247_FACTORY.sym')
+
         parser = argparse.ArgumentParser()
-        parser.add_argument('--can', default='../AFE_CAN_ID247_FACTORY.dbc')
+        parser.add_argument('--can', default=can_file)
         parser.add_argument('--generate', '-g', action='store_true')
         args = parser.parse_args()
 
