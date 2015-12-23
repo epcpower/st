@@ -206,6 +206,7 @@ class QScale(QtWidgets.QWidget):
             minorSteps = self.m_minorStepCount
 
         scaleWidth = self.min(self.min(0.25*(hWidget-self.m_borderWidth),0.25*radius),2.5*boundingRect.height())
+        minorScaleWidth = scaleWidth * 0.4
 
         if vertical:
             painter.rotate(90)
@@ -271,7 +272,7 @@ class QScale(QtWidgets.QWidget):
                     painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,radius,0))
                 else:
                     painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,
-                                                   radius-scaleWidth*0.4,0))
+                                                   radius-minorScaleWidth,0))
 
                 painter.rotate(majorStep*angleSpan/(-valueSpan*minorSteps))
 
@@ -332,6 +333,7 @@ class QScale(QtWidgets.QWidget):
             u = center.y() - self.m_borderWidth - 0.75*hWidget
 
         u = self.max(u,0.25*radius)
+        u = min(u, (radius-scaleWidth)-minorScaleWidth)
         painter.drawEllipse(center,u,u)
 
     def updateLabelSample(self):
