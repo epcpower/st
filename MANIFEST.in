@@ -1,0 +1,2 @@
+recursive-include epyq *.ui
+tests/AFE_CAN_ID247_FACTORY.sym

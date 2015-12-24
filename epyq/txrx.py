@@ -255,8 +255,8 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
             self.messages[id].extract_message(msg)
             # TODO: be more judicious in describing what changed
             #       and also don't change just column 5...
-            self.changed.emit(self.messages[id], Columns.indexes.value,
-                              self.messages[id], Columns.indexes.dt)
+            # self.changed.emit(self.messages[id], Columns.indexes.value,
+            #                   self.messages[id], Columns.indexes.dt)
             self.changed.emit(self.messages[id].children[0], Columns.indexes.value,
                               self.messages[id].children[-1], Columns.indexes.value)
         except KeyError:
@@ -481,6 +481,8 @@ class TxRxModel(QAbstractItemModel):
             end_index = self.index(end_index.row(), end_column, end_index.parent())
         else:
             end_index = start_index
+        # TODO: specify what roles have changed
+        #       http://doc.qt.io/qt-5/qabstractitemmodel.html#dataChanged
         self.dataChanged.emit(start_index, end_index)
 
     @pyqtSlot(TreeNode)
