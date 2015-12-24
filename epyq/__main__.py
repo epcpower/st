@@ -113,7 +113,7 @@ def main(args=None):
 
     tx.changed.connect(tx_model.changed)
     tx.added.connect(tx_model.added)
-    notifier = can.Notifier(bus, frames_widgets + [rx])
+    notifier = can.Notifier(bus, frames_widgets + [rx], timeout=0.1)
 
     if args.generate:
         print('generating')
