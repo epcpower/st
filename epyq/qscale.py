@@ -139,7 +139,6 @@ class QScale(QtWidgets.QWidget):
         super(QScale,self).resizeEvent(re)
 
     def paintEvent(self, paintEvent):
-        return
         painter = QtGui.QPainter(self)
 
         if (not (self.m_orientations & QtCore.Qt.Vertical)) ^ (not (self.m_orientations & QtCore.Qt.Horizontal)):

@@ -28,37 +28,34 @@ class Signal(QObject):
 
     def set_value(self, value):
         value = copy.deepcopy(value)
+        self.value = value
 
-        if self.value != value:
-            self.value = value
+        try:
+            enum_string = self.signal._values[str(value)]
+            self.full_string = '{} ({})'.format(enum_string, value)
+        except KeyError:
+            # TODO: and _offset...
+            factor = self.signal._factor.rstrip('0.')
+            decimal_point_index = factor.find('.')
+            if decimal_point_index >= 0:
+                decimal_places = len(factor) - decimal_point_index - 1
+            else:
+                decimal_places = 0
 
-            try:
-                enum_string = self.signal._values[str(value)]
-                self.full_string = '{} ({})'.format(enum_string, value)
-            except KeyError:
-                # TODO: and _offset...
-                factor = self.signal._factor.rstrip('0.')
-                decimal_point_index = factor.find('.')
-                if decimal_point_index >= 0:
-                    decimal_places = len(factor) - decimal_point_index - 1
-                else:
-                    decimal_places = 0
+            self.scaled_value = float(self.value) * float(factor)
 
-                self.scaled_value = float(self.value) * float(factor)
-
-                f = '{{:.{}f}}'
-                f = f.format(decimal_places)
-                self.full_string = f.format(self.scaled_value)
+            f = '{{:.{}f}}'
+            f = f.format(decimal_places)
+            self.full_string = f.format(self.scaled_value)
 
 
-                if self.signal._unit is not None:
-                    if len(self.signal._unit) > 0:
-                        self.full_string += ' [{}]'.format(self.signal._unit)
+            if self.signal._unit is not None:
+                if len(self.signal._unit) > 0:
+                    self.full_string += ' [{}]'.format(self.signal._unit)
 
-                value = self.scaled_value
+            value = self.scaled_value
 
-            # TODO: this would need to be sent even if unchanged in case of logging uses
-            self._my_signal.emit(value)
+        self._my_signal.emit(value)
 
 
 class QtCanListener(QObject, can.Listener):
@@ -95,61 +92,53 @@ class Frame(QtCanListener):
 
         frame.frame = self
         self.frame = frame
-        self.padded = False
 
     def unpad(self):
-        if self.padded:
-            # TODO: use a sentinel if not a totally different approach
-            self.frame._signals = [s for s in self.frame._signals
-                                   if s._name != '__padding__']
-
-            self.padded = False
+        self.frame._signals = [s for s in self.frame._signals
+                               if s._name != '__padding__']
 
     def pad(self):
-        # TODO: hazard here is if other things change and this doesn't get updated
-        if not self.padded:
-            # TODO: use getMsbStartbit() if intel/little endian
-            #       and search for all other uses
-            self.frame._signals.sort(key=lambda x: x.getMsbReverseStartbit())
-            Pad = lambda start_bit, length: canmatrix.Signal(name='__padding__',
-                                                             startbit=start_bit,
-                                                             signalsize=length,
-                                                             byteorder=0,
-                                                             valuetype=None,
-                                                             factor=None,
-                                                             offset=None,
-                                                             min=None,
-                                                             max=None,
-                                                             unit=None,
-                                                             reciever=None,
-                                                             multiplex=None)
-            # TODO: 1 or 0, which is the first bit per canmatrix?
-            bit = 0
-            # pad for unused bits
-            padded_signals = []
-            for signal in self.frame._signals:
-                startbit = signal.getMsbReverseStartbit()
-                if startbit < bit:
-                    raise Exception('too far ahead!')
-                padding = startbit - bit
-                if padding:
-                    pad = Pad(bit, padding)
-                    padded_signals.append(pad)
-                    bit += pad._signalsize
-                padded_signals.append(signal)
-                bit += signal._signalsize
-            # TODO: 1 or 0, which is the first bit per canmatrix?
-            padding = (self.frame._Size * 8) - bit
-            if padding < 0:
-                # TODO: fix the common issue so the exception can be used
-                # raise Exception('frame too long!')
-                print('Frame too long!  (but this is expected for now since the DBC seems wrong)')
-            elif padding > 0:
-                padded_signals.append(Pad(bit, padding))
+        self.unpad()
+        # TODO: use getMsbStartbit() if intel/little endian
+        #       and search for all other uses
+        self.frame._signals.sort(key=lambda x: x.getMsbReverseStartbit())
+        Pad = lambda start_bit, length: canmatrix.Signal(name='__padding__',
+                                                         startbit=start_bit,
+                                                         signalsize=length,
+                                                         byteorder=0,
+                                                         valuetype=None,
+                                                         factor=None,
+                                                         offset=None,
+                                                         min=None,
+                                                         max=None,
+                                                         unit=None,
+                                                         reciever=None,
+                                                         multiplex=None)
+        # TODO: 1 or 0, which is the first bit per canmatrix?
+        bit = 0
+        # pad for unused bits
+        padded_signals = []
+        for signal in self.frame._signals:
+            startbit = signal.getMsbReverseStartbit()
+            if startbit < bit:
+                raise Exception('too far ahead!')
+            padding = startbit - bit
+            if padding:
+                pad = Pad(bit, padding)
+                padded_signals.append(pad)
+                bit += pad._signalsize
+            padded_signals.append(signal)
+            bit += signal._signalsize
+        # TODO: 1 or 0, which is the first bit per canmatrix?
+        padding = (self.frame._Size * 8) - bit
+        if padding < 0:
+            # TODO: fix the common issue so the exception can be used
+            # raise Exception('frame too long!')
+            print('Frame too long!  (but this is expected for now since the DBC seems wrong)')
+        elif padding > 0:
+            padded_signals.append(Pad(bit, padding))
 
-            self.frame._signals = padded_signals
-
-            self.padded = True
+        self.frame._signals = padded_signals
 
     def format(self):
         # None is for handling padding

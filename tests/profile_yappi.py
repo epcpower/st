@@ -12,9 +12,8 @@ def gettid():
             return tid
 
 
-import epyq.__main__
-import os
 import yappi
+import epyq.__main__
 
 
 class Bunch:
@@ -26,12 +25,7 @@ class Bunch:
 
 def main():
     print('Main TID: {}'.format(gettid()))
-    can_file = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)),
-        '..',
-        'tests',
-        'AFE_CAN_ID247_FACTORY.sym')
-    args = Bunch(can=can_file, generate=False)
+    args = Bunch(can='/epc/AFE_CAN_ID247_FACTORY.sym', generate=False)
     yappi.start()
     exit_value = epyq.__main__.main(args=args)
     yappi.stop()
