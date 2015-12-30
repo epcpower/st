@@ -1,9 +1,3 @@
-# portado desde C++ a Python por Fabián Inostroza
-# para codigo y licencia original ver:
-# http://qt-apps.org/content/show.php/QScale?content=148053
-
-# Based on http://pastebin.com/kzp7f7DS
-
 import itertools
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
