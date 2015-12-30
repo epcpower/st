@@ -34,28 +34,41 @@ class Signal(QObject):
             enum_string = self.signal._values[str(value)]
             self.full_string = '{} ({})'.format(enum_string, value)
         except KeyError:
-            # TODO: and _offset...
-            factor = self.signal._factor.rstrip('0.')
-            decimal_point_index = factor.find('.')
-            if decimal_point_index >= 0:
-                decimal_places = len(factor) - decimal_point_index - 1
+            # TODO: this should be a subclass or something
+            if self.signal._name == '__padding__':
+                self.full_string = '__padding__'
             else:
-                decimal_places = 0
+                # TODO: and _offset...
+                factor = self.signal._factor.rstrip('0.')
+                decimal_point_index = factor.find('.')
+                if decimal_point_index >= 0:
+                    decimal_places = len(factor) - decimal_point_index - 1
+                else:
+                    decimal_places = 0
 
-            self.scaled_value = float(self.value) * float(factor)
+                self.scaled_value = float(self.value) * float(factor)
 
-            f = '{{:.{}f}}'
-            f = f.format(decimal_places)
-            self.full_string = f.format(self.scaled_value)
+                f = '{{self.scaled_value:.{decimal_places}f}}'
+                f = f.format(**locals())
+                self.full_string = f.format(**locals())
 
+                if self.signal._unit is not None:
+                    if len(self.signal._unit) > 0:
+                        self.full_string += ' [{}]'.format(self.signal._unit)
 
-            if self.signal._unit is not None:
-                if len(self.signal._unit) > 0:
-                    self.full_string += ' [{}]'.format(self.signal._unit)
-
-            value = self.scaled_value
+                value = self.scaled_value
 
         self._my_signal.emit(value)
+
+    def format(self):
+        # None is for handling padding
+        types = {None: 'u', '+': 'u', '-': 's'}
+        order = {None: '<', 0: '>', 1: '<'}
+
+        return '{}{}{}'.format(
+                order[self.signal._byteorder],
+                types[self.signal._valuetype],
+                self.signal._signalsize)
 
 
 class QtCanListener(QObject, can.Listener):
@@ -125,6 +138,7 @@ class Frame(QtCanListener):
             padding = startbit - bit
             if padding:
                 pad = Pad(bit, padding)
+                Signal(signal=pad, frame=self)
                 padded_signals.append(pad)
                 bit += pad._signalsize
             padded_signals.append(signal)
@@ -136,17 +150,14 @@ class Frame(QtCanListener):
             # raise Exception('frame too long!')
             print('Frame too long!  (but this is expected for now since the DBC seems wrong)')
         elif padding > 0:
-            padded_signals.append(Pad(bit, padding))
+            pad = Pad(bit, padding)
+            Signal(signal=pad, frame=self)
+            padded_signals.append(pad)
 
         self.frame._signals = padded_signals
 
     def format(self):
-        # None is for handling padding
-        types = {None: 'u', '+': 'u', '-': 's'}
-        order = {None: '<', 0: '>', 1: '<'}
-
-        fmt = ['{}{}{}'.format(order[s._byteorder], types[s._valuetype], s._signalsize)
-               for s in self.frame._signals]
+        fmt = [s.signal.format() for s in self.frame._signals]
         return ''.join(fmt)
 
     def pack(self, data):
@@ -207,7 +218,95 @@ class Frame(QtCanListener):
                            dlc=self.frame._Size,
                            data=data)
 
+        return None
+
     @pyqtSlot(can.Message)
     def message_received(self, msg):
-        if msg.arbitration_id == self.frame._Id and msg.id_type == self.frame._extended:
+        if (msg.arbitration_id == self.frame._Id and
+                bool(msg.id_type) == bool(self.frame._extended)):
             self.unpack(msg.data)
+
+
+def neotize(matrix, frame_class=Frame, signal_class=Signal, tx=False):
+    frames = []
+
+    for frame in matrix._fl._list:
+        multiplex_signal = None
+        for signal in frame._signals:
+            if signal._multiplex == 'Multiplexor':
+                multiplex_signal = signal
+                break
+
+        if multiplex_signal is None:
+            neo_frame = frame_class(message=None,
+                                    frame=frame,
+                                    tx=tx)
+            frames.append(neo_frame)
+        else:
+            # Make a frame with just the multiplexor entry for
+            # parsing messages later
+            # TODO: add __copy__() and __deepcopy__() to canmatrix
+            multiplex_frame = canmatrix.Frame(
+                    frame._Id,
+                    frame._name,
+                    frame._Size,
+                    frame._Transmitter)
+            multiplex_frame._extended = frame._extended
+            # TODO: add __copy__() and __deepcopy__() to canmatrix
+            matrix_signal = canmatrix.Signal(
+                    multiplex_signal._name,
+                    multiplex_signal._startbit,
+                    multiplex_signal._signalsize,
+                    multiplex_signal._byteorder,
+                    multiplex_signal._valuetype,
+                    multiplex_signal._factor,
+                    multiplex_signal._offset,
+                    multiplex_signal._min,
+                    multiplex_signal._max,
+                    multiplex_signal._unit,
+                    multiplex_signal._reciever,
+                    multiplex_signal._multiplex)
+            multiplex_frame.addSignal(matrix_signal)
+            neo_frame = frame_class(frame=multiplex_frame)
+            frames.append(neo_frame)
+            neo_signal = signal_class(signal=matrix_signal, frame=neo_frame)
+            # TODO: shouldn't this be part of the constructor maybe?
+            signal_class(signal=matrix_signal, frame=neo_frame)
+
+            frame.multiplex_frame = multiplex_frame
+            frame.multiplex_signal = multiplex_frame._signals[0]
+            frame.multiplex_frames = {}
+
+            for multiplex_value in multiplex_signal._values:
+                # For each multiplexed frame, make a frame with
+                # just those signals.
+                matrix_frame = canmatrix.Frame(
+                        frame._Id,
+                        frame._name,
+                        frame._Size,
+                        frame._Transmitter)
+                matrix_frame._extended = frame._extended
+                matrix_signal = canmatrix.Signal(
+                        multiplex_signal._name,
+                        multiplex_signal._startbit,
+                        multiplex_signal._signalsize,
+                        multiplex_signal._byteorder,
+                        multiplex_signal._valuetype,
+                        multiplex_signal._factor,
+                        multiplex_signal._offset,
+                        multiplex_signal._min,
+                        multiplex_signal._max,
+                        multiplex_signal._unit,
+                        multiplex_signal._reciever,
+                        multiplex_signal._multiplex)
+                matrix_frame.addSignal(matrix_signal)
+                for signal in frame._signals:
+                    if str(signal._multiplex) == multiplex_value:
+                        signal_class(signal=signal, frame=neo_frame)
+                        matrix_frame.addSignal(signal)
+
+                neo_frame = frame_class(frame=matrix_frame)
+                frames.append(neo_frame)
+                frame.multiplex_frames[multiplex_value] = matrix_frame
+
+    return frames

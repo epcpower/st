@@ -44,7 +44,7 @@ class TreeNode:
 
 
 class MessageNode(epyq.canneo.Frame, TreeNode):
-    def __init__(self, message, tx=False, frame=None, parent=None):
+    def __init__(self, message=None, tx=False, frame=None, parent=None):
         epyq.canneo.Frame.__init__(self, frame=frame, parent=parent)
         TreeNode.__init__(self, parent)
 
@@ -158,7 +158,8 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         # TODO: quit repeating (98476589238759)
         self.fields.value = ' '.join(['{:02X}'.format(byte) for byte in message.data])
         if self.last_time == message.timestamp:
-            raise Exception('message already received')
+            raise Exception('message already received {message}'
+                            .format(**locals()))
         if self.last_time is None:
             self.fields.dt = '-'
         else:
@@ -227,19 +228,17 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
                 message.arbitration_id = frame._Id
                 message.id_type = frame._extended
                 message.dlc = frame._Size
-                self.add_message(message, tx=True)
+                self.add_message(message=message, tx=True)
 
     def set_node_id(self, node_id):
         # TODO: I think this can go away
         self.node_id = node_id
 
-    def add_message(self, message=can.Message(), tx=False):
-        try:
-            frame = self.matrix.frameById(message.arbitration_id)
-        except AttributeError:
-            frame = None
+    def add_message(self, message=can.Message(), id=None, tx=False):
+        frame = self.get_multiplex(message)[0]
 
-        id = (message.arbitration_id, message.id_type)
+        if id is None:
+            id = self.generate_id(message=message)
 
         message_node = frame.frame
         message_node.send.connect(self.send)
@@ -247,9 +246,32 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
         self.append_child(message_node)
         self.added.emit(message_node)
 
+    def get_multiplex(self, message):
+        base_frame = self.matrix.frameById(message.arbitration_id)
+        try:
+            frame = base_frame.multiplex_frame
+        except AttributeError:
+            frame = base_frame
+            multiplex_value = None
+        else:
+            # finish the multiplex thing
+            frame.frame.unpack(message.data)
+            multiplex_value = base_frame.multiplex_signal.signal.value
+            # TODO: stop using strings for integers...
+            frame = base_frame.multiplex_frames[str(multiplex_value)]
+
+        return (frame, multiplex_value)
+
+    def generate_id(self, message):
+        multiplex_value = self.get_multiplex(message)[1]
+
+        return (message.arbitration_id,
+                message.id_type,
+                multiplex_value)
+
     @pyqtSlot(can.Message)
     def message_received(self, msg):
-        id = (msg.arbitration_id, msg.id_type)
+        id = self.generate_id(message=msg)
 
         try:
             self.messages[id].extract_message(msg)
@@ -260,7 +282,8 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
             self.changed.emit(self.messages[id].children[0], Columns.indexes.value,
                               self.messages[id].children[-1], Columns.indexes.value)
         except KeyError:
-            self.add_message(msg)
+            self.add_message(message=msg,
+                             id=id)
 
     def unique(self):
         # TODO: actually identify the object

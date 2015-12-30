@@ -38,8 +38,6 @@ class Window(QtWidgets.QMainWindow):
 
             frame = matrix.frameByName(frame_name).frame
             signal = frame.frame.signalByName(signal_name).signal
-            # TODO: get the frame into the signal constructor where it's called now
-            # signal = Signal(frame.frame.signalByName(signal_name), frame)
 
             # TODO: clearly shouldn't be hardcoded
             if frame_name == 'StatusControlVolts2':
@@ -92,15 +90,20 @@ def main(args=None):
 
     # TODO: the repetition here is not so pretty
     matrix_rx = importany.importany(args.can)
-    matrix_tx = copy.deepcopy(matrix_rx)
-    matrix_widgets = copy.deepcopy(matrix_rx)
+    epyq.canneo.neotize(matrix=matrix_rx,
+                        frame_class=epyq.txrx.MessageNode,
+                        signal_class=epyq.txrx.SignalNode)
 
-    frames_rx = [epyq.txrx.MessageNode(message=None, frame=frame) for frame in matrix_rx._fl._list]
+    matrix_tx = importany.importany(args.can)
+
+    matrix_widgets = importany.importany(args.can)
+    # TODO: these should probably be just canneo objects
+    frames_widgets = epyq.canneo.neotize(
+            matrix=matrix_widgets,
+            frame_class=epyq.txrx.MessageNode,
+            signal_class=epyq.txrx.SignalNode)
+
     frames_tx = [epyq.txrx.MessageNode(message=None, frame=frame, tx=True) for frame in matrix_tx._fl._list]
-
-    frames_widgets = [epyq.canneo.Frame(frame) for frame in matrix_widgets._fl._list]
-    for frame in frames_widgets:
-        [epyq.canneo.Signal(signal, frame=frame) for signal in frame.frame._signals]
 
     rx = epyq.txrx.TxRx(tx=False, matrix=matrix_rx)
     rx_model = epyq.txrx.TxRxModel(rx)
@@ -119,14 +122,34 @@ def main(args=None):
         print('generating')
         start_time = time.monotonic()
 
-        frame_name = 'MasterMeasuredPower'
-        signal_name = 'ReactivePower_measured'
+        frame_name = 'StatusControlVolts2'
+        signal_name = 'n15V_Supply'
         frame = epyq.canneo.Frame(matrix_tx.frameByName(frame_name))
         signal = epyq.canneo.Signal(frame.frame.signalByName(signal_name), frame)
 
         message = can.Message(extended_id=frame.frame._extended,
                               arbitration_id=frame.frame._Id,
                               dlc=frame.frame._Size)
+
+        messages = [
+            can.Message(extended_id=True,
+                        arbitration_id=486517239,
+                        dlc=8,
+                        data=bytearray([0, 1, 0, 160, 7, 208, 5, 220])),
+            can.Message(extended_id=True,
+                        arbitration_id=486517239,
+                        dlc=8,
+                        data=bytearray([0, 4, 0, 160, 1, 77, 0, 160])),
+            can.Message(extended_id=True,
+                        arbitration_id=218082369,
+                        dlc=8,
+                        data=bytearray([0, 0, 0, 3, 0, 0, 0, 42]))
+        ]
+
+        # Copy from PCAN generated and logged messages
+        # Bus=2,ID=486517239x,Type=D,DLC=8,DA=0,Data=0 1 0 160 7 208 5 220 ,
+        # Bus=2,ID=486517239x,Type=D,DLC=8,DA=0,Data=0 4 0 160 1 77 0 160 ,
+        # Bus=2,ID=218082369x,Type=D,DLC=8,DA=0,Data=0 0 0 3 0 0 0 42 ,
 
         last_send = 0
         while True:
@@ -136,11 +159,16 @@ def main(args=None):
                 last_send = now
                 elapsed_time = time.monotonic() - start_time
                 value = math.sin(elapsed_time) / 2
-                value += 0.5
-                value = round(value * 100)
+                value *= 2
+                value -= 15
+                value /= float(signal.signal._factor)
+                value = round(value)
                 print('{:.3f}: {}'.format(elapsed_time, value))
-                message.data = frame.pack([0, value])
+                message.data = frame.pack([value, 0, 1, 2])
                 bus.send(message)
+
+                for m in messages:
+                    bus.send(m)
         sys.exit(0)
 
     from PyQt5.QtWidgets import QApplication
