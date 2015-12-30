@@ -14,6 +14,10 @@ from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import sys
 import time
 
+# See file COPYING in this source tree
+__copyright__ = 'Copyright 2015, EPC Power Corp.'
+__license__ = 'GPLv2+'
+
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self, matrix, tx_model, rx_model, parent=None):

@@ -4,6 +4,10 @@ from PyQt5.QtCore import (Qt, QAbstractItemModel, QVariant,
                           QModelIndex, pyqtSignal, pyqtSlot,
                           QTimer)
 
+# See file COPYING in this source tree
+__copyright__ = 'Copyright 2015, EPC Power Corp.'
+__license__ = 'GPLv2+'
+
 
 class TreeNode:
     def __init__(self,  tx=False, parent=None):

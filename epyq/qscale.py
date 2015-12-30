@@ -9,6 +9,22 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 from math import pi, isinf, sqrt, asin, ceil, cos, sin, floor
 
+# See file COPYING in this source tree
+__copyright__ = ('\n'.join([
+    'Copyright 2008-2012 Meinert Jordan <meinert@gmx.at>',
+    # Originally written in C++
+    # http://qt-apps.org/content/show.php/QScale?content=148053
+
+    'Copyright 2014, Fabián Inostroza',
+    # Ported to PyQt4
+    # http://pastebin.com/kzp7f7DS
+
+    'Copyright 2015, EPC Power Corp.'
+    # Ported to PyQt5
+]))
+__license__ = 'GPLv2+'
+
+
 class QScale(QtWidgets.QWidget):
     def __init__(self,parent=None):
         QtWidgets.QWidget.__init__(self, parent=parent)

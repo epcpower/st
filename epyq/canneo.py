@@ -4,6 +4,10 @@ from canmatrix import canmatrix
 import copy
 from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot)
 
+# See file COPYING in this source tree
+__copyright__ = 'Copyright 2015, EPC Power Corp.'
+__license__ = 'GPLv2+'
+
 
 class Signal(QObject):
     # TODO: but some (progress bar, etc) require an int!

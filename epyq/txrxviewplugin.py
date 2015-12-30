@@ -1,6 +1,10 @@
 from PyQt5 import QtDesigner
 import epyq.txrxview
 
+# See file COPYING in this source tree
+__copyright__ = 'Copyright 2015, EPC Power Corp.'
+__license__ = 'GPLv2+'
+
 
 class TxRxViewPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     # https://wiki.python.org/moin/PyQt/Using_Python_Custom_Widgets_in_Qt_Designer

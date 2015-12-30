@@ -2,6 +2,10 @@ import epyq.txrx
 import os
 from PyQt5 import QtWidgets, uic
 
+# See file COPYING in this source tree
+__copyright__ = 'Copyright 2015, EPC Power Corp.'
+__license__ = 'GPLv2+'
+
 
 class TxRxView(QtWidgets.QWidget):
     def __init__(self, parent=None):
