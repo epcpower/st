@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -e
+
+export HERE="$(pwd)"
+export VENV=venv
+export ORIGINAL_PYTHON=wpython
+export ORIGINAL_PYTHON_DIR="$(dirname $(cygpath -m $(which wpython)))"
+
+"${ORIGINAL_PYTHON}" -m virtualenv --system-site-packages "${VENV}"
+
+source "${VENV}"/Scripts/activate
+
+python setup.py develop
+
+export SRC="${HERE}/${VENV}/src"
+mkdir -p "${SRC}"
+
+cd "${SRC}"
+hg clone https://bitbucket.org/altendky/python-can
+cd python-can
+python setup.py develop
+
+cd "${SRC}"
+git clone https://github.com/ebroecker/canmatrix.git
+cd canmatrix
+python setup.py develop
+
+cd "${SRC}"
+git clone https://github.com/altendky/bitstruct.git
+cd bitstruct
+python setup.py develop
+
+cat << EOF > "${HERE}/${VENV}/Scripts/qt.conf"
+[Paths]
+Prefix = ${ORIGINAL_PYTHON_DIR}/Lib/site-packages/PyQt5
+Binaries = ${ORIGINAL_PYTHON_DIR}/Lib/site-packages/PyQt5
+EOF
+
+
+echo
+echo Be sure to: source "${VENV}"/Scripts/activate
