@@ -107,7 +107,7 @@ else:
         'canmatrix': 'https://github.com/ebroecker/canmatrix/archive/'
                      'ba2b01e595cc282fa5bf35d98e46ff800fde3aed.zip',
         'bitstruct': 'https://github.com/altendky/bitstruct/archive/'
-                     'a1dff1f96e8b113fefb7296e637c010654e1a6a6.zip'
+                     '2d4f652163c0e756c5f9cc536fb6172d3268cc1c.zip'
     }
 
 #    pip.main(['install', 'gitpython'])
