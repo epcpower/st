@@ -1,4 +1,6 @@
 /venv/
+/activate
+/activate.bat
 generated/
 *.stats
 
