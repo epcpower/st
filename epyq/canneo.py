@@ -30,6 +30,13 @@ class Signal(QObject):
     def connect(self, target):
         self._my_signal.connect(target)
 
+    def set_human_value(self, value):
+        value = copy.deepcopy(value)
+        value = float(value)
+        value /= float(self.signal._factor)
+        value = round(value)
+        self.set_value(value)
+
     def set_value(self, value):
         value = copy.deepcopy(value)
         self.value = value

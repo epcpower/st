@@ -202,8 +202,7 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
         self.fields.value = self.full_string
 
     def set_data(self, data):
-        self.value = data
-        self.fields.value = data
+        self.set_human_value(data)
         self.frame.update_from_signals()
 
 
