@@ -35,3 +35,7 @@ class TxRxView(QtWidgets.QWidget):
         # TODO: would be nice to share between message and signal perhaps?
         self.ui.tree_view.header().setSectionResizeMode(
             epyq.txrx.Columns.indexes.message, QtWidgets.QHeaderView.Stretch)
+
+        self.ui.tree_view.setItemDelegateForColumn(
+            epyq.txrx.Columns.indexes.value,
+            epyq.txrx.ValueDelegate(model=model, parent=self))

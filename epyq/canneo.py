@@ -3,6 +3,7 @@ import can
 from canmatrix import canmatrix
 import copy
 from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot)
+import re
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2015, EPC Power Corp.'
@@ -32,10 +33,32 @@ class Signal(QObject):
 
     def set_human_value(self, value):
         value = copy.deepcopy(value)
-        value = float(value)
+        try:
+            # TODO: not the best for integers?
+            value = float(value)
+        except ValueError:
+            if value in self.enumeration_strings():
+                # TODO: must agree with 999549929576736894592
+                match = re.search('^\[(\d+)\]', value)
+                value = match.group(1)
+                value = float(value)
+            else:
+                raise
+
         value /= float(self.signal._factor)
         value = round(value)
         self.set_value(value)
+
+    def enumeration_string(self, value):
+        # TODO: must agree with 999549929576736894592
+        return '[{i}] {s}'.format(i=value, s=self.signal._values[value])
+
+    def enumeration_strings(self):
+        items = list(self.signal._values)
+        items.sort()
+        items = [self.enumeration_string(i) for i in items]
+
+        return items
 
     def set_value(self, value):
         value = copy.deepcopy(value)
@@ -43,7 +66,8 @@ class Signal(QObject):
 
         try:
             enum_string = self.signal._values[str(value)]
-            self.full_string = '{} ({})'.format(enum_string, value)
+            # TODO: should agree with 999549929576736894592
+            self.full_string = '[{v}] {s}'.format(s=enum_string, v=value)
         except KeyError:
             # TODO: this should be a subclass or something
             if self.signal._name == '__padding__':
