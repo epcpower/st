@@ -7,6 +7,7 @@ import canmatrix.importany as importany
 import copy
 import epyq.canneo
 import epyq.txrx
+import functools
 import math
 import os
 import platform
@@ -99,6 +100,13 @@ def main(args=None):
                         signal_class=epyq.txrx.SignalNode)
 
     matrix_tx = importany.importany(args.can)
+    message_node_tx_partial = functools.partial(epyq.txrx.MessageNode,
+                                                tx=True)
+    signal_node_tx_partial = functools.partial(epyq.txrx.SignalNode,
+                                               tx=True)
+    epyq.canneo.neotize(matrix=matrix_tx,
+                        frame_class=message_node_tx_partial,
+                        signal_class=signal_node_tx_partial)
 
     matrix_widgets = importany.importany(args.can)
     # TODO: these should probably be just canneo objects
@@ -106,8 +114,6 @@ def main(args=None):
             matrix=matrix_widgets,
             frame_class=epyq.txrx.MessageNode,
             signal_class=epyq.txrx.SignalNode)
-
-    frames_tx = [epyq.txrx.MessageNode(message=None, frame=frame, tx=True) for frame in matrix_tx._fl._list]
 
     rx = epyq.txrx.TxRx(tx=False, matrix=matrix_rx)
     rx_model = epyq.txrx.TxRxModel(rx)

@@ -228,11 +228,24 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
 
         if self.tx:
             for frame in self.matrix._fl._list:
-                message = can.Message()
-                message.arbitration_id = frame._Id
-                message.id_type = frame._extended
-                message.dlc = frame._Size
-                self.add_message(message=message, tx=True)
+                try:
+                    frames = frame.multiplex_frames
+                except AttributeError:
+                    frames = [(None, frame)]
+                else:
+                    frames = frames.items()
+
+                for value, frame in frames:
+                    message = can.Message()
+                    message.arbitration_id = frame._Id
+                    message.id_type = frame._extended
+                    message.dlc = frame._Size
+                    for signal in frame._signals:
+                        if signal._multiplex == 'Multiplexor':
+                            signal.signal.set_value(value)
+                    message.data = frame.frame.pack(frame.frame)
+                    self.add_message(message=message, tx=True)
+
 
     def set_node_id(self, node_id):
         # TODO: I think this can go away
@@ -361,7 +374,16 @@ class TxRxModel(QAbstractItemModel):
         node = self.node_from_index(index)
         if node.tx:
             if index.column() == Columns.indexes.value:
-                flags |= Qt.ItemIsEditable
+                try:
+                    multiplex = node.signal._multiplex
+                except AttributeError:
+                    allow = True
+                else:
+                    allow = multiplex != 'Multiplexor'
+
+                if allow:
+                    flags |= Qt.ItemIsEditable
+
             if index.column() == Columns.indexes.dt:
                 if isinstance(node, MessageNode):
                     flags |= Qt.ItemIsEditable
