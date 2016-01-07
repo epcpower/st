@@ -14,6 +14,7 @@ def gettid():
 
 import yappi
 import epyq.__main__
+import os
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2015, EPC Power Corp.'
@@ -29,7 +30,10 @@ class Bunch:
 
 def main():
     print('Main TID: {}'.format(gettid()))
-    args = Bunch(can='/epc/AFE_CAN_ID247_FACTORY.sym', generate=False)
+    can_file = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        'AFE_CAN_ID247_FACTORY.sym')
+    args = Bunch(can=can_file, generate=False)
     yappi.start()
     exit_value = epyq.__main__.main(args=args)
     yappi.stop()
