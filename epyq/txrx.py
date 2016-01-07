@@ -209,7 +209,7 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
 
 class TxRx(TreeNode, epyq.canneo.QtCanListener):
     # TODO: just Rx?
-    changed = pyqtSignal(TreeNode, int, TreeNode, int)
+    changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
     added = pyqtSignal(TreeNode)
 
     def __init__(self, tx, matrix=None, bus=None, parent=None):
@@ -292,12 +292,14 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
 
         try:
             self.messages[id].extract_message(msg)
-            # TODO: be more judicious in describing what changed
-            #       and also don't change just column 5...
-            self.changed.emit(self.messages[id], Columns.indexes.value,
-                              self.messages[id], Columns.indexes.dt)
-            self.changed.emit(self.messages[id].children[0], Columns.indexes.value,
-                              self.messages[id].children[-1], Columns.indexes.value)
+            # TODO: for some reason this doesn't seem to needed and
+            #       significantly (3x) increases cpu usage
+            # self.changed.emit(self.messages[id], Columns.indexes.value,
+            #                   self.messages[id], Columns.indexes.dt)
+            self.changed.emit(
+                self.messages[id].children[0], Columns.indexes.value,
+                self.messages[id].children[-1], Columns.indexes.value,
+                [Qt.DisplayRole])
         except KeyError:
             self.add_message(message=msg,
                              id=id)
@@ -521,8 +523,8 @@ class TxRxModel(QAbstractItemModel):
 
         return node.index
 
-    @pyqtSlot(TreeNode, int, TreeNode, int)
-    def changed(self, start_node, start_column, end_node, end_column):
+    @pyqtSlot(TreeNode, int, TreeNode, int, list)
+    def changed(self, start_node, start_column, end_node, end_column, roles):
         start_index = self.index_from_node(start_node)
         start_index = self.index(start_index.row(), start_column, start_index.parent())
         if end_node is not start_node:
@@ -530,7 +532,7 @@ class TxRxModel(QAbstractItemModel):
             end_index = self.index(end_index.row(), end_column, end_index.parent())
         else:
             end_index = start_index
-        self.dataChanged.emit(start_index, end_index)
+        self.dataChanged.emit(start_index, end_index, roles)
 
     @pyqtSlot(TreeNode)
     def added(self, message):
