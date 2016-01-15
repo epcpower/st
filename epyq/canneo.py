@@ -32,7 +32,16 @@ class Signal(QObject):
     def connect(self, target):
         self._my_signal.connect(target)
 
+    def get_human_value(self):
+        # TODO: handle offset
+        value = self.value * float(self.signal._factor)
+        # TODO: stop CAMPing 90850709827457599958798327878
+        f = '{{:.{}f}}'
+        f = f.format(self.get_decimal_places())
+        return f.format(value)
+
     def set_human_value(self, value):
+        # TODO: handle offset
         value = copy.deepcopy(value)
         try:
             # TODO: not the best for integers?
@@ -61,6 +70,19 @@ class Signal(QObject):
 
         return items
 
+    def get_decimal_places(self):
+        try:
+            return self.decimal_places
+        except AttributeError:
+            factor_str = self.signal._factor.rstrip('0.')
+            decimal_point_index = factor_str.find('.')
+            if decimal_point_index >= 0:
+                self.decimal_places = len(factor_str) - decimal_point_index - 1
+            else:
+                self.decimal_places = 0
+
+        return self.decimal_places
+
     def set_value(self, value):
         if self.value != value:
             # TODO: be careful here, should all be int which is immutable
@@ -84,22 +106,11 @@ class Signal(QObject):
                         factor = float(self.signal._factor)
                         self.factor = factor
 
-                    try:
-                        decimal_places = self.decimal_places
-                    except AttributeError:
-                        factor_str = self.signal._factor.rstrip('0.')
-                        decimal_point_index = factor_str.find('.')
-                        if decimal_point_index >= 0:
-                            decimal_places = len(factor_str) - decimal_point_index - 1
-                        else:
-                            decimal_places = 0
-
-                        self.decimal_places = decimal_places
-
                     self.scaled_value = float(self.value) * factor
 
+                    # TODO: stop CAMPing 90850709827457599958798327878
                     f = '{{:.{}f}}'
-                    f = f.format(decimal_places)
+                    f = f.format(self.get_decimal_places())
                     self.full_string = f.format(self.scaled_value)
 
                     if self.signal._unit is not None:

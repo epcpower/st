@@ -461,15 +461,19 @@ class TxRxModel(QAbstractItemModel):
 
         if role == Qt.EditRole:
             node = self.node_from_index(index)
-            value = node.fields[index.column()]
+            if index.column() == Columns.indexes.value:
+                try:
+                    value = node.get_human_value()
+                except TypeError:
+                    value = ''
+            else:
+                value = node.fields[index.column()]
 
             # TODO: totally dt specific
             if isinstance(value, float):
-                string = str(value)
-            else:
-                string = ''
+                value = str(value)
 
-            return QVariant(string)
+            return QVariant(value)
 
         return QVariant()
 
