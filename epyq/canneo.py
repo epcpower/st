@@ -294,7 +294,7 @@ class Frame(QtCanListener):
             self.unpack(msg.data)
 
 
-def neotize(matrix, frame_class=Frame, signal_class=Signal, tx=False):
+def neotize(matrix, frame_class=Frame, signal_class=Signal):
     frames = []
 
     for frame in matrix._fl._list:
@@ -305,9 +305,7 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal, tx=False):
                 break
 
         if multiplex_signal is None:
-            neo_frame = frame_class(message=None,
-                                    frame=frame,
-                                    tx=tx)
+            neo_frame = frame_class(frame=frame)
             frames.append(neo_frame)
         else:
             # Make a frame with just the multiplexor entry for
