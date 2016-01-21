@@ -204,6 +204,8 @@ class Frame(QtCanListener):
                 padding = startbit - bit
                 if padding:
                     pad = Pad(bit, padding)
+                    # TODO: yucky to add out here
+                    pad.setMsbReverseStartbit(bit)
                     Signal(signal=pad, frame=self)
                     padded_signals.append(pad)
                     bit += pad._signalsize
