@@ -165,6 +165,7 @@ else:
             f.write('{}\n'.format(activate))
 
     with open(os.path.join(mydir, 'activate'), 'w', newline='') as f:
+        f.write('export PYQTDESIGNERPATH="{}/epyq"\n'.format(mydir))
         f.write('source {}\n'.format(activate))
 
     if sys.platform == 'win32':
