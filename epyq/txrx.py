@@ -1,4 +1,5 @@
 import can
+import canmatrix.canmatrix
 import epyq.canneo
 from PyQt5.QtCore import (Qt, QAbstractItemModel, QVariant,
                           QModelIndex, pyqtSignal, pyqtSlot,
@@ -257,7 +258,18 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
         if id is None:
             id = self.generate_id(message=message)
 
-        message_node = frame.frame
+        if frame is not None:
+            message_node = frame.frame
+        else:
+            frame = canmatrix.canmatrix.Frame(
+                bid=message.arbitration_id,
+                name='',
+                size=message.dlc,
+                transmitter=None
+            )
+            message_node = MessageNode(message=message, tx=tx, frame=frame)
+            self.matrix._fl.addFrame(frame)
+
         message_node.send.connect(self.send)
         self.messages[id] = message_node
         self.append_child(message_node)
@@ -296,10 +308,11 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
             #       significantly (3x) increases cpu usage
             # self.changed.emit(self.messages[id], Columns.indexes.value,
             #                   self.messages[id], Columns.indexes.dt)
-            self.changed.emit(
-                self.messages[id].children[0], Columns.indexes.value,
-                self.messages[id].children[-1], Columns.indexes.value,
-                [Qt.DisplayRole])
+            if len(self.messages[id].children) > 0:
+                self.changed.emit(
+                    self.messages[id].children[0], Columns.indexes.value,
+                    self.messages[id].children[-1], Columns.indexes.value,
+                    [Qt.DisplayRole])
         except KeyError:
             self.add_message(message=msg,
                              id=id)
