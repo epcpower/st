@@ -15,6 +15,7 @@ parser.add_argument('--pyqt5')
 parser.add_argument('--pyqt5-plugins')
 parser.add_argument('--bin')
 parser.add_argument('--activate')
+parser.add_argument('--no-ssl-verify', action='store_true')
 parser.add_argument('--virtualenv', '--venv', default='venv')
 parser.add_argument('--in-virtual', action='store_true', default=False)
 
@@ -129,7 +130,7 @@ else:
     import io
     import shutil
     for name, url in zip_repos.items():
-        response = requests.get(url)
+        response = requests.get(url, verify=not args.no_ssl_verify)
         zip_data = io.BytesIO()
         zip_data.write(response.content)
         zip_file = zipfile.ZipFile(zip_data)
