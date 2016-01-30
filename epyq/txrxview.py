@@ -1,3 +1,4 @@
+import epyq.delegates
 import epyq.txrx
 import os
 from PyQt5 import QtWidgets, uic
@@ -7,6 +8,7 @@ __copyright__ = 'Copyright 2015, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+# TODO: pretty campy 978584872719109549767978239650923954
 class TxRxView(QtWidgets.QWidget):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent=parent)
@@ -38,4 +40,4 @@ class TxRxView(QtWidgets.QWidget):
 
         self.ui.tree_view.setItemDelegateForColumn(
             epyq.txrx.Columns.indexes.value,
-            epyq.txrx.ValueDelegate(model=model, parent=self))
+            epyq.delegates.Combo(model=model, parent=self))

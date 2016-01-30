@@ -236,6 +236,9 @@ class Frame(QtCanListener):
 
         return fmt
 
+    def update_from_signals(self):
+        self.data = self.pack(self)
+
     def pack(self, data):
         self.pad()
 
@@ -274,14 +277,6 @@ class Frame(QtCanListener):
                     s.signal.set_value(v)
                 except AttributeError:
                     pass
-
-    def update_from_signals(self):
-        # TODO: actually do this
-        self.data = self.pack(self)
-        # TODO: isn't this very MessageNode'y rather than Frame'y?
-        # TODO: quit repeating (98476589238759)
-        self.fields.value = ' '.join(['{:02X}'.format(byte) for byte in self.data])
-        self._send()
 
     @pyqtSlot()
     def _send(self):
@@ -351,6 +346,7 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal):
             # TODO: shouldn't this be part of the constructor maybe?
             signal_class(signal=matrix_signal, frame=neo_frame)
 
+
             frame.multiplex_frame = multiplex_frame
             frame.multiplex_signal = multiplex_frame._signals[0]
             frame.multiplex_frames = {}
@@ -378,12 +374,14 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal):
                         multiplex_signal._reciever,
                         multiplex_signal._multiplex)
                 matrix_frame.addSignal(matrix_signal)
+
                 for signal in frame._signals:
                     if str(signal._multiplex) == multiplex_value:
                         signal_class(signal=signal, frame=neo_frame)
                         matrix_frame.addSignal(signal)
 
                 neo_frame = frame_class(frame=matrix_frame)
+                matrix_signal.signal.set_value(multiplex_value)
                 frames.append(neo_frame)
                 frame.multiplex_frames[multiplex_value] = matrix_frame
 

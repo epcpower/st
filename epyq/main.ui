@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>1500</width>
     <height>600</height>
    </rect>
   </property>
@@ -83,6 +83,16 @@
       </widget>
      </widget>
     </item>
+    <item>
+     <widget class="NvView" name="nv">
+      <property name="toolTip">
+       <string>canishness</string>
+      </property>
+      <property name="whatsThis">
+       <string>An NvView</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -90,7 +100,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>1500</width>
      <height>39</height>
     </rect>
    </property>
@@ -98,6 +108,11 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>NvView</class>
+   <extends>QWidget</extends>
+   <header>epyq.nvview</header>
+  </customwidget>
   <customwidget>
    <class>QScale</class>
    <extends>QWidget</extends>

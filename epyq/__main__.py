@@ -6,6 +6,7 @@ import can
 import canmatrix.importany as importany
 import copy
 import epyq.canneo
+import epyq.nv
 import epyq.txrx
 import functools
 import math
@@ -21,13 +22,14 @@ __license__ = 'GPLv2+'
 
 
 class Window(QtWidgets.QMainWindow):
-    def __init__(self, matrix, tx_model, rx_model, parent=None):
+    def __init__(self, matrix, tx_model, rx_model, nv_model, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'main.ui')
         self.ui = uic.loadUi(ui_file, self)
         self.ui.rx.setModel(rx_model)
         self.ui.tx.setModel(tx_model)
+        self.ui.nv.setModel(nv_model)
 
         children = self.findChildren(QtCore.QObject)
         targets = [c for c in children if
@@ -88,7 +90,7 @@ def main(args=None):
 
     # TODO: get this outta here
     default = {
-        'Linux': {'bustype': 'socketcan', 'channel': 'vcan0'},
+        'Linux': {'bustype': 'socketcan', 'channel': 'can0'},
         'Windows': {'bustype': 'pcan', 'channel': 'PCAN_USBBUS1'}
     }[platform.system()]
     bus = can.interface.Bus(**default)
@@ -126,7 +128,18 @@ def main(args=None):
 
     tx.changed.connect(tx_model.changed)
     tx.added.connect(tx_model.added)
-    notifier = can.Notifier(bus, frames_widgets + [rx], timeout=0.1)
+
+    matrix_nv = importany.importany(args.can)
+    epyq.canneo.neotize(
+            matrix=matrix_nv,
+            frame_class=epyq.nv.Frame,
+            signal_class=epyq.nv.Nv)
+
+    nvs = epyq.nv.Nvs(matrix_nv, bus)
+    nv_model = epyq.nv.NvModel(nvs)
+    nvs.changed.connect(nv_model.changed)
+
+    notifier = can.Notifier(bus, frames_widgets + [rx, nvs], timeout=0.1)
 
     if args.generate:
         print('generating')
@@ -185,7 +198,8 @@ def main(args=None):
 
     app = QApplication(sys.argv)
 
-    window = Window(matrix_widgets, tx_model=tx_model, rx_model=rx_model)
+    window = Window(matrix_widgets, tx_model=tx_model, rx_model=rx_model,
+                    nv_model=nv_model)
 
     window.show()
     return app.exec_()

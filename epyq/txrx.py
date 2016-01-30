@@ -1,52 +1,15 @@
 import can
 import canmatrix.canmatrix
+from epyq.abstractcolumns import AbstractColumns
 import epyq.canneo
+from epyq.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QAbstractItemModel, QVariant,
                           QModelIndex, pyqtSignal, pyqtSlot,
                           QTimer)
-from PyQt5 import QtWidgets
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2015, EPC Power Corp.'
 __license__ = 'GPLv2+'
-
-
-class TreeNode:
-    def __init__(self,  tx=False, parent=None):
-        self.last = None
-
-        self.tx = tx
-
-        self.tree_parent = None
-        self.set_parent(parent)
-        self.children = []
-
-    def set_parent(self, parent):
-        self.tree_parent = parent
-        if self.tree_parent is not None:
-            self.tree_parent.append_child(self)
-
-    def append_child(self, child):
-        self.children.append(child)
-        child.tree_parent = self
-
-    def child_at_row(self, row):
-        return self.children[row]
-
-    def row_of_child(self, child):
-        for i, item in enumerate(self.children):
-            if item == child:
-                return i
-        return -1
-
-    def remove_child(self, row):
-        value = self.children[row]
-        self.children.remove(value)
-
-        return True
-
-    def __len__(self):
-        return len(self.children)
 
 
 class MessageNode(epyq.canneo.Frame, TreeNode):
@@ -54,7 +17,7 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         epyq.canneo.Frame.__init__(self, frame=frame, parent=parent)
         TreeNode.__init__(self, parent)
 
-        self.fields = Columns.none()
+        self.fields = Columns()
         self.last_time = None
 
         self.tx = tx
@@ -182,6 +145,14 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         self.update()
         self.frame.update_from_signals()
 
+    def update_from_signals(self):
+        epyq.canneo.Frame.update_from_signals(self)
+        # TODO: quit repeating (98476589238759)
+        self.fields.value = ' '.join(['{:02X}'.format(byte) for byte in self.data])
+        # TODO: send should update, not the other way around like it is
+        self._send()
+
+
 class SignalNode(epyq.canneo.Signal, TreeNode):
     def __init__(self, signal, frame, tx=False, connect=None, tree_parent=None, parent=None):
         epyq.canneo.Signal.__init__(self, signal=signal, frame=frame, connect=connect, parent=parent)
@@ -199,6 +170,7 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
         # TODO: make it more unique
         return str(self.fields.id) + '__'
 
+    # TODO: campy 909457829293754985498
     def set_value(self, value):
         epyq.canneo.Signal.set_value(self, value)
         self.fields.value = self.full_string
@@ -241,9 +213,6 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
                     message.arbitration_id = frame._Id
                     message.id_type = frame._extended
                     message.dlc = frame._Size
-                    for signal in frame._signals:
-                        if signal._multiplex == 'Multiplexor':
-                            signal.signal.set_value(value)
                     message.data = frame.frame.pack(frame.frame)
                     self.add_message(message=message, tx=True)
 
@@ -275,6 +244,7 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
         self.append_child(message_node)
         self.added.emit(message_node)
 
+    # TODO: campy 975489957269239475565893294237
     def get_multiplex(self, message):
         base_frame = self.matrix.frameById(message.arbitration_id)
         try:
@@ -329,40 +299,13 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
         return 'Indexes: \n' + '\n'.join([str(i) for i in self.children])
 
 
-class Columns:
-    def __init__(self, id, length, message, signal, value, dt):
-        self.id = id
-        self.length = length
-        self.message = message
-        self.signal = signal
-        self.value = value
-        self.dt = dt
+class Columns(AbstractColumns):
+    _members = ['id', 'length', 'message', 'signal', 'value', 'dt']
 
-    def none():
-        return Columns(None, None, None, None, None, None)
-
-    def __len__(self):
-        return 6
-
-    def __getitem__(self, index):
-        if index == Columns.indexes.id:
-            return self.id
-        if index == Columns.indexes.length:
-            return self.length
-        if index == Columns.indexes.message:
-            return self.message
-        if index == Columns.indexes.signal:
-            return self.signal
-        if index == Columns.indexes.value:
-            return self.value
-        if index == Columns.indexes.dt:
-            return self.dt
-
-        raise IndexError('column index out of range')
-
-Columns.indexes = Columns(0, 1, 2, 3, 4, 5)
+Columns.indexes = Columns.indexes()
 
 
+# pretty campy 0958709927126785496723750
 class TxRxModel(QAbstractItemModel):
     # TODO: seems like a lot of boilerplate which could be put in an abstract class
     #       (wrapping the abstract class?  hmmm)
@@ -556,43 +499,3 @@ class TxRxModel(QAbstractItemModel):
         # TODO: this is just a tad bit broad...
         self.beginResetModel()
         self.endResetModel()
-
-
-class ValueDelegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, model, parent):
-        QtWidgets.QStyledItemDelegate.__init__(self, parent=parent)
-
-        self.model = model
-
-    def createEditor(self, parent, option, index):
-        # TODO: way too particular
-        node = self.model.node_from_index(index)
-
-        try:
-            items = node.enumeration_strings()
-        except AttributeError:
-            pass
-        else:
-            if len(items) > 0:
-                combo = QtWidgets.QComboBox(parent=parent)
-
-                # TODO: use the userdata to make it easier to get in and out
-                combo.addItems(items)
-
-                present_string = node.fields[index.column()]
-                index = combo.findText(present_string)
-                if index == -1:
-                    combo.setCurrentIndex(0);
-                else:
-                    combo.setCurrentIndex(index);
-
-                combo.currentIndexChanged.connect(self.current_index_changed)
-
-                return combo
-
-        return QtWidgets.QStyledItemDelegate.createEditor(
-            self, parent, option, index)
-
-    @pyqtSlot()
-    def current_index_changed(self):
-        self.commitData.emit(self.sender())
