@@ -1,5 +1,5 @@
 FormatVersion=5.0 // Do not edit this line!
-Title="AFE_CAN_ID0"
+Title="AFE_CAN_ID247_FACTORY"
 
 {ENUMS}
 enum State(0="Power On Reset", 1="Ready", 2="Following", 3="Fault", 
@@ -28,6 +28,9 @@ enum Baudrate(0="125K", 1="250K", 2="500K", 3="1M")
 enum FaultConfig(0="Warning", 1="Fault", 2="Error", 3="N/A")
 enum MasterFollower(0="Master", // Master or standalone mode
   1="Follower", 2="Error", 3="N/A")
+enum RemoteVoltageSense(0="Use Local Sense", 1="Use Remote Sense", 2="Error", 
+  3="N/A")
+enum ReadNV(0="Write", 1="Read", 2="Error", 3="N/A")
 
 {SEND}
 
@@ -46,6 +49,9 @@ Var=ForceRelayK1_Precharge_command unsigned 34,2 -m /max:1 /p:0 /e:RelayCommand	
 Var=ForceRelayRelayK2_DCRun_comand unsigned 32,2 -m /max:1 /e:RelayCommand	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
 Var=PhaseRotation_command unsigned 56,2 -m /max:1 /e:PhaseRotation	// Specifies phase rotation direction.  Only active while transitioning from READY to GRID_FORMING.
 Var=MasterFollowerMode_command unsigned 22,2 -m /max:1 /e:MasterFollower	// Specifies what power command the inverter will follow in GRID FOLLOWING mode.  When configured as Master, CommandPower will be used as the power command.  When configured as Slave, the values in StatusMeasuredPower of the master inverter will be used.
+Var=ForceFanOn unsigned 46,2 -m /max:1 /e:RelayCommand
+Var=UseVoltageSenseAsRemote_command unsigned 20,2 -m /max:1 /e:RemoteVoltageSense	// Use voltage sense input as either local or remote reference.
+Var=SyncToRemoteSource_command unsigned 18,2 -m /max:1 /e:Enable	// Sync and connect to remote source.
 
 [CommandPower]
 ID=0CFFAC41h	// Sets the desired real (P) and reactive (Q) power levels for the module to follow while in the GRID FOLLOWING mode.
@@ -80,66 +86,97 @@ Var=FactoryAccess unsigned 16,16 -m
 ID=0CFFAA41h	// Provides access to configure non-volatile parameters.  Note that these parameters can only be set when the inverter's power stage is disabled (PowerCircuitEnabled_status in StatusBits message is 'Disabled.')
 Type=Extended
 DLC=8
-Mux=Param0 0,16 0  -m
+Mux=Param0 0,14 0  -m
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
 Var=Dummy unsigned 16,16 -m
 
 [CommandSetNVParam]
 DLC=8
-Mux=LVM_ClearingTimes1 0,16 1  -m	// Line Voltage Monitor fault times.
+Mux=LVM_ClearingTimes1 0,14 1  -m	// Line Voltage Monitor fault times.
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
 Var=VUnder50pct unsigned 16,16 -m /u:ms /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line rms voltage for a phase remains under 50 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
 Var=V50to88pct unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:2000	// Determines the fault trip time when Line-to-line rms voltage for a phase remains between 50 and 88 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
 Var=V110to120pct unsigned 48,16 -m /u:ms /min:1 /max:30000 /d:1000	// Determines the fault trip time when Line-to-line rms voltage for a phase remains between 110 and 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
 
 [CommandSetNVParam]
 DLC=8
-Mux=LVM_ClearingTimes2 0,16 2  -m	// Line Voltage Monitor fault times.
+Mux=LVM_ClearingTimes2 0,14 2  -m	// Line Voltage Monitor fault times.
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
 Var=VOver120 unsigned 16,16 -m /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line rms voltage for a phase remains Over 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
 
 [CommandSetNVParam]
 DLC=8
-Mux=LFM_Limits 0,16 3  -m	// Line Frequency Monitor limits.
+Mux=LFM_Limits 0,14 3  -m	// Line Frequency Monitor limits.
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
 Var=FreqHi unsigned 16,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:60.5	// Determines the upper bound, above which the frequency monitor will trip if the line frequency remains for the time specified in FreqHi of the LFM_ClearingTimes Mux.
 Var=FreqLo unsigned 32,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:59.8	// Determines the upper bound, in which the frequency monitor will trip if the line frequency remains below this bound but above the value of FreqVeryLo for the time specified in FreqLo of the LFM_ClearingTimes Mux.
 Var=FreqVeryLo unsigned 48,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:57	// Determines the upper bound, in which the frequency monitor will trip if the line frequency remains below this bound but above the value of FreqVeryLo for the time specified in FreqLo of the LFM_ClearingTimes Mux.
 
 [CommandSetNVParam]
 DLC=8
-Mux=LFM_ClearingTimes 0,16 4  -m	// Line Frequency Monitor Trip times
+Mux=LFM_ClearingTimes 0,14 4  -m	// Line Frequency Monitor Trip times
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
 Var=FreqVeryLo unsigned 16,16 -m /u:ms /min:160 /max:160 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains below the value specified in FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
 Var=FreqLo unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains between the value specified in FreqLo and FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
 Var=FreqHi unsigned 48,16 -m /u:ms /min:160 /max:160 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains above the value specified in FreqHi of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
 
 [CommandSetNVParam]
 DLC=8
-Mux=J1939_Interface 0,16 5  -m	// J1939 interface parameters
+Mux=J1939_Interface 0,14 5  -m	// J1939 interface parameters
 Var=NodeID unsigned 16,8 -m /max:247 /d:247	// J1939 Source Address node for the module.
 Var=SA_Mask unsigned 24,8 -m /d:65	// Not presently used.
 Var=Baudrate unsigned 32,4 -m /max:3 /e:Baudrate /d:2	// CAN baudrate
 
 [CommandSetNVParam]
 DLC=8
-Mux=Fault_Config 0,16 6  -m	// Allows configuration of various fault conditions to either trip the drive, or provide a warning status via CAN
+Mux=Fault_Config 0,14 6  -m	// Allows configuration of various fault conditions to either trip the drive, or provide a warning status via CAN
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
 Var=ThermalOverload unsigned 22,2 -m /max:1 /e:FaultConfig	// Configures action to take when thermal overload input is active.
 
 [CommandSetNVParam]
 DLC=8
-Mux=ContactorDelays1 0,16 7  -m	// Sets the time the controller assumes it will take for contactors to open/close.
-Var=MX1Open unsigned 16,16 -m /u:ms /max:5000 /d:100	// Maximum time required for the MX1 contactor to open.
+Mux=ContactorDelays1 0,14 7  -m	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=MX1Open unsigned 16,16 -m /u:ms /max:2000 /d:100	// Maximum time required for the MX1 contactor to open.
 Var=MX1Close unsigned 32,16 -m /u:ms /max:2000 /d:100	// Maximum time required for the MX1 contactor to close.
-Var=MX2Open unsigned 48,16 -m /u:ms /max:1	// Maximum time required for the MX2 contactor to open.
+Var=MX2Open unsigned 48,16 -m /u:ms /max:2000	// Maximum time required for the MX2 contactor to open.
 
 [CommandSetNVParam]
 DLC=8
-Mux=ContactorDelays2 0,16 8  -m	// Sets the time the controller assumes it will take for contactors to open/close.
+Mux=ContactorDelays2 0,14 8  -m	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
 Var=MX2Close unsigned 16,16 -m /u:ms /max:2000	// Maximum time required for the MX2 contactor to open.
 Var=K1Open unsigned 32,16 -m /u:ms /max:2000	// Maximum time required for the K1 contactor to open.
 Var=K1Close unsigned 48,16 -m /u:ms /max:2000	// Maximum time required for the K1 contactor to close.
 
 [CommandSetNVParam]
 DLC=8
-Mux=ContactorDelays3 0,16 9  -m	// Sets the time the controller assumes it will take for contactors to open/close.
+Mux=ContactorDelays3 0,14 9  -m	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
 Var=K2Open unsigned 16,16 -m /u:ms /max:2000	// Maximum time required for the K2 contactor to open.
 Var=K2Close unsigned 32,16 -m /u:ms /max:2000	// Maximum time required for the K2 contactor to close.
+
+[CommandSetNVParam]
+DLC=8
+Mux=HardwareDef1 0,14 000Ah -m
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=DeviceOvertempLimit_command unsigned 16,16 -m /u:C /max:300 /d:165
+
+[CommandSetNVParam]
+DLC=8
+Mux=AFF 0,14 000Bh -m	// Configures adaptive feed forward controllers
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=EnablePSAff_command unsigned 16,2 -m /max:1 /p:0 /e:Enable	// Enables/disables positive sequence AFF controller
+Var=EnableNSAff_command unsigned 18,2 -m /max:1 /e:Enable	// Enables/disables negative sequence AFF controller.
+Var=PSGain_command unsigned 32,8 -m /f:0.01 /p:2
+Var=PSLimit_command unsigned 40,8 -m /f:0.01 /p:2
+Var=NSGain_command unsigned 48,8 -m /f:0.01 /p:2
+Var=NSLimit_command unsigned 56,8 -m /f:0.01 /p:2
+
+[CommandSetNVParam]
+DLC=8
+Mux=ManageNV 0,14 000Ch -m
+Var=SaveToEE_command unsigned 16,2 -m /max:1 /e:Enable
 
 [CommandModeControlAPU2]
 ID=00FF9B41h	// Operational commands are received by the module via control bits within this message.
@@ -221,6 +258,9 @@ Var=EnableSplitPhase_echo unsigned 36,2 -m /e:EnableSplitPhase	// Echos the stat
 Var=PhaseRotation_status unsigned 34,2 -m /max:1 /e:PhaseRotation	// Phase rotation order.  When L1 phase angle leads L2 phase angle, rotation is considered positive.
 Var=LineVoltageDetected_status unsigned 32,2 -m /max:1 /e:LineVoltagePresent	// Flag indicating if voltage is detected on L1, L2 or L3.
 Var=PhaseRotation_echo unsigned 46,2 -m /max:1 /e:PhaseRotation	// Echos the state of PhaseRotation_command withing the CommandModeControl message.
+Var=PowerAvailAcRemote_status unsigned 44,2 -m /e:PowerAvail	// Indicates that remote AC power is connected and that voltage and frequency are within nominal ranges.
+Var=PhaseRotationRemote_status unsigned 42,2 -m /e:PhaseRotation	// Remote phase rotation order.  When L1 phase angle leads L2 phase angle, rotation is considered positive.
+Var=LineVoltageDetectedRemote_status unsigned 40,2 -m /e:LineVoltagePresent	// Flag indicating if voltage is detected on remote L1, L2 or L3.
 
 [StatusControlVoltage]
 ID=1CFFC5F7h	// Lists present voltage of each power supply on the control board (24V, 15V, 5V, and 3.3V.)
@@ -237,9 +277,10 @@ ID=18FFCBF7h	// Returns the inlet water temperature to the module as well as mod
 Type=Extended
 DLC=8
 CycleTime=100
-Var=TempInlet_measured signed 0,16 -m /u:C /f:0.1	// Coolant inlet temperature
+Var=TempHeatsink_measured signed 0,16 -m /u:C /f:0.1	// Coolant inlet temperature
 Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1	// Internal ambient temperature
 Var=ConverterLosses unsigned 32,16 -m /u:W /max:1	// Power converter thermal loss
+Var=FanSpeed unsigned 48,16 -m
 
 [StatusFaults]
 ID=0CFFC8F7h	// Fault bits.
@@ -265,6 +306,8 @@ Var=IllegalTransition_status unsigned 28,2 -m /max:1 /e:Fault	// Indicates that 
 Var=InvalidEEHeader_status unsigned 26,2 -m /max:1 /e:Fault	// Indicates that reading of non-volatile parameters at power-up failed.
 Var=InvalidEESection_status unsigned 24,2 -m /max:1 /e:Fault	// Indicates that reading or writing of an non-volatile parameter section failed.
 Var=ThermalOverload unsigned 38,2 -m /max:1 /e:Fault
+Var=OverloadAC_status unsigned 36,2 -m /max:1 /e:Fault
+Var=OverloadDC_status unsigned 34,2 -m /max:1 /e:Fault
 
 [StatusACParameters]
 ID=0CFFC2F7h	// RMS AC Voltage, current, and frequency measured by line A, B and C feedbacks.
@@ -289,7 +332,7 @@ ID=1CFFC6F7h	// Present voltage of the -15V power supply on the control board.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=n15V_Supply signed 0,16 -m /u:V /f:0.01 /min:-20 /max:0	// Present voltage of the control board -15V power supply.
+Var=n15V_Supply signed 0,16 -m /u:V /f:0.01	// Present voltage of the control board -15V power supply.
 Var=DiodeTemperature unsigned 32,16 -m /u:C /max:1	// Hottest diode
 Var=IGBTTemperature unsigned 48,16 -m /u:C /max:1	// Hottest IGBT
 
@@ -325,66 +368,98 @@ Var=Hash unsigned 0,28 -h -m	// Unique revision identification hashcode.
 ID=1CFFA9F7h	// Echos back parameter values.
 Type=Extended
 DLC=8
-Mux=ActParam0 0,16 0  -m
+Mux=ActParam0 0,14 0  -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=Dummy unsigned 16,16 -m /min:5 /max:10
 
 [StatusNVParam]
 DLC=8
-Mux=ActLVM_ClearingTimes1 0,16 1  -m
+Mux=ActLVM_ClearingTimes1 0,14 1  -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=VUnder50pct unsigned 16,16 -m /u:ms /min:1 /max:30000 /d:160
 Var=V50to88pct unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:2000
 Var=V110to120pct unsigned 48,16 -m /u:ms /min:1 /max:30000 /d:1000
 
 [StatusNVParam]
 DLC=8
-Mux=ActLVM_ClearingTimes2 0,16 2  -m
+Mux=ActLVM_ClearingTimes2 0,14 2  -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=VOver120 unsigned 16,16 -m /min:1 /max:30000 /d:160
 
 [StatusNVParam]
 DLC=8
-Mux=ActLFM_Limits 0,16 3  -m
+Mux=ActLFM_Limits 0,14 3  -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=FreqHi unsigned 16,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:60.5
 Var=FreqLo unsigned 32,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:59.8
 Var=FreqVeryLo unsigned 48,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:57
 
 [StatusNVParam]
 DLC=8
-Mux=ActLFM_ClearingTimes 0,16 4  -m
+Mux=ActLFM_ClearingTimes 0,14 4  -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=FreqVeryLo unsigned 16,16 -m /u:ms /min:160 /max:160 /d:160
 Var=FreqLo unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:160
 Var=FreqHi unsigned 48,16 -m /u:ms /min:160 /max:160 /d:160
 
 [StatusNVParam]
 DLC=8
-Mux=StatusJ1939_Interface 0,16 5  -m	// J1939 interface parameters
+Mux=StatusJ1939_Interface 0,14 5  -m	// J1939 interface parameters
 Var=StatusNodeID unsigned 16,8 -m /max:247 /d:247	// J1939 Source Address node for the module
 Var=StatusSA_Mask unsigned 24,8 -m /d:65	// Mask used to configure from which master source addresses to accept commands.
 Var=StatusBaudrate unsigned 32,4 -m /max:3 /e:Baudrate /d:2
 
 [StatusNVParam]
 DLC=8
-Mux=StatusFault_Config 0,16 6  -m	// configuration of various fault conditions to either trip the drive, or provide a warning status via CAN
+Mux=StatusFault_Config 0,14 6  -m	// configuration of various fault conditions to either trip the drive, or provide a warning status via CAN
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=StatusThermalOverload unsigned 22,2 -m /max:1 /e:FaultConfig	// Configured action to take when thermal overload input is active.
 
 [StatusNVParam]
 DLC=8
-Mux=StatusContactorDelays1 0,16 7  -m	// Sets the time the controller assumes it will take for contactors to open/close.
+Mux=StatusContactorDelays1 0,14 7  -m	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=StatusMX1Open unsigned 16,16 -m /u:ms /max:5000 /d:100	// Maximum time required for the MX1 contactor to open.
 Var=StatusMX1Close unsigned 32,16 -m /u:ms /max:2000 /d:100	// Maximum time required for the MX1 contactor to close.
 Var=StatusMX2Open unsigned 48,16 -m /u:ms /max:1	// Maximum time required for the MX2 contactor to open.
 
 [StatusNVParam]
 DLC=8
-Mux=StatusContactorDelays2 0,16 8  -m	// Sets the time the controller assumes it will take for contactors to open/close.
+Mux=StatusContactorDelays2 0,14 8  -m	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=StatusMX2Close unsigned 16,16 -m /u:ms /max:2000	// Maximum time required for the MX2 contactor to open.
 Var=StatusK1Open unsigned 32,16 -m /u:ms /max:2000	// Maximum time required for the K1 contactor to open.
 Var=StatusK1Close unsigned 48,16 -m /u:ms /max:2000	// Maximum time required for the K1 contactor to close.
 
 [StatusNVParam]
 DLC=8
-Mux=StatusContactorDelays3 0,16 9  -m	// Sets the time the controller assumes it will take for contactors to open/close.
+Mux=StatusContactorDelays3 0,14 9  -m	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=StatusK2Open unsigned 16,16 -m /u:ms /max:2000	// Maximum time required for the K2 contactor to open.
 Var=StatusK2Close unsigned 32,16 -m /u:ms /max:2000	// Maximum time required for the K2 contactor to close.
+
+[StatusNVParam]
+DLC=8
+Mux=HardwareDef1 0,14 000Ah -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=DeviceOvertempLimit_status unsigned 16,16 -m /u:C /max:300 /d:165
+
+[StatusNVParam]
+DLC=8
+Mux=AFF 0,14 000Bh -m	// Configures adaptive feed forward controllers
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=EnablePSAff_status unsigned 16,2 -m /max:1 /p:0 /e:Enable  // Enables/disables positive sequence AFF controller
+Var=EnableNSAff_status unsigned 18,2 -m /max:1 /e:Enable   // Enables/disables negative sequence AFF controller.
+Var=PSGain_status unsigned 32,8 -m /f:0.01 /p:2
+Var=PSLimit_status unsigned 40,8 -m /f:0.01 /p:2
+Var=NSGain_status unsigned 48,8 -m /f:0.01 /p:2
+Var=NSLimit_status unsigned 56,8 -m /f:0.01 /p:2
+
+[StatusNVParam]
+DLC=8
+Mux=ManageNV 0,14 000Ch -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=SaveToEE_status unsigned 16,2 -m /max:1 /e:Enable
 
 [StatusLineCurrents]
 ID=18FFD0F7h	// Measured RMS line currents.
@@ -403,4 +478,12 @@ CycleTime=100
 Var=L1Voltage_measured unsigned 0,16 -m /u:Vrms /f:0.1 /max:1	// Measured L1 RMS line-neutral voltage
 Var=L2Voltage_measured unsigned 16,16 -m /u:Vrms /f:0.1 /max:1	// Measured L2 RMS line-neutral voltage
 Var=L3Voltage_measured unsigned 32,16 -m /u:Vrms /f:0.1 /max:1	// Measured L3 RMS line-neutral voltage
+
+[StatusAcRemoteParameters]
+ID=1CFFC2F7h	// RMS AC Voltage, current, and frequency measured by line A, B and C feedbacks.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=VoltageAcRemote_measured signed 0,16 -m /u:V /f:0.1	// Measured remote RMS AC voltage.
+Var=FrequencyRemote_measured signed 32,16 -m /u:Hz /f:0.1	// Measured remote frequency.
 
