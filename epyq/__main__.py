@@ -85,6 +85,7 @@ def main(args=None):
 
         parser = argparse.ArgumentParser()
         parser.add_argument('--can', default=can_file)
+        parser.add_argument('--channel', default=None)
         parser.add_argument('--generate', '-g', action='store_true')
         args = parser.parse_args()
 
@@ -93,6 +94,8 @@ def main(args=None):
         'Linux': {'bustype': 'socketcan', 'channel': 'can0'},
         'Windows': {'bustype': 'pcan', 'channel': 'PCAN_USBBUS1'}
     }[platform.system()]
+    if args.channel is not None:
+        default['channel'] = args.channel
     bus = can.interface.Bus(**default)
 
     # TODO: the repetition here is not so pretty
