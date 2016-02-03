@@ -56,13 +56,11 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         old = self._send_checked
 
         # TODO: move this validation to dt to check itself
-        if isinstance(self.dt, float):
-            self._send_checked = value
-        elif value == Qt.Unchecked:
-            self._send_checked = value
-        else:
-            # TODO: notify user why it's not accepted
-            raise ValueError('Unable to check send checkbox due to invalid dt')
+        if not isinstance(self.dt, float):
+            if value != Qt.Unchecked:
+                self.dt = 0.1
+
+        self._send_checked = value
 
         if self._send_checked != old:
             self.update_timer()
