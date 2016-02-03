@@ -117,7 +117,9 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
 
     def from_dict(self, d):
         for child in self.children:
-            child.set_human_value(d[child.fields.name])
+            value = d.get(child.fields.name, None)
+            if value is not None:
+                child.set_human_value(value)
 
 
 class Frame(epyq.canneo.Frame, TreeNode):
