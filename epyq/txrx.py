@@ -335,7 +335,7 @@ class TxRxModel(QAbstractItemModel):
                 try:
                     multiplex = node.signal._multiplex
                 except AttributeError:
-                    allow = True
+                    allow = isinstance(node, SignalNode)
                 else:
                     allow = multiplex != 'Multiplexor'
 
