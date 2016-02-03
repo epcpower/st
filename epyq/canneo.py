@@ -34,7 +34,10 @@ class Signal(QObject):
 
     def get_human_value(self):
         # TODO: handle offset
-        value = self.value * float(self.signal._factor)
+        value = self.value
+        if value is None:
+            value = 0
+        value = value * float(self.signal._factor)
         # TODO: stop CAMPing 90850709827457599958798327878
         f = '{{:.{}f}}'
         f = f.format(self.get_decimal_places())

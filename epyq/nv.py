@@ -5,9 +5,11 @@
 import can
 from epyq.abstractcolumns import AbstractColumns
 import epyq.canneo
+import json
 from epyq.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QAbstractItemModel, QVariant,
                           QModelIndex, pyqtSignal, pyqtSlot)
+from PyQt5.QtWidgets import QFileDialog
 import time
 
 # See file COPYING in this source tree
@@ -105,6 +107,17 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
     def unique(self):
         # TODO: actually identify the object
         return '-'
+
+    def to_dict(self):
+        d = {}
+        for child in self.children:
+            d[child.fields.name] = child.get_human_value()
+
+        return d
+
+    def from_dict(self, d):
+        for child in self.children:
+            child.set_human_value(d[child.fields.name])
 
 
 class Frame(epyq.canneo.Frame, TreeNode):
@@ -339,6 +352,28 @@ class NvModel(QAbstractItemModel):
     @pyqtSlot()
     def read_from_module(self):
         self.root.read_all_from_device()
+
+    @pyqtSlot()
+    def write_to_file(self):
+        file_path = QFileDialog.getSaveFileName(
+                filter='JSON (*.json);; All File (*)',
+                initialFilter='JSON (*.json)')[0]
+        if len(file_path) > 0:
+            with open(file_path, 'w') as file:
+                d = self.root.to_dict()
+                s = json.dumps(d, sort_keys=True, indent=4)
+                file.write(s)
+
+    @pyqtSlot()
+    def read_from_file(self):
+        file_path = QFileDialog.getOpenFileName(
+                filter='JSON (*.json);; All File (*)',
+                initialFilter='JSON (*.json)')[0]
+        if len(file_path) > 0:
+            with open(file_path, 'r') as file:
+                s = file.read()
+                d = json.loads(s)
+                self.root.from_dict(d)
 
 
 if __name__ == '__main__':

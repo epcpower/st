@@ -16,6 +16,8 @@ __license__ = 'GPLv2+'
 class NvView(QtWidgets.QWidget):
     read_from_module = pyqtSignal()
     write_to_module = pyqtSignal()
+    read_from_file = pyqtSignal()
+    write_to_file = pyqtSignal()
 
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent=parent)
@@ -25,6 +27,8 @@ class NvView(QtWidgets.QWidget):
         self.ui = uic.loadUi(ui_file, self)
         self.ui.write_to_module_button.clicked.connect(self.write_to_module)
         self.ui.read_from_module_button.clicked.connect(self.read_from_module)
+        self.ui.write_to_file_button.clicked.connect(self.write_to_file)
+        self.ui.read_from_file_button.clicked.connect(self.read_from_file)
 
         self.resize_columns = epyq.nv.Columns(
             name=True,
@@ -35,6 +39,8 @@ class NvView(QtWidgets.QWidget):
 
         self.ui.read_from_module.connect(model.read_from_module)
         self.ui.write_to_module.connect(model.write_to_module)
+        self.ui.read_from_file.connect(model.read_from_file)
+        self.ui.write_to_file.connect(model.write_to_file)
 
         self.ui.tree_view.header().setStretchLastSection(False)
 

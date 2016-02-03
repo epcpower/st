@@ -29,7 +29,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,99,1">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,99,0,1">
        <property name="sizeConstraint">
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
@@ -39,17 +39,31 @@
        <item>
         <widget class="QPushButton" name="write_to_module_button">
          <property name="text">
-          <string>Write To Inverter</string>
+          <string>To Inverter</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="write_to_file_button">
+         <property name="text">
+          <string>To File</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Nonvolatile Parameters</string>
+          <string>NV Parameters</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="read_from_file_button">
+         <property name="text">
+          <string>From File</string>
          </property>
         </widget>
        </item>
@@ -62,7 +76,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Read From Inverter</string>
+          <string>From Inverter</string>
          </property>
         </widget>
        </item>
