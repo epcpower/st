@@ -38,10 +38,8 @@ class Signal(QObject):
             return None
 
         value = self.value * float(self.signal._factor)
-        # TODO: stop CAMPing 90850709827457599958798327878
-        f = '{{:.{}f}}'
-        f = f.format(self.get_decimal_places())
-        return f.format(value)
+
+        return self.format_float(value)
 
     def set_human_value(self, value):
         # TODO: handle offset
@@ -111,10 +109,7 @@ class Signal(QObject):
 
                     self.scaled_value = float(self.value) * factor
 
-                    # TODO: stop CAMPing 90850709827457599958798327878
-                    f = '{{:.{}f}}'
-                    f = f.format(self.get_decimal_places())
-                    self.full_string = f.format(self.scaled_value)
+                    self.full_string = self.format_float(self.scaled_value)
 
                     if self.signal._unit is not None:
                         if len(self.signal._unit) > 0:
@@ -123,6 +118,9 @@ class Signal(QObject):
                     value = self.scaled_value
 
             self._my_signal.emit(value)
+
+    def format_float(self, value):
+        return '{{:.{}f}}'.format(self.get_decimal_places()).format(value)
 
     def format(self):
         # None is for handling padding
