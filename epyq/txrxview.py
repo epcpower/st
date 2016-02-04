@@ -8,7 +8,6 @@ __copyright__ = 'Copyright 2015, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-# TODO: pretty campy 978584872719109549767978239650923954
 class TxRxView(QtWidgets.QWidget):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent=parent)

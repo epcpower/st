@@ -12,7 +12,6 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-# TODO: pretty campy 978584872719109549767978239650923954
 class NvView(QtWidgets.QWidget):
     read_from_module = pyqtSignal()
     write_to_module = pyqtSignal()
