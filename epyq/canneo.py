@@ -389,3 +389,20 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal):
                 frame.multiplex_frames[multiplex_value] = matrix_frame
 
     return frames
+
+
+def get_multiplex(matrix, message):
+    base_frame = matrix.frameById(message.arbitration_id)
+    try:
+        frame = base_frame.multiplex_frame
+    except AttributeError:
+        frame = base_frame
+        multiplex_value = None
+    else:
+        # finish the multiplex thing
+        frame.frame.unpack(message.data)
+        multiplex_value = base_frame.multiplex_signal.signal.value
+        # TODO: stop using strings for integers...
+        frame = base_frame.multiplex_frames[str(multiplex_value)]
+
+    return (frame, multiplex_value)

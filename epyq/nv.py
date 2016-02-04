@@ -64,26 +64,10 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
         self.bus.send(message)
         time.sleep(0.01)
 
-    # TODO: campy 975489957269239475565893294237
-    def get_multiplex(self, message):
-        base_frame = self.matrix.frameById(message.arbitration_id)
-        try:
-            frame = base_frame.multiplex_frame
-        except AttributeError:
-            frame = base_frame
-            multiplex_value = None
-        else:
-            # finish the multiplex thing
-            frame.frame.unpack(message.data)
-            multiplex_value = base_frame.multiplex_signal.signal.value
-            # TODO: stop using strings for integers...
-            frame = base_frame.multiplex_frames[str(multiplex_value)]
-
-        return (frame, multiplex_value)
-
     @pyqtSlot(can.Message)
     def message_received(self, msg):
-        multiplex_message, multiplex_value = self.get_multiplex(msg)
+        multiplex_message, multiplex_value =\
+            epyq.canneo.get_multiplex(self.matrix, msg)
         if multiplex_value is not None and multiplex_message in self.status_frames.values():
             multiplex_message.frame.unpack(msg.data)
             # multiplex_message.frame.update_canneo_from_matrix_signals()
@@ -175,7 +159,6 @@ class Nv(epyq.canneo.Signal, TreeNode):
         self.fields = Columns(name=signal._name,
                               value='-')
 
-    # TODO: campy 909457829293754985498
     def set_value(self, value):
         epyq.canneo.Signal.set_value(self, value)
         self.fields.value = self.full_string

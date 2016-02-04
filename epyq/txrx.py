@@ -167,7 +167,6 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
         # TODO: make it more unique
         return str(self.fields.id) + '__'
 
-    # TODO: campy 909457829293754985498
     def set_value(self, value):
         epyq.canneo.Signal.set_value(self, value)
         self.fields.value = self.full_string
@@ -223,7 +222,7 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
         self.node_id = node_id
 
     def add_message(self, message=can.Message(), id=None, tx=False):
-        frame = self.get_multiplex(message)[0]
+        frame = epyq.canneo.get_multiplex(self.matrix, message)[0]
 
         if id is None:
             id = self.generate_id(message=message)
@@ -245,25 +244,8 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
         self.append_child(message_node)
         self.added.emit(message_node)
 
-    # TODO: campy 975489957269239475565893294237
-    def get_multiplex(self, message):
-        base_frame = self.matrix.frameById(message.arbitration_id)
-        try:
-            frame = base_frame.multiplex_frame
-        except AttributeError:
-            frame = base_frame
-            multiplex_value = None
-        else:
-            # finish the multiplex thing
-            frame.frame.unpack(message.data)
-            multiplex_value = base_frame.multiplex_signal.signal.value
-            # TODO: stop using strings for integers...
-            frame = base_frame.multiplex_frames[str(multiplex_value)]
-
-        return (frame, multiplex_value)
-
     def generate_id(self, message):
-        multiplex_value = self.get_multiplex(message)[1]
+        multiplex_value = epyq.canneo.get_multiplex(self.matrix, message)[1]
 
         return (message.arbitration_id,
                 message.id_type,
