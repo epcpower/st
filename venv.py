@@ -89,6 +89,9 @@ if not args.in_virtual:
                                  '--bin', bin,
                                  '--activate', activate,
                                  '--in-virtual']
+    if args.no_ssl_verify:
+        virtualenv_python_command.append('--no-ssl-verify')
+
     returncode = subprocess.call(virtualenv_python_command)
 
     sys.exit(returncode)
@@ -130,7 +133,18 @@ else:
     import io
     import shutil
     for name, url in zip_repos.items():
-        response = requests.get(url, verify=not args.no_ssl_verify)
+        try:
+            response = requests.get(url, verify=not args.no_ssl_verify)
+        except requests.exceptions.SSLError:
+            print('')
+            print('        SSL error occurred while requesting:')
+            print('            {}'.format(url))
+            print('')
+            print('        You probably want to use --no-ssl-verify')
+            print('')
+
+            sys.exit(1)
+
         zip_data = io.BytesIO()
         zip_data.write(response.content)
         zip_file = zipfile.ZipFile(zip_data)
