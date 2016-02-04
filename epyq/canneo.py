@@ -26,6 +26,9 @@ class Signal(QObject):
 
         self.frame = frame
 
+        self.enumeration_format_re = {'re': '^\[(\d+)\]',
+                                      'format': '[{v}] {s}'}
+
         if connect is not None:
             self.connect(connect)
 
@@ -49,8 +52,7 @@ class Signal(QObject):
             value = float(value)
         except ValueError:
             if value in self.enumeration_strings():
-                # TODO: must agree with 999549929576736894592
-                match = re.search('^\[(\d+)\]', value)
+                match = re.search(self.enumeration_format_re['re'], value)
                 value = match.group(1)
                 value = float(value)
             else:
@@ -61,8 +63,8 @@ class Signal(QObject):
         self.set_value(value)
 
     def enumeration_string(self, value):
-        # TODO: must agree with 999549929576736894592
-        return '[{i}] {s}'.format(i=value, s=self.signal._values[value])
+        return self.enumeration_format_re['format'].format(
+                v=value, s=self.signal._values[value])
 
     def enumeration_strings(self):
         items = list(self.signal._values)
@@ -93,8 +95,8 @@ class Signal(QObject):
 
             try:
                 enum_string = self.signal._values[str(value)]
-                # TODO: should agree with 999549929576736894592
-                self.full_string = '[{v}] {s}'.format(s=enum_string, v=value)
+                self.full_string = self.enumeration_format_re['format'].format(
+                        s=enum_string, v=value)
             except KeyError:
                 # TODO: this should be a subclass or something
                 if self.signal._name == '__padding__':
