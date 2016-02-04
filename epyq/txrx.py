@@ -173,8 +173,12 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
         self.fields.value = self.full_string
 
     def set_data(self, data):
-        self.set_human_value(data)
-        self.frame.update_from_signals()
+        try:
+            self.set_human_value(data)
+        except ValueError:
+            raise
+        else:
+            self.frame.update_from_signals()
 
 
 class TxRx(TreeNode, epyq.canneo.QtCanListener):
@@ -304,8 +308,13 @@ Columns.indexes = Columns.indexes()
 
 class TxRxModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
     def __init__(self, root, parent=None):
+        checkbox_columns = Columns.fill(False)
+        if root.tx:
+            checkbox_columns.dt = True
+
         epyq.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
-                self, root=root, parent=parent)
+                self, root=root, checkbox_columns=checkbox_columns,
+                parent=parent)
 
         self.headers = Columns(id='ID',
                                length='Length',
@@ -341,9 +350,15 @@ class TxRxModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
         if index.column() == Columns.indexes.value:
             if role == Qt.EditRole:
                 node = self.node_from_index(index)
-                node.set_data(data)
-                self.dataChanged.emit(index, index)
-                return True
+                try:
+                    node.set_data(data)
+                except ValueError:
+                    return False
+                else:
+                    self.dataChanged.emit(index, index)
+                    return True
+
+            return False
 
         if index.column() == Columns.indexes.dt:
             if role == Qt.EditRole:
@@ -361,51 +376,6 @@ class TxRxModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
                 return True
 
         return False
-
-    def data(self, index, role):
-        if role == Qt.DecorationRole:
-            return QVariant()
-
-        if role == Qt.TextAlignmentRole:
-            return QVariant(int(Qt.AlignTop | Qt.AlignLeft))
-
-        if role == Qt.CheckStateRole:
-            if index.column() == Columns.indexes.dt:
-                if self.root.tx:
-                    node = self.node_from_index(index)
-                    try:
-                        return node.send_checked
-                    except AttributeError:
-                        return QVariant()
-
-        if role == Qt.DisplayRole:
-            node = self.node_from_index(index)
-
-            if index.column() == len(self.headers):
-                return QVariant(node.unique())
-            else:
-                try:
-                    return QVariant(node.fields[index.column()])
-                except IndexError:
-                    return QVariant()
-
-        if role == Qt.EditRole:
-            node = self.node_from_index(index)
-            if index.column() == Columns.indexes.value:
-                try:
-                    value = node.get_human_value()
-                except TypeError:
-                    value = ''
-            else:
-                value = node.fields[index.column()]
-
-            # TODO: totally dt specific
-            if isinstance(value, float):
-                value = str(value)
-
-            return QVariant(value)
-
-        return QVariant()
 
     @pyqtSlot(TreeNode)
     def added(self, message):

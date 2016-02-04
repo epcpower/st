@@ -202,19 +202,15 @@ class Nv(epyq.canneo.Signal, TreeNode):
 
 class NvModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
     def __init__(self, root, parent=None):
+        editable_columns = Columns.fill(False)
+        editable_columns.value = True
+
         epyq.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
-                self, root=root, parent=parent)
+                self, root=root, editable_columns=editable_columns,
+                parent=parent)
 
         self.headers = Columns(name='Name',
                                value='Value')
-
-    def flags(self, index):
-        flags = epyq.pyqabstractitemmodel.PyQAbstractItemModel.flags(self, index)
-
-        if index.column() == Columns.indexes.value:
-            flags |= Qt.ItemIsEditable
-
-        return flags
 
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.value:
@@ -228,42 +224,6 @@ class NvModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
                 return True
 
         return False
-
-    def data(self, index, role):
-        if role == Qt.DecorationRole:
-            return QVariant()
-
-        if role == Qt.TextAlignmentRole:
-            return QVariant(int(Qt.AlignTop | Qt.AlignLeft))
-
-        if role == Qt.DisplayRole:
-            node = self.node_from_index(index)
-
-            if index.column() == len(self.headers):
-                return QVariant(node.unique())
-            else:
-                try:
-                    return QVariant(node.fields[index.column()])
-                except IndexError:
-                    return QVariant()
-
-        if role == Qt.EditRole:
-            node = self.node_from_index(index)
-            if index.column() == Columns.indexes.value:
-                try:
-                    value = node.get_human_value()
-                except TypeError:
-                    value = ''
-            else:
-                value = node.fields[index.column()]
-
-            # TODO: totally dt specific
-            if isinstance(value, float):
-                value = str(value)
-
-            return QVariant(value)
-
-        return QVariant()
 
     @pyqtSlot()
     def write_to_module(self):

@@ -12,18 +12,75 @@ __license__ = 'GPLv2+'
 
 
 class PyQAbstractItemModel(QAbstractItemModel):
-    def __init__(self, root, parent=None):
+    def __init__(self, root, checkbox_columns=None, editable_columns=None,
+                 parent=None):
         QAbstractItemModel.__init__(self, parent=parent)
 
         self.root = root
+        self.checkbox_columns = checkbox_columns
+        self.editable_columns = editable_columns
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return QVariant(self.headers[section])
         return QVariant()
 
+    def data(self, index, role):
+        if role == Qt.DecorationRole:
+            return QVariant()
+
+        if role == Qt.TextAlignmentRole:
+            return QVariant(int(Qt.AlignTop | Qt.AlignLeft))
+
+        if role == Qt.CheckStateRole:
+            if self.checkbox_columns is not None:
+                if self.checkbox_columns[index.column()]:
+                    node = self.node_from_index(index)
+                    try:
+                        return node.send_checked
+                    except AttributeError:
+                        return QVariant()
+
+        if role == Qt.DisplayRole:
+            node = self.node_from_index(index)
+
+            if index.column() == len(self.headers):
+                return QVariant(node.unique())
+            else:
+                try:
+                    return QVariant(node.fields[index.column()])
+                except IndexError:
+                    return QVariant()
+
+        if role == Qt.EditRole:
+            node = self.node_from_index(index)
+            try:
+                get = node.get_human_value
+            except AttributeError:
+                value = node.fields[index.column()]
+            else:
+                try:
+                    value = get()
+                except TypeError:
+                    value = ''
+
+            if value is None:
+                value = ''
+            else:
+                value = str(value)
+
+            return QVariant(value)
+
+        return QVariant()
+
     def flags(self, index):
-        return QAbstractItemModel.flags(self, index)
+        flags = QAbstractItemModel.flags(self, index)
+
+        if self.editable_columns is not None:
+            if self.editable_columns[index.column()]:
+                flags |= Qt.ItemIsEditable
+
+        return flags
 
     def index(self, row, column, parent):
         node = self.node_from_index(parent)
