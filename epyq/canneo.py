@@ -417,3 +417,6 @@ def format_identifier(identifier, extended):
         f = f.format(3)
 
     return f.format(identifier)
+
+def format_data(data):
+    return ' '.join(['{:02X}'.format(byte) for byte in data])

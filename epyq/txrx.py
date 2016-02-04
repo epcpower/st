@@ -109,8 +109,7 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
 
         self.fields.length = '{} B'.format(message.dlc)
         self.fields.signal = ''
-        # TODO: quit repeating (98476589238759)
-        self.fields.value = ' '.join(['{:02X}'.format(byte) for byte in message.data])
+        self.fields.value = epyq.canneo.format_data(message.data)
         if self.last_time == message.timestamp:
             raise Exception('message already received {message}'
                             .format(**locals()))
@@ -132,8 +131,7 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
 
     def update_from_signals(self):
         epyq.canneo.Frame.update_from_signals(self)
-        # TODO: quit repeating (98476589238759)
-        self.fields.value = ' '.join(['{:02X}'.format(byte) for byte in self.data])
+        self.fields.value = epyq.canneo.format_data(self.data)
         # TODO: send should update, not the other way around like it is
         self._send()
 
