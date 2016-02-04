@@ -220,7 +220,10 @@ class NvModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
         if index.column() == Columns.indexes.value:
             if role == Qt.EditRole:
                 node = self.node_from_index(index)
-                node.set_data(data)
+                try:
+                    node.set_data(data)
+                except ValueError:
+                    return False
                 self.dataChanged.emit(index, index)
                 return True
 
