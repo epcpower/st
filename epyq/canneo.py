@@ -406,3 +406,14 @@ def get_multiplex(matrix, message):
         frame = base_frame.multiplex_frames[str(multiplex_value)]
 
     return (frame, multiplex_value)
+
+
+def format_identifier(identifier, extended):
+    f = '0x{{:0{}X}}'
+
+    if extended:
+        f = f.format(8)
+    else:
+        f = f.format(3)
+
+    return f.format(identifier)

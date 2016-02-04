@@ -30,14 +30,9 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         except KeyError:
             pass
 
-        # TODO: quit doing this frame->fields in two places (098098234709572943)
-        format = '0x{{:0{}X}}'
-        if frame._extended:
-            format = format.format(8)
-        else:
-            format = format.format(3)
+        identifier = epyq.canneo.format_identifier(frame._Id, frame._extended)
 
-        self.fields = Columns(id=format.format(self.frame._Id),
+        self.fields = Columns(id=identifier,
                               message=self.frame._name,
                               signal='',
                               length='{} B'.format(self.frame._Size),
@@ -104,15 +99,8 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         # TODO: I think this is not needed
         # self.message = message
 
-        # TODO: quit doing this frame->fields in two places (098098234709572943)
-        # TODO: should this formatting be done in the other place?
-        format = '0x{{:0{}X}}'
-        if message.id_type:
-            format = format.format(8)
-        else:
-            format = format.format(3)
-
-        self.fields.id = format.format(message.arbitration_id)
+        self.fields.id = epyq.canneo.format_identifier(
+                message.arbitration_id, message.id_type)
 
         try:
             self.fields.message = self.frame._name
