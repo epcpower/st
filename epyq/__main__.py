@@ -22,22 +22,33 @@ __license__ = 'GPLv2+'
 
 
 class Window(QtWidgets.QMainWindow):
-    def __init__(self, matrix, tx_model, rx_model, nv_model, parent=None):
+    def __init__(self, ui_file, matrix, tx_model, rx_model, nv_model,
+                 parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
 
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'main.ui')
         self.ui = uic.loadUi(ui_file, self)
         self.ui.rx.setModel(rx_model)
         self.ui.tx.setModel(tx_model)
-        self.ui.nv.setModel(nv_model)
+        try:
+            ui_nv = self.ui.nv
+        except AttributeError:
+            pass
+        else:
+            ui_nv.setModel(nv_model)
+
 
         children = self.findChildren(QtCore.QObject)
         targets = [c for c in children if
                    c.property('frame') and c.property('signal')]
 
-        # TODO: make this accessible in Designer
-        self.ui.other_scale.setOrientations(QtCore.Qt.Vertical)
-        # self.ui.scale.setOrientations(QtCore.Qt.Horizontal)
+        try:
+            other_scale = self.ui.other_scale
+        except AttributeError:
+            pass
+        else:
+            # TODO: make this accessible in Designer
+            self.ui.other_scale.setOrientations(QtCore.Qt.Vertical)
+            # self.ui.scale.setOrientations(QtCore.Qt.Horizontal)
 
         for target in targets:
             frame_name = target.property('frame')
@@ -83,9 +94,13 @@ def main(args=None):
             'tests',
             'AFE_CAN_ID247_FACTORY.sym')
 
+        ui_default = os.path.join(os.path.dirname(
+                os.path.realpath(__file__)), 'main.ui')
+
         parser = argparse.ArgumentParser()
         parser.add_argument('--can', default=can_file)
-        parser.add_argument('--channel', default=None)
+        parser.add_argument('--channel', default=ui_default)
+        parser.add_argument('--ui', default=None)
         parser.add_argument('--generate', '-g', action='store_true')
         args = parser.parse_args()
 
@@ -138,11 +153,18 @@ def main(args=None):
             frame_class=epyq.nv.Frame,
             signal_class=epyq.nv.Nv)
 
-    nvs = epyq.nv.Nvs(matrix_nv, bus)
-    nv_model = epyq.nv.NvModel(nvs)
-    nvs.changed.connect(nv_model.changed)
+    notifiees = frames_widgets + [rx]
 
-    notifier = can.Notifier(bus, frames_widgets + [rx, nvs], timeout=0.1)
+    try:
+        nvs = epyq.nv.Nvs(matrix_nv, bus)
+    except epyq.nv.NoNv:
+        nv_model = None
+    else:
+        nv_model = epyq.nv.NvModel(nvs)
+        nvs.changed.connect(nv_model.changed)
+        notifiees.append(nvs)
+
+    notifier = can.Notifier(bus, notifiees, timeout=0.1)
 
     if args.generate:
         print('generating')
@@ -201,7 +223,8 @@ def main(args=None):
 
     app = QApplication(sys.argv)
 
-    window = Window(matrix_widgets, tx_model=tx_model, rx_model=rx_model,
+    window = Window(ui_file=args.ui, matrix=matrix_widgets,
+                    tx_model=tx_model, rx_model=rx_model,
                     nv_model=nv_model)
 
     window.show()

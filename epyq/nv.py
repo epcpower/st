@@ -23,6 +23,10 @@ class Columns(AbstractColumns):
 Columns.indexes = Columns.indexes()
 
 
+class NoNv(Exception):
+    pass
+
+
 class Nvs(TreeNode, epyq.canneo.QtCanListener):
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
 
@@ -34,8 +38,16 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
         self.matrix = matrix
         self.message_received_signal.connect(self.message_received)
 
+
         self.set_frames = [f for f in self.matrix._fl._list
-                       if f._name == 'CommandSetNVParam'][0].multiplex_frames
+                       if f._name == 'CommandSetNVParam']
+        try:
+            self.set_frames = self.set_frames[0]
+        except IndexError:
+            # TODO: custom error
+            raise NoNv()
+
+        self.set_frames = self.set_frames.multiplex_frames
         self.status_frames = [f for f in self.matrix._fl._list
                        if f._name == 'StatusNVParam'][0].multiplex_frames
         for value, frame in self.set_frames.items():
