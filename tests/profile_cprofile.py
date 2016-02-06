@@ -18,7 +18,7 @@ def main():
     pr = cProfile.Profile()
     can_file = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        'AFE_CAN_ID247_FACTORY.sym')
+        '..', 'epyq', 'AFE_CAN_ID247_FACTORY.sym')
     args = Bunch(can=can_file, generate=False)
     pr.enable()
     exit_value = epyq.__main__.main(args=args)

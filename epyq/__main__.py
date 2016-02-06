@@ -9,10 +9,12 @@ import epyq.canneo
 import epyq.nv
 import epyq.txrx
 import functools
+import io
 import math
 import os
 import platform
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
+from PyQt5.QtCore import QFile, QFileInfo, QTextStream
 import sys
 import time
 
@@ -26,7 +28,14 @@ class Window(QtWidgets.QMainWindow):
                  parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
 
-        self.ui = uic.loadUi(ui_file, self)
+        # TODO: CAMPid 9549757292917394095482739548437597676742
+        ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), ui_file)
+        ui_file = QFile(ui_file)
+        ui_file.open(QFile.ReadOnly | QFile.Text)
+        ts = QTextStream(ui_file)
+        sio = io.StringIO(ts.readAll())
+        self.ui = uic.loadUi(sio, self)
+
         self.ui.rx.setModel(rx_model)
         self.ui.tx.setModel(tx_model)
         try:
@@ -84,23 +93,20 @@ class Window(QtWidgets.QMainWindow):
 
 def main(args=None):
     import sys
+    print('starting epyq')
+    sys.stdout.flush()
 
     if args is None:
         import argparse
 
-        can_file = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            '..',
-            'tests',
-            'AFE_CAN_ID247_FACTORY.sym')
+        can_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'AFE_CAN_ID247_FACTORY.sym')
 
-        ui_default = os.path.join(os.path.dirname(
-                os.path.realpath(__file__)), 'main.ui')
+        ui_default = 'main.ui'
 
         parser = argparse.ArgumentParser()
         parser.add_argument('--can', default=can_file)
-        parser.add_argument('--channel', default=ui_default)
-        parser.add_argument('--ui', default=None)
+        parser.add_argument('--channel', default=None)
+        parser.add_argument('--ui', default=ui_default)
         parser.add_argument('--generate', '-g', action='store_true')
         args = parser.parse_args()
 

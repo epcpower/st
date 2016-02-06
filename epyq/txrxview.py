@@ -1,7 +1,9 @@
 import epyq.delegates
 import epyq.txrx
+import io
 import os
 from PyQt5 import QtWidgets, uic
+from PyQt5.QtCore import QFile, QFileInfo, QTextStream
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2015, EPC Power Corp.'
@@ -12,9 +14,13 @@ class TxRxView(QtWidgets.QWidget):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent=parent)
 
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                               'txrxview.ui')
-        self.ui = uic.loadUi(ui_file, self)
+        # TODO: CAMPid 9549757292917394095482739548437597676742
+        ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'txrxview.ui')
+        ui_file = QFile(ui_file)
+        ui_file.open(QFile.ReadOnly | QFile.Text)
+        ts = QTextStream(ui_file)
+        sio = io.StringIO(ts.readAll())
+        self.ui = uic.loadUi(sio, self)
 
         self.resize_columns = epyq.txrx.Columns(
             id=True,
