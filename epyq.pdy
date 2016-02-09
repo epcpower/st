@@ -5,8 +5,12 @@ win32 {
     QT_BIN = $$(SYSROOT)\qt-5.5.1\bin
     PYQT5 = C:\Python34\Lib\site-packages\PyQt5
 
+    DESTDIR_WIN = $${OUT_PWD}/release/platforms
+    DESTDIR_WIN ~= s,/,\\,g
+    QMAKE_POST_LINK += $$quote($$QMAKE_MKDIR $${DESTDIR_WIN}) &amp;
+
     EXTRA_BINFILES = \
-        ../tests/AFE_CAN_ID247_FACTORY.sym \
+        ../epyq/AFE_CAN_ID247_FACTORY.sym \
         ../epyq.bat \
         $${QT_BIN}/Qt5Core.dll \
         $${QT_BIN}/Qt5Widgets.dll \
@@ -24,7 +28,7 @@ win32 {
     EXTRA_BINFILES_WIN ~= s,/,\\,g
     DESTDIR_WIN = $${OUT_PWD}/release
     DESTDIR_WIN ~= s,/,\\,g
-    QMAKE_POST_LINK += $$quote($$QMAKE_MKDIR $${DESTDIR_WIN}) &amp;
+#    QMAKE_POST_LINK += $$quote($$QMAKE_MKDIR $${DESTDIR_WIN}) &amp;
     for(FILE,EXTRA_BINFILES_WIN){
                 QMAKE_POST_LINK +=$$quote($${QMAKE_COPY} $${FILE} $${DESTDIR_WIN}$$escape_expand(\n\t))
     }
@@ -38,7 +42,7 @@ win32 {
     EXTRA_BINFILES_WIN ~= s,/,\\,g
     DESTDIR_WIN = $${OUT_PWD}/release/platforms
     DESTDIR_WIN ~= s,/,\\,g
-    QMAKE_POST_LINK += $$quote($$QMAKE_MKDIR $${DESTDIR_WIN}) &amp;
+#    QMAKE_POST_LINK += $$quote($$QMAKE_MKDIR $${DESTDIR_WIN}) &amp;
     for(FILE,EXTRA_BINFILES_WIN){
                 QMAKE_POST_LINK +=$$quote($${QMAKE_COPY} $${FILE} $${DESTDIR_WIN}$$escape_expand(\n\t))
     }

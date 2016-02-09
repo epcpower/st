@@ -14,7 +14,8 @@ import math
 import os
 import platform
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
-from PyQt5.QtCore import QFile, QFileInfo, QTextStream
+from PyQt5.QtCore import QFile, QFileInfo, QTextStream, QCoreApplication
+from PyQt5.QtWidgets import QApplication
 import sys
 import time
 
@@ -96,10 +97,16 @@ def main(args=None):
     print('starting epyq')
     sys.stdout.flush()
 
+    app = QApplication(sys.argv)
+
     if args is None:
         import argparse
 
-        can_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'AFE_CAN_ID247_FACTORY.sym')
+        can_path = QFileInfo.absolutePath(QFileInfo(__file__))
+        if can_path[0] == ':':
+            can_path = QCoreApplication.applicationDirPath()
+
+        can_file = os.path.join(can_path, 'AFE_CAN_ID247_FACTORY.sym')
 
         ui_default = 'main.ui'
 
@@ -224,10 +231,6 @@ def main(args=None):
                 for m in messages:
                     bus.send(m)
         sys.exit(0)
-
-    from PyQt5.QtWidgets import QApplication
-
-    app = QApplication(sys.argv)
 
     window = Window(ui_file=args.ui, matrix=matrix_widgets,
                     tx_model=tx_model, rx_model=rx_model,
