@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>EPyQ</Name>
+    <Version>0.0.1</Version>
+    <Title>EPyQ Installer</Title>
+    <Publisher>EPC Power Corp.</Publisher>
+    <StartMenuDir>EPC Power Service Tool</StartMenuDir>
+    <TargetDir>@HomeDir@/EPyQ</TargetDir>
+</Installer>
