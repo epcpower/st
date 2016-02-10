@@ -11,15 +11,15 @@ Component.prototype.createOperations = function()
         if (systemInfo.productType == "windows") { 
             try {
                 component.addOperation("CreateShortcut", "@TargetDir@/EPyQ.bat", "@StartMenuDir@/EPyQ.lnk",
-                    "workingDirectory=@TargetDir@", "iconPath=%SystemRoot%/system32/SHELL32.dll",
-                    "iconId=2");
+                    "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/EPyQ.exe",
+                    "iconId=0");
                 component.addOperation("CreateShortcut", "@TargetDir@/maintenancetool.exe", "@StartMenuDir@/Uninstall.lnk",
                     "workingDirectory=@TargetDir@", "iconPath=%SystemRoot%/system32/SHELL32.dll",
                     "iconId=2");
 
                 component.addOperation("CreateShortcut", "@TargetDir@/EPyQ.bat", "@DesktopDir@/EPyQ.lnk",
-                    "workingDirectory=@TargetDir@", "iconPath=%SystemRoot%/system32/SHELL32.dll",
-                    "iconId=2");
+                    "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/EPyQ.exe",
+                    "iconId=1");
             } catch (e) {
                 // Do nothing if key doesn't exist
             }

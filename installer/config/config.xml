@@ -6,4 +6,8 @@
     <Publisher>EPC Power Corp.</Publisher>
     <StartMenuDir>EPC Power Service Tool</StartMenuDir>
     <TargetDir>@HomeDir@/EPyQ</TargetDir>
+    <ProductUrl>http://www.epcpower.com</ProductUrl>
+    <InstallerWindowIcon>wicon.png</InstallerWindowIcon>
+    <InstallerApplicationIcon>aicon</InstallerApplicationIcon>
+    <Logo>icon_duplicate.png</Logo>
 </Installer>

@@ -29,6 +29,10 @@ class Window(QtWidgets.QMainWindow):
                  parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
 
+        ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
+        ico = QtGui.QIcon(ico_file)
+        self.setWindowIcon(ico)
+
         # TODO: CAMPid 9549757292917394095482739548437597676742
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), ui_file)
         ui_file = QFile(ui_file)
