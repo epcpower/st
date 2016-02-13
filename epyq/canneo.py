@@ -260,7 +260,6 @@ class Frame(QtCanListener):
                     value = int(value)
                 except (TypeError, ValueError):
                     value = 0
-                print('{}: {}'.format(signal._name, value))
                 data.append(value)
 
         return bitstruct.pack(self.format(), *data)
