@@ -102,6 +102,7 @@ class Signal(QObject):
                 if self.signal._name == '__padding__':
                     self.full_string = '__padding__'
                 else:
+                    # TODO: CAMPid 9395616283654658598648263423685
                     # TODO: and _offset...
                     try:
                         factor = self.factor
@@ -239,17 +240,19 @@ class Frame(QtCanListener):
 
         return fmt
 
-    def update_from_signals(self):
-        self.data = self.pack(self)
+    def update_from_signals(self, function=None):
+        self.data = self.pack(self, function=function)
 
-    def pack(self, data):
+    def pack(self, data, function=None):
         self.pad()
 
         if data == self:
+            if function is None:
+                function = lambda s: s.value
             data = []
             for signal in self.frame._signals:
                 try:
-                    value = signal.signal.value
+                    value = function(signal.signal)
                 except:
                     value = 0
 
@@ -257,6 +260,7 @@ class Frame(QtCanListener):
                     value = int(value)
                 except (TypeError, ValueError):
                     value = 0
+                print('{}: {}'.format(signal._name, value))
                 data.append(value)
 
         return bitstruct.pack(self.format(), *data)

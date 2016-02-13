@@ -398,9 +398,9 @@ Var=FreqVeryLo unsigned 48,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:57
 DLC=8
 Mux=ActLFM_ClearingTimes 0,14 4  -m
 Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
-Var=FreqVeryLo unsigned 16,16 -m /u:ms /min:160 /max:160 /d:160
-Var=FreqLo unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:160
-Var=FreqHi unsigned 48,16 -m /u:ms /min:160 /max:160 /d:160
+Var=ClearingTime_FreqVeryLo unsigned 16,16 -m /u:ms /min:160 /max:160 /d:160
+Var=ClearingTime_FreqLo unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:160
+Var=ClearingTime_FreqHi unsigned 48,16 -m /u:ms /min:160 /max:160 /d:160
 
 [StatusNVParam]
 DLC=8

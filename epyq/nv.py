@@ -155,11 +155,26 @@ class Frame(epyq.canneo.Frame, TreeNode):
         else:
             # TODO: magic number
             read_write.set_data(1)
-            self.update_from_signals()
+            self.update_from_signals(function=ufs)
             self._send()
 
-    def update_from_signals(self):
-        epyq.canneo.Frame.update_from_signals(self)
+    def update_from_signals(self, for_read=False, function=None):
+        epyq.canneo.Frame.update_from_signals(self, function=function)
+
+
+def ufs(signal):
+    if signal.signal._name in ['ReadParam_command', 'CommandSetNVParam_MUX']:
+        return signal.value
+    else:
+        # TODO: CAMPid 9395616283654658598648263423685
+        # TODO: and _offset...
+        try:
+            factor = signal.factor
+        except AttributeError:
+            factor = float(signal.signal._factor)
+
+        scaled_value = float(signal.signal._min) / factor
+        return scaled_value
 
 
 class Nv(epyq.canneo.Signal, TreeNode):
