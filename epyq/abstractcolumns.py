@@ -17,7 +17,7 @@ class AbstractColumns:
             finally:
                 setattr(self, member, value)
 
-        self._length = len(self.__dict__)
+        object.__setattr__(self, '_length', len(self.__dict__))
 
         invalid_parameters = set(kwargs.keys()) - set(self.__dict__.keys())
         if len(invalid_parameters):
@@ -43,6 +43,20 @@ class AbstractColumns:
                 return getattr(self, attribute)
 
         raise IndexError('column index out of range')
+
+    def __getattr__(self, name, value):
+        if name in self._members:
+            object.__getattr__(self, name, value)
+        else:
+            raise TypeError("Attempted to get attribute {}"
+                            .format(name))
+
+    def __setattr__(self, name, value):
+        if name in self._members:
+            object.__setattr__(self, name, value)
+        else:
+            raise TypeError("Attempted to set attribute {}"
+                            .format(name))
 
 
 if __name__ == '__main__':

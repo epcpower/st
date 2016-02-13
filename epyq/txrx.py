@@ -102,12 +102,11 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
                 message.arbitration_id, message.id_type)
 
         try:
-            self.fields.message = self.frame._name
+            self.fields.name = self.frame._name
         except AttributeError:
-            self.fields.message = '-'
+            self.fields.name = '-'
 
         self.fields.length = '{} B'.format(message.dlc)
-        self.fields.signal = ''
         self.fields.value = epyq.canneo.format_data(message.data)
         if self.last_time == message.timestamp:
             raise Exception('message already received {message}'
