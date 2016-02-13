@@ -33,8 +33,7 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         identifier = epyq.canneo.format_identifier(frame._Id, frame._extended)
 
         self.fields = Columns(id=identifier,
-                              message=self.frame._name,
-                              signal='',
+                              name=self.frame._name,
                               length='{} B'.format(self.frame._Size),
                               value='-',
                               dt=None)
@@ -142,8 +141,7 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
         TreeNode.__init__(self, tx=tx, parent=tree_parent)
 
         self.fields = Columns(id=self.signal.getMsbReverseStartbit(),
-                              message='',
-                              signal=signal._name,
+                              name=signal._name,
                               length='{} b'.format(signal._signalsize),
                               value='-',
                               dt=None)
@@ -272,7 +270,7 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
 
 
 class Columns(AbstractColumns):
-    _members = ['id', 'length', 'message', 'signal', 'value', 'dt']
+    _members = ['id', 'length', 'name', 'value', 'dt']
 
 Columns.indexes = Columns.indexes()
 
@@ -289,8 +287,7 @@ class TxRxModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.headers = Columns(id='ID',
                                length='Length',
-                               message='Message',
-                               signal='Signal',
+                               name='Name',
                                value='Value',
                                dt='dt')
 
