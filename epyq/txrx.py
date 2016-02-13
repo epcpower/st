@@ -201,6 +201,10 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
                     message.data = frame.frame.pack(frame.frame)
                     self.add_message(message=message, tx=True)
 
+        # TODO: this should probably be done in the view but this is easier for now
+        #       Tx can't be added to later (yet)
+        #       Rx will add in order received
+        self.children.sort(key=lambda c: c.frame._name)
 
     def set_node_id(self, node_id):
         # TODO: I think this can go away
