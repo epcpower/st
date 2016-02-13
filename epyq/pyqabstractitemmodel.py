@@ -128,11 +128,14 @@ class PyQAbstractItemModel(QAbstractItemModel):
         try:
             return node.index
         except AttributeError:
-            node.index = self.match(self.index(0, len(self.headers), QModelIndex()),
-                                    Qt.DisplayRole,
-                                    node.unique(),
-                                    1,
-                                    Qt.MatchRecursive)[0]
+            if node is self.root:
+                node.index = QModelIndex()
+            else:
+                node.index = self.match(self.index(0, len(self.headers), QModelIndex()),
+                                        Qt.DisplayRole,
+                                        node.unique(),
+                                        1,
+                                        Qt.MatchRecursive)[0]
 
         return node.index
 
@@ -147,6 +150,13 @@ class PyQAbstractItemModel(QAbstractItemModel):
             end_index = start_index
         self.dataChanged.emit(start_index, end_index, roles)
 
+    @pyqtSlot(TreeNode, int, int)
+    def begin_insert_rows(self, parent, start_row, end_row):
+        self.beginInsertRows(self.index_from_node(parent), start_row, end_row)
+
+    @pyqtSlot()
+    def end_insert_rows(self):
+        self.endInsertRows()
 
 if __name__ == '__main__':
     import sys

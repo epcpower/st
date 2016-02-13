@@ -155,14 +155,18 @@ def main(args=None):
     rx = epyq.txrx.TxRx(tx=False, matrix=matrix_rx)
     rx_model = epyq.txrx.TxRxModel(rx)
 
+    # TODO: put this all in the model...
     rx.changed.connect(rx_model.changed)
-    rx.added.connect(rx_model.added)
+    rx.begin_insert_rows.connect(rx_model.begin_insert_rows)
+    rx.end_insert_rows.connect(rx_model.end_insert_rows)
 
     tx = epyq.txrx.TxRx(tx=True, matrix=matrix_tx, bus=bus)
     tx_model = epyq.txrx.TxRxModel(tx)
 
+    # TODO: put this all in the model...
     tx.changed.connect(tx_model.changed)
-    tx.added.connect(tx_model.added)
+    tx.begin_insert_rows.connect(tx_model.begin_insert_rows)
+    tx.end_insert_rows.connect(tx_model.end_insert_rows)
 
     matrix_nv = importany.importany(args.can)
     epyq.canneo.neotize(

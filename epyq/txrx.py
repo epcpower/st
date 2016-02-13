@@ -167,7 +167,8 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
 class TxRx(TreeNode, epyq.canneo.QtCanListener):
     # TODO: just Rx?
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
-    added = pyqtSignal(TreeNode)
+    begin_insert_rows = pyqtSignal(TreeNode, int, int)
+    end_insert_rows = pyqtSignal()
 
     def __init__(self, tx, matrix=None, bus=None, parent=None):
         TreeNode.__init__(self)
@@ -225,8 +226,12 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
 
         message_node.send.connect(self.send)
         self.messages[id] = message_node
+
+        index = len(self.children)
+        # TODO: move to TreeNode?
+        self.begin_insert_rows.emit(self, index, index)
         self.append_child(message_node)
-        self.added.emit(message_node)
+        self.end_insert_rows.emit()
 
     def generate_id(self, message):
         multiplex_value = epyq.canneo.get_multiplex(self.matrix, message)[1]
@@ -344,9 +349,3 @@ class TxRxModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
                 return True
 
         return False
-
-    @pyqtSlot(TreeNode)
-    def added(self, message):
-        # TODO: this is just a tad bit broad...
-        self.beginResetModel()
-        self.endResetModel()
