@@ -17,8 +17,13 @@ class AbstractColumns:
             finally:
                 setattr(self, member, value)
 
-        #TODO exception for args not in members
         self._length = len(self.__dict__)
+
+        invalid_parameters = set(kwargs.keys()) - set(self.__dict__.keys())
+        if len(invalid_parameters):
+            raise ValueError('Invalid parameter{} passed: {}'.format(
+                's' if len(invalid_parameters) > 1 else '',
+                ', '.join(invalid_parameters)))
 
     @classmethod
     def __len__(cls):
