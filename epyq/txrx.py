@@ -242,19 +242,22 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
         id = self.generate_id(message=msg)
 
         try:
-            self.messages[id].extract_message(msg)
-            # TODO: for some reason this doesn't seem to needed and
-            #       significantly (3x) increases cpu usage
-            # self.changed.emit(self.messages[id], Columns.indexes.value,
-            #                   self.messages[id], Columns.indexes.dt)
-            if len(self.messages[id].children) > 0:
-                self.changed.emit(
-                    self.messages[id].children[0], Columns.indexes.value,
-                    self.messages[id].children[-1], Columns.indexes.value,
-                    [Qt.DisplayRole])
+            message = self.messages[id]
         except KeyError:
             self.add_message(message=msg,
                              id=id)
+            message = self.messages[id]
+
+        self.messages[id].extract_message(msg)
+        # TODO: for some reason this doesn't seem to needed and
+        #       significantly (3x) increases cpu usage
+        # self.changed.emit(self.messages[id], Columns.indexes.value,
+        #                   self.messages[id], Columns.indexes.dt)
+        if len(self.messages[id].children) > 0:
+            self.changed.emit(
+                self.messages[id].children[0], Columns.indexes.value,
+                self.messages[id].children[-1], Columns.indexes.value,
+                [Qt.DisplayRole])
 
     def unique(self):
         # TODO: actually identify the object
