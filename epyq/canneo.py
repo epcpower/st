@@ -87,7 +87,11 @@ class Signal(QObject):
         return self.decimal_places
 
     def set_value(self, value):
-        if self.value != value:
+        if value is None:
+            self.value = None
+            self.full_string = '-'
+            # self._my_signal.emit(0)
+        elif self.value != value:
             # TODO: be careful here, should all be int which is immutable
             #       and therefore safe but...  otherwise a copy would be
             #       needed

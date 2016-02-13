@@ -73,6 +73,15 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
 
     def read_all_from_device(self):
         self.traverse(lambda node: node.read_from_device())
+        self.all_changed()
+
+    def all_changed(self):
+        # TODO: CAMPid 99854759326728959578972453876695627489
+        if len(self.children) > 0:
+            self.changed.emit(
+                self.children[0], Columns.indexes.value,
+                self.children[-1], Columns.indexes.value,
+                [Qt.DisplayRole])
 
     @pyqtSlot(can.Message)
     def send(self, message):
@@ -96,12 +105,7 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
             for status, set in zip(status_signals, set_signals):
                 set.set_value(status.value)
 
-            for child in self.children:
-                if child in set_signals:
-                    self.changed.emit(
-                        child, Columns.indexes.value,
-                        child, Columns.indexes.value,
-                        [Qt.DisplayRole])
+            self.all_changed()
 
     def unique(self):
         # TODO: actually identify the object
@@ -187,7 +191,8 @@ class Nv(epyq.canneo.Signal, TreeNode):
         TreeNode.__init__(self)
 
         self.fields = Columns(name=signal._name,
-                              value='-')
+                              value='')
+        self.clear()
 
     def set_value(self, value):
         epyq.canneo.Signal.set_value(self, value)
@@ -205,8 +210,12 @@ class Nv(epyq.canneo.Signal, TreeNode):
     def read_from_device(self):
         # TODO: this is going to be repetitive since there are multiple
         #       values in many of the frames
+        self.clear()
         self.frame.send_read()
         # TODO: then we'll have to receive them too...
+
+    def clear(self):
+        self.set_value(None)
 
     def unique(self):
         # TODO: make it more unique
