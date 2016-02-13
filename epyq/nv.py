@@ -62,6 +62,9 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                 nv.frame.status_frame = self.status_frames[value]
                 self.status_frames[value].set_frame = nv.frame
 
+        # TODO: this should probably be done in the view but this is easier for now
+        self.children.sort(key=lambda c: c.signal._name)
+
     def names(self):
         return '\n'.join([n.fields.name for n in self.children])
 
