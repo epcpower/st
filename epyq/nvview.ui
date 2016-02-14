@@ -29,13 +29,20 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,99,0,1">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0,99,0,1">
        <property name="sizeConstraint">
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <property name="rightMargin">
         <number>0</number>
        </property>
+       <item>
+        <widget class="QPushButton" name="module_to_nv_button">
+         <property name="text">
+          <string>Inverter To NV</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QPushButton" name="write_to_module_button">
          <property name="text">

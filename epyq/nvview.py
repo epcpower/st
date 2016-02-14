@@ -14,6 +14,7 @@ __license__ = 'GPLv2+'
 
 
 class NvView(QtWidgets.QWidget):
+    module_to_nv = pyqtSignal()
     read_from_module = pyqtSignal()
     write_to_module = pyqtSignal()
     read_from_file = pyqtSignal()
@@ -30,6 +31,7 @@ class NvView(QtWidgets.QWidget):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
+        self.ui.module_to_nv_button.clicked.connect(self.module_to_nv)
         self.ui.write_to_module_button.clicked.connect(self.write_to_module)
         self.ui.read_from_module_button.clicked.connect(self.read_from_module)
         self.ui.write_to_file_button.clicked.connect(self.write_to_file)
@@ -42,6 +44,7 @@ class NvView(QtWidgets.QWidget):
     def setModel(self, model):
         self.ui.tree_view.setModel(model)
 
+        self.ui.module_to_nv.connect(model.module_to_nv)
         self.ui.read_from_module.connect(model.read_from_module)
         self.ui.write_to_module.connect(model.write_to_module)
         self.ui.read_from_file.connect(model.read_from_file)

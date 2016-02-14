@@ -50,6 +50,32 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
         self.set_frames = self.set_frames.multiplex_frames
         self.status_frames = [f for f in self.matrix._fl._list
                        if f._name == 'StatusNVParam'][0].multiplex_frames
+
+        self.save_frame = None
+        self.save_signal = None
+        self.save_value = None
+        self.confirm_save_frame = None
+        self.confirm_save_multiplex_value = None
+        self.confirm_save_signal = None
+        self.confirm_save_value = None
+        for frame in self.set_frames.values():
+            for signal in frame._signals:
+                if signal._name == 'SaveToEE_command':
+                    for key, value in signal._values.items():
+                        if value == 'Enable':
+                            self.save_frame = frame.frame
+                            self.save_signal = signal.signal
+                            self.save_value = float(key)
+        for frame in self.status_frames.values():
+            for signal in frame._signals:
+                if signal._name == 'SaveToEE_status':
+                    for key, value in signal._values.items():
+                        if value == 'Enable':
+                            self.confirm_save_frame = frame.frame
+                            self.confirm_save_multiplex_value = signal._multiplex
+                            self.confirm_save_signal = signal.signal
+                            self.confirm_save_value = float(key)
+
         for value, frame in self.set_frames.items():
             signals = [s.signal for s in frame._signals
                        if 'signal' in s.__dict__]
@@ -92,6 +118,15 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
     def message_received(self, msg):
         multiplex_message, multiplex_value =\
             epyq.canneo.get_multiplex(self.matrix, msg)
+
+        if multiplex_message is self.confirm_save_frame.frame:
+            if multiplex_value is self.confirm_save_multiplex_value:
+                # TODO: might be unnecessary since same frame as
+                #       unpacked for multiplex info
+                self.confirm_save_frame.unpack(msg.data)
+                # TODO: do something to notify the user of success vs. failue
+                return
+
         if multiplex_value is not None and multiplex_message in self.status_frames.values():
             multiplex_message.frame.unpack(msg.data)
             # multiplex_message.frame.update_canneo_from_matrix_signals()
@@ -123,6 +158,12 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
             value = d.get(child.fields.name, None)
             if value is not None:
                 child.set_human_value(value)
+
+    def module_to_nv(self):
+        # TODO: actually send the write command
+        self.save_signal.set_value(self.save_value)
+        self.save_frame.update_from_signals()
+        self.send(self.save_frame.to_message())
 
 
 class Frame(epyq.canneo.Frame, TreeNode):
@@ -246,6 +287,11 @@ class NvModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
                 return True
 
         return False
+
+    @pyqtSlot()
+    def module_to_nv(self):
+        # TODO: monitor and report success/failure of write
+        self.root.module_to_nv()
 
     @pyqtSlot()
     def write_to_module(self):
