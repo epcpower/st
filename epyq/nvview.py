@@ -6,7 +6,7 @@ import epyq.nv
 import io
 import os
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import pyqtSignal, QFile, QFileInfo, QTextStream
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QFile, QFileInfo, QTextStream
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -44,6 +44,8 @@ class NvView(QtWidgets.QWidget):
     def setModel(self, model):
         self.ui.tree_view.setModel(model)
 
+        model.set_status_string.connect(self.set_status_string)
+
         self.ui.module_to_nv.connect(model.module_to_nv)
         self.ui.read_from_module.connect(model.read_from_module)
         self.ui.write_to_module.connect(model.write_to_module)
@@ -64,6 +66,9 @@ class NvView(QtWidgets.QWidget):
             epyq.nv.Columns.indexes.value,
             epyq.delegates.Combo(model=model, parent=self))
 
+    @pyqtSlot(str)
+    def set_status_string(self, string):
+        self.ui.status_label.setText(string)
 
 if __name__ == '__main__':
     import sys

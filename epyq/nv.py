@@ -29,6 +29,7 @@ class NoNv(Exception):
 
 class Nvs(TreeNode, epyq.canneo.QtCanListener):
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
+    set_status_string = pyqtSignal(str)
 
     def __init__(self, matrix, bus, parent=None):
         TreeNode.__init__(self)
@@ -95,9 +96,11 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
         return '\n'.join([n.fields.name for n in self.children])
 
     def write_all_to_device(self):
+        self.set_status_string.emit('')
         self.traverse(lambda node: node.write_to_device())
 
     def read_all_from_device(self):
+        self.set_status_string.emit('')
         self.traverse(lambda node: node.read_from_device())
         self.all_changed()
 
@@ -124,7 +127,8 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                 # TODO: might be unnecessary since same frame as
                 #       unpacked for multiplex info
                 self.confirm_save_frame.unpack(msg.data)
-                # TODO: do something to notify the user of success vs. failue
+                self.set_status_string.emit(
+                    self.confirm_save_signal.full_string)
                 return
 
         if multiplex_value is not None and multiplex_message in self.status_frames.values():
@@ -160,7 +164,7 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                 child.set_human_value(value)
 
     def module_to_nv(self):
-        # TODO: actually send the write command
+        self.set_status_string.emit('')
         self.save_signal.set_value(self.save_value)
         self.save_frame.update_from_signals()
         self.send(self.save_frame.to_message())
@@ -264,6 +268,8 @@ class Nv(epyq.canneo.Signal, TreeNode):
 
 
 class NvModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
+    set_status_string = pyqtSignal(str)
+
     def __init__(self, root, parent=None):
         editable_columns = Columns.fill(False)
         editable_columns.value = True
@@ -274,6 +280,8 @@ class NvModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.headers = Columns(name='Name',
                                value='Value')
+
+        root.set_status_string.connect(self.set_status_string)
 
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.value:
