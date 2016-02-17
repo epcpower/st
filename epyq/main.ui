@@ -23,13 +23,7 @@
       <widget class="QWidget" name="verticalLayoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="Wrapper" name="supply_n15v">
-          <property name="toolTip">
-           <string>Wrapper widget tool tip</string>
-          </property>
-          <property name="whatsThis">
-           <string>Wrapper widget what's this</string>
-          </property>
+         <widget class="ProgressBar" name="supply_n15v">
           <property name="frame" stdset="0">
            <string>StatusControlVolts2</string>
           </property>
@@ -39,13 +33,7 @@
          </widget>
         </item>
         <item>
-         <widget class="Wrapper" name="supply_15v">
-          <property name="toolTip">
-           <string>Wrapper widget tool tip</string>
-          </property>
-          <property name="whatsThis">
-           <string>Wrapper widget what's this</string>
-          </property>
+         <widget class="ProgressBar" name="supply_15v">
           <property name="frame" stdset="0">
            <string>StatusControlVoltage</string>
           </property>
@@ -151,9 +139,9 @@
    <header>epyq.widgets.lcd</header>
   </customwidget>
   <customwidget>
-   <class>Wrapper</class>
+   <class>ProgressBar</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.wrapper</header>
+   <header>epyq.widgets.progressbar</header>
   </customwidget>
  </customwidgets>
  <resources/>

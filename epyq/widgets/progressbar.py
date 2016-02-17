@@ -12,10 +12,10 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Wrapper(epyq.widgets.abstractwidget.AbstractWidget):
+class ProgressBar(epyq.widgets.abstractwidget.AbstractWidget):
     def __init__(self, parent=None):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
-                               'wrapper.ui')
+                               'progressbar.ui')
 
         epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
                 ui=ui_file, parent=parent)

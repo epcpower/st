@@ -8,7 +8,8 @@ import copy
 import epyq.canneo
 import epyq.nv
 import epyq.txrx
-import epyq.widgets.wrapper
+import epyq.widgets.progressbar
+import epyq.widgets.lcd
 import functools
 import io
 import math
@@ -54,8 +55,7 @@ class Window(QtWidgets.QMainWindow):
 
         children = self.findChildren(QtCore.QObject)
         widgets = [c for c in children if
-                   isinstance(c, epyq.widgets.wrapper.Wrapper) or
-                   isinstance(c, epyq.widgets.lcd.Lcd)]
+                   isinstance(c, epyq.widgets.abstractwidget.AbstractWidget)]
         targets = [c for c in children if
                    c.property('frame') and c.property('signal')]
         targets = list(set(targets) - set(widgets))
