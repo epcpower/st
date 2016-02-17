@@ -54,7 +54,8 @@ class Window(QtWidgets.QMainWindow):
 
         children = self.findChildren(QtCore.QObject)
         widgets = [c for c in children if
-                   isinstance(c, epyq.widgets.wrapper.Wrapper)]
+                   isinstance(c, epyq.widgets.wrapper.Wrapper) or
+                   isinstance(c, epyq.widgets.lcd.Lcd)]
         targets = [c for c in children if
                    c.property('frame') and c.property('signal')]
         targets = list(set(targets) - set(widgets))

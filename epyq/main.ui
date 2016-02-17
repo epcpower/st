@@ -55,6 +55,16 @@
          </widget>
         </item>
         <item>
+         <widget class="Lcd" name="lcd">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v15_Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QScale" name="other_scale">
           <property name="toolTip">
            <string>analog simplicity</string>
@@ -134,6 +144,11 @@
    <class>TxRxView</class>
    <extends>QWidget</extends>
    <header>epyq.txrxview</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcd</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.lcd</header>
   </customwidget>
   <customwidget>
    <class>Wrapper</class>
