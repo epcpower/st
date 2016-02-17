@@ -3,7 +3,8 @@
 #TODO: """DocString if there is one"""
 
 from PyQt5 import QtGui, QtDesigner
-import textwrap
+import os
+from PyQt5.QtCore import QFileInfo
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -12,11 +13,18 @@ __license__ = 'GPLv2+'
 
 class AbstractPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     # https://wiki.python.org/moin/PyQt/Using_Python_Custom_Widgets_in_Qt_Designer
-    _group = "EPC"
-    _icon = None
 
     def __init__(self, parent=None):
         QtDesigner.QPyDesignerCustomWidgetPlugin.__init__(self)
+
+        self._group = "EPC"
+        self._icon = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
+                             '..', 'icon.ico')
+        self._init = None
+        self._module_path = None
+        self._name = None
+        self._tooltip = None
+        self._whats_this = None
 
         self.initialized = False
 
@@ -52,21 +60,6 @@ class AbstractPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
 
     def isContainer(self):
         return False
-
-    # def domXml(self):
-    #     xml = textwrap.dedent('''\
-    #     <widget class="Wrapper" name="wrapper">
-    #       <property name="toolTip" >
-    #         <string>{tooltip}</string>
-    #       </property>
-    #       <property name="whatsThis">
-    #         <string>{whats_this}</string>
-    #       </property>
-    #     </widget>
-    #     ''').format(tooltip=self._tooltip,
-    #                 whats_this=self._whats_this)
-    #
-    #     return xml
 
     def includeFile(self):
         return self._module_path
