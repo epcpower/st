@@ -23,12 +23,34 @@
       <widget class="QWidget" name="verticalLayoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QProgressBar" name="progressBar_2">
-          <property name="value">
-           <number>24</number>
+         <widget class="Wrapper" name="supply_n15v">
+          <property name="toolTip">
+           <string>Wrapper widget tool tip</string>
           </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+          <property name="whatsThis">
+           <string>Wrapper widget what's this</string>
+          </property>
+          <property name="frame" stdset="0">
+           <string>StatusControlVolts2</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>n15V_Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Wrapper" name="supply_15v">
+          <property name="toolTip">
+           <string>Wrapper widget tool tip</string>
+          </property>
+          <property name="whatsThis">
+           <string>Wrapper widget what's this</string>
+          </property>
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v15_Supply</string>
           </property>
          </widget>
         </item>
@@ -45,16 +67,6 @@
           </property>
           <property name="signal" stdset="0">
            <string>n15V_Supply</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QScale" name="scale">
-          <property name="toolTip">
-           <string>analog simplicity</string>
-          </property>
-          <property name="whatsThis">
-           <string>A PyQScale</string>
           </property>
          </widget>
         </item>
@@ -122,6 +134,11 @@
    <class>TxRxView</class>
    <extends>QWidget</extends>
    <header>epyq.txrxview</header>
+  </customwidget>
+  <customwidget>
+   <class>Wrapper</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.wrapper</header>
   </customwidget>
  </customwidgets>
  <resources/>

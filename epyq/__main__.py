@@ -8,6 +8,7 @@ import copy
 import epyq.canneo
 import epyq.nv
 import epyq.txrx
+import epyq.widgets.wrapper
 import functools
 import io
 import math
@@ -52,8 +53,30 @@ class Window(QtWidgets.QMainWindow):
 
 
         children = self.findChildren(QtCore.QObject)
+        widgets = [c for c in children if
+                   isinstance(c, epyq.widgets.wrapper.Wrapper)]
         targets = [c for c in children if
                    c.property('frame') and c.property('signal')]
+        targets = list(set(targets) - set(widgets))
+
+        for widget in widgets:
+            frame_name = widget.property('frame')
+            signal_name = widget.property('signal')
+
+            widget.set_label('{}:{}'.format(frame_name, signal_name))
+            widget.set_range(min=0, max=100)
+            widget.set_value(42)
+
+            # TODO: add some notifications
+            frame = matrix.frameByName(frame_name)
+            if frame is not None:
+                frame = frame.frame
+                signal = frame.frame.signalByName(signal_name)
+                if signal is not None:
+                    signal = signal.signal
+                    widget.set_range(min=float(signal.signal._min),
+                                     max=float(signal.signal._max))
+                    signal.connect(widget.set_value)
 
         try:
             other_scale = self.ui.other_scale

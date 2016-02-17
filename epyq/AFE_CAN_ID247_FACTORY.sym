@@ -270,7 +270,7 @@ CycleTime=100
 Var=v5p0_Supply signed 0,16 -m /u:V /f:0.01	// Present voltage of the control board 5V power suppy.
 Var=v3p3_Supply signed 16,16 -m /u:V /f:0.01	// Present voltage of the control board 3.3V power supply.
 Var=v24_Supply signed 32,16 -m /u:V /f:0.01	// Present voltage of the control board 24V power supply.
-Var=v15_Supply signed 48,16 -m /u:V /f:0.01	// Present voltage of the control board 15V power supply.
+Var=v15_Supply signed 48,16 -m /u:V /f:0.01 /min:0 /max:20	// Present voltage of the control board 15V power supply.
 
 [StatusTemps]
 ID=18FFCBF7h	// Returns the inlet water temperature to the module as well as module internal ambient temperature.
