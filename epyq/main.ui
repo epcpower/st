@@ -53,6 +53,16 @@
          </widget>
         </item>
         <item>
+         <widget class="Text" name="text">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v15_Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QScale" name="other_scale">
           <property name="toolTip">
            <string>analog simplicity</string>
@@ -142,6 +152,11 @@
    <class>ProgressBar</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.progressbar</header>
+  </customwidget>
+  <customwidget>
+   <class>Text</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.text</header>
   </customwidget>
  </customwidgets>
  <resources/>
