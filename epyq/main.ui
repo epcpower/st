@@ -68,14 +68,40 @@
            </widget>
           </item>
           <item>
-           <widget class="Epc" name="epc">
-            <property name="frame" stdset="0">
-             <string>StatusControlVolts2</string>
+           <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetDefaultConstraint</enum>
             </property>
-            <property name="signal" stdset="0">
-             <string>n15V_Supply</string>
+            <property name="bottomMargin">
+             <number>0</number>
             </property>
-           </widget>
+            <item>
+             <widget class="Epc" name="epc">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>StatusControlVolts2</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>n15V_Supply</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Toggle" name="toggle">
+              <property name="frame" stdset="0">
+               <string>CommandModeControlAPU2</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>InvertHwEnable_command</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <widget class="QScale" name="other_scale">
@@ -195,6 +221,11 @@
    <class>Text</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.text</header>
+  </customwidget>
+  <customwidget>
+   <class>Toggle</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.toggle</header>
   </customwidget>
  </customwidgets>
  <resources/>

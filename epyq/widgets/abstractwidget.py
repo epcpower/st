@@ -53,7 +53,12 @@ class AbstractWidget(QtWidgets.QWidget):
         if units is None:
             units = '-'
 
-        self.ui.units.setText(units)
+        try:
+            widget = self.ui.units
+        except AttributeError:
+            pass
+        else:
+            widget.setText(units)
 
     def set_full_string(self, string):
         pass
