@@ -233,11 +233,7 @@ def main(args=None):
             can.Message(extended_id=True,
                         arbitration_id=218082369,
                         dlc=8,
-                        data=bytearray([0, 0, 0, 3, 0, 0, 0, 42])),
-            can.Message(extended_id=True,
-                        arbitration_id=0xFF9B41,
-                        dlc=8,
-                        data=bytearray([0, 0, 0, 0, 0, 0, 0, 1]))
+                        data=bytearray([0, 0, 0, 3, 0, 0, 0, 42]))
         ]
 
         # Copy from PCAN generated and logged messages
@@ -254,12 +250,20 @@ def main(args=None):
                 elapsed_time = time.monotonic() - start_time
                 value = math.sin(elapsed_time) / 2
                 value *= 2
-                value -= 15
+                nominal = -15
+                value += nominal
+                human_value = value
                 value /= float(signal.signal._factor)
                 value = round(value)
                 print('{:.3f}: {}'.format(elapsed_time, value))
                 message.data = frame.pack([value, 0, 1, 2])
                 bus.send(message)
+
+                bus.send(can.Message(extended_id=True,
+                                     arbitration_id=0xFF9B41,
+                                     dlc=8,
+                                     data=bytearray([0, 0, 0, 0, 0, 0, 0,
+                                         int(human_value > nominal)])))
 
                 for m in messages:
                     bus.send(m)
