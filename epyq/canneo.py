@@ -13,7 +13,7 @@ __license__ = 'GPLv2+'
 
 class Signal(QObject):
     # TODO: but some (progress bar, etc) require an int!
-    _my_signal = pyqtSignal(float)
+    value_changed = pyqtSignal(float)
 
     def __init__(self, signal, frame, connect=None, parent=None):
         signal.signal = self
@@ -31,9 +31,6 @@ class Signal(QObject):
 
         if connect is not None:
             self.connect(connect)
-
-    def connect(self, target):
-        self._my_signal.connect(target)
 
     def get_human_value(self):
         # TODO: handle offset
@@ -90,7 +87,6 @@ class Signal(QObject):
         if value is None:
             self.value = None
             self.full_string = '-'
-            # self._my_signal.emit(0)
         elif self.value != value:
             # TODO: be careful here, should all be int which is immutable
             #       and therefore safe but...  otherwise a copy would be
@@ -124,7 +120,7 @@ class Signal(QObject):
 
                     value = self.scaled_value
 
-            self._my_signal.emit(value)
+            self.value_changed.emit(value)
 
     def format_float(self, value):
         return '{{:.{}f}}'.format(self.get_decimal_places()).format(value)

@@ -77,7 +77,7 @@ class Window(QtWidgets.QMainWindow):
                     signal = signal.signal
                     widget.set_range(min=float(signal.signal._min),
                                      max=float(signal.signal._max))
-                    signal.connect(widget.set_value)
+                    signal.value_changed.connect(widget.set_value)
 
         try:
             other_scale = self.ui.other_scale
@@ -115,7 +115,7 @@ class Window(QtWidgets.QMainWindow):
             except AttributeError:
                 pass
 
-            signal.connect(target.setValue)
+            signal.value_changed.connect(target.setValue)
             target.setRange(float(signal.signal._min),
                             float(signal.signal._max))
 
