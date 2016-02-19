@@ -24,10 +24,15 @@ class Epc(epyq.widgets.abstractwidget.AbstractWidget):
         self._signal = None
 
     def set_value(self, value):
-        # TODO: quit hardcoding this and it's better implemented elsewhere
         if self.signal_object is not None:
-            value = self.signal_object.format_float()
+            if len(self.signal_object.signal._values) > 0:
+                value = self.signal_object.full_string
+            else:
+                value = self.signal_object.format_float()
+        elif value is None:
+            value = '-'
         else:
+            # TODO: quit hardcoding this and it's better implemented elsewhere
             value = '{0:.2f}'.format(value)
 
         self.ui.value.setText(value)

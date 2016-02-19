@@ -72,8 +72,11 @@ class AbstractWidget(QtWidgets.QWidget):
                 if self.signal_object is not None:
                     self.signal_object.value_changed.disconnect(self.set_value)
 
+                self.set_range(min=float(signal.signal._min),
+                               max=float(signal.signal._max))
                 self.set_label(signal.signal._name)
                 self.set_units(signal.signal._unit)
+                self.set_value(signal.value)
 
                 signal.value_changed.connect(self.set_value)
             else:

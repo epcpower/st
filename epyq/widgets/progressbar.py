@@ -29,10 +29,13 @@ class ProgressBar(epyq.widgets.abstractwidget.AbstractWidget):
         self._signal = None
 
     def set_value(self, value):
+        if value is None:
+            value = 0
+
         if value >= 0:
             # TODO: fix this especially for positive and negative ranges
             counts = value - self._min
-        if value < 0:
+        elif value < 0:
             counts = abs(value) - abs(self._max)
 
         counts /= abs(self._max - self._min)

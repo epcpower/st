@@ -24,8 +24,13 @@ class Lcd(epyq.widgets.abstractwidget.AbstractWidget):
         self._signal = None
 
     def set_value(self, value):
-        # TODO: quit hardcoding this and it's better implemented elsewhere
-        self.ui.lcd.display('{0:.2f}'.format(value))
+        if value is None:
+            value = '-'
+        else:
+            # TODO: quit hardcoding this and it's better implemented elsewhere
+            value = '{0:.2f}'.format(value)
+
+        self.ui.lcd.display(value)
 
 
 if __name__ == '__main__':

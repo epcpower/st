@@ -39,6 +39,8 @@ class Toggle(epyq.widgets.abstractwidget.AbstractWidget):
     def set_value(self, value):
         # TODO: quit hardcoding this and it's better implemented elsewhere
         if self.signal_object is not None:
+            value = bool(self.signal_object.value)
+        elif value is None:
             value = False
         else:
             value = bool(value)

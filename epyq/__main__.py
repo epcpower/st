@@ -74,10 +74,7 @@ class Window(QtWidgets.QMainWindow):
                 frame = frame.frame
                 signal = frame.frame.signalByName(signal_name)
                 if signal is not None:
-                    signal = signal.signal
-                    widget.set_range(min=float(signal.signal._min),
-                                     max=float(signal.signal._max))
-                    widget.set_signal(signal)
+                    widget.set_signal(signal.signal)
 
         try:
             other_scale = self.ui.other_scale
@@ -236,7 +233,11 @@ def main(args=None):
             can.Message(extended_id=True,
                         arbitration_id=218082369,
                         dlc=8,
-                        data=bytearray([0, 0, 0, 3, 0, 0, 0, 42]))
+                        data=bytearray([0, 0, 0, 3, 0, 0, 0, 42])),
+            can.Message(extended_id=True,
+                        arbitration_id=0xFF9B41,
+                        dlc=8,
+                        data=bytearray([0, 0, 0, 0, 0, 0, 0, 1]))
         ]
 
         # Copy from PCAN generated and logged messages
