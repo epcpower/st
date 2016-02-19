@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1500</width>
-    <height>600</height>
+    <height>925</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,101 +16,127 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QSplitter" name="splitter_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="verticalLayoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Dashboard</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="ProgressBar" name="supply_n15v">
-          <property name="frame" stdset="0">
-           <string>StatusControlVolts2</string>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="ProgressBar" name="supply_n15v">
+            <property name="frame" stdset="0">
+             <string>StatusControlVolts2</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>n15V_Supply</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ProgressBar" name="supply_15v">
+            <property name="frame" stdset="0">
+             <string>StatusControlVoltage</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>v15_Supply</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Lcd" name="lcd">
+            <property name="frame" stdset="0">
+             <string>StatusControlVoltage</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>v15_Supply</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Text" name="text">
+            <property name="frame" stdset="0">
+             <string>StatusControlVoltage</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>v15_Supply</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Epc" name="epc"/>
+          </item>
+          <item>
+           <widget class="QScale" name="other_scale">
+            <property name="toolTip">
+             <string>analog simplicity</string>
+            </property>
+            <property name="whatsThis">
+             <string>A PyQScale</string>
+            </property>
+            <property name="frame" stdset="0">
+             <string>StatusControlVolts2</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>n15V_Supply</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Tx/Rx</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QSplitter" name="splitter">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
-          <property name="signal" stdset="0">
-           <string>n15V_Supply</string>
-          </property>
+          <widget class="TxRxView" name="tx">
+           <property name="toolTip">
+            <string>canishness</string>
+           </property>
+           <property name="whatsThis">
+            <string>A TxRxView</string>
+           </property>
+          </widget>
+          <widget class="TxRxView" name="rx">
+           <property name="toolTip">
+            <string>canishness</string>
+           </property>
+           <property name="whatsThis">
+            <string>A TxRxView</string>
+           </property>
+          </widget>
          </widget>
         </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>NV Parameters</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <widget class="ProgressBar" name="supply_15v">
-          <property name="frame" stdset="0">
-           <string>StatusControlVoltage</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>v15_Supply</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Lcd" name="lcd">
-          <property name="frame" stdset="0">
-           <string>StatusControlVoltage</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>v15_Supply</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Text" name="text">
-          <property name="frame" stdset="0">
-           <string>StatusControlVoltage</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>v15_Supply</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QScale" name="other_scale">
+         <widget class="NvView" name="nv">
           <property name="toolTip">
-           <string>analog simplicity</string>
+           <string>canishness</string>
           </property>
           <property name="whatsThis">
-           <string>A PyQScale</string>
-          </property>
-          <property name="frame" stdset="0">
-           <string>StatusControlVolts2</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>n15V_Supply</string>
+           <string>An NvView</string>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QSplitter" name="splitter">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <widget class="TxRxView" name="tx">
-        <property name="toolTip">
-         <string>canishness</string>
-        </property>
-        <property name="whatsThis">
-         <string>A TxRxView</string>
-        </property>
-       </widget>
-       <widget class="TxRxView" name="rx">
-        <property name="toolTip">
-         <string>canishness</string>
-        </property>
-        <property name="whatsThis">
-         <string>A TxRxView</string>
-        </property>
-       </widget>
-      </widget>
-     </widget>
-    </item>
-    <item>
-     <widget class="NvView" name="nv">
-      <property name="toolTip">
-       <string>canishness</string>
-      </property>
-      <property name="whatsThis">
-       <string>An NvView</string>
-      </property>
      </widget>
     </item>
    </layout>
@@ -142,6 +168,11 @@
    <class>TxRxView</class>
    <extends>QWidget</extends>
    <header>epyq.txrxview</header>
+  </customwidget>
+  <customwidget>
+   <class>Epc</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.epc</header>
   </customwidget>
   <customwidget>
    <class>Lcd</class>
