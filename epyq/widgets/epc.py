@@ -16,7 +16,7 @@ __license__ = 'GPLv2+'
 
 
 class Epc(epyq.widgets.abstractwidget.AbstractWidget):
-    class MyEnum():
+    class MyEnum(Enum):
         first, second, third = range(3)
 
     Q_ENUMS(MyEnum)
