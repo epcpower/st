@@ -77,7 +77,7 @@ class Window(QtWidgets.QMainWindow):
                     signal = signal.signal
                     widget.set_range(min=float(signal.signal._min),
                                      max=float(signal.signal._max))
-                    signal.value_changed.connect(widget.set_value)
+                    widget.set_signal(signal)
 
         try:
             other_scale = self.ui.other_scale

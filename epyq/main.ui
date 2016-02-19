@@ -68,7 +68,14 @@
            </widget>
           </item>
           <item>
-           <widget class="Epc" name="epc"/>
+           <widget class="Epc" name="epc">
+            <property name="frame" stdset="0">
+             <string>StatusControlVolts2</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>n15V_Supply</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QScale" name="other_scale">

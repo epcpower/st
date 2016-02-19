@@ -25,6 +25,8 @@ class AbstractWidget(QtWidgets.QWidget):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
+        self.signal_object = None
+
     @pyqtProperty('QString')
     def frame(self):
         return self._frame
@@ -50,6 +52,14 @@ class AbstractWidget(QtWidgets.QWidget):
     def set_range(self, min=None, max=None):
         pass
 
+    def set_signal(self, signal):
+        if signal is not self.signal:
+            if signal is not None:
+                if self.signal_object is not None:
+                    self.signal_object.value_changed.disconnect(self.set_value)
+                signal.value_changed.connect(self.set_value)
+
+            self.signal_object = signal
 
 if __name__ == '__main__':
     import sys
