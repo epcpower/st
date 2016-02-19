@@ -13,14 +13,14 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class MyEnum():
-    first, second, third = range(3)
-
-
-Q_ENUMS(MyEnum)
 
 
 class Epc(epyq.widgets.abstractwidget.AbstractWidget):
+    class MyEnum():
+        first, second, third = range(3)
+
+    Q_ENUMS(MyEnum)
+
     def __init__(self, parent=None):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'epc.ui')
@@ -31,7 +31,7 @@ class Epc(epyq.widgets.abstractwidget.AbstractWidget):
         self._frame = None
         self._signal = None
 
-        self._my_enum = MyEnum.second
+        self._my_enum = self.MyEnum.second
 
     @pyqtProperty(MyEnum)
     def my_enum(self):
