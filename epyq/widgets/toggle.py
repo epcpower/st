@@ -53,6 +53,17 @@ class Toggle(epyq.widgets.abstractwidget.AbstractWidget):
         else:
             self.ui.value.setSliderPosition(True)
 
+    def set_signal(self, signal):
+        if signal is not self.signal:
+            if signal is not None:
+                self.ui.off.setText(signal.signal._values['0'])
+                self.ui.on.setText(signal.signal._values['1'])
+            else:
+                self.ui.off.setText('-')
+                self.ui.on.setText('-')
+        epyq.widgets.abstractwidget.AbstractWidget.set_signal(self, signal)
+
+
 if __name__ == '__main__':
     import sys
 
