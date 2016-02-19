@@ -13,7 +13,7 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class MyEnum(Enum):
+class MyEnum():
     first, second, third = range(3)
 
 
