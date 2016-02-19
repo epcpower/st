@@ -2,14 +2,22 @@
 
 #TODO: """DocString if there is one"""
 
+from enum import Enum
 import epyq.widgets.abstractwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
-                          QFile, QFileInfo, QTextStream)
+                          QFile, QFileInfo, QTextStream, Q_ENUMS)
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
+
+
+class MyEnum(Enum):
+    first, second, third = range(3)
+
+
+Q_ENUMS(MyEnum)
 
 
 class Epc(epyq.widgets.abstractwidget.AbstractWidget):
@@ -22,6 +30,16 @@ class Epc(epyq.widgets.abstractwidget.AbstractWidget):
 
         self._frame = None
         self._signal = None
+
+        self._my_enum = MyEnum.second
+
+    @pyqtProperty(MyEnum)
+    def my_enum(self):
+        return self._my_enum
+
+    @my_enum.setter
+    def my_enum(self, my_enum):
+        self._my_enum = my_enum
 
     def set_value(self, value):
         if self.signal_object is not None:
