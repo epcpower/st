@@ -33,7 +33,7 @@ class Epc(epyq.widgets.abstractwidget.AbstractWidget):
 
         self._my_enum = MyEnum.second
 
-    @pyqtProperty('MyEnum')
+    @pyqtProperty(MyEnum)
     def my_enum(self):
         return self._my_enum
 
