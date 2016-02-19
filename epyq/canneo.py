@@ -122,7 +122,9 @@ class Signal(QObject):
 
             self.value_changed.emit(value)
 
-    def format_float(self, value):
+    def format_float(self, value=None):
+        if value is None:
+            value = self.scaled_value
         return '{{:.{}f}}'.format(self.get_decimal_places()).format(value)
 
     def format(self):

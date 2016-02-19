@@ -44,7 +44,16 @@ class AbstractWidget(QtWidgets.QWidget):
         self._signal = signal
 
     def set_label(self, value):
-        self.ui.label.setText(value + ':')
+        if value is None:
+            value = '-'
+
+        self.ui.label.setText(value)
+
+    def set_units(self, units):
+        if units is None:
+            units = '-'
+
+        self.ui.units.setText(units)
 
     def set_full_string(self, string):
         pass
@@ -57,7 +66,14 @@ class AbstractWidget(QtWidgets.QWidget):
             if signal is not None:
                 if self.signal_object is not None:
                     self.signal_object.value_changed.disconnect(self.set_value)
+
+                self.set_label(signal.signal._name)
+                self.set_units(signal.signal._unit)
+
                 signal.value_changed.connect(self.set_value)
+            else:
+                self.set_label(None)
+                self.set_units(None)
 
             self.signal_object = signal
 
