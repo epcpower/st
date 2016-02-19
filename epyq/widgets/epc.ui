@@ -60,7 +60,19 @@
          <property name="font">
           <font>
            <family>TlwgTypewriter</family>
+           <pointsize>14</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
           </font>
+         </property>
+         <property name="mouseTracking">
+          <bool>false</bool>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="acceptDrops">
+          <bool>false</bool>
          </property>
          <property name="text">
           <string>0.0</string>
@@ -75,6 +87,11 @@
        </item>
        <item>
         <widget class="QLabel" name="units">
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>TextLabel</string>
          </property>
@@ -84,6 +101,13 @@
      </item>
      <item>
       <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
