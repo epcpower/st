@@ -66,22 +66,27 @@ class AbstractWidget(QtWidgets.QWidget):
     def set_range(self, min=None, max=None):
         pass
 
-    def set_signal(self, signal):
-        if signal is not self.signal:
-            if signal is not None:
-                if self.signal_object is not None:
-                    self.signal_object.value_changed.disconnect(self.set_value)
+    def update_connection(self, signal=None):
+        if signal is not self.signal_object:
+            if self.signal_object is not None:
+                self.signal_object.value_changed.disconnect(self.set_value)
 
+            if signal is not None:
+                signal.value_changed.connect(self.set_value)
+
+    def set_signal(self, signal):
+        if signal is not self.signal_object:
+            if signal is not None:
                 self.set_range(min=float(signal.signal._min),
                                max=float(signal.signal._max))
                 self.set_label(signal.signal._name)
                 self.set_units(signal.signal._unit)
                 self.set_value(signal.value)
-
-                signal.value_changed.connect(self.set_value)
             else:
                 self.set_label(None)
                 self.set_units(None)
+
+            self.update_connection(signal)
 
             self.signal_object = signal
 

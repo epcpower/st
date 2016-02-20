@@ -171,7 +171,8 @@ def main(args=None):
     frames_widgets = epyq.canneo.neotize(
             matrix=matrix_widgets,
             frame_class=epyq.txrx.MessageNode,
-            signal_class=epyq.txrx.SignalNode)
+            signal_class=epyq.txrx.SignalNode,
+            bus=bus)
 
     rx = epyq.txrx.TxRx(tx=False, matrix=matrix_rx)
     rx_model = epyq.txrx.TxRxModel(rx)

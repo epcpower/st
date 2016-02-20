@@ -287,7 +287,10 @@ class Frame(QtCanListener):
                     pass
 
     @pyqtSlot()
-    def _send(self):
+    def _send(self, update=False):
+        if update:
+            self.data = self.pack(self)
+
         self.send.emit(self.to_message())
 
     def to_message(self):
@@ -310,7 +313,7 @@ class Frame(QtCanListener):
             self.unpack(msg.data)
 
 
-def neotize(matrix, frame_class=Frame, signal_class=Signal):
+def neotize(matrix, frame_class=Frame, signal_class=Signal, bus=None):
     frames = []
 
     for frame in matrix._fl._list:
@@ -393,6 +396,9 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal):
                 frames.append(neo_frame)
                 frame.multiplex_frames[multiplex_value] = matrix_frame
 
+    if bus is not None:
+        for frame in frames:
+            frame.send.connect(bus.send)
     return frames
 
 

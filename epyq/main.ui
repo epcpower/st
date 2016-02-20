@@ -84,7 +84,7 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0">
+           <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0">
             <property name="sizeConstraint">
              <enum>QLayout::SetDefaultConstraint</enum>
             </property>
@@ -108,12 +108,25 @@
              </widget>
             </item>
             <item>
+             <widget class="Toggle" name="toggle_2">
+              <property name="frame" stdset="0">
+               <string>CommandModeControlAPU2</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>InvertHwEnable_command</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="Toggle" name="toggle">
               <property name="frame" stdset="0">
                <string>CommandModeControlAPU2</string>
               </property>
               <property name="signal" stdset="0">
                <string>InvertHwEnable_command</string>
+              </property>
+              <property name="tx" stdset="0">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
