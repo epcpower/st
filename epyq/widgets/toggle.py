@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractwidget
+import epyq.widgets.abstracttxwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, Qt, QEvent,
@@ -14,12 +14,12 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Toggle(epyq.widgets.abstractwidget.AbstractWidget):
+class Toggle(epyq.widgets.abstracttxwidget.AbstractTxWidget):
     def __init__(self, parent=None):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'toggle.ui')
 
-        epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
+        epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
                 ui=ui_file, parent=parent)
 
         self.ui.value.installEventFilter(self)
@@ -28,39 +28,6 @@ class Toggle(epyq.widgets.abstractwidget.AbstractWidget):
 
         self._frame = None
         self._signal = None
-
-        # TODO: CAMPid 398956661298765098124690765
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.send)
-
-        # TODO: CAMPid 398956661298765098124690765
-        self.tx = False
-
-    # TODO: CAMPid 398956661298765098124690765
-    @pyqtProperty(bool)
-    def tx(self):
-        return self._tx
-
-    # TODO: CAMPid 398956661298765098124690765
-    @tx.setter
-    def tx(self, tx):
-        self._tx = bool(tx)
-
-        if self.tx:
-            # TODO: get this period from somewhere
-            self.timer.setInterval(200)
-            self.timer.start()
-        else:
-            self.timer.stop()
-
-        self.update_connection()
-        self.ui.value.setDisabled(not self.tx)
-
-    # TODO: CAMPid 398956661298765098124690765
-    def update_connection(self, signal=None):
-        if not self.tx:
-            epyq.widgets.abstractwidget.AbstractWidget.update_connection(
-                self, signal)
 
     def eventFilter(self, qobject, qevent):
         if isinstance(qevent, QMouseEvent) and self.tx:
@@ -99,21 +66,6 @@ class Toggle(epyq.widgets.abstractwidget.AbstractWidget):
                 self.ui.off.setText('-')
                 self.ui.on.setText('-')
         epyq.widgets.abstractwidget.AbstractWidget.set_signal(self, signal)
-
-    # TODO: CAMPid 398956661298765098124690765
-    def widget_value_changed(self, value):
-        if self.signal_object is not None:
-            self.signal_object.set_human_value(value)
-
-    # TODO: CAMPid 398956661298765098124690765
-    def signal_value_changed(self, value):
-        self.ui.value.setSliderPosition(bool(value))
-
-    # TODO: CAMPid 398956661298765098124690765
-    def send(self):
-        # TODO: connect directly to the frame and remove this function?
-        if self.signal_object is not None:
-            self.signal_object.frame._send(update=True)
 
 
 if __name__ == '__main__':
