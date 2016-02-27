@@ -133,6 +133,39 @@
            </layout>
           </item>
           <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="Enum" name="enum_">
+              <property name="frame" stdset="0">
+               <string>CommandModeControlAPU2</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>EnableUPSMode_command</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Enum" name="enum_3">
+              <property name="frame" stdset="0">
+               <string>CommandModeControlAPU2</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>EnableUPSMode_command</string>
+              </property>
+              <property name="tx" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
            <widget class="QScale" name="other_scale">
             <property name="toolTip">
              <string>analog simplicity</string>
@@ -230,6 +263,11 @@
    <class>TxRxView</class>
    <extends>QWidget</extends>
    <header>epyq.txrxview</header>
+  </customwidget>
+  <customwidget>
+   <class>Enum</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.enum</header>
   </customwidget>
   <customwidget>
    <class>Epc</class>

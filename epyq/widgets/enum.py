@@ -5,26 +5,23 @@
 import epyq.widgets.abstractwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
-                          QFile, QFileInfo, QTextStream, Qt, QEvent,
-                          QTimer)
-from PyQt5.QtGui import QMouseEvent
+                          QFile, QFileInfo, QTextStream, QTimer)
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Toggle(epyq.widgets.abstractwidget.AbstractWidget):
+class Enum(epyq.widgets.abstractwidget.AbstractWidget):
     def __init__(self, parent=None):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
-                               'toggle.ui')
+                               'enum.ui')
 
         epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
                 ui=ui_file, parent=parent)
 
-        self.ui.value.installEventFilter(self)
         # TODO: CAMPid 398956661298765098124690765
-        self.ui.value.valueChanged.connect(self.widget_value_changed)
+        self.ui.value.currentTextChanged.connect(self.widget_value_changed)
 
         self._frame = None
         self._signal = None
@@ -62,47 +59,38 @@ class Toggle(epyq.widgets.abstractwidget.AbstractWidget):
             epyq.widgets.abstractwidget.AbstractWidget.update_connection(
                 self, signal)
 
-    def eventFilter(self, qobject, qevent):
-        if isinstance(qevent, QMouseEvent) and self.tx:
-            if (qevent.button() == Qt.LeftButton and
-                        qevent.type() == QEvent.MouseButtonRelease):
-                self.toggle_released()
-
-            return True
-
-        return False
-
     def set_value(self, value):
-        # TODO: quit hardcoding this and it's better implemented elsewhere
         if self.signal_object is not None:
-            value = bool(self.signal_object.value)
+            if len(self.signal_object.signal._values) > 0:
+                value = self.signal_object.full_string
+            else:
+                value = self.signal_object.format_float()
         elif value is None:
-            value = False
+            value = '-'
         else:
-            value = bool(value)
+            # TODO: quit hardcoding this and it's better implemented elsewhere
+            value = '{0:.2f}'.format(value)
 
-        self.ui.value.setSliderPosition(value)
-
-    def toggle_released(self):
-        if self.ui.value.sliderPosition():
-            self.ui.value.setSliderPosition(False)
-        else:
-            self.ui.value.setSliderPosition(True)
+        self.ui.value.setCurrentText(value)
 
     def set_signal(self, signal):
         if signal is not self.signal_object:
+            self.ui.value.clear()
             if signal is not None:
-                self.ui.off.setText(signal.signal._values['0'])
-                self.ui.on.setText(signal.signal._values['1'])
-                signal.value_changed.connect(self.signal_value_changed)
-            else:
-                self.ui.off.setText('-')
-                self.ui.on.setText('-')
+                full_strings = []
+                # TODO: CAMPid 94562754956589992752348667
+                for value in sorted(signal.signal._values.keys()):
+                    enum_string = signal.signal._values[value]
+                    full_strings.append(signal.enumeration_format_re['format'].format(
+                        s=enum_string, v=value))
+
+                self.ui.value.addItems(full_strings)
+
         epyq.widgets.abstractwidget.AbstractWidget.set_signal(self, signal)
 
     # TODO: CAMPid 398956661298765098124690765
     def widget_value_changed(self, value):
-        if self.signal_object is not None:
+        if self.signal_object is not None and self.tx:
             self.signal_object.set_human_value(value)
 
     # TODO: CAMPid 398956661298765098124690765

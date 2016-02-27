@@ -94,6 +94,7 @@ class Signal(QObject):
             self.value = value
 
             try:
+                # TODO: CAMPid 94562754956589992752348667
                 enum_string = self.signal._values[str(value)]
                 self.full_string = self.enumeration_format_re['format'].format(
                         s=enum_string, v=value)
