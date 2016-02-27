@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import QFile, QFileInfo, QTextStream
 
 # See file COPYING in this source tree
-__copyright__ = 'Copyright 2015, EPC Power Corp.'
+__copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 

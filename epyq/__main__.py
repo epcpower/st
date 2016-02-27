@@ -22,7 +22,7 @@ import sys
 import time
 
 # See file COPYING in this source tree
-__copyright__ = 'Copyright 2015, EPC Power Corp.'
+__copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 

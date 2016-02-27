@@ -2,7 +2,7 @@ from PyQt5 import QtDesigner
 import epyq.qscale
 
 # See file COPYING in this source tree
-__copyright__ = 'Copyright 2015, EPC Power Corp.'
+__copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
