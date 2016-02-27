@@ -104,7 +104,6 @@ class Toggle(epyq.widgets.abstractwidget.AbstractWidget):
     def send(self):
         # TODO: connect directly to the frame and remove this function?
         if self.signal_object is not None:
-            print('sending')
             self.signal_object.frame._send(update=True)
 
 
