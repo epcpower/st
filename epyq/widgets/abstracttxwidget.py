@@ -16,8 +16,7 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
 
         self.tx = False
 
-        # TODO: get this from the signal?
-        self._period = 0.2
+        self._period = None
 
     @pyqtProperty(bool)
     def tx(self):
@@ -35,6 +34,18 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
 
         self.update_connection()
         self.ui.value.setDisabled(not self.tx)
+
+    def set_signal(self, signal):
+        if signal is not None:
+            try:
+                period = signal.frame.frame._attributes['GenMsgCycleTime']
+            except KeyError:
+                # TODO: a more specific exception?
+                raise Exception('No CycleTime/GenMsgCycleTime configured for frame')
+
+            self._period = float(period) / 1000
+
+        epyq.widgets.abstractwidget.AbstractWidget.set_signal(self, signal)
 
     def update_connection(self, signal=None):
         if signal is not self.signal_object:

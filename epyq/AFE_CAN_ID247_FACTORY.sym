@@ -182,6 +182,7 @@ Var=SaveToEE_command unsigned 16,2 -m /max:1 /e:Enable
 ID=00FF9B41h	// Operational commands are received by the module via control bits within this message.
 Type=Extended
 DLC=8
+CycleTime=200
 Var=Enable_command unsigned 6,2 -m /max:1 /e:Enable	// Run command.  When set to a value of 'Enable', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to 'Disable' to leave POR or FAULTED state.
 Var=FaultClear_command unsigned 4,2 -m /max:1 /e:FaultClear	// Clears the latched fault message.
 Var=InvertHwEnable_command unsigned 62,2 -m /max:1 /e:InvertHwEnable	// Inverts the logic of the Hardware Enable input.
