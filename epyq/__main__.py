@@ -167,11 +167,8 @@ def main(args=None):
                         signal_class=signal_node_tx_partial)
 
     matrix_widgets = importany.importany(args.can)
-    # TODO: these should probably be just canneo objects
     frames_widgets = epyq.canneo.neotize(
             matrix=matrix_widgets,
-            frame_class=epyq.txrx.MessageNode,
-            signal_class=epyq.txrx.SignalNode,
             bus=bus)
 
     rx = epyq.txrx.TxRx(tx=False, matrix=matrix_rx)

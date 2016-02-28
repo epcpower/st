@@ -359,6 +359,9 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal, bus=None):
 
         if multiplex_signal is None:
             neo_frame = frame_class(frame=frame)
+            for signal in frame._signals:
+                if not hasattr(signal, 'signal'):
+                    signal_class(signal=signal, frame=neo_frame)
             frames.append(neo_frame)
         else:
             # Make a frame with just the multiplexor entry for
@@ -389,7 +392,8 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal, bus=None):
             frames.append(neo_frame)
             neo_signal = signal_class(signal=matrix_signal, frame=neo_frame)
             # TODO: shouldn't this be part of the constructor maybe?
-            signal_class(signal=matrix_signal, frame=neo_frame)
+            if not hasattr(signal, 'signal'):
+                signal_class(signal=matrix_signal, frame=neo_frame)
 
 
             frame.multiplex_frame = multiplex_frame
@@ -418,6 +422,7 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal, bus=None):
                         multiplex_signal._unit,
                         multiplex_signal._reciever,
                         multiplex_signal._multiplex)
+                signal_class(signal=matrix_signal, frame=neo_frame)
                 matrix_frame.addSignal(matrix_signal)
 
                 for signal in frame._signals:
