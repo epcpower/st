@@ -2,7 +2,8 @@ import bitstruct
 import can
 from canmatrix import canmatrix
 import copy
-from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot)
+import functools
+from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QTimer)
 import re
 import sys
 
@@ -176,6 +177,12 @@ class Frame(QtCanListener):
 
         self.padded = False
 
+        self._cyclic_requests = {}
+        self._cyclic_period = None
+        self.timer = QTimer()
+        _update_and_send = functools.partial(self._send, update=True)
+        self.timer.timeout.connect(_update_and_send)
+
     def unpad(self):
         if self.padded:
             self.frame._signals = [s for s in self.frame._signals
@@ -293,6 +300,32 @@ class Frame(QtCanListener):
             self.data = self.pack(self)
 
         self.send.emit(self.to_message())
+
+    def cyclic_request(self, caller, period):
+        if period is None:
+            try:
+                del self._cyclic_requests[caller]
+            except KeyError:
+                pass
+        else:
+            # period will be able to converted to a float, test
+            # sooner rather than later for easier debugging
+            float(period)
+            self._cyclic_requests[caller] = period
+
+        periods = [float(v) for v in self._cyclic_requests.values()]
+        new_period = min(periods) if len(periods) > 0 else None
+
+        if new_period != self._cyclic_period:
+            self._cyclic_period = new_period
+
+            if self._cyclic_period is None:
+                self.timer.stop()
+            else:
+                self.timer.setInterval(
+                    int(round(float(self._cyclic_period) * 1000)))
+                if not self.timer.isActive():
+                    self.timer.start()
 
     def to_message(self):
         try:

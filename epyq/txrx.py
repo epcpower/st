@@ -21,8 +21,6 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
 
         self.tx = tx
         self._send_checked = False
-        self.timer = QTimer()
-        self.timer.timeout.connect(self._send)
 
         try:
             for signal in self.frame._signals:
@@ -82,11 +80,9 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
 
     def update_timer(self):
         if self.send_checked == Qt.Unchecked:
-            self.timer.stop()
+            self.cyclic_request(self, None)
         else:
-            self.timer.setInterval(int(self.dt * 1000))
-            if not self.timer.isActive():
-                self.timer.start()
+            self.cyclic_request(self, self.dt)
 
     def extract_message(self, message, verify=True):
         # TODO: stop calling this from txrx and use the standard Frame reception
