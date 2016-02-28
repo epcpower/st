@@ -23,8 +23,13 @@ class NvView(QtWidgets.QWidget):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent=parent)
 
+        ui = 'nvview.ui'
         # TODO: CAMPid 9549757292917394095482739548437597676742
-        ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'nvview.ui')
+        if not QFileInfo(ui).isAbsolute():
+            ui_file = os.path.join(
+                QFileInfo.absolutePath(QFileInfo(__file__)), ui)
+        else:
+            ui_file = ui
         ui_file = QFile(ui_file)
         ui_file.open(QFile.ReadOnly | QFile.Text)
         ts = QTextStream(ui_file)
