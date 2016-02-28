@@ -53,7 +53,7 @@ class Enum(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
                 self.ui.value.addItems(full_strings)
 
-        epyq.widgets.abstractwidget.AbstractWidget.set_signal(self, signal)
+        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(self, signal)
 
 
 if __name__ == '__main__':
