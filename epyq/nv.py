@@ -82,7 +82,8 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                        if 'signal' in s.__dict__]
             signals = [s for s in signals if s.signal._multiplex is not 'Multiplexor']
             signals = [s for s in signals if s.signal._name not in
-                       ['SaveToEE_command', 'ReadParam_command']]
+                       ['SaveToEE_command', 'ReadParam_command',
+                        'CommandSetNVParam_MUX']]
             for nv in signals:
                 nv.frame.send.connect(self.send)
                 self.append_child(nv)
