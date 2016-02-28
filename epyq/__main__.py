@@ -152,12 +152,12 @@ def main(args=None):
     bus = can.interface.Bus(**default)
 
     # TODO: the repetition here is not so pretty
-    matrix_rx = importany.importany(args.can)
+    matrix_rx = list(importany.importany(args.can).values())[0]
     epyq.canneo.neotize(matrix=matrix_rx,
                         frame_class=epyq.txrx.MessageNode,
                         signal_class=epyq.txrx.SignalNode)
 
-    matrix_tx = importany.importany(args.can)
+    matrix_tx = list(importany.importany(args.can).values())[0]
     message_node_tx_partial = functools.partial(epyq.txrx.MessageNode,
                                                 tx=True)
     signal_node_tx_partial = functools.partial(epyq.txrx.SignalNode,
@@ -166,7 +166,7 @@ def main(args=None):
                         frame_class=message_node_tx_partial,
                         signal_class=signal_node_tx_partial)
 
-    matrix_widgets = importany.importany(args.can)
+    matrix_widgets = list(importany.importany(args.can).values())[0]
     frames_widgets = epyq.canneo.neotize(
             matrix=matrix_widgets,
             bus=bus)
@@ -187,7 +187,7 @@ def main(args=None):
     tx.begin_insert_rows.connect(tx_model.begin_insert_rows)
     tx.end_insert_rows.connect(tx_model.end_insert_rows)
 
-    matrix_nv = importany.importany(args.can)
+    matrix_nv = list(importany.importany(args.can).values())[0]
     epyq.canneo.neotize(
             matrix=matrix_nv,
             frame_class=epyq.nv.Frame,

@@ -205,7 +205,6 @@ class Frame(QtCanListener):
                                                              min=None,
                                                              max=None,
                                                              unit=None,
-                                                             reciever=None,
                                                              multiplex=None)
             # TODO: 1 or 0, which is the first bit per canmatrix?
             bit = 0
@@ -385,7 +384,6 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal, bus=None):
                     multiplex_signal._min,
                     multiplex_signal._max,
                     multiplex_signal._unit,
-                    multiplex_signal._reciever,
                     multiplex_signal._multiplex)
             multiplex_frame.addSignal(matrix_signal)
             neo_frame = frame_class(frame=multiplex_frame)
@@ -420,7 +418,6 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal, bus=None):
                         multiplex_signal._min,
                         multiplex_signal._max,
                         multiplex_signal._unit,
-                        multiplex_signal._reciever,
                         multiplex_signal._multiplex)
                 signal_class(signal=matrix_signal, frame=neo_frame)
                 matrix_frame.addSignal(matrix_signal)
