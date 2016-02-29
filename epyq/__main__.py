@@ -167,9 +167,13 @@ def excepthook(excType, excValue, tracebackobj):
     except IOError:
         pass
     errorbox = QMessageBox()
+    errorbox.setIcon(QMessageBox.Critical)
+
     # TODO: CAMPid 980567566238416124867857834291346779
-    ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.png')
-    errorbox.setIconPixmap(QPixmap(ico_file))
+    ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
+    ico = QtGui.QIcon(ico_file)
+    errorbox.setWindowIcon(ico)
+
     errorbox.setText(str(notice)+str(msg)+str(versionInfo))
     errorbox.exec_()
 
