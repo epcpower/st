@@ -17,9 +17,11 @@ import os
 import platform
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import QFile, QFileInfo, QTextStream, QCoreApplication
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtGui import QPixmap
 import sys
 import time
+import traceback
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -31,6 +33,7 @@ class Window(QtWidgets.QMainWindow):
                  parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
 
+        # TODO: CAMPid 980567566238416124867857834291346779
         ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
         ico = QtGui.QIcon(ico_file)
         self.setWindowIcon(ico)
@@ -122,8 +125,58 @@ class Window(QtWidgets.QMainWindow):
                             float(signal.signal._max))
 
 
+# TODO: Consider updating from...
+#       http://die-offenbachs.homelinux.org:48888/hg/eric/file/a1e53a9ffcf3/eric6.py#l134
+
+# TODO: deal with licensing for swiped code (GPL3)
+#       http://die-offenbachs.homelinux.org:48888/hg/eric/file/a1e53a9ffcf3/LICENSE.GPL3
+
+def excepthook(excType, excValue, tracebackobj):
+    """
+    Global function to catch unhandled exceptions.
+
+    @param excType exception type
+    @param excValue exception value
+    @param tracebackobj traceback object
+    """
+    separator = '-' * 70
+    logFile = "simple.log"
+    email = "kyle.altendorf@epcpower.com"
+    notice = \
+        """An unhandled exception occurred. Please report the problem via email to:\n"""\
+        """\t\t%s\n\n"""\
+        """A log has been written to "%s".\n\nError information:\n""" % \
+        (email, logFile)
+    # TODO: add something for version
+    versionInfo=""
+    timeString = time.strftime("%Y-%m-%d, %H:%M:%S")
+
+
+    tbinfofile = io.StringIO()
+    traceback.print_tb(tracebackobj, None, tbinfofile)
+    tbinfofile.seek(0)
+    tbinfo = tbinfofile.read()
+    errmsg = '%s: \n%s' % (str(excType), str(excValue))
+    sections = [separator, timeString, separator, errmsg, separator, tbinfo]
+    msg = '\n'.join(sections)
+    try:
+        f = open(logFile, "w")
+        f.write(msg)
+        f.write(versionInfo)
+        f.close()
+    except IOError:
+        pass
+    errorbox = QMessageBox()
+    # TODO: CAMPid 980567566238416124867857834291346779
+    ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.png')
+    errorbox.setIconPixmap(QPixmap(ico_file))
+    errorbox.setText(str(notice)+str(msg)+str(versionInfo))
+    errorbox.exec_()
+
+
 def main(args=None):
     import sys
+    sys.excepthook = excepthook
     print('starting epyq')
     sys.stdout.flush()
 
