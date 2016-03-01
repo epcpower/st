@@ -177,6 +177,10 @@ else:
     if sys.platform == 'win32':
         with open(os.path.join(mydir, 'activate.bat'), 'w') as f:
             activate = activate.replace('\\', '/')
+            f.write('set PYQTDESIGNERPATH="{root}\epyq;{root}\epyq\widgets"\n'
+                    .format(root=mydir))
+            f.write('set PYTHONPATH="{root}\epyq;{root}\epyq\widgets"\n'
+                    .format(root=mydir))
             f.write('{}\n'.format(activate))
 
     with open(os.path.join(mydir, 'activate'), 'w', newline='') as f:
