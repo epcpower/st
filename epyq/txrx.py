@@ -30,8 +30,14 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
 
         identifier = epyq.canneo.format_identifier(frame._Id, frame._extended)
 
+        name = self.frame._name
+        try:
+            name += ' - ' + self.frame._attributes['mux_name']
+        except (AttributeError, KeyError):
+            pass
+
         self.fields = Columns(id=identifier,
-                              name=self.frame._name,
+                              name=name,
                               length='{} B'.format(self.frame._Size),
                               value='-',
                               dt=None)

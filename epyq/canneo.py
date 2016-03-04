@@ -398,7 +398,7 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal, bus=None):
             frame.multiplex_signal = multiplex_frame._signals[0]
             frame.multiplex_frames = {}
 
-            for multiplex_value in multiplex_signal._values:
+            for multiplex_value, multiplex_name in multiplex_signal._values.items():
                 # For each multiplexed frame, make a frame with
                 # just those signals.
                 matrix_frame = canmatrix.Frame(
@@ -407,6 +407,7 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal, bus=None):
                         frame._Size,
                         frame._Transmitter)
                 matrix_frame._extended = frame._extended
+                matrix_frame.addAttribute('mux_name', multiplex_name)
                 matrix_signal = canmatrix.Signal(
                         multiplex_signal._name,
                         multiplex_signal._startbit,
