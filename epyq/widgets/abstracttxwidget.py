@@ -41,7 +41,9 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
                 period = signal.frame.frame._attributes['GenMsgCycleTime']
             except KeyError:
                 # TODO: a more specific exception?
-                raise Exception('No CycleTime/GenMsgCycleTime configured for frame')
+                raise Exception(
+                    'No CycleTime/GenMsgCycleTime configured for frame {}'
+                        .format(signal.frame.frame._name))
 
             self._period = float(period) / 1000
 
