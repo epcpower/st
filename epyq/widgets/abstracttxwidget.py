@@ -64,9 +64,6 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
         if self.signal_object is not None and self.tx:
             self.signal_object.set_human_value(value)
 
-    def signal_value_changed(self, value):
-        self.ui.value.setSliderPosition(bool(value))
-
 
 if __name__ == '__main__':
     import sys
