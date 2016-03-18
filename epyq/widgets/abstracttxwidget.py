@@ -54,7 +54,7 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
             if self.signal_object is not None:
                 self.signal_object.frame.cyclic_request(self, None)
 
-            if signal is not None:
+            if signal is not None and self.tx:
                 signal.frame.cyclic_request(self, self._period)
 
         epyq.widgets.abstractwidget.AbstractWidget.update_connection(
