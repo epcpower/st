@@ -18,13 +18,6 @@
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0">
      <item>
       <widget class="QLabel" name="label">
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
