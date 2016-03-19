@@ -28,9 +28,20 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         self._frame = None
         self._signal = None
 
+    def set_signal(self, signal):
+        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(self, signal)
+
+        if signal is not None:
+            self.set(0)
+        else:
+            self.ui.value.setText('')
+
     def set(self, value):
         value = str(value)
         self.widget_value_changed(value)
+        self.set_text(value)
+
+    def set_text(self, value):
         # TODO: CAMPid 85478672616219005471279
         enum_string = self.signal_object.signal._values[value]
         text = self.signal_object.enumeration_format_re['format'].format(
