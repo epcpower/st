@@ -47,6 +47,7 @@ class Enum(epyq.widgets.abstracttxwidget.AbstractTxWidget):
                 full_strings = []
                 # TODO: CAMPid 94562754956589992752348667
                 for value in sorted(signal.signal._values.keys()):
+                    # TODO: CAMPid 85478672616219005471279
                     enum_string = signal.signal._values[value]
                     full_strings.append(signal.enumeration_format_re['format'].format(
                         s=enum_string, v=value))
