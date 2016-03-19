@@ -39,44 +39,44 @@ ID=00FFAB41h	// Operational commands are received by the module via control bits
 Type=Extended
 DLC=8
 CycleTime=200
-Var=Enable_command unsigned 6,2 -m /max:1 /e:Enable	// Run command.  When set to a value of 'Enable', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to 'Disable' to leave POR or FAULTED state.
-Var=FaultClear_command unsigned 4,2 -m /max:1 /e:FaultClear	// Clears the latched fault message. 
-Var=InvertHwEnable_command unsigned 62,2 -m /max:1 /e:InvertHwEnable	// Inverts the logic of the Hardware Enable input.
+Var=Enable_command unsigned 6,2 -m /max:1 /e:Enable /ln:"Enable"	// Run command.  When set to a value of 'Enable', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to 'Disable' to leave POR or FAULTED state.
+Var=FaultClear_command unsigned 4,2 -m /max:1 /e:FaultClear /ln:"Fault Clear"	// Clears the latched fault message.
+Var=InvertHwEnable_command unsigned 62,2 -m /max:1 /e:InvertHwEnable /ln:"Invert Hw Enable"	// Inverts the logic of the Hardware Enable input.
 Var=EnableUPSMode_command unsigned 60,2 -m /max:1 /e:EnableUPSMode	// Enables uninterruptible operation when transitioning from GRID FOLLOWING to GRID FORMING operation.  If operating in GRID FOLLOWING mode, and AC grid voltage is interrupted, the module will transition to GRID FORMING mode, with no interruption in power.  
 Var=EnableSplitPhase_command unsigned 58,2 -m /max:1 /e:EnableSplitPhase	// Dictates to the module whether it is connected to a three-phase (four wire) or split phase (L1, L2 and N) electrical system.
-Var=ForceRelayMX1_command unsigned 38,2 -m /max:1 /e:RelayCommand	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
-Var=ForceRelayMX2_command unsigned 36,2 -m /max:1 /e:RelayCommand	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
-Var=ForceRelayK1_Precharge_command unsigned 34,2 -m /max:1 /p:0 /e:RelayCommand	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
-Var=ForceRelayRelayK2_DCRun_comand unsigned 32,2 -m /max:1 /e:RelayCommand	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=ForceRelayMX1_command unsigned 38,2 -m /max:1 /e:RelayCommand /ln:"Force Relay MX1"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=ForceRelayMX2_command unsigned 36,2 -m /max:1 /e:RelayCommand /ln:"Force Relay MX2"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=ForceRelayK1_Precharge_command unsigned 34,2 -m /max:1 /p:0 /e:RelayCommand /ln:"Force Relay K1"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=ForceRelayRelayK2_DCRun_comand unsigned 32,2 -m /max:1 /e:RelayCommand /ln:"Force Relay K2"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
 Var=PhaseRotation_command unsigned 56,2 -m /max:1 /e:PhaseRotation	// Specifies phase rotation direction.  Only active while transitioning from READY to GRID_FORMING.
 Var=MasterFollowerMode_command unsigned 22,2 -m /max:1 /e:MasterFollower	// Specifies what power command the inverter will follow in GRID FOLLOWING mode.  When configured as Master, CommandPower will be used as the power command.  When configured as Slave, the values in StatusMeasuredPower of the master inverter will be used.
 Var=ForceFanOn unsigned 46,2 -m /max:1 /e:RelayCommand
 Var=UseVoltageSenseAsRemote_command unsigned 20,2 -m /max:1 /e:RemoteVoltageSense	// Use voltage sense input as either local or remote reference.
-Var=SyncToRemoteSource_command unsigned 18,2 -m /max:1 /e:Enable	// Sync and connect to remote source.
+Var=SyncToRemoteSource_command unsigned 18,2 -m /max:1 /e:Enable /ln:"Sync To Remote Source"	// Sync and connect to remote source.
 
 [CommandPower]
 ID=0CFFAC41h	// Sets the desired real (P) and reactive (Q) power levels for the module to follow while in the GRID FOLLOWING mode.
 Type=Extended
 DLC=8
 CycleTime=200
-Var=RealPower_command signed 0,32 -m /u:W /min:-90000 /max:90000	// Commanded real power (W) while in grid following mode - positive real power is defined as power being put into the ac network.
-Var=ReactivePower_command signed 32,32 -m /u:VA /min:-90000 /max:90000	// Commanded reactive power (VA) while in grid following mode - positive reactive power is defined as the converter having a leading power factor.
+Var=RealPower_command signed 0,32 -m /u:W /ln:"Real Power" /min:-90000 /max:90000	// Commanded real power (W) while in grid following mode - positive real power is defined as power being put into the ac network.
+Var=ReactivePower_command signed 32,32 -m /u:VA /min:-90000 /max:90000 /ln:"Reactive Power"	// Commanded reactive power (VA) while in grid following mode - positive reactive power is defined as the converter having a leading power factor.
 
 [CommandVF]
 ID=0CFFAE41h	// Sets the desired voltage and frequency for the module to produce while in the GRID FORMING mode.  In addition, while in the READY and GRID FOLLOWING modes, this message is used to set the nominal voltage levels for detection of acceptable AC line voltage.
 Type=Extended
 DLC=8
 CycleTime=200
-Var=Voltage_command unsigned 0,16 -m /u:Vrms /f:0.1 /min:10 /max:500 /d:240	// Desired output voltage while in grid forming mode.
-Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:50	// Desired output frequency while in grid forming mode.
+Var=Voltage_command unsigned 0,16 -m /u:Vrms /f:0.1 /min:10 /max:500 /d:240 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
+Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:50 /ln:"Frequency"	// Desired output frequency while in grid forming mode.
 
 [MasterMeasuredPower]
 ID=0CFFCAF6h	// Returns the actual measured power.
 Type=Extended
 DLC=8
 CycleTime=200
-Var=RealPower_measured signed 0,32 -m /u:W	// Measured real power of master unit.
-Var=ReactivePower_measured signed 32,32 -m /u:VA	// Measured reactive power of master unit.
+Var=RealPower_measured signed 0,32 -m /u:W /ln:"Real Power Measured"	// Measured real power of master unit.
+Var=ReactivePower_measured signed 32,32 -m /u:VA /ln:"Reactive Power Measured"	// Measured reactive power of master unit.
 
 [CommandFactoryControl]
 ID=0CFFAF41h
@@ -189,7 +189,7 @@ DLC=8
 CycleTime=200
 Var=Enable_command unsigned 6,2 -m /max:1 /e:Enable	// Run command.  When set to a value of 'Enable', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to 'Disable' to leave POR or FAULTED state.
 Var=FaultClear_command unsigned 4,2 -m /max:1 /e:FaultClear	// Clears the latched fault message.
-Var=InvertHwEnable_command unsigned 62,2 -m /max:1 /e:InvertHwEnable	// Inverts the logic of the Hardware Enable input.
+Var=InvertHwEnable_command unsigned 62,2 -m /max:1 /e:InvertHwEnable /ln:"Invert Hw Enable"	// Inverts the logic of the Hardware Enable input.
 Var=EnableUPSMode_command unsigned 60,2 -m /max:1 /e:EnableUPSMode	// Enables uninterruptible operation when transitioning from GRID FOLLOWING to GRID FORMING operation.  If operating in GRID FOLLOWING mode, and AC grid voltage is interrupted, the module will transition to GRID FORMING mode, with no interruption in power.
 Var=EnableSplitPhase_command unsigned 58,2 -m /max:1 /e:EnableSplitPhase	// Dictates to the module whether it is connected to a three-phase (four wire) or split phase (L1, L2 and N) electrical system.
 Var=ForceRelayMX1_command unsigned 38,2 -m /max:1 /e:RelayCommand	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
@@ -203,22 +203,22 @@ Var=MasterFollowerMode_command unsigned 22,2 -m /max:1 /e:MasterFollower	// Spec
 ID=0CFF9C41h	// Sets the desired real (P) and reactive (Q) power levels for the module to follow while in the GRID FOLLOWING mode.
 Type=Extended
 DLC=8
-Var=RealPower_command signed 0,32 -m /u:W /min:-90000 /max:90000	// Commanded real power (W) while in grid following mode - positive real power is defined as power being put into the ac network.
-Var=ReactivePower_command signed 32,32 -m /u:VA /min:-90000 /max:90000	// Commanded reactive power (VA) while in grid following mode - positive reactive power is defined as the converter having a leading power factor.
+Var=RealPower_command signed 0,32 -m /u:W /min:-90000 /max:90000 /ln:"Real Power"	// Commanded real power (W) while in grid following mode - positive real power is defined as power being put into the ac network.
+Var=ReactivePower_command signed 32,32 -m /u:VA /min:-90000 /max:90000 /ln:"Reactive Power"	// Commanded reactive power (VA) while in grid following mode - positive reactive power is defined as the converter having a leading power factor.
 
 [CommandVFAPU2]
 ID=0CFF9E41h	// Sets the desired voltage and frequency for the module to produce while in the GRID FORMING mode.  In addition, while in the READY and GRID FOLLOWING modes, this message is used to set the nominal voltage levels for detection of acceptable AC line voltage.
 Type=Extended
 DLC=8
-Var=Voltage_command unsigned 0,16 -m /u:Vrms /f:0.1 /min:10 /max:500 /d:240	// Desired output voltage while in grid forming mode.
-Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:50	// Desired output frequency while in grid forming mode.
+Var=Voltage_command unsigned 0,16 -m /u:Vrms /f:0.1 /min:10 /max:500 /d:240 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
+Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:50 /ln:"Frequency"	// Desired output frequency while in grid forming mode.
 
 [MasterMeasuredPowerAPU2]
 ID=0CFFCAF7h	// Returns the actual measured power.
 Type=Extended
 DLC=8
-Var=RealPower_measured signed 0,32 -m /u:W	// Measured real power of master unit.
-Var=ReactivePower_measured signed 32,32 -m /u:VA	// Measured reactive power of master unit.
+Var=RealPower_measured signed 0,32 -m /u:W /ln:"Real Power Measured"	// Measured real power of master unit.
+Var=ReactivePower_measured signed 32,32 -m /u:VA /ln:"Reactive Power Measured"	// Measured reactive power of master unit.
 
 {SENDRECEIVE}
 
@@ -227,16 +227,16 @@ ID=0CFFCAF7h	// Returns the actual measured power.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=RealPower_measured signed 0,32 -m /u:W	// Measured real power.
-Var=ReactivePower_measured signed 32,32 -m /u:VA	// Measured reactive power.
+Var=RealPower_measured signed 0,32 -m /u:W /ln:"Real Power Measured"	// Measured real power.
+Var=ReactivePower_measured signed 32,32 -m /u:VA /ln:"Reactive Power Measured"	// Measured reactive power.
 
 [StatusCommandedPower]
 ID=18FFC4F7h	// Echoes the commanded power (P&Q) as received in CommandPQ.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=RealPower_echo signed 0,32 -m /u:W	// Echoed real power command.
-Var=ReactivePower_echo signed 32,32 -m /u:VA	// Echoed reactive power command.
+Var=RealPower_echo signed 0,32 -m /u:W /ln:"Real Power Echo"	// Echoed real power command.
+Var=ReactivePower_echo signed 32,32 -m /u:VA /ln:"Reactive Power Echo"	// Echoed reactive power command.
 
 [StatusBits]
 ID=0CFFC3F7h	// Bits representing the status of the power module.
@@ -245,7 +245,7 @@ DLC=8
 CycleTime=100
 Var=State_status unsigned 4,4 -m /max:7 /e:State	// Active control mode.
 Var=MX2Permissive_status unsigned 20,2 -m /e:Relay	// MX2 relay status
-Var=PowerAvailAC_status unsigned 12,2 -m /e:PowerAvail	// Indicates that AC power is connected and that voltage and frequency are within nominal ranges.
+Var=PowerAvailAC_status unsigned 12,2 -m /e:PowerAvail /ln:"Power Available AC"	// Indicates that AC power is connected and that voltage and frequency are within nominal ranges.
 Var=PowerAvailDC_status unsigned 10,2 -m /e:PowerAvail	// Indicates that DC bus voltage is within operating range.
 Var=PowerCircuitEnabled_status unsigned 8,2 -m /e:IGBTsEnabled	// Indicates whether the switching devices are active.
 Var=HardwareEnable_status unsigned 14,2 -m /e:WakeUpSignal	// Status of the hardware enable.
@@ -263,7 +263,7 @@ Var=EnableSplitPhase_echo unsigned 36,2 -m /e:EnableSplitPhase	// Echos the stat
 Var=PhaseRotation_status unsigned 34,2 -m /max:1 /e:PhaseRotation	// Phase rotation order.  When L1 phase angle leads L2 phase angle, rotation is considered positive.
 Var=LineVoltageDetected_status unsigned 32,2 -m /max:1 /e:LineVoltagePresent	// Flag indicating if voltage is detected on L1, L2 or L3.
 Var=PhaseRotation_echo unsigned 46,2 -m /max:1 /e:PhaseRotation	// Echos the state of PhaseRotation_command withing the CommandModeControl message.
-Var=PowerAvailAcRemote_status unsigned 44,2 -m /e:PowerAvail	// Indicates that remote AC power is connected and that voltage and frequency are within nominal ranges.
+Var=PowerAvailAcRemote_status unsigned 44,2 -m /e:PowerAvail /ln:"Power Available AC Remote"	// Indicates that remote AC power is connected and that voltage and frequency are within nominal ranges.
 Var=PhaseRotationRemote_status unsigned 42,2 -m /e:PhaseRotation	// Remote phase rotation order.  When L1 phase angle leads L2 phase angle, rotation is considered positive.
 Var=LineVoltageDetectedRemote_status unsigned 40,2 -m /e:LineVoltagePresent	// Flag indicating if voltage is detected on remote L1, L2 or L3.
 
@@ -282,8 +282,8 @@ ID=18FFCBF7h	// Returns the inlet water temperature to the module as well as mod
 Type=Extended
 DLC=8
 CycleTime=100
-Var=TempHeatsink_measured signed 0,16 -m /u:C /f:0.1	// Coolant inlet temperature
-Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1	// Internal ambient temperature
+Var=TempHeatsink_measured signed 0,16 -m /u:C /f:0.1 /ln:"Heatsink Temp."	// Coolant inlet temperature
+Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /ln:"Internal Temp."	// Internal ambient temperature
 Var=ConverterLosses unsigned 32,16 -m /u:W /max:1	// Power converter thermal loss
 Var=FanSpeed unsigned 48,16 -m
 
@@ -319,9 +319,9 @@ ID=0CFFC2F7h	// RMS AC Voltage, current, and frequency measured by line A, B and
 Type=Extended
 DLC=8
 CycleTime=100
-Var=VoltageAC_measured signed 0,16 -m /u:V /f:0.1	// Measured RMS AC voltage.
-Var=CurrentAC_measured signed 16,16 -m /u:A	// Measured RMS AC current.
-Var=Frequency_measured signed 32,16 -m /u:Hz /f:0.1	// Measured frequency.
+Var=VoltageAC_measured signed 0,16 -m /u:V /f:0.1 /ln:"Voltage AC"	// Measured RMS AC voltage.
+Var=CurrentAC_measured signed 16,16 -m /u:A	/ln:"Current AC" // Measured RMS AC current.
+Var=Frequency_measured signed 32,16 -m /u:Hz /f:0.1	/ln:"Frequency" // Measured frequency.
 
 [StatusDCParameters]
 ID=1CFFC7F7h	// Measured (boosted) DC Bus voltage, DC Current, and estimated DC Input voltage.
@@ -329,8 +329,8 @@ Type=Extended
 DLC=8
 CycleTime=100
 Var=VoltageDCBus signed 16,16 -m /u:V	// Measured DC bus voltage.
-Var=CurrentDC_measured signed 32,16 -m /u:A	// Measured DC current.
-Var=VoltageDCInput_measured signed 0,16 -m /u:V	// Estimated DC input voltage.
+Var=CurrentDC_measured signed 32,16 -m /u:A	/ln:"Current DC" // Measured DC current.
+Var=VoltageDCInput_measured signed 0,16 -m /u:V /ln:"Voltage DC Input"	// Estimated DC input voltage.
 
 [StatusControlVolts2]
 ID=1CFFC6F7h	// Present voltage of the -15V power supply on the control board.
