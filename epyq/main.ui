@@ -397,7 +397,7 @@
                <string>StatusTemps</string>
               </property>
               <property name="signal" stdset="0">
-               <string>TempInlet_measured</string>
+               <string>TempInternal_measured</string>
               </property>
              </widget>
             </item>
@@ -417,7 +417,7 @@
                <string>StatusTemps</string>
               </property>
               <property name="signal" stdset="0">
-               <string>TempInternal_measured</string>
+               <string>TempHeatsink_measured</string>
               </property>
              </widget>
             </item>
