@@ -167,6 +167,7 @@ def excepthook(excType, excValue, tracebackobj):
     except IOError:
         pass
     errorbox = QMessageBox()
+    errorbox.setWindowTitle("EPyQ FAIL!")
     errorbox.setIcon(QMessageBox.Critical)
 
     # TODO: CAMPid 980567566238416124867857834291346779
