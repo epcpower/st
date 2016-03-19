@@ -25,6 +25,16 @@ args = parser.parse_args()
 myfile = os.path.realpath(__file__)
 mydir = os.path.dirname(myfile)
 
+def pip_install(package, no_ssl_verify):
+    pip_parameters = ['install']
+    if no_ssl_verify:
+        pip_parameters.append('--index-url=http://pypi.python.org/simple/')
+        pip_parameters.append('--trusted-host')
+        pip_parameters.append('pypi.python.org')
+    pip_parameters.append('--user')
+    pip_parameters.append(package)
+    return pip.main(pip_parameters)
+
 if not args.in_virtual:
     try:
         os.mkdir(args.virtualenv)
@@ -72,7 +82,7 @@ if not args.in_virtual:
 
     activate = os.path.join(bin, 'activate')
 
-    pip.main(['install', '--user', 'virtualenv'])
+    pip_install('virtualenv', args.no_ssl_verify)
 
     virtualenv_command = [sys.executable, '-m', 'virtualenv', '--system-site-packages', args.virtualenv]
     returncode = subprocess.call(virtualenv_command)
@@ -114,7 +124,7 @@ else:
                      'b0b13785630dc10e749f89f035deb2b9be18601e.zip'
     }
 
-#    pip.main(['install', 'gitpython'])
+#    pip_install('gitpython', args.no_ssl_verify)
 #    import git
 #
 #    git_repos = {
@@ -127,7 +137,7 @@ else:
 #        git.Repo.clone_from(url, dir)
 #        setup(dir)
 
-    pip.main(['install', 'requests'])
+    pip_install('requests', args.no_ssl_verify)
     import requests
     import zipfile
     import io
