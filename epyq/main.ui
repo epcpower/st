@@ -18,176 +18,11 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="tab">
-       <attribute name="title">
-        <string>Dashboard</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="ProgressBar" name="supply_n15v">
-            <property name="frame" stdset="0">
-             <string>StatusControlVolts2</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>n15V_Supply</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="ProgressBar" name="supply_15v">
-            <property name="frame" stdset="0">
-             <string>StatusControlVoltage</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>v15_Supply</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Lcd" name="lcd">
-            <property name="frame" stdset="0">
-             <string>StatusControlVoltage</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>v15_Supply</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Text" name="text">
-            <property name="frame" stdset="0">
-             <string>StatusControlVoltage</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>v15_Supply</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Epc" name="epc_2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="frame" stdset="0">
-             <string>StatusControlVolts2</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>n15V_Supply</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0">
-            <property name="sizeConstraint">
-             <enum>QLayout::SetDefaultConstraint</enum>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="Epc" name="epc">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="frame" stdset="0">
-               <string>CommandModeControlAPU2</string>
-              </property>
-              <property name="signal" stdset="0">
-               <string>InvertHwEnable_command</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="Toggle" name="toggle_2">
-              <property name="frame" stdset="0">
-               <string>CommandModeControlAPU2</string>
-              </property>
-              <property name="signal" stdset="0">
-               <string>InvertHwEnable_command</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="Toggle" name="toggle">
-              <property name="frame" stdset="0">
-               <string>CommandModeControlAPU2</string>
-              </property>
-              <property name="signal" stdset="0">
-               <string>InvertHwEnable_command</string>
-              </property>
-              <property name="tx" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="Enum" name="enum_">
-              <property name="frame" stdset="0">
-               <string>CommandModeControlAPU2</string>
-              </property>
-              <property name="signal" stdset="0">
-               <string>EnableUPSMode_command</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="Enum" name="enum_3">
-              <property name="frame" stdset="0">
-               <string>CommandModeControlAPU2</string>
-              </property>
-              <property name="signal" stdset="0">
-               <string>EnableUPSMode_command</string>
-              </property>
-              <property name="tx" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QScale" name="other_scale">
-            <property name="toolTip">
-             <string>analog simplicity</string>
-            </property>
-            <property name="whatsThis">
-             <string>A PyQScale</string>
-            </property>
-            <property name="frame" stdset="0">
-             <string>StatusControlVolts2</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>n15V_Supply</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
-        <string>T148</string>
+        <string>Dashboard</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <property name="spacing">
@@ -645,6 +480,171 @@
            <string>An NvView</string>
           </property>
          </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Demo</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="ProgressBar" name="supply_n15v">
+            <property name="frame" stdset="0">
+             <string>StatusControlVolts2</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>n15V_Supply</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ProgressBar" name="supply_15v">
+            <property name="frame" stdset="0">
+             <string>StatusControlVoltage</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>v15_Supply</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Lcd" name="lcd">
+            <property name="frame" stdset="0">
+             <string>StatusControlVoltage</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>v15_Supply</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Text" name="text">
+            <property name="frame" stdset="0">
+             <string>StatusControlVoltage</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>v15_Supply</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Epc" name="epc_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="frame" stdset="0">
+             <string>StatusControlVolts2</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>n15V_Supply</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetDefaultConstraint</enum>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="Epc" name="epc">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>CommandModeControlAPU2</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>InvertHwEnable_command</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Toggle" name="toggle_2">
+              <property name="frame" stdset="0">
+               <string>CommandModeControlAPU2</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>InvertHwEnable_command</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Toggle" name="toggle">
+              <property name="frame" stdset="0">
+               <string>CommandModeControlAPU2</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>InvertHwEnable_command</string>
+              </property>
+              <property name="tx" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="Enum" name="enum_">
+              <property name="frame" stdset="0">
+               <string>CommandModeControlAPU2</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>EnableUPSMode_command</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Enum" name="enum_3">
+              <property name="frame" stdset="0">
+               <string>CommandModeControlAPU2</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>EnableUPSMode_command</string>
+              </property>
+              <property name="tx" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QScale" name="other_scale">
+            <property name="toolTip">
+             <string>analog simplicity</string>
+            </property>
+            <property name="whatsThis">
+             <string>A PyQScale</string>
+            </property>
+            <property name="frame" stdset="0">
+             <string>StatusControlVolts2</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>n15V_Supply</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
