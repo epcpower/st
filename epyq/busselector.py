@@ -24,27 +24,30 @@ def available():
             for n in range(1, 9):
                 channel = 'PCAN_USBBUS{}'.format(n)
                 try:
-                    can.interface.Bus(bustype=interface, channel=channel)
+                    bus = can.interface.Bus(bustype=interface, channel=channel)
                 except:
                     pass
                 else:
+                    bus.shutdown()
                     valid.append((interface, channel))
         elif interface == 'socketcan':
             for n in range(9):
                 channel = 'can{}'.format(n)
                 try:
-                    can.interface.Bus(bustype=interface, channel=channel)
+                    bus = can.interface.Bus(bustype=interface, channel=channel)
                 except:
                     pass
                 else:
+                    bus.shutdown()
                     valid.append((interface, channel))
             for n in range(9):
                 channel = 'vcan{}'.format(n)
                 try:
-                    can.interface.Bus(bustype=interface, channel=channel)
+                    bus = can.interface.Bus(bustype=interface, channel=channel)
                 except:
                     pass
                 else:
+                    bus.shutdown()
                     valid.append((interface, channel))
         else:
             print('Availability check not implemented for {}'
