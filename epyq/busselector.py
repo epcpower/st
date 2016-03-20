@@ -3,11 +3,12 @@
 # TODO: get some docstrings in here!
 
 import can
+import functools
 import io
 import os
 from PyQt5 import QtCore, QtWidgets, QtGui, uic, Qt
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
-                            pyqtSlot)
+                            pyqtSlot, QTimer)
 from PyQt5.QtWidgets import QApplication, QMessageBox, QListWidgetItem
 from PyQt5.QtGui import QPixmap
 import sys
@@ -85,7 +86,16 @@ class Selector(QtWidgets.QDialog):
 
         self.separator = ' - '
 
-        for interface, channel in available():
+        buses = available()
+
+        notes = 'Available buses will be shown below.'
+
+        if 'pcan' in [interface for interface, channel in buses]:
+            notes += "\n'pcan' buses will flash the hardware LED when selected."
+
+        self.ui.notes.setText(notes)
+
+        for interface, channel in buses:
             self.ui.list.addItem('{}{}{}'.format(interface, self.separator,
                                                  channel))
 
@@ -98,11 +108,23 @@ class Selector(QtWidgets.QDialog):
 
         self.selected_string = None
 
-    @pyqtSlot(QListWidgetItem)
+        self.flashing_buses = set()
+
+    @pyqtSlot()
     def reject(self):
+        self.stop_flashing()
         self.selected_string = None
 
         QtWidgets.QDialog.reject(self)
+
+    @pyqtSlot()
+    def accept(self):
+        self.stop_flashing()
+        QtWidgets.QDialog.accept(self)
+
+    def stop_flashing(self):
+        for bus in set(self.flashing_buses):
+            self.flash(bus, False)
 
     @pyqtSlot(QListWidgetItem)
     def double_clicked(self, item):
@@ -111,10 +133,38 @@ class Selector(QtWidgets.QDialog):
     def changed(self):
         if len(self.ui.list.selectedItems()) == 1:
             self.selected_string = self.ui.list.currentItem().text()
+
+            interface, channel = self.selected()
+
+            if interface == 'pcan':
+                try:
+                    bus = can.interface.Bus(bustype=interface, channel=channel)
+                except:
+                    pass
+                else:
+                    self.flash(bus, True)
+                    stop_flashing = functools.partial(self.flash, bus, False)
+                    QTimer.singleShot(3000, stop_flashing)
         else:
             self.selected_string = None
 
         self.ui.connect.setDisabled(self.selected_string is None)
+
+    def flash(self, bus, flash):
+        flash = bool(flash)
+
+        if flash:
+            if bus in self.flashing_buses:
+                return
+            self.flashing_buses.add(bus)
+
+        bus.flash(flash)
+
+        if not flash:
+            if bus not in self.flashing_buses:
+                return
+            bus.shutdown()
+            self.flashing_buses.remove(bus)
 
     def selected(self):
         if self.selected_string is None:

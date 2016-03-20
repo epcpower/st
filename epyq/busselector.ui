@@ -17,6 +17,13 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
+      <widget class="QLabel" name="notes">
+	   <property name="text">
+	    <string/>
+	   </property>
+	  </widget>
+     </item>
+     <item>
       <widget class="QListWidget" name="list"/>
      </item>
     </layout>
