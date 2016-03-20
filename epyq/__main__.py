@@ -5,6 +5,7 @@
 import can
 import canmatrix.importany as importany
 import copy
+import epyq.busselector
 import epyq.canneo
 import epyq.nv
 import epyq.txrx
@@ -28,6 +29,7 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+# TODO: CAMPid 9756562638416716254289247326327819
 class Window(QtWidgets.QMainWindow):
     def __init__(self, ui_file, matrix, tx_model, rx_model, nv_model,
                  parent=None):
@@ -187,6 +189,14 @@ def main(args=None):
 
     app = QApplication(sys.argv)
 
+    bs = epyq.busselector.Selector()
+    bs.exec()
+    selected = bs.selected()
+    if selected is None:
+        return
+    else:
+        interface, channel = selected
+
     if args is None:
         import argparse
 
@@ -205,14 +215,7 @@ def main(args=None):
         parser.add_argument('--generate', '-g', action='store_true')
         args = parser.parse_args()
 
-    # TODO: get this outta here
-    default = {
-        'Linux': {'bustype': 'socketcan', 'channel': 'can0'},
-        'Windows': {'bustype': 'pcan', 'channel': 'PCAN_USBBUS1'}
-    }[platform.system()]
-    if args.channel is not None:
-        default['channel'] = args.channel
-    bus = can.interface.Bus(**default)
+    bus = can.interface.Bus(bustype=interface, channel=channel)
 
     # TODO: the repetition here is not so pretty
     matrix_rx = list(importany.importany(args.can).values())[0]
