@@ -233,6 +233,8 @@ def main(args=None):
             if len(can_file) == 0:
                 # TODO: 8961631268439   use Qt
                 return
+        else:
+            can_file = args.can
 
     bus = can.interface.Bus(bustype=interface, channel=channel)
 
