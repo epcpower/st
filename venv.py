@@ -3,9 +3,22 @@
 import argparse
 from distutils.core import run_setup
 import os
-import pip
 import subprocess
 import sys
+
+try:
+    import pip
+except ImportError:
+    print('')
+    print('')
+    print('    pip not installed:')
+    print('')
+    print('        Use your package manager to install')
+    print('')
+    print('        e.g. sudo apt-get install python3-pip')
+    print('')
+
+    sys.exit(1)
 
 # TODO: redo as a bootstrap script
 #       https://virtualenv.readthedocs.org/en/latest/reference.html#extending-virtualenv
