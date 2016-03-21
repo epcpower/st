@@ -198,16 +198,10 @@ def main(args=None):
     if args is None:
         import argparse
 
-        can_path = QFileInfo.absolutePath(QFileInfo(__file__))
-        if can_path[0] == ':':
-            can_path = QCoreApplication.applicationDirPath()
-
-        can_file = os.path.join(can_path, 'AFE_CAN_ID247_FACTORY.sym')
-
         ui_default = 'main.ui'
 
         parser = argparse.ArgumentParser()
-        parser.add_argument('--can', default=can_file)
+        parser.add_argument('--can', default=None)
 
         default_interfaces = {
             'Linux': 'socketcan',
@@ -232,15 +226,23 @@ def main(args=None):
             interface = args.interface
             channel = args.channel
 
+        if args.can is None:
+            can_file = QFileDialog.getOpenFileName(
+                    filter='PCAN Symbol (*.sym);; All File (*)',
+                    initialFilter='PCAN Symbol (*.sym)')[0]
+            if len(can_file) == 0:
+                # TODO: 8961631268439   use Qt
+                return
+
     bus = can.interface.Bus(bustype=interface, channel=channel)
 
     # TODO: the repetition here is not so pretty
-    matrix_rx = list(importany.importany(args.can).values())[0]
+    matrix_rx = list(importany.importany(can_file).values())[0]
     epyq.canneo.neotize(matrix=matrix_rx,
                         frame_class=epyq.txrx.MessageNode,
                         signal_class=epyq.txrx.SignalNode)
 
-    matrix_tx = list(importany.importany(args.can).values())[0]
+    matrix_tx = list(importany.importany(can_file).values())[0]
     message_node_tx_partial = functools.partial(epyq.txrx.MessageNode,
                                                 tx=True)
     signal_node_tx_partial = functools.partial(epyq.txrx.SignalNode,
@@ -249,7 +251,7 @@ def main(args=None):
                         frame_class=message_node_tx_partial,
                         signal_class=signal_node_tx_partial)
 
-    matrix_widgets = list(importany.importany(args.can).values())[0]
+    matrix_widgets = list(importany.importany(can_file).values())[0]
     frames_widgets = epyq.canneo.neotize(
             matrix=matrix_widgets,
             bus=bus)
@@ -270,7 +272,7 @@ def main(args=None):
     tx.begin_insert_rows.connect(tx_model.begin_insert_rows)
     tx.end_insert_rows.connect(tx_model.end_insert_rows)
 
-    matrix_nv = list(importany.importany(args.can).values())[0]
+    matrix_nv = list(importany.importany(can_file).values())[0]
     epyq.canneo.neotize(
             matrix=matrix_nv,
             frame_class=epyq.nv.Frame,
