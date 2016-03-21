@@ -18,7 +18,7 @@ import os
 import platform
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import QFile, QFileInfo, QTextStream, QCoreApplication
-from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMessageBox, QFileDialog
 from PyQt5.QtGui import QPixmap
 import sys
 import time
@@ -181,6 +181,12 @@ def excepthook(excType, excValue, tracebackobj):
     errorbox.exec_()
 
 
+def select_bus():
+    bs = epyq.busselector.Selector()
+    bs.exec()
+    return bs.selected()
+
+
 def main(args=None):
     import sys
     sys.excepthook = excepthook
@@ -188,14 +194,6 @@ def main(args=None):
     sys.stdout.flush()
 
     app = QApplication(sys.argv)
-
-    bs = epyq.busselector.Selector()
-    bs.exec()
-    selected = bs.selected()
-    if selected is None:
-        return
-    else:
-        interface, channel = selected
 
     if args is None:
         import argparse
@@ -210,10 +208,29 @@ def main(args=None):
 
         parser = argparse.ArgumentParser()
         parser.add_argument('--can', default=can_file)
+
+        default_interfaces = {
+            'Linux': 'socketcan',
+            'Windows': 'pcan'
+        }
+        parser.add_argument('--interface',
+                            default=default_interfaces[platform.system()])
+
         parser.add_argument('--channel', default=None)
         parser.add_argument('--ui', default=ui_default)
         parser.add_argument('--generate', '-g', action='store_true')
         args = parser.parse_args()
+
+        if args.channel is None:
+            selected = select_bus()
+            if selected is None:
+                # TODO: 8961631268439   use Qt
+                return
+            else:
+                interface, channel = selected
+        else:
+            interface = args.interface
+            channel = args.channel
 
     bus = can.interface.Bus(bustype=interface, channel=channel)
 
