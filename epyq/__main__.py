@@ -7,6 +7,7 @@ import canmatrix.importany as importany
 import copy
 import epyq.busselector
 import epyq.canneo
+import epyq.fileselector
 import epyq.nv
 import epyq.txrx
 import epyq.widgets.progressbar
@@ -17,7 +18,8 @@ import math
 import os
 import platform
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
-from PyQt5.QtCore import QFile, QFileInfo, QTextStream, QCoreApplication
+from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
+                          QSettings)
 from PyQt5.QtWidgets import QApplication, QMessageBox, QFileDialog
 from PyQt5.QtGui import QPixmap
 import sys
@@ -181,10 +183,18 @@ def excepthook(excType, excValue, tracebackobj):
     errorbox.exec_()
 
 
+# TODO: CAMPid 907616231629845659923471326
 def select_bus():
     bs = epyq.busselector.Selector()
     bs.exec()
     return bs.selected()
+
+
+# TODO: CAMPid 907616231629845659923471326
+def select_recent_file(recent=[]):
+    fs = epyq.fileselector.Selector(recent=recent)
+    fs.exec()
+    return fs.selected()
 
 
 def main(args=None):
@@ -194,6 +204,11 @@ def main(args=None):
     sys.stdout.flush()
 
     app = QApplication(sys.argv)
+    app.setOrganizationName('EPC Power Corp.')
+    app.setApplicationName('EPyQ')
+
+    settings = QSettings(app.organizationName(),
+                         app.applicationName())
 
     if args is None:
         import argparse
@@ -226,15 +241,39 @@ def main(args=None):
             interface = args.interface
             channel = args.channel
 
+        recent_can_files = settings.value('recent_can_files', type=str)
+        if recent_can_files == '':
+            recent_can_files = []
+
         if args.can is None:
-            can_file = QFileDialog.getOpenFileName(
-                    filter='PCAN Symbol (*.sym);; All File (*)',
-                    initialFilter='PCAN Symbol (*.sym)')[0]
-            if len(can_file) == 0:
-                # TODO: 8961631268439   use Qt
-                return
+            can_file = ''
+            if len(recent_can_files) > 0:
+                can_file = select_recent_file(recent_can_files)
+
+                if len(can_file) == 0:
+                    # TODO: 8961631268439   use Qt
+                    return
+
+            if can_file == '':
+                # TODO: CAMPid 97456612391231265743713479129
+                can_file = QFileDialog.getOpenFileName(
+                        filter='PCAN Symbol (*.sym);; All File (*)',
+                        initialFilter='PCAN Symbol (*.sym)')[0]
+                if len(can_file) == 0:
+                    # TODO: 8961631268439   use Qt
+                    return
         else:
             can_file = args.can
+
+    try:
+        recent_can_files.remove(can_file)
+    except ValueError:
+        pass
+    recent_can_files.append(can_file)
+    recent_can_files = recent_can_files[-10:]
+    settings.setValue('recent_can_files', recent_can_files)
+    for file in recent_can_files:
+        print(file)
 
     bus = can.interface.Bus(bustype=interface, channel=channel)
 
