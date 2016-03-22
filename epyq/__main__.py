@@ -5,6 +5,7 @@
 import can
 import canmatrix.importany as importany
 import copy
+import epyq.busproxy
 import epyq.busselector
 import epyq.canneo
 import epyq.fileselector
@@ -275,7 +276,8 @@ def main(args=None):
     for file in recent_can_files:
         print(file)
 
-    bus = can.interface.Bus(bustype=interface, channel=channel)
+    real_bus = can.interface.Bus(bustype=interface, channel=channel)
+    bus = epyq.busproxy.BusProxy(bus=real_bus)
 
     # TODO: the repetition here is not so pretty
     matrix_rx = list(importany.importany(can_file).values())[0]
