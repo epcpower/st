@@ -293,8 +293,6 @@ def main(args=None):
     recent_can_files.append(can_file)
     recent_can_files = recent_can_files[-10:]
     settings.setValue('recent_can_files', recent_can_files)
-    for file in recent_can_files:
-        print(file)
 
     # TODO: CAMPid 9756652312918432656896822
     if interface != 'offline':
