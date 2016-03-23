@@ -58,7 +58,7 @@ class Window(QtWidgets.QMainWindow):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
-        self.ui.bus__select.triggered.connect(self._bus__select)
+        self.ui.busselector.select_bus.connect(self.select_bus)
 
         self.ui.rx.setModel(rx_model)
         self.ui.tx.setModel(tx_model)
@@ -133,14 +133,7 @@ class Window(QtWidgets.QMainWindow):
             target.setRange(float(signal.signal._min),
                             float(signal.signal._max))
 
-    def _bus__select(self):
-        # TODO: CAMPid 97512612612674595494227
-        selected = select_bus()
-        if selected is None:
-            return
-        else:
-            interface, channel = selected
-
+    def select_bus(self, interface, channel):
         # TODO: CAMPid 9756652312918432656896822
         if interface != 'offline':
             real_bus = can.interface.Bus(bustype=interface, channel=channel)

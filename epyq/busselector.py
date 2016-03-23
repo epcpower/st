@@ -8,8 +8,9 @@ import io
 import os
 from PyQt5 import QtCore, QtWidgets, QtGui, uic, Qt
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
-                            pyqtSlot, QTimer)
-from PyQt5.QtWidgets import QApplication, QMessageBox, QListWidgetItem
+                            pyqtSignal, pyqtSlot, QTimer)
+from PyQt5.QtWidgets import (QApplication, QMessageBox, QListWidgetItem,
+                             QHBoxLayout)
 from PyQt5.QtGui import QPixmap
 import sys
 
@@ -57,19 +58,15 @@ def available():
     return valid
 
 
-# TODO: CAMPid 9756562638416716254289247326327819
-class Selector(QtWidgets.QDialog):
+class BusSelector(QtWidgets.QWidget):
+    select_bus = pyqtSignal(str, str)
+
     def __init__(self, parent=None):
-        QtWidgets.QDialog.__init__(self, parent=parent)
-        self.setWindowFlags(QtCore.Qt.WindowTitleHint |
-                            QtCore.Qt.WindowSystemMenuHint)
+        QtWidgets.QWidget.__init__(self, parent=parent)
 
-        # TODO: CAMPid 980567566238416124867857834291346779
-        ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
-        ico = QtGui.QIcon(ico_file)
-        self.setWindowIcon(ico)
+        ui = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
+                               'busselector.ui')
 
-        ui = 'busselector.ui'
         # TODO: CAMPid 9549757292917394095482739548437597676742
         if not QFileInfo(ui).isAbsolute():
             ui_file = os.path.join(
@@ -81,8 +78,6 @@ class Selector(QtWidgets.QDialog):
         ts = QTextStream(ui_file)
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
-
-        self.setWindowTitle('Bus Selector')
 
         self.separator = ' - '
 
@@ -101,34 +96,25 @@ class Selector(QtWidgets.QDialog):
                                                  channel))
 
         self.ui.list.itemSelectionChanged.connect(self.changed)
-        self.ui.connect.setDisabled(True)
 
-        self.ui.list.itemDoubleClicked.connect(self.double_clicked)
-        self.ui.connect.clicked.connect(self.accept)
-        self.ui.abort.clicked.connect(self.reject)
+        self.ui.list.itemActivated.connect(self.activated)
 
         self.selected_string = None
 
         self.flashing_buses = set()
 
     @pyqtSlot()
-    def reject(self):
-        self.stop_flashing()
-        self.selected_string = None
-
-        QtWidgets.QDialog.reject(self)
-
-    @pyqtSlot()
     def accept(self):
         self.stop_flashing()
-        QtWidgets.QDialog.accept(self)
+
+        self.select_bus.emit(*self.selected())
 
     def stop_flashing(self):
         for bus in set(self.flashing_buses):
             self.flash(bus, False)
 
     @pyqtSlot(QListWidgetItem)
-    def double_clicked(self, item):
+    def activated(self, item):
         self.accept()
 
     def changed(self):
@@ -148,8 +134,6 @@ class Selector(QtWidgets.QDialog):
                     QTimer.singleShot(3000, stop_flashing)
         else:
             self.selected_string = None
-
-        self.ui.connect.setDisabled(self.selected_string is None)
 
     def flash(self, bus, flash):
         flash = bool(flash)
