@@ -134,14 +134,19 @@ class Window(QtWidgets.QMainWindow):
                             float(signal.signal._max))
 
     def _bus__select(self):
+        # TODO: CAMPid 97512612612674595494227
         selected = select_bus()
         if selected is None:
-            # TODO  select None somehow?
             return
         else:
             interface, channel = selected
+
+        # TODO: CAMPid 9756652312918432656896822
+        if interface != 'offline':
             real_bus = can.interface.Bus(bustype=interface, channel=channel)
-            self.bus.set_bus(real_bus)
+        else:
+            real_bus = None
+        self.bus.set_bus(bus=real_bus)
 
 
 # TODO: Consider updating from...
@@ -246,6 +251,7 @@ def main(args=None):
         args = parser.parse_args()
 
         if args.channel is None:
+            # TODO: CAMPid 97512612612674595494227
             selected = select_bus()
             if selected is None:
                 # TODO: 8961631268439   use Qt
@@ -290,7 +296,11 @@ def main(args=None):
     for file in recent_can_files:
         print(file)
 
-    real_bus = can.interface.Bus(bustype=interface, channel=channel)
+    # TODO: CAMPid 9756652312918432656896822
+    if interface != 'offline':
+        real_bus = can.interface.Bus(bustype=interface, channel=channel)
+    else:
+        real_bus = None
     bus = epyq.busproxy.BusProxy(bus=real_bus)
 
     # TODO: the repetition here is not so pretty

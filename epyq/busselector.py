@@ -95,6 +95,7 @@ class Selector(QtWidgets.QDialog):
 
         self.ui.notes.setText(notes)
 
+        self.ui.list.addItem('offline')
         for interface, channel in buses:
             self.ui.list.addItem('{}{}{}'.format(interface, self.separator,
                                                  channel))
@@ -169,6 +170,8 @@ class Selector(QtWidgets.QDialog):
     def selected(self):
         if self.selected_string is None:
             return None
+        elif self.selected_string == 'offline':
+            return (self.selected_string, '')
 
         return self.selected_string.split(self.separator)
 
