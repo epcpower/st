@@ -661,8 +661,20 @@
      <height>39</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuBus">
+    <property name="title">
+     <string>B&amp;us</string>
+    </property>
+    <addaction name="bus__select"/>
+   </widget>
+   <addaction name="menuBus"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="bus__select">
+   <property name="text">
+    <string>Select...</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

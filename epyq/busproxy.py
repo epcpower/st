@@ -31,6 +31,9 @@ class BusProxy:
         if self.bus is not None:
             return self.bus.flash()
 
+    def set_bus(self, bus=None):
+        self.bus = bus
+
 
 if __name__ == '__main__':
     import sys

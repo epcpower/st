@@ -34,9 +34,11 @@ __license__ = 'GPLv2+'
 
 # TODO: CAMPid 9756562638416716254289247326327819
 class Window(QtWidgets.QMainWindow):
-    def __init__(self, ui_file, matrix, tx_model, rx_model, nv_model,
+    def __init__(self, ui_file, matrix, tx_model, rx_model, nv_model, bus,
                  parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
+
+        self.bus = bus
 
         # TODO: CAMPid 980567566238416124867857834291346779
         ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
@@ -55,6 +57,8 @@ class Window(QtWidgets.QMainWindow):
         ts = QTextStream(ui_file)
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
+
+        self.ui.bus__select.triggered.connect(self._bus__select)
 
         self.ui.rx.setModel(rx_model)
         self.ui.tx.setModel(tx_model)
@@ -128,6 +132,16 @@ class Window(QtWidgets.QMainWindow):
             signal.value_changed.connect(target.setValue)
             target.setRange(float(signal.signal._min),
                             float(signal.signal._max))
+
+    def _bus__select(self):
+        selected = select_bus()
+        if selected is None:
+            # TODO  select None somehow?
+            return
+        else:
+            interface, channel = selected
+            real_bus = can.interface.Bus(bustype=interface, channel=channel)
+            self.bus.set_bus(real_bus)
 
 
 # TODO: Consider updating from...
@@ -397,7 +411,7 @@ def main(args=None):
 
     window = Window(ui_file=args.ui, matrix=matrix_widgets,
                     tx_model=tx_model, rx_model=rx_model,
-                    nv_model=nv_model)
+                    nv_model=nv_model, bus=bus)
 
     window.show()
     return app.exec_()
