@@ -19,9 +19,11 @@ class BusProxy:
         elif timeout is not None:
             time.sleep(timeout)
 
-    def send(self, message):
+    def send(self, msg):
         if self.bus is not None:
-            return self.bus.send(message=message)
+            # TODO: I would use message=message (or msg=msg) but:
+            #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
+            return self.bus.send(msg)
 
     def shutdown(self):
         if self.bus is not None:
