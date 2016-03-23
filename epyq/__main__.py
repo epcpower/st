@@ -251,13 +251,8 @@ def main(args=None):
         args = parser.parse_args()
 
         if args.channel is None:
-            # TODO: CAMPid 97512612612674595494227
-            selected = select_bus()
-            if selected is None:
-                # TODO: 8961631268439   use Qt
-                return
-            else:
-                interface, channel = selected
+            interface = 'offline'
+            channel = ''
         else:
             interface = args.interface
             channel = args.channel
