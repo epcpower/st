@@ -212,11 +212,10 @@ def select_recent_file(recent=[]):
 
 def main(args=None):
     import sys
-    sys.excepthook = excepthook
     print('starting epyq')
-    sys.stdout.flush()
 
     app = QApplication(sys.argv)
+    sys.excepthook = excepthook
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
 

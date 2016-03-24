@@ -10,14 +10,14 @@ Component.prototype.createOperations = function()
         component.createOperations();
         if (systemInfo.productType == "windows") { 
             try {
-                component.addOperation("CreateShortcut", "@TargetDir@/EPyQ.bat", "@StartMenuDir@/EPyQ.lnk",
+                component.addOperation("CreateShortcut", "@TargetDir@/EPyQ.exe", "@StartMenuDir@/EPyQ.lnk",
                     "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/EPyQ.exe",
                     "iconId=0");
                 component.addOperation("CreateShortcut", "@TargetDir@/maintenancetool.exe", "@StartMenuDir@/Uninstall.lnk",
                     "workingDirectory=@TargetDir@", "iconPath=%SystemRoot%/system32/SHELL32.dll",
                     "iconId=2");
 
-                component.addOperation("CreateShortcut", "@TargetDir@/EPyQ.bat", "@DesktopDir@/EPyQ.lnk",
+                component.addOperation("CreateShortcut", "@TargetDir@/EPyQ.exe", "@DesktopDir@/EPyQ.lnk",
                     "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/EPyQ.exe",
                     "iconId=1");
             } catch (e) {

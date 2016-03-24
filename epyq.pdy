@@ -13,7 +13,6 @@ win32 {
 
     EXTRA_BINFILES = \
         ../epyq/AFE_CAN_ID247_FACTORY.sym \
-        ../epyq.bat \
         $${QT_BIN}/Qt5Core.dll \
         $${QT_BIN}/Qt5Widgets.dll \
         $${QT_BIN}/Qt5Gui.dll \
