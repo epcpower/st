@@ -18,10 +18,14 @@ import io
 import math
 import os
 import platform
+
+from epyq.device import Device
+
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
                           QSettings)
-from PyQt5.QtWidgets import QApplication, QMessageBox, QFileDialog
+from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
+                             QListWidgetItem)
 from PyQt5.QtGui import QPixmap
 import sys
 import time
@@ -35,7 +39,7 @@ __license__ = 'GPLv2+'
 # TODO: CAMPid 9756562638416716254289247326327819
 class Window(QtWidgets.QMainWindow):
     def __init__(self, ui_file, matrix, tx_model, rx_model, nv_model, bus,
-                 parent=None):
+                 devices=[], parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
 
         self.bus = bus
@@ -69,8 +73,18 @@ class Window(QtWidgets.QMainWindow):
         else:
             ui_nv.setModel(nv_model)
 
+        for device in devices:
+            self.ui.stacked.addWidget(device.ui)
+            self.ui.stacked.setCurrentWidget(device.ui)
+            item = QListWidgetItem(device.name)
+            item.setData(QtCore.Qt.UserRole, device.ui)
+            self.ui.device_list.addItem(item)
+        self.ui.device_list.itemActivated.connect(self.device_activated)
 
+        # TODO: CAMPid 99457281212789437474299
         children = self.findChildren(QtCore.QObject)
+        stacked_children = self.ui.stacked.findChildren(QtCore.QObject)
+        children = list(set(children) - set(stacked_children))
         widgets = [c for c in children if
                    isinstance(c, epyq.widgets.abstractwidget.AbstractWidget)]
         targets = [c for c in children if
@@ -140,6 +154,10 @@ class Window(QtWidgets.QMainWindow):
         else:
             real_bus = None
         self.bus.set_bus(bus=real_bus)
+
+    def device_activated(self, item):
+        device = item.data(QtCore.Qt.UserRole)
+        self.ui.stacked.setCurrentWidget(device)
 
 
 # TODO: Consider updating from...
@@ -288,6 +306,36 @@ def main(args=None):
         real_bus = None
     bus = epyq.busproxy.BusProxy(bus=real_bus)
 
+    devices = []
+    device_frames = []
+
+    matrix_dev1 = list(importany.importany(can_file).values())[0]
+    frames_dev1 = epyq.canneo.neotize(matrix=matrix_dev1, bus=bus)
+    dev1 = Device(matrix=matrix_dev1,
+                  ui='dash1.ui',
+                  serial_number=0,
+                  name='dev1 name')
+    devices.append(dev1)
+    device_frames.append(frames_dev1)
+
+    matrix_dev2 = list(importany.importany(can_file).values())[0]
+    frames_dev2 = epyq.canneo.neotize(matrix=matrix_dev2, bus=bus)
+    dev2 = Device(matrix=matrix_dev2,
+                  ui='dash1.ui',
+                  serial_number=0,
+                  name='dev2 name')
+    devices.append(dev2)
+    device_frames.append(frames_dev2)
+
+    matrix_dev3 = list(importany.importany(can_file).values())[0]
+    frames_dev3 = epyq.canneo.neotize(matrix=matrix_dev3, bus=bus)
+    dev3 = Device(matrix=matrix_dev3,
+                  ui='dash1.ui',
+                  serial_number=0,
+                  name='dev3 name')
+    devices.append(dev3)
+    device_frames.append(frames_dev3)
+
     # TODO: the repetition here is not so pretty
     matrix_rx = list(importany.importany(can_file).values())[0]
     epyq.canneo.neotize(matrix=matrix_rx,
@@ -331,6 +379,7 @@ def main(args=None):
             signal_class=epyq.nv.Nv)
 
     notifiees = frames_widgets + [rx]
+    notifiees.extend(device_frames)
 
     try:
         nvs = epyq.nv.Nvs(matrix_nv, bus)
@@ -406,7 +455,7 @@ def main(args=None):
 
     window = Window(ui_file=args.ui, matrix=matrix_widgets,
                     tx_model=tx_model, rx_model=rx_model,
-                    nv_model=nv_model, bus=bus)
+                    nv_model=nv_model, bus=bus, devices=devices)
 
     window.show()
     return app.exec_()
