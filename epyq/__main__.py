@@ -10,6 +10,7 @@ import epyq.busselector
 import epyq.canneo
 import epyq.fileselector
 import epyq.nv
+import epyq.tee
 import epyq.txrx
 import epyq.widgets.progressbar
 import epyq.widgets.lcd
@@ -34,6 +35,8 @@ import traceback
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
+
+log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8')
 
 
 # TODO: CAMPid 9756562638416716254289247326327819
@@ -175,17 +178,15 @@ def excepthook(excType, excValue, tracebackobj):
     @param tracebackobj traceback object
     """
     separator = '-' * 70
-    logFile = "simple.log"
     email = "kyle.altendorf@epcpower.com"
     notice = \
         """An unhandled exception occurred. Please report the problem via email to:\n"""\
         """\t\t%s\n\n"""\
         """A log has been written to "%s".\n\nError information:\n""" % \
-        (email, logFile)
+        (email, log.name)
     # TODO: add something for version
     versionInfo=""
     timeString = time.strftime("%Y-%m-%d, %H:%M:%S")
-
 
     tbinfofile = io.StringIO()
     traceback.print_tb(tracebackobj, None, tbinfofile)
@@ -194,13 +195,7 @@ def excepthook(excType, excValue, tracebackobj):
     errmsg = '%s: \n%s' % (str(excType), str(excValue))
     sections = [separator, timeString, separator, errmsg, separator, tbinfo]
     msg = '\n'.join(sections)
-    try:
-        f = open(logFile, "w")
-        f.write(msg)
-        f.write(versionInfo)
-        f.close()
-    except IOError:
-        pass
+
     errorbox = QMessageBox()
     errorbox.setWindowTitle("EPyQ FAIL!")
     errorbox.setIcon(QMessageBox.Critical)
@@ -210,7 +205,10 @@ def excepthook(excType, excValue, tracebackobj):
     ico = QtGui.QIcon(ico_file)
     errorbox.setWindowIcon(ico)
 
-    errorbox.setText(str(notice)+str(msg)+str(versionInfo))
+    complete = str(notice) + str(msg) + str(versionInfo)
+
+    sys.stderr.write(complete)
+    errorbox.setText(complete)
     errorbox.exec_()
 
 
@@ -230,6 +228,17 @@ def select_recent_file(recent=[]):
 
 def main(args=None):
     import sys
+
+    if sys.stdout is None:
+        sys.stdout = log
+    else:
+        sys.stdout = epyq.tee.Tee([sys.stdout, log])
+    
+    if sys.stderr is None:
+        sys.stderr = log
+    else:
+        sys.stderr = epyq.tee.Tee([sys.stderr, log])
+    
     print('starting epyq')
 
     app = QApplication(sys.argv)
