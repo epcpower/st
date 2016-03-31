@@ -388,7 +388,8 @@ def main(args=None):
             signal_class=epyq.nv.Nv)
 
     notifiees = frames_widgets + [rx]
-    notifiees.extend(device_frames)
+    for frames in device_frames:
+        notifiees.extend(frames)
 
     try:
         nvs = epyq.nv.Nvs(matrix_nv, bus)
