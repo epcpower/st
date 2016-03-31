@@ -1,0 +1,6 @@
+{
+    "can_path": "device.sym",
+    "name": "My Inverter",
+    "serial_number": "42",
+    "ui_path": "device.ui"
+}

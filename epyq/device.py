@@ -2,8 +2,14 @@
 
 # TODO: get some docstrings in here!
 
+import canmatrix.importany as importany
+import epyq.canneo
 import io
+import json
 import os
+import shutil
+import tempfile
+import zipfile
 
 from epyq.busproxy import BusProxy
 from epyq.widgets.abstractwidget import AbstractWidget
@@ -15,8 +21,71 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+def load(file):
+    if isinstance(file, str):
+        pass
+    elif isinstance(file, io.IOBase):
+        pass
+
+
 class Device:
-    def __init__(self, matrix, ui, serial_number, name, bus=None):
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('file', None) is not None:
+            constructor = self._init_from_file
+        else:
+            constructor = self._init_from_parameters
+
+        constructor(*args, **kwargs)
+
+    def _init_from_file(self, file):
+        try:
+            zip_file = zipfile.ZipFile(file)
+        except zipfile.BadZipFile:
+            pass
+        else:
+            self._init_from_zip(zip_file)
+            return
+
+        try:
+            file = open(file, 'r')
+        except TypeError:
+            pass
+        else:
+            self._load_config(file)
+
+            return
+
+        print(file)
+
+    def _load_config(self, file):
+        s = file.read()
+        d = json.loads(s)
+
+        path = os.path.dirname(file.name)
+        self.ui_path = os.path.join(path, d['ui_path'])
+        self.can_path = os.path.join(path, d['can_path'])
+
+        matrix = list(importany.importany(self.can_path).values())[0]
+        self.frames = epyq.canneo.neotize(matrix=matrix)
+
+        self._init_from_parameters(
+            matrix=matrix,
+            ui=self.ui_path,
+            serial_number=d.get('serial_number', ''),
+            name=d.get('name', ''))
+
+    def _init_from_zip(self, zip_file):
+        path = tempfile.mkdtemp()
+        zip_file.extractall(path=path)
+
+        file = os.path.join(path, 'config.epc')
+        file = open(file, 'r')
+
+        self._load_config(file)
+
+        shutil.rmtree(path)
+
+    def _init_from_parameters(self, matrix, ui, serial_number, name, bus=None):
         self.bus = BusProxy(bus=bus)
 
         self.matrix = matrix
@@ -57,6 +126,10 @@ class Device:
                 signal = frame.frame.signalByName(signal_name)
                 if signal is not None:
                     widget.set_signal(signal.signal)
+
+    def get_frames(self):
+        return self.frames
+
 
 if __name__ == '__main__':
     import sys

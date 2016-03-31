@@ -345,6 +345,19 @@ def main(args=None):
     devices.append(dev3)
     device_frames.append(frames_dev3)
 
+    try:
+        dev4 = Device(file=os.path.join('..', 'config.epc'))
+        devices.append(dev4)
+        device_frames.append(dev4.get_frames())
+
+        dev5 = Device(file=os.path.join('..', 'config.epz'))
+        devices.append(dev5)
+        device_frames.append(dev5.get_frames())
+    except FileNotFoundError:
+        # TODO: this is just test code that presently only works when
+        #       not deployed
+        pass
+
     # TODO: the repetition here is not so pretty
     matrix_rx = list(importany.importany(can_file).values())[0]
     epyq.canneo.neotize(matrix=matrix_rx,
