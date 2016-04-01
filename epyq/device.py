@@ -2,6 +2,7 @@
 
 # TODO: get some docstrings in here!
 
+import can
 import canmatrix.importany as importany
 import epyq.canneo
 import io
@@ -37,27 +38,22 @@ class Device:
 
         constructor(*args, **kwargs)
 
-    def _init_from_file(self, file):
+    def _init_from_file(self, file, bus=None):
         try:
             zip_file = zipfile.ZipFile(file)
         except zipfile.BadZipFile:
-            pass
+            try:
+                file = open(file, 'r')
+            except TypeError:
+                return
+            else:
+                self._load_config(file=file, bus=bus)
         else:
-            self._init_from_zip(zip_file)
-            return
+            self._init_from_zip(zip_file, bus=bus)
 
-        try:
-            file = open(file, 'r')
-        except TypeError:
-            pass
-        else:
-            self._load_config(file)
+        can.Notifier(self.bus, self.frames, timeout=0.1)
 
-            return
-
-        print(file)
-
-    def _load_config(self, file):
+    def _load_config(self, file, bus=None):
         s = file.read()
         d = json.loads(s)
 
@@ -72,16 +68,17 @@ class Device:
             matrix=matrix,
             ui=self.ui_path,
             serial_number=d.get('serial_number', ''),
-            name=d.get('name', ''))
+            name=d.get('name', ''),
+            bus=bus)
 
-    def _init_from_zip(self, zip_file):
+    def _init_from_zip(self, zip_file, bus=None):
         path = tempfile.mkdtemp()
         zip_file.extractall(path=path)
 
         file = os.path.join(path, 'config.epc')
         file = open(file, 'r')
 
-        self._load_config(file)
+        self._load_config(file, bus=bus)
 
         shutil.rmtree(path)
 

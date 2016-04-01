@@ -176,7 +176,7 @@ class Window(QtWidgets.QMainWindow):
         if file is None:
             return
 
-        device = Device(file=file)
+        device = Device(file=file, bus=self.bus)
         self.add_device(device)
 
 
