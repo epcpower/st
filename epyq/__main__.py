@@ -2,6 +2,21 @@
 
 # TODO: get some docstrings in here!
 
+import os
+import sys
+
+log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8')
+
+if sys.stdout is None:
+    sys.stdout = log
+else:
+    sys.stdout = epyq.tee.Tee([sys.stdout, log])
+
+if sys.stderr is None:
+    sys.stderr = log
+else:
+    sys.stderr = epyq.tee.Tee([sys.stderr, log])
+
 import can
 import canmatrix.importany as importany
 import copy
@@ -17,7 +32,6 @@ import epyq.widgets.lcd
 import functools
 import io
 import math
-import os
 import platform
 
 from epyq.device import Device
@@ -28,15 +42,12 @@ from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem)
 from PyQt5.QtGui import QPixmap
-import sys
 import time
 import traceback
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
-
-log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8')
 
 
 # TODO: CAMPid 9756562638416716254289247326327819
@@ -266,18 +277,6 @@ def select_recent_file(recent=[]):
 
 
 def main(args=None):
-    import sys
-
-    if sys.stdout is None:
-        sys.stdout = log
-    else:
-        sys.stdout = epyq.tee.Tee([sys.stdout, log])
-    
-    if sys.stderr is None:
-        sys.stderr = log
-    else:
-        sys.stderr = epyq.tee.Tee([sys.stderr, log])
-    
     print('starting epyq')
 
     app = QApplication(sys.argv)
