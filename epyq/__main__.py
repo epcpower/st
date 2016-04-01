@@ -66,6 +66,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui = uic.loadUi(sio, self)
 
         self.ui.busselector.select_bus.connect(self.select_bus)
+        self.ui.load_device_button.clicked.connect(self.load_device)
 
         self.ui.rx.setModel(rx_model)
         self.ui.tx.setModel(tx_model)
@@ -77,11 +78,7 @@ class Window(QtWidgets.QMainWindow):
             ui_nv.setModel(nv_model)
 
         for device in devices:
-            self.ui.stacked.addWidget(device.ui)
-            self.ui.stacked.setCurrentWidget(device.ui)
-            item = QListWidgetItem(device.name)
-            item.setData(QtCore.Qt.UserRole, device.ui)
-            self.ui.device_list.addItem(item)
+            self.add_device(device)
         self.ui.device_list.itemActivated.connect(self.device_activated)
 
         # TODO: CAMPid 99457281212789437474299
@@ -150,6 +147,13 @@ class Window(QtWidgets.QMainWindow):
             target.setRange(float(signal.signal._min),
                             float(signal.signal._max))
 
+    def add_device(self, device):
+        self.ui.stacked.addWidget(device.ui)
+        self.ui.stacked.setCurrentWidget(device.ui)
+        item = QListWidgetItem(device.name)
+        item.setData(QtCore.Qt.UserRole, device.ui)
+        self.ui.device_list.addItem(item)
+
     def select_bus(self, interface, channel):
         # TODO: CAMPid 9756652312918432656896822
         if interface != 'offline':
@@ -161,6 +165,41 @@ class Window(QtWidgets.QMainWindow):
     def device_activated(self, item):
         device = item.data(QtCore.Qt.UserRole)
         self.ui.stacked.setCurrentWidget(device)
+
+    def load_device(self):
+        filters = [
+            ('EPC Packages', ['epc', 'epz']),
+            ('All Files', ['*'])
+        ]
+        file = file_dialog(filters)
+
+        if file is None:
+            return
+
+        device = Device(file=file)
+        self.add_device(device)
+
+
+def file_dialog(filters, default=0):
+    # filters = [
+    #     ('EPC Packages', ['epc', 'epz']),
+    #     ('All Files', ['*'])
+    # ]
+    # TODO: CAMPid 97456612391231265743713479129
+
+    filter_strings = ['{} ({})'.format(f[0],
+                                       ' '.join(['*.'+e for e in f[1]])
+                                       ) for f in filters]
+    filter_string = ';;'.join(filter_strings)
+
+    file = QFileDialog.getOpenFileName(
+            filter=filter_string,
+            initialFilter=filter_strings[default])[0]
+
+    if len(file) == 0:
+        file = None
+
+    return file
 
 
 # TODO: Consider updating from...
@@ -344,19 +383,6 @@ def main(args=None):
                   name='dev3 name')
     devices.append(dev3)
     device_frames.append(frames_dev3)
-
-    try:
-        dev4 = Device(file=os.path.join('..', 'config.epc'))
-        devices.append(dev4)
-        device_frames.append(dev4.get_frames())
-
-        dev5 = Device(file=os.path.join('..', 'config.epz'))
-        devices.append(dev5)
-        device_frames.append(dev5.get_frames())
-    except FileNotFoundError:
-        # TODO: this is just test code that presently only works when
-        #       not deployed
-        pass
 
     # TODO: the repetition here is not so pretty
     matrix_rx = list(importany.importany(can_file).values())[0]

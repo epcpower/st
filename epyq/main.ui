@@ -23,6 +23,13 @@
       <item>
        <widget class="QListWidget" name="device_list"/>
       </item>
+      <item>
+       <widget class="QPushButton" name="load_device_button">
+        <property name="text">
+         <string>Load Device Package</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
@@ -684,9 +691,6 @@
      </widget>
     </item>
    </layout>
-   <zorder>splitter_2</zorder>
-   <zorder>verticalLayoutWidget</zorder>
-   <zorder>busselector</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
