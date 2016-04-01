@@ -354,36 +354,6 @@ def main(args=None):
         real_bus = None
     bus = epyq.busproxy.BusProxy(bus=real_bus)
 
-    devices = []
-    device_frames = []
-
-    matrix_dev1 = list(importany.importany(can_file).values())[0]
-    frames_dev1 = epyq.canneo.neotize(matrix=matrix_dev1, bus=bus)
-    dev1 = Device(matrix=matrix_dev1,
-                  ui='dash1.ui',
-                  serial_number=0,
-                  name='dev1 name')
-    devices.append(dev1)
-    device_frames.append(frames_dev1)
-
-    matrix_dev2 = list(importany.importany(can_file).values())[0]
-    frames_dev2 = epyq.canneo.neotize(matrix=matrix_dev2, bus=bus)
-    dev2 = Device(matrix=matrix_dev2,
-                  ui='dash1.ui',
-                  serial_number=0,
-                  name='dev2 name')
-    devices.append(dev2)
-    device_frames.append(frames_dev2)
-
-    matrix_dev3 = list(importany.importany(can_file).values())[0]
-    frames_dev3 = epyq.canneo.neotize(matrix=matrix_dev3, bus=bus)
-    dev3 = Device(matrix=matrix_dev3,
-                  ui='dash1.ui',
-                  serial_number=0,
-                  name='dev3 name')
-    devices.append(dev3)
-    device_frames.append(frames_dev3)
-
     # TODO: the repetition here is not so pretty
     matrix_rx = list(importany.importany(can_file).values())[0]
     epyq.canneo.neotize(matrix=matrix_rx,
@@ -427,8 +397,6 @@ def main(args=None):
             signal_class=epyq.nv.Nv)
 
     notifiees = frames_widgets + [rx]
-    for frames in device_frames:
-        notifiees.extend(frames)
 
     try:
         nvs = epyq.nv.Nvs(matrix_nv, bus)
@@ -504,7 +472,7 @@ def main(args=None):
 
     window = Window(ui_file=args.ui, matrix=matrix_widgets,
                     tx_model=tx_model, rx_model=rx_model,
-                    nv_model=nv_model, bus=bus, devices=devices)
+                    nv_model=nv_model, bus=bus)
 
     window.show()
     return app.exec_()
