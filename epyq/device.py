@@ -5,6 +5,8 @@
 import can
 import canmatrix.importany as importany
 import epyq.canneo
+import epyq.nv
+import epyq.nvview
 import io
 import json
 import os
@@ -50,8 +52,6 @@ class Device:
                 self._load_config(file=file, bus=bus)
         else:
             self._init_from_zip(zip_file, bus=bus)
-
-        can.Notifier(self.bus, self.frames, timeout=0.1)
 
     def _load_config(self, file, bus=None):
         s = file.read()
@@ -116,6 +116,31 @@ class Device:
         self.ui.dash_layout.addWidget(self.dash_ui)
 
         self.dash_ui.name.setText(name)
+
+        notifiees = self.frames
+
+        matrix_nv = list(importany.importany(self.can_path).values())[0]
+        self.frames_nv = epyq.canneo.neotize(matrix=matrix_nv)
+        epyq.canneo.neotize(
+                matrix=matrix_nv,
+                frame_class=epyq.nv.Frame,
+                signal_class=epyq.nv.Nv)
+
+        nv_views = self.ui.findChildren(epyq.nvview.NvView)
+        if len(nv_views) > 0:
+            try:
+                nvs = epyq.nv.Nvs(matrix_nv, bus)
+            except epyq.nv.NoNv:
+                pass
+            else:
+                nv_model = epyq.nv.NvModel(nvs)
+                nvs.changed.connect(nv_model.changed)
+                notifiees.append(nvs)
+
+            for view in nv_views:
+                view.setModel(nv_model)
+
+        self.notifier = can.Notifier(self.bus, notifiees, timeout=0.1)
 
         # TODO: CAMPid 99457281212789437474299
         children = self.ui.findChildren(QObject)
