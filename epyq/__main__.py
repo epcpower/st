@@ -2,6 +2,7 @@
 
 # TODO: get some docstrings in here!
 
+import epyq.tee
 import os
 import sys
 
@@ -25,7 +26,6 @@ import epyq.busselector
 import epyq.canneo
 import epyq.fileselector
 import epyq.nv
-import epyq.tee
 import epyq.txrx
 import epyq.widgets.progressbar
 import epyq.widgets.lcd
