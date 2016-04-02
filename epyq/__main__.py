@@ -52,8 +52,7 @@ __license__ = 'GPLv2+'
 
 # TODO: CAMPid 9756562638416716254289247326327819
 class Window(QtWidgets.QMainWindow):
-    def __init__(self, ui_file, matrix, tx_model, rx_model, nv_model, bus,
-                 devices=[], parent=None):
+    def __init__(self, ui_file, bus, devices=[], parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
 
         self.bus = bus
@@ -79,84 +78,9 @@ class Window(QtWidgets.QMainWindow):
         self.ui.busselector.select_bus.connect(self.select_bus)
         self.ui.load_device_button.clicked.connect(self.load_device)
 
-        self.ui.rx.setModel(rx_model)
-        self.ui.tx.setModel(tx_model)
-        try:
-            ui_nv = self.ui.nv
-        except AttributeError:
-            pass
-        else:
-            ui_nv.setModel(nv_model)
-
         for device in devices:
             self.add_device(device)
         self.ui.device_list.itemActivated.connect(self.device_activated)
-
-        # TODO: CAMPid 99457281212789437474299
-        children = self.findChildren(QtCore.QObject)
-        stacked_children = self.ui.stacked.findChildren(QtCore.QObject)
-        children = list(set(children) - set(stacked_children))
-        widgets = [c for c in children if
-                   isinstance(c, epyq.widgets.abstractwidget.AbstractWidget)]
-        targets = [c for c in children if
-                   c.property('frame') and c.property('signal')]
-        targets = list(set(targets) - set(widgets))
-
-        for widget in widgets:
-            frame_name = widget.property('frame')
-            signal_name = widget.property('signal')
-
-            widget.set_label('{}:{}'.format(frame_name, signal_name))
-            widget.set_range(min=0, max=100)
-            widget.set_value(42)
-
-            # TODO: add some notifications
-            frame = matrix.frameByName(frame_name)
-            if frame is not None:
-                frame = frame.frame
-                signal = frame.frame.signalByName(signal_name)
-                if signal is not None:
-                    widget.set_signal(signal.signal)
-
-        try:
-            other_scale = self.ui.other_scale
-        except AttributeError:
-            pass
-        else:
-            # TODO: make this accessible in Designer
-            self.ui.other_scale.setOrientations(QtCore.Qt.Vertical)
-            # self.ui.scale.setOrientations(QtCore.Qt.Horizontal)
-
-        for target in targets:
-            frame_name = target.property('frame')
-            signal_name = target.property('signal')
-
-            frame = matrix.frameByName(frame_name).frame
-            signal = frame.frame.signalByName(signal_name).signal
-
-            # TODO: clearly shouldn't be hardcoded
-            if frame_name == 'StatusControlVolts2':
-                if signal_name == 'n15V_Supply':
-                    breakpoints = [-17, -16, -14, -13]
-                    colors = [
-                        QtCore.Qt.darkRed,
-                        QtCore.Qt.darkYellow,
-                        QtCore.Qt.darkGreen,
-                        QtCore.Qt.darkYellow,
-                        QtCore.Qt.darkRed
-                    ]
-            else:
-                breakpoints = [75, 90]
-                colors = [QtCore.Qt.darkGreen, QtCore.Qt.darkYellow, QtCore.Qt.darkRed]
-
-            try:
-                target.setColorRanges(colors, breakpoints)
-            except AttributeError:
-                pass
-
-            signal.value_changed.connect(target.setValue)
-            target.setRange(float(signal.signal._min),
-                            float(signal.signal._max))
 
     def add_device(self, device):
         self.ui.stacked.addWidget(device.ui)
@@ -293,7 +217,6 @@ def main(args=None):
         ui_default = 'main.ui'
 
         parser = argparse.ArgumentParser()
-        parser.add_argument('--can', default=None)
 
         default_interfaces = {
             'Linux': 'socketcan',
@@ -314,99 +237,12 @@ def main(args=None):
             interface = args.interface
             channel = args.channel
 
-        recent_can_files = settings.value('recent_can_files', type=str)
-        if recent_can_files == '':
-            recent_can_files = []
-
-        if args.can is None:
-            can_file = ''
-            if len(recent_can_files) > 0:
-                can_file = select_recent_file(recent_can_files)
-
-                if len(can_file) == 0:
-                    # TODO: 8961631268439   use Qt
-                    return
-
-            if can_file == '':
-                # TODO: CAMPid 97456612391231265743713479129
-                can_file = QFileDialog.getOpenFileName(
-                        filter='PCAN Symbol (*.sym);; All File (*)',
-                        initialFilter='PCAN Symbol (*.sym)')[0]
-                if len(can_file) == 0:
-                    # TODO: 8961631268439   use Qt
-                    return
-        else:
-            can_file = args.can
-
-    try:
-        recent_can_files.remove(can_file)
-    except ValueError:
-        pass
-    recent_can_files.append(can_file)
-    recent_can_files = recent_can_files[-10:]
-    settings.setValue('recent_can_files', recent_can_files)
-
     # TODO: CAMPid 9756652312918432656896822
     if interface != 'offline':
         real_bus = can.interface.Bus(bustype=interface, channel=channel)
     else:
         real_bus = None
     bus = epyq.busproxy.BusProxy(bus=real_bus)
-
-    # TODO: the repetition here is not so pretty
-    matrix_rx = list(importany.importany(can_file).values())[0]
-    epyq.canneo.neotize(matrix=matrix_rx,
-                        frame_class=epyq.txrx.MessageNode,
-                        signal_class=epyq.txrx.SignalNode)
-
-    matrix_tx = list(importany.importany(can_file).values())[0]
-    message_node_tx_partial = functools.partial(epyq.txrx.MessageNode,
-                                                tx=True)
-    signal_node_tx_partial = functools.partial(epyq.txrx.SignalNode,
-                                               tx=True)
-    epyq.canneo.neotize(matrix=matrix_tx,
-                        frame_class=message_node_tx_partial,
-                        signal_class=signal_node_tx_partial)
-
-    matrix_widgets = list(importany.importany(can_file).values())[0]
-    frames_widgets = epyq.canneo.neotize(
-            matrix=matrix_widgets,
-            bus=bus)
-
-    rx = epyq.txrx.TxRx(tx=False, matrix=matrix_rx)
-    rx_model = epyq.txrx.TxRxModel(rx)
-
-    # TODO: put this all in the model...
-    rx.changed.connect(rx_model.changed)
-    rx.begin_insert_rows.connect(rx_model.begin_insert_rows)
-    rx.end_insert_rows.connect(rx_model.end_insert_rows)
-
-    tx = epyq.txrx.TxRx(tx=True, matrix=matrix_tx, bus=bus)
-    tx_model = epyq.txrx.TxRxModel(tx)
-
-    # TODO: put this all in the model...
-    tx.changed.connect(tx_model.changed)
-    tx.begin_insert_rows.connect(tx_model.begin_insert_rows)
-    tx.end_insert_rows.connect(tx_model.end_insert_rows)
-
-    matrix_nv = list(importany.importany(can_file).values())[0]
-    epyq.canneo.neotize(
-            matrix=matrix_nv,
-            frame_class=epyq.nv.Frame,
-            signal_class=epyq.nv.Nv)
-
-    notifiees = frames_widgets + [rx]
-
-    try:
-        nvs = epyq.nv.Nvs(matrix_nv, bus)
-    except epyq.nv.NoNv:
-        nv_model = None
-    else:
-        nv_model = epyq.nv.NvModel(nvs)
-        nvs.changed.connect(nv_model.changed)
-        notifiees.append(nvs)
-
-    notifier = can.Notifier(bus, notifiees, timeout=0.1)
 
     if args.generate:
         print('generating')
@@ -469,9 +305,7 @@ def main(args=None):
                     bus.send(m)
         sys.exit(0)
 
-    window = Window(ui_file=args.ui, matrix=matrix_widgets,
-                    tx_model=tx_model, rx_model=rx_model,
-                    nv_model=nv_model, bus=bus)
+    window = Window(ui_file=args.ui, bus=bus)
 
     window.show()
     return app.exec_()
