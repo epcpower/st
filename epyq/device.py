@@ -7,6 +7,9 @@ import canmatrix.importany as importany
 import epyq.canneo
 import epyq.nv
 import epyq.nvview
+import epyq.txrx
+import epyq.txrxview
+import functools
 import io
 import json
 import os
@@ -118,6 +121,40 @@ class Device:
         self.dash_ui.name.setText(name)
 
         notifiees = self.frames
+
+        # TODO: the repetition here is not so pretty
+        matrix_rx = list(importany.importany(self.can_path).values())[0]
+        epyq.canneo.neotize(matrix=matrix_rx,
+                            frame_class=epyq.txrx.MessageNode,
+                            signal_class=epyq.txrx.SignalNode)
+
+        matrix_tx = list(importany.importany(self.can_path).values())[0]
+        message_node_tx_partial = functools.partial(epyq.txrx.MessageNode,
+                                                    tx=True)
+        signal_node_tx_partial = functools.partial(epyq.txrx.SignalNode,
+                                                   tx=True)
+        epyq.canneo.neotize(matrix=matrix_tx,
+                            frame_class=message_node_tx_partial,
+                            signal_class=signal_node_tx_partial)
+
+        rx = epyq.txrx.TxRx(tx=False, matrix=matrix_rx)
+        notifiees.append(rx)
+        rx_model = epyq.txrx.TxRxModel(rx)
+
+        # TODO: put this all in the model...
+        rx.changed.connect(rx_model.changed)
+        rx.begin_insert_rows.connect(rx_model.begin_insert_rows)
+        rx.end_insert_rows.connect(rx_model.end_insert_rows)
+
+        tx = epyq.txrx.TxRx(tx=True, matrix=matrix_tx, bus=bus)
+        tx_model = epyq.txrx.TxRxModel(tx)
+
+        txrx_views = self.ui.findChildren(epyq.txrxview.TxRxView)
+        if len(txrx_views) > 0:
+            # TODO: actually find them and actually support multiple
+            self.ui.rx.setModel(rx_model)
+            self.ui.tx.setModel(tx_model)
+
 
         matrix_nv = list(importany.importany(self.can_path).values())[0]
         self.frames_nv = epyq.canneo.neotize(matrix=matrix_nv)
