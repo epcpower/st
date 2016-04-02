@@ -76,9 +76,8 @@ class Device:
         zip_file.extractall(path=path)
 
         file = os.path.join(path, 'config.epc')
-        file = open(file, 'r')
-
-        self._load_config(file, bus=bus)
+        with open(file, 'r') as file:
+            self._load_config(file, bus=bus)
 
         shutil.rmtree(path)
 
