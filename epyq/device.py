@@ -88,6 +88,19 @@ class Device:
         self.serial_number = serial_number
         self.name = name
 
+        device_ui = 'device.ui'
+        # TODO: CAMPid 9549757292917394095482739548437597676742
+        if not QFileInfo(ui).isAbsolute():
+            ui_file = os.path.join(
+                QFileInfo.absolutePath(QFileInfo(__file__)), device_ui)
+        else:
+            ui_file = device_ui
+        ui_file = QFile(ui_file)
+        ui_file.open(QFile.ReadOnly | QFile.Text)
+        ts = QTextStream(ui_file)
+        sio = io.StringIO(ts.readAll())
+        self.ui = uic.loadUi(sio)
+
         # TODO: CAMPid 9549757292917394095482739548437597676742
         if not QFileInfo(ui).isAbsolute():
             ui_file = os.path.join(
@@ -98,9 +111,11 @@ class Device:
         ui_file.open(QFile.ReadOnly | QFile.Text)
         ts = QTextStream(ui_file)
         sio = io.StringIO(ts.readAll())
-        self.ui = uic.loadUi(sio)
+        self.dash_ui = uic.loadUi(sio)
 
-        self.ui.name.setText(name)
+        self.ui.dash_layout.addWidget(self.dash_ui)
+
+        self.dash_ui.name.setText(name)
 
         # TODO: CAMPid 99457281212789437474299
         children = self.ui.findChildren(QObject)
