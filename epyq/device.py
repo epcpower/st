@@ -93,7 +93,7 @@ class Device:
 
         device_ui = 'device.ui'
         # TODO: CAMPid 9549757292917394095482739548437597676742
-        if not QFileInfo(ui).isAbsolute():
+        if not QFileInfo(device_ui).isAbsolute():
             ui_file = os.path.join(
                 QFileInfo.absolutePath(QFileInfo(__file__)), device_ui)
         else:
