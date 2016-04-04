@@ -2,8 +2,11 @@
 
 # TODO: get some docstrings in here!
 
+import can
 import threading
 import time
+
+from epyq.canneo import QtCanListener
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -17,6 +20,14 @@ class BusProxy:
         self.bus = bus
 
         self.lock = threading.Lock()
+
+        try:
+            self._notifier = self.bus.notifier()
+        except AttributeError:
+            self._notifier = NotifierProxy(bus=self)
+
+    def notifier(self):
+        return self._notifier
 
     def recv(self, timeout=None):
         # This is called from the Notifier thread so it has to be protected
@@ -59,6 +70,29 @@ class BusProxy:
         self.bus = bus
 
         self.lock.release()
+
+
+class NotifierProxy(QtCanListener):
+    def __init__(self, bus, listeners=[], parent=None):
+        QtCanListener.__init__(self, receiver=self.message_received, parent=parent)
+
+        self.bus = bus
+        self.listeners = set(listeners)
+
+        self.notifier = can.Notifier(self.bus, [self], timeout=0.1)
+
+    def message_received(self, message):
+        for listener in self.listeners:
+            listener.message_received_signal.emit(message)
+
+    def add(self, listener):
+        self.listeners.add(listener)
+
+    def discard(self, listener):
+        self.listeners.discard(listener)
+
+    def remove(self, listener):
+        self.listeners.remove(listener)
 
 
 if __name__ == '__main__':

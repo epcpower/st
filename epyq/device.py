@@ -177,7 +177,9 @@ class Device:
             for view in nv_views:
                 view.setModel(nv_model)
 
-        self.notifier = can.Notifier(self.bus, notifiees, timeout=0.1)
+        notifier = self.bus.notifier()
+        for notifiee in notifiees:
+            notifier.add(notifiee)
 
         # TODO: CAMPid 99457281212789437474299
         children = self.ui.findChildren(QObject)
