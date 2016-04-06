@@ -65,7 +65,7 @@ class Device:
         self.can_path = os.path.join(path, d['can_path'])
 
         matrix = list(importany.importany(self.can_path).values())[0]
-        self.frames = epyq.canneo.neotize(matrix=matrix)
+        self.frames = epyq.canneo.neotize(matrix=matrix, bus=bus)
 
         self._init_from_parameters(
             matrix=matrix,
