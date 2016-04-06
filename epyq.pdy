@@ -54,7 +54,13 @@ win32 {
 
     QMAKE_POST_LINK += $$quote(xcopy /e /y ..\installer installer\ ) &amp;
     QMAKE_POST_LINK += $$quote(xcopy /e /y release\* installer\packages\com.epcpower.st\data\ ) &amp;
-    QMAKE_POST_LINK += $$quote(copy /y ..\COPYING installer\packages\com.epcpower.st\meta\ ) &amp;
+    QMAKE_POST_LINK += $$quote(copy /y ..\COPYING installer\packages\com.epcpower.st\meta\epyq-COPYING.txt ) &amp;
+    QMAKE_POST_LINK += $$quote(copy /y ..\venv\src\bitstruct\LICENSE installer\packages\com.epcpower.st\meta\bitstruct-LICENSE.txt ) &amp;
+    QMAKE_POST_LINK += $$quote(copy /y ..\venv\src\canmatrix\LICENSE installer\packages\com.epcpower.st\meta\canmatrix-LICENSE.txt ) &amp;
+    QMAKE_POST_LINK += $$quote(copy /y ..\venv\src\python-can\LICENSE.txt installer\packages\com.epcpower.st\meta\python-can-LICENSE.txt ) &amp;
+    QMAKE_POST_LINK += $$quote(copy /y c:\python34\LICENSE.txt installer\packages\com.epcpower.st\meta\python-LICENSE.txt ) &amp;
+    QMAKE_POST_LINK += $$quote(copy /y c:\python34\Lib\site-packages\PyQt5\LICENSE installer\packages\com.epcpower.st\meta\pyqt-LICENSE.txt ) &amp;
+    QMAKE_POST_LINK += $$quote(copy /y c:\Qt\Qt5.5.1\Licenses\LICENSE installer\packages\com.epcpower.st\meta\qt-LICENSE.txt ) &amp;
     QMAKE_POST_LINK += $$quote(copy /y ..\epyq\icon.ico installer\config ) &amp;
     QMAKE_POST_LINK += $$quote(copy /y ..\epyq\icon.png installer\config ) &amp;
     QMAKE_POST_LINK += $$quote(copy /y ..\epyq\icon.png installer\config\icon_duplicate.png ) &amp;
