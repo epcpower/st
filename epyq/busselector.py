@@ -6,6 +6,8 @@ import can
 import functools
 import io
 import os
+
+from collections import OrderedDict
 from PyQt5 import QtCore, QtWidgets, QtGui, uic, Qt
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
                             pyqtSignal, pyqtSlot, QTimer)
@@ -59,7 +61,7 @@ def available():
 
 
 class BusSelector(QtWidgets.QWidget):
-    select_bus = pyqtSignal(str, str)
+    select_bus = pyqtSignal(str, str, int)
 
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent=parent)
@@ -103,11 +105,32 @@ class BusSelector(QtWidgets.QWidget):
 
         self.flashing_buses = set()
 
+        bitrates = OrderedDict([
+            (1000000, '1 MBit/s'),
+            (500000, '500 kBit/s'),
+            (250000, '250 kBit/s'),
+            (125000, '125 kBit/s')
+        ])
+
+        for bitrate in bitrates.items():
+            self.ui.bitrate_combo.addItem(bitrate[1], bitrate[0])
+
+        self.ui.bitrate_combo.currentIndexChanged.connect(self.bitrate_changed)
+
+    @pyqtSlot(int)
+    def bitrate_changed(self, index):
+        self.accept()
+
     @pyqtSlot()
     def accept(self):
         self.stop_flashing()
 
-        self.select_bus.emit(*self.selected())
+        index = self.ui.bitrate_combo.currentIndex()
+        bitrate = self.ui.bitrate_combo.itemData(index)
+
+        selected = self.selected()
+
+        self.select_bus.emit(selected[0], selected[1], bitrate)
 
     def stop_flashing(self):
         for bus in set(self.flashing_buses):

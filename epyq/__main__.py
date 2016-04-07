@@ -89,10 +89,13 @@ class Window(QtWidgets.QMainWindow):
         item.setData(QtCore.Qt.UserRole, device.ui)
         self.ui.device_list.addItem(item)
 
-    def select_bus(self, interface, channel):
+    def select_bus(self, interface, channel, bitrate):
+        self.bus.set_bus(None)
         # TODO: CAMPid 9756652312918432656896822
         if interface != 'offline':
-            real_bus = can.interface.Bus(bustype=interface, channel=channel)
+            real_bus = can.interface.Bus(bustype=interface,
+                                         channel=channel,
+                                         bitrate=bitrate)
         else:
             real_bus = None
         self.bus.set_bus(bus=real_bus)
