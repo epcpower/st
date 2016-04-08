@@ -115,6 +115,7 @@ class BusSelector(QtWidgets.QWidget):
         for bitrate in bitrates.items():
             self.ui.bitrate_combo.addItem(bitrate[1], bitrate[0])
 
+        self.ui.bitrate_combo.setCurrentIndex(list(bitrates.keys()).index(500000))
         self.ui.bitrate_combo.currentIndexChanged.connect(self.bitrate_changed)
 
     @pyqtSlot(int)
