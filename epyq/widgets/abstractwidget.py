@@ -91,9 +91,12 @@ class AbstractWidget(QtWidgets.QWidget):
                 self.set_label(label)
                 self.set_units(signal.signal._unit)
                 self.set_value(signal.value)
+
+                self.setToolTip(signal.signal._comment)
             else:
                 self.set_label(None)
                 self.set_units(None)
+                self.setToolTip('')
 
             self.update_connection(signal)
 
