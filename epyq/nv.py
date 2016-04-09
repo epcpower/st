@@ -93,6 +93,19 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
         # TODO: this should probably be done in the view but this is easier for now
         self.children.sort(key=lambda c: c.signal._name)
 
+        duplicate_names = set()
+        found_names = set()
+        for child in self.children:
+            name = child.fields.name
+            if name not in found_names:
+                found_names.add(name)
+            else:
+                duplicate_names.add(name)
+
+        if len(duplicate_names) > 0:
+            raise Exception('Duplicate NV parameter names found: {}'.format(
+                ', '.join(duplicate_names)))
+
     def names(self):
         return '\n'.join([n.fields.name for n in self.children])
 
