@@ -198,12 +198,25 @@ else:
 
     activate = args.activate
     if sys.platform == 'win32':
+        designer_paths = [
+            [''],
+            ['epyq'],
+            ['epyq', 'widgets']
+        ]
+        designer_paths = [os.path.join('%cd%', *p) for p in designer_paths]
+
+        designer_variables = ['PYQTDESIGNERPATH', 'PYTHONPATH']
+
+        set_commands = []
+        for variable in designer_variables:
+            command = 'set {}='.format(variable)
+            command += ';'.join(designer_paths)
+            set_commands.append(command)
+
         with open(os.path.join(mydir, 'activate.bat'), 'w') as f:
             activate = activate.replace('\\', '/')
-            f.write('set PYQTDESIGNERPATH={root}\epyq;{root}\epyq\widgets\n'
-                    .format(root=mydir))
-            f.write('set PYTHONPATH={root};{root}\epyq;{root}\epyq\widgets\n'
-                    .format(root=mydir))
+            for command in set_commands:
+                f.write(command + '\n')
             f.write('{}\n'.format(activate))
 
     with open(os.path.join(mydir, 'activate'), 'w', newline='') as f:
