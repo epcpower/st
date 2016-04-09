@@ -299,7 +299,7 @@ class TxRxModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
                                length='Length',
                                name='Name',
                                value='Value',
-                               dt='dt')
+                               dt='Cycle Time')
 
     def flags(self, index):
         flags = epyq.pyqabstractitemmodel.PyQAbstractItemModel.flags(self, index)
