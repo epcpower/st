@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1808</width>
-    <height>1159</height>
+    <width>865</width>
+    <height>792</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,8 +33,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QStackedWidget" name="stacked">
-     </widget>
+     <widget class="QStackedWidget" name="stacked"/>
     </item>
    </layout>
   </widget>
@@ -43,7 +42,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1808</width>
+     <width>865</width>
      <height>39</height>
     </rect>
    </property>
