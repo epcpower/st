@@ -361,6 +361,9 @@ def neotize(matrix, frame_class=Frame, signal_class=Signal, bus=None):
             for signal in frame._signals:
                 if not hasattr(signal, 'signal'):
                     signal_class(signal=signal, frame=neo_frame)
+                signal.signal.set_human_value(
+                    float(signal._attributes['GenSigStartValue']) *
+                    float(signal._factor))
             frames.append(neo_frame)
         else:
             # Make a frame with just the multiplexor entry for
