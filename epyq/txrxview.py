@@ -43,6 +43,10 @@ class TxRxView(QtWidgets.QWidget):
             if self.resize_columns[i]:
                 self.ui.tree_view.header().setSectionResizeMode(
                     i, QtWidgets.QHeaderView.ResizeToContents)
+            else:
+                # at least fit the column headers and/or initial data
+                self.ui.tree_view.resizeColumnToContents(i)
+
         self.ui.tree_view.header().setSectionResizeMode(
             epyq.txrx.Columns.indexes.name, QtWidgets.QHeaderView.Stretch)
 
