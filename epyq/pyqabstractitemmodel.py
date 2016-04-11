@@ -148,6 +148,11 @@ class PyQAbstractItemModel(QAbstractItemModel):
             end_index = self.index(end_index.row(), end_column, end_index.parent())
         else:
             end_index = start_index
+
+        if (end_node is not start_node) or (end_column != start_column):
+            end_index = self.index(end_index.row(), end_column, end_index.parent())
+
+
         self.dataChanged.emit(start_index, end_index, roles)
 
     @pyqtSlot(TreeNode, int, int)
