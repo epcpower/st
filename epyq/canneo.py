@@ -300,6 +300,13 @@ class Frame(QtCanListener):
 
         self.send.emit(self.to_message())
 
+        try:
+            sent = self._sent
+        except AttributeError:
+            pass
+        else:
+            sent()
+
     def cyclic_request(self, caller, period):
         if period is None:
             try:

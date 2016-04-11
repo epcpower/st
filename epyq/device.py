@@ -148,6 +148,7 @@ class Device:
 
         tx = epyq.txrx.TxRx(tx=True, matrix=matrix_tx, bus=bus)
         tx_model = epyq.txrx.TxRxModel(tx)
+        tx.changed.connect(tx_model.changed)
 
         txrx_views = self.ui.findChildren(epyq.txrxview.TxRxView)
         if len(txrx_views) > 0:

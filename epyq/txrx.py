@@ -22,7 +22,10 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         self.tx = tx
         self._send_checked = False
 
-        self.count = 0
+        self.count = {
+            'tx': 0,
+            'rx': 0,
+        }
 
         try:
             for signal in self.frame._signals:
@@ -38,12 +41,14 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         except (AttributeError, KeyError):
             pass
 
+        count = self.count['tx'] if self.tx else self.count['rx']
+
         self.fields = Columns(id=identifier,
                               name=name,
                               length='{} B'.format(self.frame._Size),
                               value='-',
                               dt=None,
-                              count=self.count)
+                              count=count)
 
     @property
     def send_checked(self):
@@ -119,10 +124,23 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
             self.fields.dt = '{:.4f}'.format(message.timestamp - self.last_time)
         self.last_time = message.timestamp
 
-        self.count += 1
-        self.fields.count = self.count
+        self.count['rx'] += 1
+
+        if not self.tx:
+            self.fields.count = self.count['rx']
 
         epyq.canneo.Frame.message_received(self, message)
+
+    def _sent(self):
+        self.count['tx'] += 1
+
+        if self.tx:
+            self.fields.count = self.count['tx']
+            self.tree_parent.changed.emit(
+                self, Columns.indexes.count,
+                self, Columns.indexes.count,
+                [Qt.DisplayRole])
+
 
     def unique(self):
         return self.fields.id
