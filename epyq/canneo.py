@@ -454,7 +454,10 @@ def get_multiplex(matrix, message):
         frame.frame.unpack(message.data)
         multiplex_value = base_frame.multiplex_signal.signal.value
         # TODO: stop using strings for integers...
-        frame = base_frame.multiplex_frames[str(multiplex_value)]
+        try:
+            frame = base_frame.multiplex_frames[str(multiplex_value)]
+        except KeyError:
+            return (None, None)
 
     return (frame, multiplex_value)
 
