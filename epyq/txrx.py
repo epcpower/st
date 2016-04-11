@@ -42,9 +42,6 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
                               value='-',
                               dt=None)
 
-        if message is not None:
-            self.extract_message(message)
-
     @property
     def send_checked(self):
         return self._send_checked
