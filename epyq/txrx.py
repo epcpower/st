@@ -22,6 +22,8 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         self.tx = tx
         self._send_checked = False
 
+        self.count = 0
+
         try:
             for signal in self.frame._signals:
                 self.append_child(SignalNode(signal, frame=self, tx=self.tx))
@@ -40,7 +42,8 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
                               name=name,
                               length='{} B'.format(self.frame._Size),
                               value='-',
-                              dt=None)
+                              dt=None,
+                              count=self.count)
 
     @property
     def send_checked(self):
@@ -115,6 +118,9 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         else:
             self.fields.dt = '{:.4f}'.format(message.timestamp - self.last_time)
         self.last_time = message.timestamp
+
+        self.count += 1
+        self.fields.count = self.count
 
         epyq.canneo.Frame.message_received(self, message)
 
@@ -277,7 +283,7 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
 
 
 class Columns(AbstractColumns):
-    _members = ['id', 'length', 'name', 'value', 'dt']
+    _members = ['id', 'length', 'name', 'value', 'dt', 'count']
 
 Columns.indexes = Columns.indexes()
 
@@ -296,7 +302,8 @@ class TxRxModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
                                length='Length',
                                name='Name',
                                value='Value',
-                               dt='Cycle Time')
+                               dt='Cycle Time',
+                               count='Count')
 
     def flags(self, index):
         flags = epyq.pyqabstractitemmodel.PyQAbstractItemModel.flags(self, index)
