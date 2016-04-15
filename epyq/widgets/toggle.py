@@ -59,8 +59,8 @@ class Toggle(epyq.widgets.abstracttxwidget.AbstractTxWidget):
     def set_signal(self, signal):
         if signal is not self.signal_object:
             if signal is not None:
-                self.ui.off.setText(signal.signal._values['0'])
-                self.ui.on.setText(signal.signal._values['1'])
+                self.ui.off.setText(signal.enumeration[0])
+                self.ui.on.setText(signal.enumeration[1])
                 signal.value_changed.connect(self.signal_value_changed)
             else:
                 self.ui.off.setText('-')

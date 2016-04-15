@@ -32,7 +32,7 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
     def set_value(self, value):
         if self.signal_object is not None:
-            if len(self.signal_object.signal._values) > 0:
+            if len(self.signal_object.enumeration) > 0:
                 value = self.signal_object.full_string
             else:
                 value = self.signal_object.format_float()

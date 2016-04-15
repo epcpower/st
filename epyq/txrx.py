@@ -11,9 +11,43 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+class SignalNode(epyq.canneo.Signal, TreeNode):
+    def __init__(self, signal, frame, tx=False, connect=None, tree_parent=None, parent=None):
+        epyq.canneo.Signal.__init__(self, signal=signal, frame=frame, connect=connect, parent=parent)
+        TreeNode.__init__(self, tx=tx, parent=tree_parent)
+
+        self.fields = Columns(id=self.start_bit,
+                              name=self.name,
+                              length='{} b'.format(self.signal_size),
+                              value='-',
+                              dt=None)
+        self.last_time = None
+
+    def unique(self):
+        # TODO: make it more unique
+        return str(self.fields.id) + '__'
+
+    def set_value(self, value):
+        epyq.canneo.Signal.set_value(self, value)
+        self.fields.value = self.full_string
+
+    def set_data(self, data):
+        try:
+            self.set_human_value(data)
+        except ValueError:
+            raise
+        else:
+            self.frame.update_from_signals()
+
+
 class MessageNode(epyq.canneo.Frame, TreeNode):
-    def __init__(self, message=None, tx=False, frame=None, parent=None):
-        epyq.canneo.Frame.__init__(self, frame=frame, parent=parent)
+    def __init__(self, message=None, tx=False, frame=None,
+                 multiplex_value=None, signal_class=SignalNode,
+                 parent=None):
+        epyq.canneo.Frame.__init__(self, frame=frame,
+                                   multiplex_value=multiplex_value,
+                                   signal_class=signal_class,
+                                   parent=parent)
         TreeNode.__init__(self, parent)
 
         self.fields = Columns()
@@ -27,25 +61,26 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
             'rx': 0,
         }
 
-        try:
-            for signal in self.frame._signals:
-                self.append_child(SignalNode(signal, frame=self, tx=self.tx))
-        except KeyError:
-            pass
+        for signal in self.signals:
+            signal.tx = self.tx
+            self.append_child(signal)
 
         identifier = epyq.canneo.format_identifier(frame._Id, frame._extended)
 
-        name = self.frame._name
+        name = self.name
         try:
-            name += ' - ' + self.frame._attributes['mux_name']
-        except (AttributeError, KeyError):
+            length = len(self.mux_name)
+        except TypeError:
             pass
+        else:
+            if length > 0:
+                name += ' - ' + self.mux_name
 
         count = self.count['tx'] if self.tx else self.count['rx']
 
         self.fields = Columns(id=identifier,
                               name=name,
-                              length='{} B'.format(self.frame._Size),
+                              length='{} B'.format(self.size),
                               value='-',
                               dt=None,
                               count=count)
@@ -108,10 +143,7 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         self.fields.id = epyq.canneo.format_identifier(
                 message.arbitration_id, message.id_type)
 
-        try:
-            self.fields.name = self.frame._name
-        except AttributeError:
-            self.fields.name = '-'
+        self.fields.name = self.name
 
         self.fields.length = '{} B'.format(message.dlc)
         self.fields.value = epyq.canneo.format_data(message.data)
@@ -157,42 +189,13 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         self._send()
 
 
-class SignalNode(epyq.canneo.Signal, TreeNode):
-    def __init__(self, signal, frame, tx=False, connect=None, tree_parent=None, parent=None):
-        epyq.canneo.Signal.__init__(self, signal=signal, frame=frame, connect=connect, parent=parent)
-        TreeNode.__init__(self, tx=tx, parent=tree_parent)
-
-        self.fields = Columns(id=self.signal.getMsbReverseStartbit(),
-                              name=signal._name,
-                              length='{} b'.format(signal._signalsize),
-                              value='-',
-                              dt=None)
-        self.last_time = None
-
-    def unique(self):
-        # TODO: make it more unique
-        return str(self.fields.id) + '__'
-
-    def set_value(self, value):
-        epyq.canneo.Signal.set_value(self, value)
-        self.fields.value = self.full_string
-
-    def set_data(self, data):
-        try:
-            self.set_human_value(data)
-        except ValueError:
-            raise
-        else:
-            self.frame.update_from_signals()
-
-
 class TxRx(TreeNode, epyq.canneo.QtCanListener):
     # TODO: just Rx?
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
     begin_insert_rows = pyqtSignal(TreeNode, int, int)
     end_insert_rows = pyqtSignal()
 
-    def __init__(self, tx, matrix=None, bus=None, parent=None):
+    def __init__(self, tx, neo=None, bus=None, parent=None):
         TreeNode.__init__(self)
         epyq.canneo.QtCanListener.__init__(self, parent=parent)
 
@@ -200,47 +203,38 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
 
         self.tx = tx
         self.rx = not self.tx
-        self.matrix = matrix
+        self.neo = neo
         self.messages = {}
 
         if self.rx:
             self.message_received_signal.connect(self.message_received)
 
         if self.tx:
-            for frame in self.matrix._fl._list:
-                try:
-                    frames = frame.multiplex_frames
-                except AttributeError:
-                    frames = [(None, frame)]
-                else:
-                    frames = frames.items()
-
-                for value, frame in frames:
-                    message = can.Message()
-                    message.arbitration_id = frame._Id
-                    message.id_type = frame._extended
-                    message.dlc = frame._Size
-                    message.data = frame.frame.pack(frame.frame)
-                    self.add_message(message=message, tx=True)
+            for frame in self.neo.frames:
+                message = can.Message()
+                message.arbitration_id = frame.id
+                message.id_type = frame.extended
+                message.dlc = frame.size
+                message.data = frame.pack(frame)
+                self.add_message(message=message, tx=True)
 
         # TODO: this should probably be done in the view but this is easier for now
         #       Tx can't be added to later (yet)
         #       Rx will add in order received
-        self.children.sort(key=lambda c: c.frame._name)
+        self.children.sort(key=lambda c: c.name)
 
     def set_node_id(self, node_id):
         # TODO: I think this can go away
         self.node_id = node_id
 
     def add_message(self, message=can.Message(), id=None, tx=False):
-        frame = epyq.canneo.get_multiplex(self.matrix, message)[0]
+        message_node = self.neo.get_multiplex(message)[0]
 
         if id is None:
             id = self.generate_id(message=message)
 
-        if frame is not None:
-            message_node = frame.frame
-        else:
+        if message_node is None:
+            # TODO: yuck, stop using the matrix
             frame = canmatrix.canmatrix.Frame(
                 bid=message.arbitration_id,
                 name='',
@@ -248,7 +242,7 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
                 transmitter=None
             )
             message_node = MessageNode(message=message, tx=tx, frame=frame)
-            self.matrix._fl.addFrame(frame)
+            self.neo.frames.append(frame)
 
         message_node.send.connect(self.send)
         self.messages[id] = message_node
@@ -260,7 +254,7 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
         self.end_insert_rows.emit()
 
     def generate_id(self, message):
-        multiplex_value = epyq.canneo.get_multiplex(self.matrix, message)[1]
+        multiplex_value = self.neo.get_multiplex(message)[1]
 
         return (message.arbitration_id,
                 message.id_type,

@@ -65,10 +65,10 @@ class Device:
         self.can_path = os.path.join(path, d['can_path'])
 
         matrix = list(importany.importany(self.can_path).values())[0]
-        self.frames = epyq.canneo.neotize(matrix=matrix, bus=bus)
+        neo_frames = epyq.canneo.Neo(matrix=matrix, bus=bus)
 
         self._init_from_parameters(
-            matrix=matrix,
+            neo=neo_frames,
             ui=self.ui_path,
             serial_number=d.get('serial_number', ''),
             name=d.get('name', ''),
@@ -84,10 +84,10 @@ class Device:
 
         shutil.rmtree(path)
 
-    def _init_from_parameters(self, matrix, ui, serial_number, name, bus=None):
+    def _init_from_parameters(self, neo, ui, serial_number, name, bus=None):
         self.bus = BusProxy(bus=bus)
 
-        self.matrix = matrix
+        self.neo_frames = neo
         self.serial_number = serial_number
         self.name = name
 
@@ -120,24 +120,24 @@ class Device:
 
         self.dash_ui.name.setText(name)
 
-        notifiees = self.frames
+        notifiees = list(self.neo_frames.frames)
 
         # TODO: the repetition here is not so pretty
         matrix_rx = list(importany.importany(self.can_path).values())[0]
-        epyq.canneo.neotize(matrix=matrix_rx,
-                            frame_class=epyq.txrx.MessageNode,
-                            signal_class=epyq.txrx.SignalNode)
+        neo_rx = epyq.canneo.Neo(matrix=matrix_rx,
+                                 frame_class=epyq.txrx.MessageNode,
+                                 signal_class=epyq.txrx.SignalNode)
 
         matrix_tx = list(importany.importany(self.can_path).values())[0]
         message_node_tx_partial = functools.partial(epyq.txrx.MessageNode,
                                                     tx=True)
         signal_node_tx_partial = functools.partial(epyq.txrx.SignalNode,
                                                    tx=True)
-        epyq.canneo.neotize(matrix=matrix_tx,
-                            frame_class=message_node_tx_partial,
-                            signal_class=signal_node_tx_partial)
+        neo_tx = epyq.canneo.Neo(matrix=matrix_tx,
+                                 frame_class=message_node_tx_partial,
+                                 signal_class=signal_node_tx_partial)
 
-        rx = epyq.txrx.TxRx(tx=False, matrix=matrix_rx)
+        rx = epyq.txrx.TxRx(tx=False, neo=neo_rx)
         notifiees.append(rx)
         rx_model = epyq.txrx.TxRxModel(rx)
 
@@ -146,7 +146,7 @@ class Device:
         rx.begin_insert_rows.connect(rx_model.begin_insert_rows)
         rx.end_insert_rows.connect(rx_model.end_insert_rows)
 
-        tx = epyq.txrx.TxRx(tx=True, matrix=matrix_tx, bus=bus)
+        tx = epyq.txrx.TxRx(tx=True, neo=neo_tx, bus=bus)
         tx_model = epyq.txrx.TxRxModel(tx)
         tx.changed.connect(tx_model.changed)
 
@@ -158,16 +158,14 @@ class Device:
 
 
         matrix_nv = list(importany.importany(self.can_path).values())[0]
-        self.frames_nv = epyq.canneo.neotize(matrix=matrix_nv)
-        epyq.canneo.neotize(
-                matrix=matrix_nv,
-                frame_class=epyq.nv.Frame,
-                signal_class=epyq.nv.Nv)
+        self.frames_nv = epyq.canneo.Neo(matrix=matrix_nv,
+                                         frame_class=epyq.nv.Frame,
+                                         signal_class=epyq.nv.Nv)
 
         nv_views = self.ui.findChildren(epyq.nvview.NvView)
         if len(nv_views) > 0:
             try:
-                nvs = epyq.nv.Nvs(matrix_nv, bus)
+                nvs = epyq.nv.Nvs(self.frames_nv, bus)
             except epyq.nv.NoNv:
                 pass
             else:
@@ -196,12 +194,11 @@ class Device:
             widget.set_value(42)
 
             # TODO: add some notifications
-            frame = matrix.frameByName(frame_name)
+            frame = self.neo_frames.frame_by_name(frame_name)
             if frame is not None:
-                frame = frame.frame
-                signal = frame.frame.signalByName(signal_name)
+                signal = frame.signal_by_name(signal_name)
                 if signal is not None:
-                    widget.set_signal(signal.signal)
+                    widget.set_signal(signal)
 
     def get_frames(self):
         return self.frames

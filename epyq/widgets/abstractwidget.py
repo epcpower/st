@@ -81,18 +81,18 @@ class AbstractWidget(QtWidgets.QWidget):
     def set_signal(self, signal):
         if signal is not self.signal_object:
             if signal is not None:
-                self.set_range(min=float(signal.signal._min),
-                               max=float(signal.signal._max))
+                self.set_range(min=float(signal.min),
+                               max=float(signal.max))
                 try:
-                    label = signal.signal._attributes['LongName']
+                    label = signal.long_name
                 except KeyError:
-                    label = signal.signal._name
+                    label = signal.name
 
                 self.set_label(label)
-                self.set_units(signal.signal._unit)
+                self.set_units(signal.unit)
                 self.set_value(None)
 
-                self.setToolTip(signal.signal._comment)
+                self.setToolTip(signal.comment)
             else:
                 self.set_label(None)
                 self.set_units(None)

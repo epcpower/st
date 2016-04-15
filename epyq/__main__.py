@@ -19,7 +19,6 @@ else:
     sys.stderr = epyq.tee.Tee([sys.stderr, log])
 
 import can
-import canmatrix.importany as importany
 import copy
 import epyq.busproxy
 import epyq.busselector

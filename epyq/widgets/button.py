@@ -37,13 +37,12 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
             self.ui.value.setText('')
 
     def set(self, value):
-        value = str(value)
         self.widget_value_changed(value)
         self.set_text(value)
 
     def set_text(self, value):
         # TODO: CAMPid 85478672616219005471279
-        enum_string = self.signal_object.signal._values[value]
+        enum_string = self.signal_object.enumeration[value]
         text = self.signal_object.enumeration_format_re['format'].format(
             s=enum_string, v=value)
         self.ui.value.setText(text)

@@ -31,17 +31,17 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
     set_status_string = pyqtSignal(str)
 
-    def __init__(self, matrix, bus, parent=None):
+    def __init__(self, neo, bus, parent=None):
         TreeNode.__init__(self)
         epyq.canneo.QtCanListener.__init__(self, parent=parent)
 
         self.bus = bus
-        self.matrix = matrix
+        self.neo = neo
         self.message_received_signal.connect(self.message_received)
 
 
-        self.set_frames = [f for f in self.matrix._fl._list
-                       if f._name == 'CommandSetNVParam']
+        self.set_frames = [f for f in self.neo.frames
+                       if f.name == 'CommandSetNVParam']
         try:
             self.set_frames = self.set_frames[0]
         except IndexError:
@@ -49,8 +49,8 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
             raise NoNv()
 
         self.set_frames = self.set_frames.multiplex_frames
-        self.status_frames = [f for f in self.matrix._fl._list
-                       if f._name == 'StatusNVParam'][0].multiplex_frames
+        self.status_frames = [f for f in self.neo.frames
+                       if f.name == 'StatusNVParam'][0].multiplex_frames
 
         self.save_frame = None
         self.save_signal = None
@@ -60,28 +60,27 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
         self.confirm_save_signal = None
         self.confirm_save_value = None
         for frame in self.set_frames.values():
-            for signal in frame._signals:
-                if signal._name == 'SaveToEE_command':
-                    for key, value in signal._values.items():
+            for signal in frame.signals:
+                if signal.name == 'SaveToEE_command':
+                    for key, value in signal.enumeration.items():
                         if value == 'Enable':
-                            self.save_frame = frame.frame
-                            self.save_signal = signal.signal
+                            self.save_frame = frame
+                            self.save_signal = signal
                             self.save_value = float(key)
         for frame in self.status_frames.values():
-            for signal in frame._signals:
-                if signal._name == 'SaveToEE_status':
-                    for key, value in signal._values.items():
+            for signal in frame.signals:
+                if signal.name == 'SaveToEE_status':
+                    for key, value in signal.enumeration.items():
                         if value == 'Enable':
-                            self.confirm_save_frame = frame.frame
-                            self.confirm_save_multiplex_value = signal._multiplex
-                            self.confirm_save_signal = signal.signal
+                            self.confirm_save_frame = frame
+                            self.confirm_save_multiplex_value = signal.multiplex
+                            self.confirm_save_signal = signal
                             self.confirm_save_value = float(key)
 
         for value, frame in self.set_frames.items():
-            signals = [s.signal for s in frame._signals
-                       if 'signal' in s.__dict__]
-            signals = [s for s in signals if s.signal._multiplex is not 'Multiplexor']
-            signals = [s for s in signals if s.signal._name not in
+            signals = [s for s in frame.signals]
+            signals = [s for s in signals if s.multiplex is not 'Multiplexor']
+            signals = [s for s in signals if s.name not in
                        ['SaveToEE_command', 'ReadParam_command',
                         'CommandSetNVParam_MUX']]
             for nv in signals:
@@ -91,7 +90,7 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                 self.status_frames[value].set_frame = nv.frame
 
         # TODO: this should probably be done in the view but this is easier for now
-        self.children.sort(key=lambda c: c.signal._name)
+        self.children.sort(key=lambda c: c.name)
 
         duplicate_names = set()
         found_names = set()
@@ -134,9 +133,9 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
     @pyqtSlot(can.Message)
     def message_received(self, msg):
         multiplex_message, multiplex_value =\
-            epyq.canneo.get_multiplex(self.matrix, msg)
+            self.neo.get_multiplex(msg)
 
-        if multiplex_message is self.confirm_save_frame.frame:
+        if multiplex_message is self.confirm_save_frame:
             if multiplex_value is self.confirm_save_multiplex_value:
                 # TODO: might be unnecessary since same frame as
                 #       unpacked for multiplex info
@@ -146,14 +145,13 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                 return
 
         if multiplex_value is not None and multiplex_message in self.status_frames.values():
-            multiplex_message.frame.unpack(msg.data)
+            multiplex_message.unpack(msg.data)
             # multiplex_message.frame.update_canneo_from_matrix_signals()
 
-            status_signals = [s.signal for s in multiplex_message._signals]
-            sort_key = lambda s: s.signal._startbit
+            status_signals = multiplex_message.signals
+            sort_key = lambda s: s.start_bit
             status_signals.sort(key=sort_key)
-            set_signals = [s.signal for s
-                           in multiplex_message.set_frame.frame._signals]
+            set_signals = multiplex_message.set_frame.signals
             set_signals.sort(key=sort_key)
             for status, set in zip(status_signals, set_signals):
                 set.set_value(status.value)
@@ -182,65 +180,6 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
         self.save_signal.set_value(self.save_value)
         self.save_frame.update_from_signals()
         self.send(self.save_frame.to_message())
-
-
-class Frame(epyq.canneo.Frame, TreeNode):
-    def __init__(self, message=None, tx=False, frame=None, parent=None):
-        epyq.canneo.Frame.__init__(self, frame=frame, parent=parent)
-        TreeNode.__init__(self, parent)
-
-        try:
-            for signal in self.frame._signals:
-                self.append_child(Nv(signal, frame=self))
-        except KeyError:
-            pass
-
-        for child in self.children:
-            if child.signal._name == "ReadParam_command":
-                self.read_write = child
-                break
-
-    def send_write(self):
-        try:
-            read_write = self.read_write
-        except AttributeError:
-            pass
-        else:
-            # TODO: magic number
-            read_write.set_data(0)
-
-        self.update_from_signals()
-        self._send()
-
-    def send_read(self):
-        try:
-            read_write = self.read_write
-        except AttributeError:
-            # TODO: custom exception? push the skipping to callee?
-            pass
-        else:
-            # TODO: magic number
-            read_write.set_data(1)
-            self.update_from_signals(function=ufs)
-            self._send()
-
-    def update_from_signals(self, for_read=False, function=None):
-        epyq.canneo.Frame.update_from_signals(self, function=function)
-
-
-def ufs(signal):
-    if signal.signal._name in ['ReadParam_command', 'CommandSetNVParam_MUX']:
-        return signal.value
-    else:
-        # TODO: CAMPid 9395616283654658598648263423685
-        # TODO: and _offset...
-        try:
-            factor = signal.factor
-        except AttributeError:
-            factor = float(signal.signal._factor)
-
-        scaled_value = float(signal.signal._min) / factor
-        return scaled_value
 
 
 class Nv(epyq.canneo.Signal, TreeNode):
@@ -279,6 +218,63 @@ class Nv(epyq.canneo.Signal, TreeNode):
     def unique(self):
         # TODO: make it more unique
         return str(self.fields.name) + '__'
+
+
+class Frame(epyq.canneo.Frame, TreeNode):
+    def __init__(self, message=None, tx=False, frame=None,
+                 multiplex_value=None, signal_class=Nv,
+                 parent=None):
+        epyq.canneo.Frame.__init__(self, frame=frame,
+                                   multiplex_value=multiplex_value,
+                                   signal_class=signal_class,
+                                   parent=parent)
+        TreeNode.__init__(self, parent)
+
+        for signal in self.signals:
+            self.append_child(signal)
+
+        for child in self.children:
+            if child.name == "ReadParam_command":
+                self.read_write = child
+                break
+
+    def send_write(self):
+        try:
+            read_write = self.read_write
+        except AttributeError:
+            pass
+        else:
+            # TODO: magic number
+            read_write.set_data(0)
+
+        self.update_from_signals()
+        self._send()
+
+    def send_read(self):
+        try:
+            read_write = self.read_write
+        except AttributeError:
+            # TODO: custom exception? push the skipping to callee?
+            pass
+        else:
+            # TODO: magic number
+            read_write.set_data(1)
+            self.update_from_signals(function=ufs)
+            self._send()
+
+    def update_from_signals(self, for_read=False, function=None):
+        epyq.canneo.Frame.update_from_signals(self, function=function)
+
+
+def ufs(signal):
+    if signal.name in ['ReadParam_command', 'CommandSetNVParam_MUX']:
+        return signal.value
+    else:
+        # TODO: CAMPid 9395616283654658598648263423685
+        # TODO: and _offset...
+
+        scaled_value = signal.min / signal.factor[float]
+        return scaled_value
 
 
 class NvModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
