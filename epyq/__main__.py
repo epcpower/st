@@ -75,10 +75,11 @@ class Window(QtWidgets.QMainWindow):
         self.ui = uic.loadUi(sio, self)
 
         self.ui.busselector.select_bus.connect(self.select_bus)
-        self.ui.load_device_button.clicked.connect(self.load_device)
+        load_device = functools.partial(self.load_device, file=None)
+        self.ui.load_device_button.clicked.connect(load_device)
 
-        for device in devices:
-            self.add_device(device)
+        for file in devices:
+            self.load_device(file)
         self.ui.device_list.itemActivated.connect(self.device_activated)
 
     def add_device(self, device):
@@ -103,15 +104,16 @@ class Window(QtWidgets.QMainWindow):
         device = item.data(QtCore.Qt.UserRole)
         self.ui.stacked.setCurrentWidget(device)
 
-    def load_device(self):
-        filters = [
-            ('EPC Packages', ['epc', 'epz']),
-            ('All Files', ['*'])
-        ]
-        file = file_dialog(filters)
-
+    def load_device(self, file=None):
         if file is None:
-            return
+            filters = [
+                ('EPC Packages', ['epc', 'epz']),
+                ('All Files', ['*'])
+            ]
+            file = file_dialog(filters)
+
+            if file is None:
+                return
 
         device = Device(file=file, bus=self.bus)
         self.add_device(device)
@@ -230,6 +232,7 @@ def main(args=None):
         parser.add_argument('--channel', default=None)
         parser.add_argument('--ui', default=ui_default)
         parser.add_argument('--generate', '-g', action='store_true')
+        parser.add_argument('devices', nargs='*')
         args = parser.parse_args()
 
         if args.channel is None:
@@ -307,7 +310,9 @@ def main(args=None):
                     bus.send(m)
         sys.exit(0)
 
-    window = Window(ui_file=args.ui, bus=bus)
+    devices = [os.path.abspath(f) for f in args.devices]
+
+    window = Window(ui_file=args.ui, devices=devices, bus=bus)
 
     window.show()
     return app.exec_()
