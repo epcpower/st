@@ -242,6 +242,12 @@ def main(args=None):
             interface = args.interface
             channel = args.channel
 
+    # TODO: find the 'proper' way to handle both quoted and non-quoted paths
+    for i, arg in enumerate(args.devices):
+        if arg[0] == arg[-1] and len(arg) >= 2:
+            if arg[0] in ['"', "'"]:
+                args.devices[i] = arg[1:-1]
+
     # TODO: CAMPid 9756652312918432656896822
     if interface != 'offline':
         real_bus = can.interface.Bus(bustype=interface, channel=channel)
