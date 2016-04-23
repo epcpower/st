@@ -354,7 +354,7 @@ class Frame(QtCanListener):
     def unpack(self, data):
         rx_length = len(data)
         if rx_length != self.size:
-            print('Received message length {rx_length} != {self.frame._Size} received'.format(**locals()))
+            print('Received message length {rx_length} != {self.size} received'.format(**locals()))
         else:
             self.pad()
 
