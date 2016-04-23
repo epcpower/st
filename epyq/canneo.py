@@ -3,6 +3,7 @@ import can
 from canmatrix import canmatrix
 import copy
 import functools
+import math
 from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QTimer)
 import re
 import sys
@@ -28,18 +29,10 @@ class Signal(QObject):
         else:
             self.default_value = float(self.default_value)
         self.long_name = signal._attributes.get('LongName', None)
-        self.little_endian = signal._byteorder # {int} 0
+        self.little_endian = signal._is_little_endian # {int} 0
         self.comment = signal._comment # {str} 'Run command.  When set to a value of \\'Enable\\', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to \\'Disable\\' to leave POR or FAULTED state.'
         # TODO: maybe not use a string, but used to help with decimal places
-        self.factor = {
-            str: None,
-            float: None
-        }
-        self.factor[str] = signal._factor # {str} '1'
-        try:
-            self.factor[float] = float(signal._factor) # {str} '1'
-        except ValueError:
-            pass
+        self.factor = signal._factor
         try:
             self.max = float(signal._max) # {str} '1'
         except ValueError:
@@ -55,20 +48,18 @@ class Signal(QObject):
         except ValueError:
             self.offset = 0
 
-        self.multiplex = signal._multiplex # {NoneType} None
+        if signal._multiplex == 'Multiplexor':
+            self.multiplex = None
+        else:
+            self.multiplex = signal._multiplex # {NoneType} None
+
         self.name = signal._name # {str} 'Enable_command'
         # self._receiver = signal._receiver # {str} ''
         self.signal_size = int(signal._signalsize) # {int} 2
         self.start_bit = int(signal.getMsbReverseStartbit()) # {int} 0
         self.unit = signal._unit # {str} ''
         self.enumeration = {int(k): v for k, v in signal._values.items()} # {dict} {'0': 'Disable', '2': 'Error', '1': 'Enable', '3': 'N/A'}
-        if signal._valuetype in ['-']:
-            self.signed = True
-        elif signal._valuetype in ['+', None]:
-            self.signed = False
-        else:
-            raise ValueError("Expected '+' or '-' but got '{}'"
-                             .format(signal._valuetype))
+        self.signed = signal._is_signed
 
         self.value = None
         self.scaled_value = None
@@ -107,7 +98,7 @@ class Signal(QObject):
             else:
                 raise
 
-        value /= self.factor[float]
+        value /= self.factor
         value = round(value)
         self.set_value(value)
 
@@ -126,12 +117,21 @@ class Signal(QObject):
         try:
             return self.decimal_places
         except AttributeError:
-            factor_str = self.factor[str].rstrip('0.')
-            decimal_point_index = factor_str.find('.')
-            if decimal_point_index >= 0:
-                self.decimal_places = len(factor_str) - decimal_point_index - 1
-            else:
-                self.decimal_places = 0
+            x = self.factor
+            # http://stackoverflow.com/a/3019027/228539
+            max_digits = 14
+            int_part = int(abs(x))
+            magnitude = 1 if int_part == 0 else int(math.log10(int_part)) + 1
+            if magnitude >= max_digits:
+                return (magnitude, 0)
+            frac_part = abs(x) - int_part
+            multiplier = 10 ** (max_digits - magnitude)
+            frac_digits = multiplier + int(multiplier * frac_part + 0.5)
+            while frac_digits % 10 == 0:
+                frac_digits /= 10
+            scale = int(math.log10(frac_digits))
+
+            self.decimal_places = scale
 
         return self.decimal_places
 
@@ -158,7 +158,7 @@ class Signal(QObject):
                     # TODO: CAMPid 9395616283654658598648263423685
                     # TODO: and _offset...
 
-                    self.scaled_value = float(self.value) * self.factor[float]
+                    self.scaled_value = float(self.value) * self.factor
 
                     self.full_string = self.format_float(self.scaled_value)
 
@@ -242,7 +242,7 @@ class Frame(QtCanListener):
                         str(signal._multiplex) == multiplex_value):
                 neo_signal = signal_class(signal=signal, frame=self)
 
-                factor = neo_signal.factor[float]
+                factor = neo_signal.factor
                 if factor is None:
                     factor = 1
 
@@ -273,16 +273,9 @@ class Frame(QtCanListener):
             # TODO: get rid of this, yuck
             Matrix_Pad = lambda start_bit, length: canmatrix.Signal(
                 name='__padding__',
-                startbit=start_bit,
-                signalsize=length,
-                byteorder=0,
-                valuetype=None,
-                factor=None,
-                offset=None,
-                min=None,
-                max=None,
-                unit=None,
-                multiplex=None)
+                startBit=start_bit,
+                signalSize=length,
+                is_little_endian=0)
             def Matrix_Pad_Fixed(start_bit, length):
                 pad = Matrix_Pad(start_bit, length)
                 pad.setMsbReverseStartbit(start_bit)
@@ -302,8 +295,6 @@ class Frame(QtCanListener):
                 padding = startbit - bit
                 if padding:
                     pad = Pad(bit, padding)
-                    # TODO: yucky to add out here
-                    pad.start_bit = bit
                     bit += pad.signal_size
                 bit += signal.signal_size
             # TODO: 1 or 0, which is the first bit per canmatrix?
@@ -451,60 +442,55 @@ class Neo:
                 # parsing messages later
                 # TODO: add __copy__() and __deepcopy__() to canmatrix
                 multiplex_frame = canmatrix.Frame(
-                        frame._Id,
-                        frame._name,
-                        frame._Size,
-                        frame._Transmitter)
+                        name=frame._name,
+                        Id=frame._Id,
+                        dlc=frame._Size,
+                        transmitter=frame._Transmitter)
                 multiplex_frame._extended = frame._extended
                 # TODO: add __copy__() and __deepcopy__() to canmatrix
                 matrix_signal = canmatrix.Signal(
-                        multiplex_signal._name,
-                        multiplex_signal._startbit,
-                        multiplex_signal._signalsize,
-                        multiplex_signal._byteorder,
-                        multiplex_signal._valuetype,
-                        multiplex_signal._factor,
-                        multiplex_signal._offset,
-                        multiplex_signal._min,
-                        multiplex_signal._max,
-                        multiplex_signal._unit,
-                        multiplex_signal._multiplex)
+                        name=multiplex_signal._name,
+                        startBit=multiplex_signal._startbit,
+                        signalSize=multiplex_signal._signalsize,
+                        is_little_endian=multiplex_signal._is_little_endian,
+                        is_signed=multiplex_signal._is_signed,
+                        factor=multiplex_signal._factor,
+                        offset=multiplex_signal._offset,
+                        min=multiplex_signal._min,
+                        max=multiplex_signal._max,
+                        unit=multiplex_signal._unit,
+                        multiplex=multiplex_signal._multiplex)
                 multiplex_frame.addSignal(matrix_signal)
                 multiplex_neo_frame = frame_class(frame=multiplex_frame)
                 frames.append(multiplex_neo_frame)
-                # neo_signal = signal_class(signal=matrix_signal, frame=multiplex_neo_frame)
 
-                for signal in multiplex_neo_frame.signals:
-                    if signal.multiplex is None:
-                        neo_signal = signal
+                multiplex_neo_frame.multiplex_signal =\
+                    multiplex_neo_frame.signals[0]
 
-                multiplex_neo_frame.multiplex_signal = neo_signal
-                # neo_frame.multiplex_frame = multiplex_neo_frame
-                multiplex_neo_frame.multiplex_signal = neo_signal
                 multiplex_neo_frame.multiplex_frames = {}
 
                 for multiplex_value, multiplex_name in multiplex_signal._values.items():
                     # For each multiplexed frame, make a frame with
                     # just those signals.
                     matrix_frame = canmatrix.Frame(
-                            frame._Id,
-                            frame._name,
-                            frame._Size,
-                            frame._Transmitter)
+                            name=frame._name,
+                            Id=frame._Id,
+                            dlc=frame._Size,
+                            transmitter=frame._Transmitter)
                     matrix_frame._extended = frame._extended
                     matrix_frame.addAttribute('mux_name', multiplex_name)
                     matrix_signal = canmatrix.Signal(
-                            multiplex_signal._name,
-                            multiplex_signal._startbit,
-                            multiplex_signal._signalsize,
-                            multiplex_signal._byteorder,
-                            multiplex_signal._valuetype,
-                            multiplex_signal._factor,
-                            multiplex_signal._offset,
-                            multiplex_signal._min,
-                            multiplex_signal._max,
-                            multiplex_signal._unit,
-                            multiplex_signal._multiplex)
+                            name=multiplex_signal._name,
+                            startBit=multiplex_signal._startbit,
+                            signalSize=multiplex_signal._signalsize,
+                            is_little_endian=multiplex_signal._is_little_endian,
+                            is_signed=multiplex_signal._is_signed,
+                            factor=multiplex_signal._factor,
+                            offset=multiplex_signal._offset,
+                            min=multiplex_signal._min,
+                            max=multiplex_signal._max,
+                            unit=multiplex_signal._unit,
+                            multiplex=multiplex_signal._multiplex)
                     # neo_signal = signal_class(signal=matrix_signal, frame=multiplex_neo_frame)
                     matrix_frame.addSignal(matrix_signal)
 

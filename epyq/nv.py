@@ -273,7 +273,7 @@ def ufs(signal):
         # TODO: CAMPid 9395616283654658598648263423685
         # TODO: and _offset...
 
-        scaled_value = signal.min / signal.factor[float]
+        scaled_value = signal.min / signal.factor
         return scaled_value
 
 
