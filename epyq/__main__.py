@@ -78,9 +78,28 @@ class Window(QtWidgets.QMainWindow):
         load_device = functools.partial(self.load_device, file=None)
         self.ui.load_device_button.clicked.connect(load_device)
 
+        self.ui.action_About.triggered.connect(self.about)
+
         for file in devices:
             self.load_device(file)
         self.ui.device_list.itemActivated.connect(self.device_activated)
+
+    def about(self):
+        box = QMessageBox()
+        box.setWindowTitle("About EPyQ")
+
+        # TODO: CAMPid 980567566238416124867857834291346779
+        ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
+        ico = QtGui.QIcon(ico_file)
+        box.setWindowIcon(ico)
+
+        message = [
+            __copyright__,
+            __license__
+        ]
+
+        box.setText('\n'.join(message))
+        box.exec_()
 
     def add_device(self, device):
         self.ui.stacked.addWidget(device.ui)
