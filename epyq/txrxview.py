@@ -32,7 +32,8 @@ class TxRxView(QtWidgets.QWidget):
             name=True,
             length=True,
             value=False,
-            dt=False)
+            dt=False,
+            count=True)
 
     def setModel(self, model):
         self.ui.tree_view.setModel(model)
