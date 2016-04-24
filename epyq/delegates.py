@@ -26,9 +26,9 @@ class Combo(QtWidgets.QStyledItemDelegate):
                 present_string = node.fields[index.column()]
                 index = combo.findText(present_string)
                 if index == -1:
-                    combo.setCurrentIndex(0);
+                    combo.setCurrentIndex(0)
                 else:
-                    combo.setCurrentIndex(index);
+                    combo.setCurrentIndex(index)
 
                 combo.currentIndexChanged.connect(self.current_index_changed)
 
