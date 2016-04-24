@@ -1,5 +1,6 @@
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, Qt, QCoreApplication, QEvent, QPoint
 from PyQt5 import QtWidgets
+from PyQt5.QtGui import QMouseEvent
 
 
 class Combo(QtWidgets.QStyledItemDelegate):
@@ -31,6 +32,12 @@ class Combo(QtWidgets.QStyledItemDelegate):
                     combo.setCurrentIndex(index)
 
                 combo.currentIndexChanged.connect(self.current_index_changed)
+                event = QMouseEvent(QEvent.MouseButtonPress,
+                                    QPoint(),
+                                    Qt.LeftButton,
+                                    Qt.LeftButton,
+                                    Qt.NoModifier)
+                QCoreApplication.postEvent(combo, event)
 
                 return combo
 
