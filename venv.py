@@ -38,13 +38,14 @@ args = parser.parse_args()
 myfile = os.path.realpath(__file__)
 mydir = os.path.dirname(myfile)
 
-def pip_install(package, no_ssl_verify):
+def pip_install(package, no_ssl_verify, virtual=False):
     pip_parameters = ['install']
     if no_ssl_verify:
         pip_parameters.append('--index-url=http://pypi.python.org/simple/')
         pip_parameters.append('--trusted-host')
         pip_parameters.append('pypi.python.org')
-    pip_parameters.append('--user')
+    if not virtual:
+        pip_parameters.append('--user')
     pip_parameters.append(package)
     return pip.main(pip_parameters)
 
@@ -150,7 +151,8 @@ else:
 #        git.Repo.clone_from(url, dir)
 #        setup(dir)
 
-    pip_install('requests', args.no_ssl_verify)
+    pip_install('git-app-version', args.no_ssl_verify, virtual=True)
+    pip_install('requests', args.no_ssl_verify, virtual=True)
     import requests
     import zipfile
     import io
