@@ -3,6 +3,7 @@ import epyq.txrx
 import io
 import os
 from PyQt5 import QtWidgets, uic
+from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import QFile, QFileInfo, QTextStream
 
 # See file COPYING in this source tree
@@ -54,3 +55,15 @@ class TxRxView(QtWidgets.QWidget):
         self.ui.tree_view.setItemDelegateForColumn(
             epyq.txrx.Columns.indexes.value,
             epyq.delegates.Combo(model=model, parent=self))
+
+        self.ui.tree_view.setColumnWidth(epyq.txrx.Columns.indexes.value,
+                                         self.calculate_max_value_width())
+
+    def calculate_max_value_width(self):
+        metric = self.ui.tree_view.fontMetrics()
+        chars = ['{:X}'.format(i) for i in range(16)]
+        widths = [metric.width(c) for c in chars]
+        widest_width = max(widths)
+        widest_char = chars[widths.index(widest_width)]
+        string = ' '.join([widest_char * 2] * 8)
+        return metric.width(string)
