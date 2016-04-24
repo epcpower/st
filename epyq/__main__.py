@@ -97,6 +97,13 @@ class Window(QtWidgets.QMainWindow):
             __copyright__,
             __license__
         ]
+        
+        try:
+            import epyq.revision
+        except ImportError:
+            pass
+        else:
+            message.append(epyq.revision.hash)
 
         box.setText('\n'.join(message))
         box.exec_()
