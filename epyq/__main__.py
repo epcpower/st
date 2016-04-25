@@ -37,9 +37,9 @@ from epyq.device import Device
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
-                          QSettings)
+                          QSettings, Qt)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
-                             QListWidgetItem)
+                             QListWidgetItem, QAction, QMenu)
 from PyQt5.QtGui import QPixmap
 import time
 import traceback
@@ -83,6 +83,22 @@ class Window(QtWidgets.QMainWindow):
         for file in devices:
             self.load_device(file)
         self.ui.device_list.itemActivated.connect(self.device_activated)
+        self.ui.device_list.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ui.device_list.customContextMenuRequested.connect(
+            self.device_context_menu
+        )
+
+    def device_context_menu(self, position):
+        item = self.ui.device_list.itemAt(position)
+
+        if item is None:
+            return
+
+        menu = QMenu()
+        remove_device_action = menu.addAction('Close')
+        action = menu.exec_(self.ui.device_list.mapToGlobal(position))
+        if action is remove_device_action:
+            self.remove_device(item)
 
     def about(self):
         box = QMessageBox()
@@ -114,6 +130,12 @@ class Window(QtWidgets.QMainWindow):
         item = QListWidgetItem(device.name)
         item.setData(QtCore.Qt.UserRole, device.ui)
         self.ui.device_list.addItem(item)
+
+    def remove_device(self, item):
+        device = item.data(QtCore.Qt.UserRole)
+
+        self.ui.stacked.removeWidget(device)
+        self.ui.device_list.takeItem(self.ui.device_list.currentRow())
 
     def select_bus(self, interface, channel, bitrate):
         self.bus.set_bus(None)
