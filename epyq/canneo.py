@@ -80,7 +80,7 @@ class Signal(QObject):
         if self.value is None:
             return None
 
-        value = self.value * float(self.factor)
+        value = self.offset + (self.value * float(self.factor))
 
         return self.format_float(value)
 
@@ -98,7 +98,7 @@ class Signal(QObject):
             else:
                 raise
 
-        value /= self.factor
+        value = (value - self.offset) / self.factor
         value = round(value)
         self.set_value(value)
 
@@ -158,7 +158,9 @@ class Signal(QObject):
                     # TODO: CAMPid 9395616283654658598648263423685
                     # TODO: and _offset...
 
-                    self.scaled_value = float(self.value) * self.factor
+                    self.scaled_value = (
+                        self.offset + (float(self.value) * self.factor)
+                    )
 
                     self.full_string = self.format_float(self.scaled_value)
 
@@ -246,11 +248,15 @@ class Frame(QtCanListener):
                 if factor is None:
                     factor = 1
 
+                offset = neo_signal.offset
+                if offset is None:
+                    offset = 0
+
                 default_value = neo_signal.default_value
                 if default_value is None:
                     default_value = 0
 
-                neo_signal.set_human_value(default_value * factor)
+                neo_signal.set_human_value(offset + (default_value * factor))
 
     def signal_by_name(self, name):
         try:
