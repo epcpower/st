@@ -99,8 +99,6 @@ class BusSelector(QtWidgets.QWidget):
 
         self.ui.list.itemSelectionChanged.connect(self.changed)
 
-        self.ui.list.itemActivated.connect(self.activated)
-
         self.selected_string = None
 
         self.flashing_buses = set()
@@ -137,10 +135,6 @@ class BusSelector(QtWidgets.QWidget):
         for bus in set(self.flashing_buses):
             self.flash(bus, False)
 
-    @pyqtSlot(QListWidgetItem)
-    def activated(self, item):
-        self.accept()
-
     def changed(self):
         if len(self.ui.list.selectedItems()) == 1:
             self.selected_string = self.ui.list.currentItem().text()
@@ -158,6 +152,8 @@ class BusSelector(QtWidgets.QWidget):
                     QTimer.singleShot(3000, stop_flashing)
         else:
             self.selected_string = None
+
+        self.accept()
 
     def flash(self, bus, flash):
         flash = bool(flash)

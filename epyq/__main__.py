@@ -82,7 +82,7 @@ class Window(QtWidgets.QMainWindow):
 
         for file in devices:
             self.load_device(file)
-        self.ui.device_list.itemActivated.connect(self.device_activated)
+        self.ui.device_list.itemSelectionChanged.connect(self.device_activated)
         self.ui.device_list.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui.device_list.customContextMenuRequested.connect(
             self.device_context_menu
@@ -148,7 +148,8 @@ class Window(QtWidgets.QMainWindow):
             real_bus = None
         self.bus.set_bus(bus=real_bus)
 
-    def device_activated(self, item):
+    def device_activated(self):
+        item = self.ui.device_list.currentItem()
         device = item.data(QtCore.Qt.UserRole)
         self.ui.stacked.setCurrentWidget(device)
 
