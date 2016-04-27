@@ -85,7 +85,7 @@ class AbstractWidget(QtWidgets.QWidget):
                                max=float(signal.max))
                 try:
                     label = signal.long_name
-                except KeyError:
+                except AttributeError:
                     label = signal.name
 
                 self.set_label(label)
