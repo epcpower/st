@@ -358,9 +358,9 @@ class Frame(QtCanListener):
 
         return bitstruct.pack(self.format(), *data)
 
-    def unpack(self, data):
+    def unpack(self, data, report_error=True):
         rx_length = len(data)
-        if rx_length != self.size:
+        if rx_length != self.size and report_error:
             print('Received message length {rx_length} != {self.size} received'.format(**locals()))
         else:
             self.pad()
@@ -548,7 +548,7 @@ class Neo:
             multiplex_value = None
         else:
             # finish the multiplex thing
-            base_frame.unpack(message.data)
+            base_frame.unpack(message.data, report_error=False)
             multiplex_value = base_frame.multiplex_signal.value
             try:
                 frame = base_frame.multiplex_frames[multiplex_value]
