@@ -172,6 +172,12 @@ class Signal(QObject):
 
             self.value_changed.emit(value)
 
+    def force_value_changed(self):
+        value = self.scaled_value
+        if value is None:
+            value = 0
+        self.value_changed.emit(value)
+
     def format_float(self, value=None):
         if value is None:
             value = self.scaled_value
