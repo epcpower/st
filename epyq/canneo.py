@@ -299,6 +299,7 @@ class Frame(QtCanListener):
             # TODO: 1 or 0, which is the first bit per canmatrix?
             bit = 0
             # pad for unused bits
+            padded_signals = []
             unpadded_signals = list(self.signals)
             for signal in unpadded_signals:
                 startbit = signal.start_bit
@@ -307,7 +308,9 @@ class Frame(QtCanListener):
                 padding = startbit - bit
                 if padding:
                     pad = Pad(bit, padding)
+                    padded_signals.append(pad)
                     bit += pad.signal_size
+                padded_signals.append(signal)
                 bit += signal.signal_size
             # TODO: 1 or 0, which is the first bit per canmatrix?
             padding = (self.size * 8) - bit
@@ -318,6 +321,7 @@ class Frame(QtCanListener):
             elif padding > 0:
                 Pad(bit, padding)
 
+            self.signals = padded_signals
             self.padded = True
 
     def format(self):
