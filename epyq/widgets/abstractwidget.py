@@ -84,9 +84,9 @@ class AbstractWidget(QtWidgets.QWidget):
             if signal is not None:
                 self.set_range(min=float(signal.min),
                                max=float(signal.max))
-                try:
-                    label = signal.long_name
-                except AttributeError:
+
+                label = signal.long_name
+                if label is None:
                     label = signal.name
 
                 self.set_label(label)
