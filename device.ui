@@ -342,7 +342,7 @@
        <item row="5" column="2">
         <widget class="Epc" name="epc_11">
          <property name="frame" stdset="0">
-          <string>MasterMeasuredPower</string>
+          <string>StatusMeasuredPower</string>
          </property>
          <property name="signal" stdset="0">
           <string>ReactivePower_measured</string>
