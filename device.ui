@@ -55,7 +55,7 @@
        </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
+         <item alignment="Qt::AlignVCenter">
           <widget class="Epc" name="epc_3">
            <property name="frame" stdset="0">
             <string>StatusBits</string>
