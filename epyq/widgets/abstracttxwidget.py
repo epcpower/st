@@ -36,7 +36,7 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
         self.ui.value.setDisabled(not self.tx)
 
     def set_signal(self, signal):
-        if signal is not None:
+        if signal is not None and self.tx:
             period = signal.frame.cycle_time
             if period is None:
                 # TODO: a more specific exception?
