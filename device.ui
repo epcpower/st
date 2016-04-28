@@ -79,13 +79,13 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="2">
-          <widget class="Toggle" name="toggle_4">
+         <item row="2" column="2">
+          <widget class="Button" name="button">
            <property name="frame" stdset="0">
             <string>CommandModeControl</string>
            </property>
            <property name="signal" stdset="0">
-            <string>InvertHwEnable_command</string>
+            <string>FaultClear_command</string>
            </property>
            <property name="tx" stdset="0">
             <bool>true</bool>
@@ -93,7 +93,30 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="Toggle" name="toggle_3">
+          <widget class="Epc" name="epc_3">
+           <property name="frame" stdset="0">
+            <string>StatusBits</string>
+           </property>
+           <property name="signal" stdset="0">
+            <string>State_status</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="Check" name="check_4">
+           <property name="frame" stdset="0">
+            <string>CommandModeControl</string>
+           </property>
+           <property name="signal" stdset="0">
+            <string>ForceRelayK1_Precharge_command</string>
+           </property>
+           <property name="tx" stdset="0">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="Check" name="check_3">
            <property name="frame" stdset="0">
             <string>CommandModeControl</string>
            </property>
@@ -105,31 +128,21 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="Epc" name="epc_3">
-           <property name="frame" stdset="0">
-            <string>StatusBits</string>
-           </property>
-           <property name="signal" stdset="0">
-            <string>State_status</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
-          <widget class="Toggle" name="toggle_5">
+         <item row="2" column="4">
+          <widget class="Check" name="check_5">
            <property name="frame" stdset="0">
             <string>CommandModeControl</string>
            </property>
            <property name="signal" stdset="0">
-            <string>ForceRelayMX1_command</string>
+            <string>ForceRelayRelayK2_DCRun_comand</string>
            </property>
            <property name="tx" stdset="0">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="0" column="4">
-          <widget class="Toggle" name="toggle_6">
+         <item row="1" column="4">
+          <widget class="Check" name="check_6">
            <property name="frame" stdset="0">
             <string>CommandModeControl</string>
            </property>
@@ -142,25 +155,12 @@
           </widget>
          </item>
          <item row="1" column="3">
-          <widget class="Toggle" name="toggle_7">
+          <widget class="Check" name="check_7">
            <property name="frame" stdset="0">
             <string>CommandModeControl</string>
            </property>
            <property name="signal" stdset="0">
-            <string>ForceRelayK1_Precharge_command</string>
-           </property>
-           <property name="tx" stdset="0">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="4">
-          <widget class="Toggle" name="toggle_8">
-           <property name="frame" stdset="0">
-            <string>CommandModeControl</string>
-           </property>
-           <property name="signal" stdset="0">
-            <string>ForceRelayRelayK2_DCRun_comand</string>
+            <string>ForceRelayMX1_command</string>
            </property>
            <property name="tx" stdset="0">
             <bool>true</bool>
@@ -168,12 +168,12 @@
           </widget>
          </item>
          <item row="1" column="2">
-          <widget class="Button" name="button">
+          <widget class="Check" name="check_8">
            <property name="frame" stdset="0">
             <string>CommandModeControl</string>
            </property>
            <property name="signal" stdset="0">
-            <string>FaultClear_command</string>
+            <string>InvertHwEnable_command</string>
            </property>
            <property name="tx" stdset="0">
             <bool>true</bool>
@@ -294,10 +294,10 @@
      </property>
      <item>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="1">
+       <item row="1" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_5"/>
        </item>
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="Epc" name="epc_17">
          <property name="frame" stdset="0">
           <string>CommandVF</string>
@@ -310,7 +310,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="3" column="1">
         <widget class="Epc" name="epc_19">
          <property name="frame" stdset="0">
           <string>CommandPower</string>
@@ -323,7 +323,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <widget class="Epc" name="epc_18">
          <property name="frame" stdset="0">
           <string>CommandVF</string>
@@ -336,7 +336,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="2" column="1">
         <widget class="Epc" name="epc_16">
          <property name="frame" stdset="0">
           <string>CommandPower</string>
@@ -349,8 +349,8 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="Toggle" name="toggle_11">
+       <item row="1" column="0">
+        <widget class="Check" name="check_9">
          <property name="frame" stdset="0">
           <string>CommandModeControl</string>
          </property>
@@ -444,11 +444,6 @@
    <class>Epc</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.epc</header>
-  </customwidget>
-  <customwidget>
-   <class>Toggle</class>
-   <extends>QWidget</extends>
-   <header>epyq.widgets.toggle</header>
   </customwidget>
  </customwidgets>
  <resources/>
