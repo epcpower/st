@@ -203,26 +203,6 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="Epc" name="epc_5">
-         <property name="frame" stdset="0">
-          <string>StatusDCParameters</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>VoltageDCInput_measured</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="Epc" name="epc_6">
-         <property name="frame" stdset="0">
-          <string>StatusDCParameters</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>VoltageDCBus</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="Epc" name="epc_7">
          <property name="frame" stdset="0">
@@ -230,16 +210,6 @@
          </property>
          <property name="signal" stdset="0">
           <string>CurrentAC_measured</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="Epc" name="epc_8">
-         <property name="frame" stdset="0">
-          <string>StatusTemps</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>TempInternal_measured</string>
          </property>
         </widget>
        </item>
@@ -253,6 +223,26 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="0">
+        <widget class="Epc" name="epc_6">
+         <property name="frame" stdset="0">
+          <string>StatusDCParameters</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>VoltageDCBus</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="Epc" name="epc_8">
+         <property name="frame" stdset="0">
+          <string>StatusTemps</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>TempInternal_measured</string>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="2">
         <widget class="Epc" name="epc_10">
          <property name="frame" stdset="0">
@@ -260,6 +250,16 @@
          </property>
          <property name="signal" stdset="0">
           <string>TempHeatsink_measured</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="Epc" name="epc_5">
+         <property name="frame" stdset="0">
+          <string>StatusDCParameters</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>VoltageDCInput_measured</string>
          </property>
         </widget>
        </item>
@@ -293,17 +293,83 @@
       <number>6</number>
      </property>
      <item>
-      <spacer name="horizontalSpacer">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_5"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="Epc" name="epc_17">
+         <property name="frame" stdset="0">
+          <string>CommandVF</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Voltage_command</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="Epc" name="epc_19">
+         <property name="frame" stdset="0">
+          <string>CommandPower</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>ReactivePower_command</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="Epc" name="epc_18">
+         <property name="frame" stdset="0">
+          <string>CommandVF</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Frequency_command</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="Epc" name="epc_16">
+         <property name="frame" stdset="0">
+          <string>CommandPower</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>RealPower_command</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="Toggle" name="toggle_11">
+         <property name="frame" stdset="0">
+          <string>CommandModeControl</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>SyncToRemoteSource_command</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="Line" name="line_3">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Vertical</enum>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -348,92 +414,12 @@
         </widget>
        </item>
        <item>
-        <widget class="Toggle" name="toggle_11">
+        <widget class="Epc" name="epc_15">
          <property name="frame" stdset="0">
-          <string>CommandModeControl</string>
+          <string>StatusTemps</string>
          </property>
          <property name="signal" stdset="0">
-          <string>SyncToRemoteSource_command</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="Line" name="line_3">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <item>
-          <widget class="Epc" name="epc_15">
-           <property name="frame" stdset="0">
-            <string>StatusTemps</string>
-           </property>
-           <property name="signal" stdset="0">
-            <string>TempHeatsink_measured</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="0" column="0">
-        <widget class="Epc" name="epc_16">
-         <property name="frame" stdset="0">
-          <string>CommandPower</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>RealPower_command</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="Epc" name="epc_17">
-         <property name="frame" stdset="0">
-          <string>CommandVF</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>Voltage_command</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="Epc" name="epc_18">
-         <property name="frame" stdset="0">
-          <string>CommandVF</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>Frequency_command</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="Epc" name="epc_19">
-         <property name="frame" stdset="0">
-          <string>CommandPower</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>ReactivePower_command</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
+          <string>TempHeatsink_measured</string>
          </property>
         </widget>
        </item>
