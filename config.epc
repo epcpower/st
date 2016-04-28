@@ -1,5 +1,5 @@
 {
-    "can_path": "device.sym",
+    "can_path": "AFE_CAN_ID247_FACTORY.sym",
     "name": "My Inverter",
     "serial_number": "42",
     "ui_path": "device.ui"
