@@ -150,8 +150,9 @@ class Window(QtWidgets.QMainWindow):
 
     def device_activated(self):
         item = self.ui.device_list.currentItem()
-        device = item.data(QtCore.Qt.UserRole)
-        self.ui.stacked.setCurrentWidget(device)
+        if item is not None:
+            device = item.data(QtCore.Qt.UserRole)
+            self.ui.stacked.setCurrentWidget(device)
 
     def load_device(self, file=None):
         if file is None:
