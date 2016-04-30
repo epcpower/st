@@ -43,6 +43,9 @@ class Device:
 
         constructor(*args, **kwargs)
 
+    def __del__(self):
+        self.bus.set_bus()
+
     def _init_from_file(self, file, bus=None):
         try:
             zip_file = zipfile.ZipFile(file)
@@ -64,15 +67,16 @@ class Device:
         self.ui_path = os.path.join(path, d['ui_path'])
         self.can_path = os.path.join(path, d['can_path'])
 
+        self.bus = BusProxy(bus=bus)
+
         matrix = list(importany.importany(self.can_path).values())[0]
-        neo_frames = epyq.canneo.Neo(matrix=matrix, bus=bus)
+        neo_frames = epyq.canneo.Neo(matrix=matrix, bus=self.bus)
 
         self._init_from_parameters(
             neo=neo_frames,
             ui=self.ui_path,
             serial_number=d.get('serial_number', ''),
-            name=d.get('name', ''),
-            bus=bus)
+            name=d.get('name', ''))
 
     def _init_from_zip(self, zip_file, bus=None):
         path = tempfile.mkdtemp()
@@ -85,7 +89,8 @@ class Device:
         shutil.rmtree(path)
 
     def _init_from_parameters(self, neo, ui, serial_number, name, bus=None):
-        self.bus = BusProxy(bus=bus)
+        if not hasattr(self, 'bus'):
+            self.bus = BusProxy(bus=bus)
 
         self.neo_frames = neo
         self.serial_number = serial_number

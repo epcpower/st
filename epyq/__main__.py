@@ -128,13 +128,13 @@ class Window(QtWidgets.QMainWindow):
         self.ui.stacked.addWidget(device.ui)
         self.ui.stacked.setCurrentWidget(device.ui)
         item = QListWidgetItem(device.name)
-        item.setData(QtCore.Qt.UserRole, device.ui)
+        item.setData(QtCore.Qt.UserRole, device)
         self.ui.device_list.addItem(item)
 
     def remove_device(self, item):
         device = item.data(QtCore.Qt.UserRole)
 
-        self.ui.stacked.removeWidget(device)
+        self.ui.stacked.removeWidget(device.ui)
         self.ui.device_list.takeItem(self.ui.device_list.currentRow())
 
     def select_bus(self, interface, channel, bitrate):
@@ -152,7 +152,7 @@ class Window(QtWidgets.QMainWindow):
         item = self.ui.device_list.currentItem()
         if item is not None:
             device = item.data(QtCore.Qt.UserRole)
-            self.ui.stacked.setCurrentWidget(device)
+            self.ui.stacked.setCurrentWidget(device.ui)
 
     def load_device(self, file=None):
         if file is None:
