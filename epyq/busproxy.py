@@ -33,15 +33,16 @@ class BusProxy:
         # This is called from the Notifier thread so it has to be protected
 
         self.lock.acquire()
+        try:
+            result = None
 
-        result = None
+            bus_is_none = self.bus is None
 
-        bus_is_none = self.bus is None
+            if not bus_is_none:
+                result = self.bus.recv(timeout=timeout)
 
-        if not bus_is_none:
-            result = self.bus.recv(timeout=timeout)
-
-        self.lock.release()
+        finally:
+            self.lock.release()
 
         if bus_is_none and timeout is not None:
             time.sleep(timeout)
@@ -52,7 +53,29 @@ class BusProxy:
         if self.bus is not None:
             # TODO: I would use message=message (or msg=msg) but:
             #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
-            return self.bus.send(msg)
+            sent = self.bus.send(msg)
+
+            if not sent:
+                self.verify_bus_ok()
+
+            return sent
+
+        return False
+
+    def verify_bus_ok(self):
+        if self.bus is None:
+            # No bus, nothing to go wrong with it... ?
+            ok = True
+        else:
+            if hasattr(self.bus, 'StatusOk'):
+                ok = self.bus.StatusOk()
+
+                if not ok:
+                    self.set_bus()
+            else:
+                ok = self.bus.verify_bus_ok()
+
+        return ok
 
     def shutdown(self):
         pass
@@ -70,6 +93,15 @@ class BusProxy:
 
         self.lock.release()
 
+        self.reset()
+
+    def reset(self):
+        if self.bus is not None:
+            if hasattr(self.bus, 'Reset'):
+                self.bus.Reset()
+                self._notifier.new_notifier()
+            else:
+                self.bus.reset()
 
 class NotifierProxy(QtCanListener):
     def __init__(self, bus, listeners=[], parent=None):
@@ -78,7 +110,7 @@ class NotifierProxy(QtCanListener):
         self.bus = bus
         self.listeners = set(listeners)
 
-        self.notifier = can.Notifier(self.bus, [self], timeout=0.1)
+        self.new_notifier()
 
     def message_received(self, message):
         for listener in self.listeners:
@@ -92,6 +124,9 @@ class NotifierProxy(QtCanListener):
 
     def remove(self, listener):
         self.listeners.remove(listener)
+
+    def new_notifier(self):
+        self.notifier = can.Notifier(self.bus, [self], timeout=0.1)
 
 
 if __name__ == '__main__':
