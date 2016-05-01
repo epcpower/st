@@ -151,7 +151,7 @@ class Device:
         rx.begin_insert_rows.connect(rx_model.begin_insert_rows)
         rx.end_insert_rows.connect(rx_model.end_insert_rows)
 
-        tx = epyq.txrx.TxRx(tx=True, neo=neo_tx, bus=bus)
+        tx = epyq.txrx.TxRx(tx=True, neo=neo_tx, bus=self.bus)
         tx_model = epyq.txrx.TxRxModel(tx)
         tx.changed.connect(tx_model.changed)
 
@@ -170,7 +170,7 @@ class Device:
         nv_views = self.ui.findChildren(epyq.nvview.NvView)
         if len(nv_views) > 0:
             try:
-                nvs = epyq.nv.Nvs(self.frames_nv, bus)
+                nvs = epyq.nv.Nvs(self.frames_nv, self.bus)
             except epyq.nv.NoNv:
                 pass
             else:
