@@ -129,7 +129,8 @@ class BusSelector(QtWidgets.QWidget):
 
         selected = self.selected()
 
-        self.select_bus.emit(selected[0], selected[1], bitrate)
+        if selected is not None:
+            self.select_bus.emit(selected[0], selected[1], bitrate)
 
     def stop_flashing(self):
         for bus in set(self.flashing_buses):
