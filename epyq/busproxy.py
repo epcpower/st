@@ -55,8 +55,7 @@ class BusProxy:
             return self.bus.send(msg)
 
     def shutdown(self):
-        if self.bus is not None:
-            return self.bus.shutdown()
+        pass
 
     def flash(self):
         if self.bus is not None:
