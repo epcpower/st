@@ -73,7 +73,11 @@ class BusProxy:
                 if not ok:
                     self.set_bus()
             else:
-                ok = self.bus.verify_bus_ok()
+                try:
+                    ok = self.bus.verify_bus_ok()
+                except AttributeError:
+                    # TODO: support socketcan
+                    ok = True
 
         return ok
 
@@ -101,7 +105,11 @@ class BusProxy:
                 self.bus.Reset()
                 self._notifier.new_notifier()
             else:
-                self.bus.reset()
+                try:
+                    self.bus.reset()
+                except AttributeError:
+                    # TODO: support socketcan
+                    pass
 
 class NotifierProxy(QtCanListener):
     def __init__(self, bus, listeners=[], parent=None):
