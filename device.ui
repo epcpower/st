@@ -284,8 +284,18 @@
      </property>
      <item>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="1" column="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_5"/>
+       <item row="5" column="0">
+        <widget class="Epc" name="epc_19">
+         <property name="frame" stdset="0">
+          <string>CommandPower</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>ReactivePower_command</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="2" column="0">
         <widget class="Epc" name="epc_17">
@@ -294,19 +304,6 @@
          </property>
          <property name="signal" stdset="0">
           <string>Voltage_command</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="Epc" name="epc_19">
-         <property name="frame" stdset="0">
-          <string>CommandPower</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>ReactivePower_command</string>
          </property>
          <property name="tx" stdset="0">
           <bool>true</bool>
@@ -326,36 +323,16 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="Epc" name="epc_16">
-         <property name="frame" stdset="0">
-          <string>CommandPower</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>RealPower_command</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
+       <item row="1" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_5"/>
        </item>
-       <item row="5" column="2">
-        <widget class="Epc" name="epc_11">
+       <item row="6" column="2">
+        <widget class="Check" name="check_2">
          <property name="frame" stdset="0">
-          <string>StatusMeasuredPower</string>
+          <string>StatusBits</string>
          </property>
          <property name="signal" stdset="0">
-          <string>ReactivePower_measured</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="Epc" name="epc_12">
-         <property name="frame" stdset="0">
-          <string>StatusMeasuredPower</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>RealPower_measured</string>
+          <string>PowerAvailAcRemote_status</string>
          </property>
         </widget>
        </item>
@@ -372,13 +349,49 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="2">
-        <widget class="Check" name="check_2">
+       <item row="5" column="2">
+        <widget class="Epc" name="epc_11">
          <property name="frame" stdset="0">
-          <string>StatusBits</string>
+          <string>StatusMeasuredPower</string>
          </property>
          <property name="signal" stdset="0">
-          <string>PowerAvailAcRemote_status</string>
+          <string>ReactivePower_measured</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="Epc" name="epc_16">
+         <property name="frame" stdset="0">
+          <string>CommandPower</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>RealPower_command</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="Epc" name="epc_12">
+         <property name="frame" stdset="0">
+          <string>StatusMeasuredPower</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>RealPower_measured</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="Check" name="check_10">
+         <property name="frame" stdset="0">
+          <string>CommandModeControl</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>UseVoltageSenseAsRemote_command</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
