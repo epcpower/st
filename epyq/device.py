@@ -84,7 +84,7 @@ class Device:
         # TODO error dialog if no .epc found in zip file
         for f in os.listdir(path):
             if f.endswith(".epc"):
-                file = os.path.join(path, f) 
+                file = os.path.join(path, f)
         with open(file, 'r') as file:
             self._load_config(file, bus=bus)
 
