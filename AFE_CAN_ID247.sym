@@ -1,5 +1,5 @@
 FormatVersion=5.0 // Do not edit this line!
-Title="AFE_CAN_ID247_FACTORY"
+Title="AFE_CAN_ID247"
 
 {ENUMS}
 enum State(0="Power On Reset", 1="Ready", 2="Following", 3="Fault", 
@@ -69,21 +69,6 @@ DLC=8
 CycleTime=100
 Var=Voltage_command unsigned 0,16 -m /u:Vrms /f:0.1 /min:10 /max:500 /d:240 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
 Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:50 /ln:"Frequency"	// Desired output frequency while in grid forming mode.
-
-[MasterMeasuredPower]
-ID=0CFFCAF6h	// Returns the actual measured power.
-Type=Extended
-DLC=8
-Var=RealPower_measured signed 0,32 -m /u:W	// Measured real power of master unit.
-Var=ReactivePower_measured signed 32,32 -m /u:VA	// Measured reactive power of master unit.
-
-[CommandFactoryControl]
-ID=0CFFAF41h
-Type=Extended
-DLC=8
-Var=WriteSerialNumber unsigned 6,2 -m /e:Enable
-Var=SerialNumber unsigned 32,32 -m
-Var=FactoryAccess unsigned 16,16 -m
 
 [CommandSetNVParam]
 ID=0CFFAA41h	// Provides access to configure non-volatile parameters.  Note that these parameters can only be set when the inverter's power stage is disabled (PowerCircuitEnabled_status in StatusBits message is 'Disabled.')
@@ -162,65 +147,8 @@ Var=K2Close unsigned 32,16 -m /u:ms /max:2000	// Maximum time required for the K
 
 [CommandSetNVParam]
 DLC=8
-Mux=HardwareDef1 0,14 000Ah -m
-Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
-Var=DeviceOvertempLimit_command unsigned 16,16 -m /u:C /max:300 /d:165
-
-[CommandSetNVParam]
-DLC=8
-Mux=AFF 0,14 000Bh -m	// Configures adaptive feed forward controllers
-Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
-Var=EnablePSAff_command unsigned 16,2 -m /max:1 /p:0 /e:Enable	// Enables/disables positive sequence AFF controller
-Var=EnableNSAff_command unsigned 18,2 -m /max:1 /e:Enable	// Enables/disables negative sequence AFF controller.
-Var=PSGain_command unsigned 32,8 -m /f:0.01 /p:2 /d:0.02
-Var=PSLimit_command unsigned 40,8 -m /f:0.01 /p:2 /d:0.05
-Var=NSGain_command unsigned 48,8 -m /f:0.01 /p:2 /d:0.02
-Var=NSLimit_command unsigned 56,8 -m /f:0.01 /p:2 /d:0.05
-
-[CommandSetNVParam]
-DLC=8
 Mux=ManageNV 0,14 000Ch -m
 Var=SaveToEE_command unsigned 16,2 -m /max:1 /e:Enable
-
-[CommandModeControlAPU2]
-ID=00FF9B41h	// Operational commands are received by the module via control bits within this message.
-Type=Extended
-DLC=8
-Var=Enable_command unsigned 6,2 -m /max:1 /e:Enable /ln:"Run"	// Run command.  When set to a value of 'Enable', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to 'Disable' to leave POR or FAULTED state.
-Var=FaultClear_command unsigned 4,2 -m /max:1 /e:FaultClear /ln:"Clear faults"	// Clears the latched fault message. 
-Var=InvertHwEnable_command unsigned 62,2 -m /max:1 /e:InvertHwEnable /ln:"Invert hardware enable"	// Inverts the logic of the Hardware Enable input.
-Var=EnableUPSMode_command unsigned 60,2 -m /max:1 /e:EnableUPSMode /ln:"UPS Mode"	// Enables uninterruptible operation when transitioning from GRID FOLLOWING to GRID FORMING operation.  If operating in GRID FOLLOWING mode, and AC grid voltage is interrupted, the module will transition to GRID FORMING mode, with no interruption in power.  
-Var=EnableSplitPhase_command unsigned 58,2 -m /max:1 /e:EnableSplitPhase /ln:"Split phase"	// Dictates to the module whether it is connected to a three-phase (four wire) or split phase (L1, L2 and N) electrical system.
-Var=ForceRelayMX1_command unsigned 38,2 -m /max:1 /e:RelayCommand /ln:"Close MX1"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
-Var=ForceRelayMX2_command unsigned 36,2 -m /max:1 /e:RelayCommand /ln:"Close MX2"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
-Var=ForceRelayK1_Precharge_command unsigned 34,2 -m /max:1 /p:0 /e:RelayCommand /ln:"Close K1 precharge"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
-Var=ForceRelayRelayK2_DCRun_comand unsigned 32,2 -m /max:1 /e:RelayCommand /ln:"Close K2"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
-Var=PhaseRotation_command unsigned 56,2 -m /max:1 /e:PhaseRotation /ln:"Positive phase rotation"	// Specifies phase rotation direction.  Only active while transitioning from READY to GRID_FORMING.
-Var=MasterFollowerMode_command unsigned 22,2 -m /max:1 /e:MasterFollower /ln:"Follower mode"	// Specifies what power command the inverter will follow in GRID FOLLOWING mode.  When configured as Master, CommandPower will be used as the power command.  When configured as Slave, the values in StatusMeasuredPower of the master inverter will be used.
-Var=ForceFanOn unsigned 46,2 -m /max:1 /e:RelayCommand /ln:"Force fan on"	// Forces cooling fan on (air cooled units only)
-Var=UseVoltageSenseAsRemote_command unsigned 20,2 -m /max:1 /e:RemoteVoltageSense /ln:"Use VSense as remote"	// Use voltage sense input as either local or remote reference.
-Var=SyncToRemoteSource_command unsigned 18,2 -m /max:1 /e:Enable /ln:"Sync to remote"	// Sync and connect to remote source.
-
-[CommandPowerAPU2]
-ID=0CFF9C41h	// Sets the desired real (P) and reactive (Q) power levels for the module to follow while in the GRID FOLLOWING mode.
-Type=Extended
-DLC=8
-Var=RealPower_command signed 0,32 -m /u:W /min:-80000 /max:80000 /ln:"Real power"	// Commanded real power (W) while in grid following mode - positive real power is defined as power being put into the ac network.
-Var=ReactivePower_command signed 32,32 -m /u:VA /min:-80000 /max:80000 /ln:"Reactive power"	// Commanded reactive power (VA) while in grid following mode - positive reactive power is defined as the converter having a leading power factor.
-
-[CommandVFAPU2]
-ID=0CFF9E41h	// Sets the desired voltage and frequency for the module to produce while in the GRID FORMING mode.  In addition, while in the READY and GRID FOLLOWING modes, this message is used to set the nominal voltage levels for detection of acceptable AC line voltage.
-Type=Extended
-DLC=8
-Var=Voltage_command unsigned 0,16 -m /u:Vrms /f:0.1 /min:10 /max:500 /d:240 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
-Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:50 /ln:"Frequency"	// Desired output frequency while in grid forming mode.
-
-[MasterMeasuredPowerAPU2]
-ID=0CFFCAF7h	// Returns the actual measured power.
-Type=Extended
-DLC=8
-Var=RealPower_measured signed 0,32 -m /u:W	// Measured real power of master unit.
-Var=ReactivePower_measured signed 32,32 -m /u:VA	// Measured reactive power of master unit.
 
 {SENDRECEIVE}
 
@@ -274,10 +202,7 @@ ID=1CFFC5F7h	// Lists present voltage of each power supply on the control board 
 Type=Extended
 DLC=8
 CycleTime=100
-Var=v5p0_Supply signed 0,16 -m /u:V /f:0.01	// Present voltage of the control board 5V power suppy.
-Var=v3p3_Supply signed 16,16 -m /u:V /f:0.01	// Present voltage of the control board 3.3V power supply.
 Var=v24_Supply signed 32,16 -m /u:V /f:0.01	// Present voltage of the control board 24V power supply.
-Var=v15_Supply signed 48,16 -m /u:V /f:0.01	// Present voltage of the control board 15V power supply.
 
 [StatusTemps]
 ID=18FFCBF7h	// Returns the inlet water temperature to the module as well as module internal ambient temperature.
@@ -315,7 +240,6 @@ Var=InvalidEESection_status unsigned 24,2 -m /max:1 /e:Fault	// Indicates that r
 Var=ThermalOverload unsigned 38,2 -m /max:1 /e:Fault	// Thermal overload digital input is active.
 Var=OverloadAC_status unsigned 36,2 -m /max:1 /e:Fault	// Timed AC overload fault status (aircooled units only)
 Var=OverloadDC_status unsigned 34,2 -m /max:1 /e:Fault	// Timed DC overload fault status (aircooled units only)
-Var=ISROverrun_status unsigned 32,2 -m /max:1 /e:Fault	// PWM ISR overrun 
 
 [StatusACParameters]
 ID=0CFFC2F7h	// RMS AC Voltage, current, and frequency measured by line A, B and C feedbacks.
@@ -334,15 +258,6 @@ CycleTime=100
 Var=VoltageDCBus signed 16,16 -m /u:V /ln:"VBus"	// Measured DC bus voltage.
 Var=CurrentDC_measured signed 32,16 -m /u:A /ln:"Meas. IDC"	// Measured DC current.
 Var=VoltageDCInput_measured signed 0,16 -m /u:V /ln:"Est. input VDC"	// Estimated DC input voltage.
-
-[StatusControlVolts2]
-ID=1CFFC6F7h	// Present voltage of the -15V power supply on the control board.
-Type=Extended
-DLC=8
-CycleTime=100
-Var=n15V_Supply signed 0,16 -m /u:V /f:0.01	// Present voltage of the control board -15V power supply.
-Var=DiodeTemperature unsigned 32,16 -m /u:C /max:1	// Hottest diode
-Var=IGBTTemperature unsigned 48,16 -m /u:C /max:1	// Hottest IGBT
 
 [softwareRev]
 ID=1CFFC1F7h	// Software revision.
@@ -446,23 +361,6 @@ Mux=StatusContactorDelays3 0,14 9  -m	// Sets the time the controller assumes it
 Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=StatusK2Open unsigned 16,16 -m /u:ms /max:2000	// Maximum time required for the K2 contactor to open.
 Var=StatusK2Close unsigned 32,16 -m /u:ms /max:2000	// Maximum time required for the K2 contactor to close.
-
-[StatusNVParam]
-DLC=8
-Mux=HardwareDef1 0,14 000Ah -m
-Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
-Var=DeviceOvertempLimit_status unsigned 16,16 -m /u:C /max:300 /d:165
-
-[StatusNVParam]
-DLC=8
-Mux=AFF 0,14 000Bh -m	// Configures adaptive feed forward controllers
-Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
-Var=EnablePSAff_status unsigned 16,2 -m /max:1 /p:0 /e:Enable	// Enables/disables positive sequence AFF controller
-Var=EnableNSAff_status unsigned 18,2 -m /max:1 /e:Enable	// Enables/disables negative sequence AFF controller.
-Var=PSGain_status unsigned 32,8 -m /f:0.01 /p:2
-Var=PSLimit_status unsigned 40,8 -m /f:0.01 /p:2
-Var=NSGain_status unsigned 48,8 -m /f:0.01 /p:2
-Var=NSLimit_status unsigned 56,8 -m /f:0.01 /p:2
 
 [StatusNVParam]
 DLC=8
