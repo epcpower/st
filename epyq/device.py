@@ -81,8 +81,10 @@ class Device:
     def _init_from_zip(self, zip_file, bus=None):
         path = tempfile.mkdtemp()
         zip_file.extractall(path=path)
-
-        file = os.path.join(path, 'config.epc')
+        # TODO error dialog if no .epc found in zip file
+        for f in os.listdir(path):
+            if f.endswith(".epc"):
+                file = os.path.join(path, f) 
         with open(file, 'r') as file:
             self._load_config(file, bus=bus)
 
