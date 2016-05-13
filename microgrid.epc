@@ -2,5 +2,5 @@
     "can_path": "AFE_CAN_ID247.sym",
     "name": "My Inverter",
     "serial_number": "42",
-    "ui_path": "device.ui"
+    "ui_path": "microgrid_dash.ui"
 }
