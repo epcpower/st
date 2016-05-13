@@ -12,11 +12,10 @@ win32 {
     QMAKE_POST_LINK += $$quote($$QMAKE_MKDIR $${DESTDIR_WIN}) &amp;
 
     EXTRA_BINFILES = \
-        ../AFE_CAN_ID247_FACTORY.sym \
-        ../config.epc \
-        ../device.ui \
-        ../device.sym \
-        ../config.epz \
+        ../AFE_CAN_ID247.sym \
+        ../microgrid.epc \
+        ../microgrid_dash.ui \
+        ../microgrid.epz \
         $${QT_BIN}/Qt5Core.dll \
         $${QT_BIN}/Qt5Widgets.dll \
         $${QT_BIN}/Qt5Gui.dll \
