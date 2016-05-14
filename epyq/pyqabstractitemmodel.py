@@ -20,6 +20,8 @@ class PyQAbstractItemModel(QAbstractItemModel):
         self.checkbox_columns = checkbox_columns
         self.editable_columns = editable_columns
 
+        self.index_from_node_cache = {}
+
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return QVariant(self.headers[section])
@@ -37,7 +39,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
                 if self.checkbox_columns[index.column()]:
                     node = self.node_from_index(index)
                     try:
-                        return node.send_checked
+                        return node.checked(index.column())
                     except AttributeError:
                         return QVariant()
 
@@ -80,11 +82,31 @@ class PyQAbstractItemModel(QAbstractItemModel):
             if self.editable_columns[index.column()]:
                 flags |= Qt.ItemIsEditable
 
+        if self.checkbox_columns is not None:
+            if self.checkbox_columns[index.column()]:
+                flags |= Qt.ItemIsUserCheckable
+
         return flags
 
     def index(self, row, column, parent):
+        # TODO: commented out stuff ought to be good rather than
+        #       breaking stuff.
+        #
+        #       http://stackoverflow.com/questions/26680168/pyqt-treeview-index-error-removing-last-row
+
+        # if not self.hasIndex(row, column, parent):
+        #     return QModelIndex()
+
+        # if not parent.isValid():
+        #     return QModelIndex()
+
         node = self.node_from_index(parent)
-        return self.createIndex(row, column, node.child_at_row(row))
+        child = node.child_at_row(row)
+
+        # if child is None:
+        #     return QModelIndex()
+
+        return self.createIndex(row, column, child)
 
     def columnCount(self, parent):
         return len(self.headers)
@@ -126,18 +148,20 @@ class PyQAbstractItemModel(QAbstractItemModel):
     def index_from_node(self, node):
         # TODO  make up another role for identification?
         try:
-            return node.index
-        except AttributeError:
+            index = self.index_from_node_cache[node]
+        except KeyError:
             if node is self.root:
-                node.index = QModelIndex()
+                index = QModelIndex()
             else:
-                node.index = self.match(self.index(0, len(self.headers), QModelIndex()),
-                                        Qt.DisplayRole,
-                                        node.unique(),
-                                        1,
-                                        Qt.MatchRecursive)[0]
+                index = self.match(self.index(0, len(self.headers), QModelIndex()),
+                                   Qt.DisplayRole,
+                                   node.unique(),
+                                   1,
+                                   Qt.MatchRecursive)[0]
 
-        return node.index
+                self.index_from_node_cache[node] = index
+
+        return index
 
     @pyqtSlot(TreeNode, int, TreeNode, int, list)
     def changed(self, start_node, start_column, end_node, end_column, roles):
@@ -161,7 +185,17 @@ class PyQAbstractItemModel(QAbstractItemModel):
 
     @pyqtSlot()
     def end_insert_rows(self):
+        self.index_from_node_cache = {}
         self.endInsertRows()
+
+    @pyqtSlot(TreeNode, int, int)
+    def begin_remove_rows(self, parent, start_row, end_row):
+        self.beginRemoveRows(self.index_from_node(parent), start_row, end_row)
+
+    @pyqtSlot()
+    def end_remove_rows(self):
+        self.index_from_node_cache = {}
+        self.endRemoveRows()
 
 if __name__ == '__main__':
     import sys

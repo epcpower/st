@@ -183,7 +183,7 @@ class Device:
             for view in nv_views:
                 view.setModel(nv_model)
 
-        notifier = self.bus.notifier()
+        notifier = self.bus.notifier
         for notifiee in notifiees:
             notifier.add(notifiee)
 

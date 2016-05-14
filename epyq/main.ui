@@ -18,15 +18,12 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_8">
       <item>
-       <widget class="BusSelector" name="busselector"/>
-      </item>
-      <item>
-       <widget class="QListWidget" name="device_list"/>
-      </item>
-      <item>
-       <widget class="QPushButton" name="load_device_button">
-        <property name="text">
-         <string>Load Device Package</string>
+       <widget class="DeviceTreeView" name="device_tree">
+        <property name="toolTip">
+         <string>Buses!</string>
+        </property>
+        <property name="whatsThis">
+         <string>A DeviceTreeView</string>
         </property>
        </widget>
       </item>
@@ -67,9 +64,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>BusSelector</class>
+   <class>DeviceTreeView</class>
    <extends>QWidget</extends>
-   <header>epyq.busselector</header>
+   <header>epyq.devicetreeview</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -103,6 +103,12 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         if self._send_checked != old:
             self.update_timer()
 
+    def checked(self, column):
+        if column == Columns.indexes.dt:
+            return self.send_checked
+
+        return Qt.Unchecked
+
     @property
     def dt(self):
         return self.fields.dt

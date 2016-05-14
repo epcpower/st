@@ -21,9 +21,7 @@ else:
 import can
 import copy
 import epyq.busproxy
-import epyq.busselector
 import epyq.canneo
-import epyq.fileselector
 import epyq.nv
 import epyq.txrx
 import epyq.widgets.progressbar
@@ -37,7 +35,7 @@ from epyq.device import Device
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
-                          QSettings, Qt)
+                          QSettings, Qt, pyqtSlot)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu)
 from PyQt5.QtGui import QPixmap
@@ -74,31 +72,14 @@ class Window(QtWidgets.QMainWindow):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
-        self.ui.busselector.select_bus.connect(self.select_bus)
-        load_device = functools.partial(self.load_device, file=None)
-        self.ui.load_device_button.clicked.connect(load_device)
-
         self.ui.action_About.triggered.connect(self.about)
 
-        for file in devices:
-            self.load_device(file)
-        self.ui.device_list.itemSelectionChanged.connect(self.device_activated)
-        self.ui.device_list.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.ui.device_list.customContextMenuRequested.connect(
-            self.device_context_menu
-        )
+        device_tree = epyq.devicetree.Tree()
+        device_tree_model = epyq.devicetree.Model(root=device_tree)
+        device_tree_model.device_removed.connect(self._remove_device)
+        self.ui.device_tree.setModel(device_tree_model)
 
-    def device_context_menu(self, position):
-        item = self.ui.device_list.itemAt(position)
-
-        if item is None:
-            return
-
-        menu = QMenu()
-        remove_device_action = menu.addAction('Close')
-        action = menu.exec_(self.ui.device_list.mapToGlobal(position))
-        if action is remove_device_action:
-            self.remove_device(item)
+        self.ui.device_tree.device_selected.connect(self.set_current_device)
 
     def about(self):
         box = QMessageBox()
@@ -124,71 +105,14 @@ class Window(QtWidgets.QMainWindow):
         box.setText('\n'.join(message))
         box.exec_()
 
-    def add_device(self, device):
+    @pyqtSlot(epyq.device.Device)
+    def _remove_device(self, device):
+        self.ui.stacked.removeWidget(device.ui)
+
+    @pyqtSlot(epyq.device.Device)
+    def set_current_device(self, device):
         self.ui.stacked.addWidget(device.ui)
         self.ui.stacked.setCurrentWidget(device.ui)
-        item = QListWidgetItem(device.name)
-        item.setData(QtCore.Qt.UserRole, device)
-        self.ui.device_list.addItem(item)
-
-    def remove_device(self, item):
-        device = item.data(QtCore.Qt.UserRole)
-
-        self.ui.stacked.removeWidget(device.ui)
-        self.ui.device_list.takeItem(self.ui.device_list.currentRow())
-
-    def select_bus(self, interface, channel, bitrate):
-        self.bus.set_bus(None)
-        # TODO: CAMPid 9756652312918432656896822
-        if interface != 'offline':
-            real_bus = can.interface.Bus(bustype=interface,
-                                         channel=channel,
-                                         bitrate=bitrate)
-        else:
-            real_bus = None
-        self.bus.set_bus(bus=real_bus)
-
-    def device_activated(self):
-        item = self.ui.device_list.currentItem()
-        if item is not None:
-            device = item.data(QtCore.Qt.UserRole)
-            self.ui.stacked.setCurrentWidget(device.ui)
-
-    def load_device(self, file=None):
-        if file is None:
-            filters = [
-                ('EPC Packages', ['epc', 'epz']),
-                ('All Files', ['*'])
-            ]
-            file = file_dialog(filters)
-
-            if file is None:
-                return
-
-        device = Device(file=file, bus=self.bus)
-        self.add_device(device)
-
-
-def file_dialog(filters, default=0):
-    # filters = [
-    #     ('EPC Packages', ['epc', 'epz']),
-    #     ('All Files', ['*'])
-    # ]
-    # TODO: CAMPid 97456612391231265743713479129
-
-    filter_strings = ['{} ({})'.format(f[0],
-                                       ' '.join(['*.'+e for e in f[1]])
-                                       ) for f in filters]
-    filter_string = ';;'.join(filter_strings)
-
-    file = QFileDialog.getOpenFileName(
-            filter=filter_string,
-            initialFilter=filter_strings[default])[0]
-
-    if len(file) == 0:
-        file = None
-
-    return file
 
 
 # TODO: Consider updating from...
@@ -238,20 +162,6 @@ def excepthook(excType, excValue, tracebackobj):
     sys.stderr.write(complete)
     errorbox.setText(complete)
     errorbox.exec_()
-
-
-# TODO: CAMPid 907616231629845659923471326
-def select_bus():
-    bs = epyq.busselector.Selector()
-    bs.exec()
-    return bs.selected()
-
-
-# TODO: CAMPid 907616231629845659923471326
-def select_recent_file(recent=[]):
-    fs = epyq.fileselector.Selector(recent=recent)
-    fs.exec()
-    return fs.selected()
 
 
 def main(args=None):

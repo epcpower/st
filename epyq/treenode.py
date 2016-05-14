@@ -35,9 +35,11 @@ class TreeNode:
                 return i
         return -1
 
-    def remove_child(self, row):
-        value = self.children[row]
-        self.children.remove(value)
+    def remove_child(self, row=None, child=None):
+        if child is None:
+            child = self.children[row]
+
+        self.children.remove(child)
 
         return True
 
@@ -47,7 +49,6 @@ class TreeNode:
                 call_this(child)
             else:
                 child.traverse(child, call_this)
-
 
     def __len__(self):
         return len(self.children)

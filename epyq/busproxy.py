@@ -3,51 +3,27 @@
 # TODO: get some docstrings in here!
 
 import can
-import threading
 import time
 
 from epyq.canneo import QtCanListener
+from PyQt5.QtCore import QObject, pyqtSignal
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class BusProxy:
-    # This has very limited thread safety.  Only recv may be called
-    # from another thread.
-    def __init__(self, bus=None):
-        self.bus = bus
+class BusProxy(QObject):
+    went_offline = pyqtSignal()
 
-        self.lock = threading.Lock()
+    def __init__(self, bus=None, timeout=0.1, parent=None):
+        QObject.__init__(self, parent=parent)
 
-        try:
-            self._notifier = self.bus.notifier()
-        except AttributeError:
-            self._notifier = NotifierProxy(bus=self)
-
-    def notifier(self):
-        return self._notifier
-
-    def recv(self, timeout=None):
-        # This is called from the Notifier thread so it has to be protected
-
-        self.lock.acquire()
-        try:
-            result = None
-
-            bus_is_none = self.bus is None
-
-            if not bus_is_none:
-                result = self.bus.recv(timeout=timeout)
-
-        finally:
-            self.lock.release()
-
-        if bus_is_none and timeout is not None:
-            time.sleep(timeout)
-
-        return result
+        self.timeout = timeout
+        self.notifier = NotifierProxy(self)
+        self.real_notifier = None
+        self.bus = None
+        self.set_bus(bus)
 
     def send(self, msg):
         if self.bus is not None:
@@ -89,21 +65,38 @@ class BusProxy:
             return self.bus.flash()
 
     def set_bus(self, bus=None):
-        self.lock.acquire()
+        was_online = self.bus is not None
 
-        if self.bus is not None:
+        if was_online:
+            if isinstance(self.bus, can.BusABC):
+                self.real_notifier.running.clear()
+                time.sleep(1.1 * self.timeout)
+            else:
+                self.bus.notifier.remove(self.notifier)
             self.bus.shutdown()
         self.bus = bus
 
-        self.lock.release()
+        if self.bus is not None:
+            if isinstance(self.bus, can.BusABC):
+                self.real_notifier = can.Notifier(
+                    bus=self.bus,
+                    listeners=[self.notifier],
+                    timeout=self.timeout)
+            else:
+                self.bus.notifier.add(self.notifier)
+                self.real_notifier = None
+        else:
+            self.real_notifier = None
 
         self.reset()
 
+        if was_online and self.bus is None:
+            self.went_offline.emit()
+
     def reset(self):
         if self.bus is not None:
-            if hasattr(self.bus, 'Reset'):
+            if isinstance(self.bus, can.interfaces.pcan.PcanBus):
                 self.bus.Reset()
-                self._notifier.new_notifier()
             else:
                 try:
                     self.bus.reset()
@@ -115,10 +108,7 @@ class NotifierProxy(QtCanListener):
     def __init__(self, bus, listeners=[], parent=None):
         QtCanListener.__init__(self, receiver=self.message_received, parent=parent)
 
-        self.bus = bus
         self.listeners = set(listeners)
-
-        self.new_notifier()
 
     def message_received(self, message):
         for listener in self.listeners:
@@ -132,9 +122,6 @@ class NotifierProxy(QtCanListener):
 
     def remove(self, listener):
         self.listeners.remove(listener)
-
-    def new_notifier(self):
-        self.notifier = can.Notifier(self.bus, [self], timeout=0.1)
 
 
 if __name__ == '__main__':

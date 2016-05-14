@@ -24,7 +24,7 @@ class Combo(QtWidgets.QStyledItemDelegate):
                 # TODO: use the userdata to make it easier to get in and out
                 combo.addItems(items)
 
-                present_string = node.fields[index.column()]
+                present_string = str(node.fields[index.column()])
                 index = combo.findText(present_string)
                 if index == -1:
                     combo.setCurrentIndex(0)
