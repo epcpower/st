@@ -23,9 +23,11 @@ import copy
 import epyq.busproxy
 import epyq.canneo
 import epyq.nv
+from epyq.svgwidget import SvgWidget
 import epyq.txrx
 import epyq.widgets.progressbar
 import epyq.widgets.lcd
+import epyq.widgets.led
 import functools
 import io
 import math
@@ -35,10 +37,10 @@ from epyq.device import Device
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
-                          QSettings, Qt, pyqtSlot)
+                          QSettings, Qt, pyqtSlot, QMarginsF)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu)
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QPicture
 import time
 import traceback
 
