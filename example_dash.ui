@@ -411,6 +411,28 @@
          </property>
         </widget>
        </item>
+       <item row="3" column="2">
+        <widget class="HorizontalSlider" name="horizontalslider">
+         <property name="frame" stdset="0">
+          <string>CommandVF</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Frequency_command</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="override_range" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="minimum" stdset="0">
+          <double>50.000000000000000</double>
+         </property>
+         <property name="maximum" stdset="0">
+          <double>60.000000000000000</double>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
@@ -435,6 +457,11 @@
    <class>Epc</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.epc</header>
+  </customwidget>
+  <customwidget>
+   <class>HorizontalSlider</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.horizontalslider</header>
   </customwidget>
   <customwidget>
    <class>Scale</class>
