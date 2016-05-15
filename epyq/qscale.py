@@ -42,12 +42,29 @@ class QScale(QtWidgets.QWidget):
 
         self.labelSample = ""
         self.updateLabelSample()
-        self.setMinimumSize(80,60)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Expanding)
 
         self.breakpoints = []
         self.colors = []
 
+    def setMinimumSize(self, width=None, height=None, painter=None):
+        self.updateLabelSample()
+
+        if painter is None:
+            painter = QtGui.QPainter(self)
+
+        metric = painter.fontMetrics()
+        rect = metric.boundingRect(self.labelSample)
+
+        wLabel = rect.width() if self.m_labelsVisible else 0
+        hLabel = rect.height() if self.m_labelsVisible else 0
+
+        if width is None:
+            width = 2 * (self.m_borderWidth + wLabel) + 2
+        if height is None:
+            height = 2 * (self.m_borderWidth + hLabel) + 1
+
+        QtWidgets.QWidget.setMinimumSize(self, width, height)
 
     def setMinimum(self,max):
         if not isinf(max):
@@ -150,6 +167,8 @@ class QScale(QtWidgets.QWidget):
 
     def paintEvent(self, paintEvent):
         painter = QtGui.QPainter(self)
+
+        self.setMinimumSize(painter=painter)
 
         if (not (self.m_orientations & QtCore.Qt.Vertical)) ^ (not (self.m_orientations & QtCore.Qt.Horizontal)):
             vertical = self.m_orientations & QtCore.Qt.Vertical
