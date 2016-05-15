@@ -2,6 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
+import epyq.mixins
 import epyq.widgets.abstractwidget
 import os
 from PyQt5.QtCore import pyqtSignal, pyqtProperty, QFileInfo
@@ -11,7 +12,8 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Scale(epyq.widgets.abstractwidget.AbstractWidget):
+class Scale(epyq.widgets.abstractwidget.AbstractWidget,
+            epyq.mixins.OverrideRange):
     def __init__(self, parent=None):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'scale.ui')
@@ -19,10 +21,11 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget):
         epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
                 ui=ui_file, parent=parent)
 
+        epyq.mixins.OverrideRange.__init__(self)
+
         self._frame = None
         self._signal = None
 
-        self._override_range = False
         self._min = 0
         self._max = 1
 
@@ -35,14 +38,6 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget):
             max = self.maximum
 
         self.ui.scale.setRange(min=min, max=max)
-
-    @pyqtProperty(bool)
-    def override_range(self):
-        return self._override_range
-
-    @override_range.setter
-    def override_range(self, override):
-        self._override_range = bool(override)
 
     @pyqtProperty(float)
     def minimum(self):
