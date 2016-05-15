@@ -12,6 +12,8 @@ __license__ = 'GPLv2+'
 class OverrideRange:
     def __init__(self):
         self._override_range = False
+        self._min = 0
+        self._max = 1
 
     @pyqtProperty(bool)
     def override_range(self):
@@ -20,6 +22,22 @@ class OverrideRange:
     @override_range.setter
     def override_range(self, override):
         self._override_range = bool(override)
+
+    @pyqtProperty(float)
+    def minimum(self):
+        return self._min
+
+    @minimum.setter
+    def minimum(self, min):
+        self._min = float(min)
+
+    @pyqtProperty(float)
+    def maximum(self):
+        return self._max
+
+    @maximum.setter
+    def maximum(self, max):
+        self._max = float(max)
 
 
 if __name__ == '__main__':

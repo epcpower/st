@@ -26,9 +26,6 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget,
         self._frame = None
         self._signal = None
 
-        self._min = 0
-        self._max = 1
-
     def set_value(self, value):
         self.ui.scale.setValue(value)
 
@@ -38,22 +35,6 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget,
             max = self.maximum
 
         self.ui.scale.setRange(min=min, max=max)
-
-    @pyqtProperty(float)
-    def minimum(self):
-        return self._min
-
-    @minimum.setter
-    def minimum(self, min):
-        self._min = float(min)
-
-    @pyqtProperty(float)
-    def maximum(self):
-        return self._max
-
-    @maximum.setter
-    def maximum(self, max):
-        self._max = float(max)
 
 
 if __name__ == '__main__':
