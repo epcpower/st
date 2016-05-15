@@ -22,7 +22,7 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget):
         self._frame = None
         self._signal = None
 
-        self.override_range = False
+        self._override_range = False
         self._min = 0
         self._max = 1
 
@@ -42,7 +42,7 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget):
 
     @override_range.setter
     def override_range(self, override):
-        self._override_range = float(override)
+        self._override_range = bool(override)
 
     @pyqtProperty(float)
     def minimum(self):
