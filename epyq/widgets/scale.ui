@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>454</width>
+    <height>267</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,22 +15,33 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QScale" name="scale">
+       <property name="toolTip">
+        <string>analog simplicity</string>
+       </property>
+       <property name="whatsThis">
+        <string>A PyQScale</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="units">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QLabel" name="label">
      <property name="text">
       <string>TextLabel</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignBottom|Qt::AlignHCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QScale" name="scale">
-     <property name="toolTip">
-      <string>analog simplicity</string>
-     </property>
-     <property name="whatsThis">
-      <string>A PyQScale</string>
+      <set>Qt::AlignHCenter|Qt::AlignTop</set>
      </property>
     </widget>
    </item>
