@@ -42,9 +42,13 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
     def set_text(self, value):
         # TODO: CAMPid 85478672616219005471279
-        enum_string = self.signal_object.enumeration[value]
-        text = self.signal_object.enumeration_format_re['format'].format(
-            s=enum_string, v=value)
+        try:
+            enum_string = self.signal_object.enumeration[value]
+            text = self.signal_object.enumeration_format_re['format'].format(
+                s=enum_string, v=value)
+        except (AttributeError, KeyError):
+            text = str(value)
+
         self.ui.value.setText(text)
 
     def pressed(self):

@@ -389,6 +389,9 @@ class Frame(QtCanListener):
         else:
             sent()
 
+    def send_now(self):
+        self._send(update=True)
+
     def cyclic_request(self, caller, period):
         if period is None:
             try:
@@ -403,6 +406,9 @@ class Frame(QtCanListener):
 
         periods = [float(v) for v in self._cyclic_requests.values()]
         new_period = min(periods) if len(periods) > 0 else None
+
+        if new_period <= 0:
+            new_period = None
 
         if new_period != self._cyclic_period:
             self._cyclic_period = new_period

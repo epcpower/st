@@ -39,12 +39,11 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
         if signal is not None and self.tx:
             period = signal.frame.cycle_time
             if period is None:
-                # TODO: a more specific exception?
-                raise Exception(
-                    'No CycleTime/GenMsgCycleTime configured for frame {}'
-                        .format(signal.frame.name))
-
-            self._period = float(period) / 1000
+                self._period = None
+            else:
+                self._period = float(period) / 1000
+        else:
+            self._period = None
 
         epyq.widgets.abstractwidget.AbstractWidget.set_signal(self, signal)
 
@@ -53,7 +52,7 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
             if self.signal_object is not None:
                 self.signal_object.frame.cyclic_request(self, None)
 
-            if signal is not None and self.tx:
+            if signal is not None and self.tx and self._period is not None:
                 signal.frame.cyclic_request(self, self._period)
 
         epyq.widgets.abstractwidget.AbstractWidget.update_connection(
@@ -62,6 +61,9 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
     def widget_value_changed(self, value):
         if self.signal_object is not None and self.tx:
             self.signal_object.set_human_value(value)
+
+            if self._period is None:
+                self.signal_object.frame.send_now()
 
 
 if __name__ == '__main__':
