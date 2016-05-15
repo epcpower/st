@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1172</width>
-    <height>807</height>
+    <height>826</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -402,6 +402,12 @@
          </property>
          <property name="signal" stdset="0">
           <string>v24_Supply</string>
+         </property>
+         <property name="override_range" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="maximum" stdset="0">
+          <double>30.000000000000000</double>
          </property>
         </widget>
        </item>
