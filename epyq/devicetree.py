@@ -136,6 +136,8 @@ class Bus(TreeNode):
         self.set_bus()
 
     def set_bus(self):
+        if self.interface == 'offline':
+            return
         self.bus.set_bus(None)
 
         if self._checked == Qt.Checked:
@@ -197,7 +199,7 @@ class Model(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
     device_removed = pyqtSignal(epyq.device.Device)
 
     def __init__(self, root, parent=None):
-        for bus in available_buses():
+        for bus in available_buses() + [{'interface': 'offline', 'channel': ''}]:
             bus = Bus(interface=bus['interface'],
                       channel=bus['channel'])
             root.append_child(bus)
