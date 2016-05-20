@@ -19,6 +19,7 @@ win32 {
         $${QT_BIN}/Qt5Core.dll \
         $${QT_BIN}/Qt5Widgets.dll \
         $${QT_BIN}/Qt5Gui.dll \
+        $${QT_BIN}/Qt5Svg.dll \
         $${PYQT5}/icuin53.dll \
         $${PYQT5}/icuuc53.dll \
         $${PYQT5}/icudt53.dll \
