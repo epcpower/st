@@ -18,6 +18,13 @@ if sys.stderr is None:
 else:
     sys.stderr = epyq.tee.Tee([sys.stderr, log])
 
+try:
+    import epyq.revision
+except ImportError:
+    pass
+else:
+    print(epyq.revision.hash)
+
 import can
 import copy
 import epyq.busproxy
