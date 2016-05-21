@@ -140,11 +140,17 @@ def excepthook(excType, excValue, tracebackobj):
     """
     separator = '-' * 70
     email = "kyle.altendorf@epcpower.com"
+
+    try:
+        hash = 'Revision Hash: {}\n\n'.format(epyq.revision.hash)
+    except:
+        hash = ''
+
     notice = \
         """An unhandled exception occurred. Please report the problem via email to:\n"""\
-        """\t\t%s\n\n"""\
-        """A log has been written to "%s".\n\nError information:\n""" % \
-        (email, log.name)
+        """\t\t{email}\n\n{hash}"""\
+        """A log has been written to "{log}".\n\nError information:\n""".format(
+        email=email, hash=hash, log=log.name)
     # TODO: add something for version
     versionInfo=""
     timeString = time.strftime("%Y-%m-%d, %H:%M:%S")
