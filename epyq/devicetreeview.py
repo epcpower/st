@@ -4,10 +4,11 @@
 
 import epyq.device
 import epyq.devicetree
+import functools
 import io
 import os
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QAction, QFileDialog, QMenu
+from PyQt5.QtWidgets import QAction, QFileDialog, QHeaderView, QMenu
 from PyQt5.QtCore import (Qt, pyqtSignal, pyqtSlot, QFile, QFileInfo,
                           QTextStream, QModelIndex)
 
@@ -134,7 +135,7 @@ class DeviceTreeView(QtWidgets.QWidget):
         self.model = model
         self.ui.tree_view.setModel(model)
 
-        self.ui.tree_view.header().setStretchLastSection(True)
+        self.ui.tree_view.header().setStretchLastSection(False)
 
         for i in epyq.devicetree.Columns.indexes:
             if self.resize_columns[i]:
@@ -147,6 +148,18 @@ class DeviceTreeView(QtWidgets.QWidget):
 
         self.ui.tree_view.selectionModel().currentChanged.connect(
             self._current_changed)
+
+        widths = [self.ui.tree_view.columnWidth(i)
+                  for i in epyq.devicetree.Columns.indexes]
+        width = sum(widths)
+        width += 2 * self.ui.tree_view.frameWidth()
+
+        self.ui.tree_view.setMinimumWidth(1.25 * width)
+
+        self.ui.tree_view.header().setSectionResizeMode(
+            epyq.devicetree.Columns.indexes.name,
+            QHeaderView.Stretch
+        )
 
 
 if __name__ == '__main__':
