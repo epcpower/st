@@ -200,6 +200,8 @@ class Device(TreeNode):
         else:
             self.device.bus.set_bus(self.tree_parent.bus)
 
+        self.device.bus_status_changed(self._checked == Qt.Checked)
+
 
 class Tree(TreeNode):
     def __init__(self):

@@ -7,6 +7,7 @@ import canmatrix.importany as importany
 import epyq.canneo
 import epyq.nv
 import epyq.nvview
+import epyq.overlaylabel
 import epyq.txrx
 import epyq.txrxview
 import functools
@@ -20,7 +21,7 @@ import zipfile
 from epyq.busproxy import BusProxy
 from epyq.widgets.abstractwidget import AbstractWidget
 from PyQt5 import uic
-from PyQt5.QtCore import QFile, QFileInfo, QTextStream, QObject
+from PyQt5.QtCore import pyqtSlot, Qt, QFile, QFileInfo, QTextStream, QObject
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -123,6 +124,9 @@ class Device:
         sio = io.StringIO(ts.readAll())
         self.dash_ui = uic.loadUi(sio)
 
+        self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
+        self.ui.offline_overlay.label.setText('offline')
+
         self.ui.dash_layout.addWidget(self.dash_ui)
 
         self.dash_ui.name.setText(name)
@@ -209,6 +213,10 @@ class Device:
 
     def get_frames(self):
         return self.frames
+
+    @pyqtSlot(bool)
+    def bus_status_changed(self, online):
+        self.ui.offline_overlay.setVisible(not online)
 
 
 if __name__ == '__main__':
