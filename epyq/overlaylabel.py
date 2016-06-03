@@ -37,12 +37,17 @@ class OverlayLabel(QtWidgets.QWidget):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
-        old_resizeEvent = self.parentWidget().resizeEvent
-        new_resizeEvent = functools.partial(parent_resizeEvent,
-                                            child=self,
-                                            parent_resizeEvent=old_resizeEvent)
+        parent_widget = self.parentWidget()
 
-        self.parentWidget().resizeEvent = new_resizeEvent
+        if parent_widget is not None:
+            old_resizeEvent = parent_widget.resizeEvent
+            new_resizeEvent = functools.partial(
+                parent_resizeEvent,
+                child=self,
+                parent_resizeEvent=old_resizeEvent
+            )
+
+            parent_widget.resizeEvent = new_resizeEvent
 
         self.setStyleSheet("background-color: rgba(255, 255, 255, 0);"
                            "color: rgba(255, 85, 85, 25);")
@@ -52,7 +57,8 @@ class OverlayLabel(QtWidgets.QWidget):
         self._width_ratio = 0.8
         self._height_ratio = 0.8
 
-        self.update_overlay_size(self.parentWidget().size())
+        if parent_widget is not None:
+            self.update_overlay_size(parent_widget.size())
 
     @pyqtProperty(float)
     def width_ratio(self):
