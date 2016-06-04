@@ -129,7 +129,7 @@ class Device:
 
         self.ui.dash_layout.addWidget(self.dash_ui)
 
-        self.dash_ui.name.setText(name)
+        self.ui.name.setText(name)
 
         notifiees = list(self.neo_frames.frames)
 
