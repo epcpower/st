@@ -184,6 +184,8 @@ def main(args=None):
 
     app = QApplication(sys.argv)
     sys.excepthook = excepthook
+    app.setStyleSheet('QMessageBox {{ messagebox-text-interaction-flags: {}; }}'
+                      .format(Qt.TextBrowserInteraction))
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
 
