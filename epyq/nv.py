@@ -90,7 +90,7 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                 self.status_frames[value].set_frame = nv.frame
 
         # TODO: this should probably be done in the view but this is easier for now
-        self.children.sort(key=lambda c: c.name)
+        self.children.sort(key=lambda c: (c.frame.mux_name, c.name))
 
         duplicate_names = set()
         found_names = set()
