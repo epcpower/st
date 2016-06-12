@@ -133,9 +133,9 @@ else:
         'python-can': 'https://bitbucket.org/altendky/python-can/get/'
                       '54fc65b8647bc7aca00609b42e2f3ce70095de02.zip',
         'canmatrix': 'https://github.com/ebroecker/canmatrix/archive/'
-                     'd6d121664b880d6f0a07d9535ee9cef818a79c45.zip',
+                     '7f6a03feb436bcfad4d54d57f6f2b8edee0b444a.zip',
         'bitstruct': 'https://github.com/altendky/bitstruct/archive/'
-                     'b0b13785630dc10e749f89f035deb2b9be18601e.zip'
+                     '129a72e290c533654a91bd556b1d4b0822df423f.zip'
     }
 
 #    pip_install('gitpython', args.no_ssl_verify)
@@ -177,6 +177,12 @@ else:
         zip_file.extractall(path=src)
         shutil.move(os.path.join(src, zip_dir),
                     os.path.join(src, name))
+        # TODO: remove this because it is a goofy workaround for the issue being discussed
+        #       over in https://github.com/ebroecker/canmatrix/commit/084e1e01eb750adb46e9e33a0d94fadcbf2cc896
+        if name == 'canmatrix':
+            cmd = "sed -i 's/from canmatrix.version import version/exec\\(compile\\(open\\(\"canmatrix\\/version.py\", \"rb\"\\).read\\(\\), \"canmatrix\\/version.py\", \"exec\"\\), globals(), locals()\\)/' /epc/t/238/st/venv/src/canmatrix/setup.py"
+            print(cmd)
+            subprocess.call(cmd, shell=True)
         setup(os.path.join(src, name))
 
     # TODO: Figure out why this can't be moved before other installs

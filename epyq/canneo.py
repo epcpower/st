@@ -60,6 +60,7 @@ class Signal(QObject):
         self.unit = signal._unit # {str} ''
         self.enumeration = {int(k): v for k, v in signal._values.items()} # {dict} {'0': 'Disable', '2': 'Error', '1': 'Enable', '3': 'N/A'}
         self.signed = signal._is_signed
+        self.float = signal._is_float
 
         self.value = None
         self.scaled_value = None
@@ -184,9 +185,24 @@ class Signal(QObject):
         return '{{:.{}f}}'.format(self.get_decimal_places()).format(value)
 
     def format(self):
+        if self.float:
+            types = {
+                32: 'f',
+                64: 'd'
+            }
+            try:
+                type = types[self.signal_size]
+            except KeyError:
+                raise Exception(
+                    'float type only supports lengths in [{}]'.
+                    format(', '.join([str(t) for t in types.keys()]))
+                )
+        else:
+            type = 's' if self.signed else 'u'
+
         return '{}{}{}'.format(
                 '<' if self.little_endian else '>',
-                's' if self.signed else 'u',
+                type,
                 self.signal_size)
 
 
