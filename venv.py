@@ -180,9 +180,8 @@ else:
         # TODO: remove this because it is a goofy workaround for the issue being discussed
         #       over in https://github.com/ebroecker/canmatrix/commit/084e1e01eb750adb46e9e33a0d94fadcbf2cc896
         if name == 'canmatrix':
-            cmd = "sed -i 's/from canmatrix.version import version/exec\\(compile\\(open\\(\"canmatrix\\/version.py\", \"rb\"\\).read\\(\\), \"canmatrix\\/version.py\", \"exec\"\\), globals(), locals()\\)/' /epc/t/238/st/venv/src/canmatrix/setup.py"
-            print(cmd)
-            subprocess.call(cmd, shell=True)
+            import shutil
+            shutil.copy('canmatrix.setup.py', os.path.join('venv', 'src', 'canmatrix', 'setup.py'))
         setup(os.path.join(src, name))
 
     # TODO: Figure out why this can't be moved before other installs
