@@ -166,16 +166,21 @@ class PyQAbstractItemModel(QAbstractItemModel):
     @pyqtSlot(TreeNode, int, TreeNode, int, list)
     def changed(self, start_node, start_column, end_node, end_column, roles):
         start_index = self.index_from_node(start_node)
-        start_index = self.index(start_index.row(), start_column, start_index.parent())
+        start_row = start_index.row()
+        start_parent = start_index.parent()
+        start_index = self.index(start_row, start_column, start_parent)
         if end_node is not start_node:
             end_index = self.index_from_node(end_node)
-            end_index = self.index(end_index.row(), end_column, end_index.parent())
+            end_row = end_index.row()
+            end_parent = end_index.parent()
+            end_index = self.index(end_row, end_column, end_parent)
         else:
-            end_index = start_index
-
-        if (end_node is not start_node) or (end_column != start_column):
-            end_index = self.index(end_index.row(), end_column, end_index.parent())
-
+            end_row = start_row
+            end_parent = start_parent
+            if end_column != start_column:
+                end_index = self.index(end_row, end_column, end_parent)
+            else:
+                end_index = start_index
 
         self.dataChanged.emit(start_index, end_index, roles)
 
