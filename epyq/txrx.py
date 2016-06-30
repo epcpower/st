@@ -244,7 +244,7 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
             frame = canmatrix.canmatrix.Frame(
                 bid=message.arbitration_id,
                 name='',
-                size=message.dlc,
+                dlc=message.dlc,
                 transmitter=None
             )
             message_node = MessageNode(message=message, tx=tx, frame=frame)
