@@ -354,8 +354,12 @@ class TxRxModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
 
             if index.column() == Columns.indexes.dt:
                 if isinstance(node, MessageNode):
-                    flags |= Qt.ItemIsEditable
-                    flags |= Qt.ItemIsUserCheckable
+                    mask = Qt.ItemIsEditable
+                    mask |= Qt.ItemIsUserCheckable
+                    if node.user_send_control:
+                        flags |= mask
+                    else:
+                        flags &= ~mask
 
         return flags
 

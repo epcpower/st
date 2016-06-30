@@ -256,6 +256,7 @@ class Frame(QtCanListener):
 
         self._cyclic_requests = {}
         self._cyclic_period = None
+        self.user_send_control = True
         self.timer = QTimer()
         _update_and_send = functools.partial(self._send, update=True)
         self.timer.timeout.connect(_update_and_send)
@@ -423,8 +424,9 @@ class Frame(QtCanListener):
         periods = [float(v) for v in self._cyclic_requests.values()]
         new_period = min(periods) if len(periods) > 0 else None
 
-        if new_period <= 0:
-            new_period = None
+        if new_period is not None:
+            if new_period <= 0:
+                new_period = None
 
         if new_period != self._cyclic_period:
             self._cyclic_period = new_period

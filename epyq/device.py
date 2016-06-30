@@ -70,11 +70,7 @@ class Device:
 
         self.bus = BusProxy(bus=bus)
 
-        matrix = list(importany.importany(self.can_path).values())[0]
-        neo_frames = epyq.canneo.Neo(matrix=matrix, bus=self.bus)
-
         self._init_from_parameters(
-            neo=neo_frames,
             ui=self.ui_path,
             serial_number=d.get('serial_number', ''),
             name=d.get('name', ''))
@@ -91,11 +87,10 @@ class Device:
 
         shutil.rmtree(path)
 
-    def _init_from_parameters(self, neo, ui, serial_number, name, bus=None):
+    def _init_from_parameters(self, ui, serial_number, name, bus=None):
         if not hasattr(self, 'bus'):
             self.bus = BusProxy(bus=bus)
 
-        self.neo_frames = neo
         self.serial_number = serial_number
         self.name = name
 
@@ -131,8 +126,6 @@ class Device:
 
         self.ui.name.setText(name)
 
-        notifiees = list(self.neo_frames.frames)
-
         # TODO: the repetition here is not so pretty
         matrix_rx = list(importany.importany(self.can_path).values())[0]
         neo_rx = epyq.canneo.Neo(matrix=matrix_rx,
@@ -147,6 +140,9 @@ class Device:
         neo_tx = epyq.canneo.Neo(matrix=matrix_tx,
                                  frame_class=message_node_tx_partial,
                                  signal_class=signal_node_tx_partial)
+
+        self.neo_frames = neo_tx
+        notifiees = list(self.neo_frames.frames)
 
         rx = epyq.txrx.TxRx(tx=False, neo=neo_rx)
         notifiees.append(rx)
@@ -210,6 +206,7 @@ class Device:
                 signal = frame.signal_by_name(signal_name)
                 if signal is not None:
                     widget.set_signal(signal)
+                    frame.user_send_control = False
 
     def get_frames(self):
         return self.frames
