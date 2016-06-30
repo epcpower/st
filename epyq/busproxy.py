@@ -31,9 +31,10 @@ class BusProxy(QObject):
             #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
             sent = self.bus.send(msg)
 
-            if not sent:
-                self.verify_bus_ok()
+            self.verify_bus_ok()
 
+            # TODO: since send() doesn't always report failures this won't either
+            #       fix that
             return sent
 
         return False
@@ -97,6 +98,10 @@ class BusProxy(QObject):
         if self.bus is not None:
             if isinstance(self.bus, can.interfaces.pcan.PcanBus):
                 self.bus.Reset()
+                # TODO: do this a better way
+                # Give PCAN a chance to actually reset and avoid immediate
+                # send failures
+                time.sleep(0.500)
             else:
                 try:
                     self.bus.reset()
