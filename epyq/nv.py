@@ -109,13 +109,15 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
         return '\n'.join([n.fields.name for n in self.children])
 
     def write_all_to_device(self):
-        self.set_status_string.emit('')
+        self.set_status_string.emit('Writing to device...')
         self.traverse(lambda node: node.write_to_device())
+        self.set_status_string.emit('Finished writing to device...')
 
     def read_all_from_device(self):
-        self.set_status_string.emit('')
+        self.set_status_string.emit('Reading from device...')
         self.traverse(lambda node: node.read_from_device())
         self.all_changed()
+        self.set_status_string.emit('Finished reading from device...')
 
     def all_changed(self):
         # TODO: CAMPid 99854759326728959578972453876695627489
@@ -140,8 +142,18 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                 # TODO: might be unnecessary since same frame as
                 #       unpacked for multiplex info
                 self.confirm_save_frame.unpack(msg.data)
-                self.set_status_string.emit(
-                    self.confirm_save_signal.full_string)
+
+                status = self.confirm_save_signal.value
+
+                if status == 1:
+                    feedback = 'Save to NV confirmed'
+                else:
+                    feedback = 'Save to NV failed ({})'.format(
+                        self.confirm_save_signal.full_string
+                    )
+
+                self.set_status_string.emit(feedback)
+
                 return
 
         if multiplex_value is not None and multiplex_message in self.status_frames.values():
@@ -176,10 +188,11 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                 child.set_human_value(value)
 
     def module_to_nv(self):
-        self.set_status_string.emit('')
+        self.set_status_string.emit('Requested save to NV...')
         self.save_signal.set_value(self.save_value)
         self.save_frame.update_from_signals()
         self.send(self.save_frame.to_message())
+        # TODO: is there a response from device to confirm?
 
 
 class Nv(epyq.canneo.Signal, TreeNode):
@@ -331,6 +344,10 @@ class NvModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
                 s = json.dumps(d, sort_keys=True, indent=4)
                 file.write(s)
 
+                self.set_status_string.emit(
+                    'Saved to "{}"'.format(file_path)
+                )
+
     @pyqtSlot()
     def read_from_file(self):
         file_path = QFileDialog.getOpenFileName(
@@ -341,6 +358,10 @@ class NvModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
                 s = file.read()
                 d = json.loads(s)
                 self.root.from_dict(d)
+
+                self.set_status_string.emit(
+                    'Loaded from "{}"'.format(file_path)
+                )
 
 
 if __name__ == '__main__':

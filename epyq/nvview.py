@@ -6,7 +6,8 @@ import epyq.nv
 import io
 import os
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QFile, QFileInfo, QTextStream
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QFile, QFileInfo, QTextStream,
+                          QCoreApplication)
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -74,6 +75,9 @@ class NvView(QtWidgets.QWidget):
     @pyqtSlot(str)
     def set_status_string(self, string):
         self.ui.status_label.setText(string)
+        # TODO: the long activities that need this should be reworked
+        #       https://epc-phab.exana.io/T273
+        QCoreApplication.processEvents()
 
 if __name__ == '__main__':
     import sys
