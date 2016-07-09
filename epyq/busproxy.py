@@ -3,6 +3,7 @@
 # TODO: get some docstrings in here!
 
 import can
+import can.interfaces.pcan
 import time
 
 from epyq.canneo import QtCanListener
