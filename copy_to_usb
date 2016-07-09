@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export NAME="$(basename $(pwd))"
+export TARBALL="${NAME}.tgz"
+cd ..
+tar -cvzf "${TARBALL}" ${NAME}
+export DEV=/dev/sdc1
+export DEST=/media/sdc1
+pmount "${DEV}"
+cp "${TARBALL}" "${DEST}"
+cp "${NAME}/reinstall-st.hmi" "${DEST}"
+pumount "${DEV}"
