@@ -202,6 +202,8 @@ class Device:
         widgets = [c for c in children if
                    isinstance(c, AbstractWidget)]
 
+        self.connected_frames = []
+
         for widget in widgets:
             frame_name = widget.property('frame')
             signal_name = widget.property('signal')
@@ -215,6 +217,7 @@ class Device:
             if frame is not None:
                 signal = frame.signal_by_name(signal_name)
                 if signal is not None:
+                    self.connected_frames.append(frame)
                     widget.set_signal(signal)
                     frame.user_send_control = False
 

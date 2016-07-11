@@ -60,16 +60,6 @@ def main(args=None):
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
 
-    interface = 'socketcan'
-    channel = 'can0'
-
-    # TODO: CAMPid 9756652312918432656896822
-    if interface != 'offline':
-        real_bus = can.interface.Bus(bustype=interface, channel=channel)
-    else:
-        real_bus = None
-    bus = epyq.busproxy.BusProxy(bus=real_bus)
-
     ui = 'main.ui'
     # TODO: CAMPid 9549757292917394095482739548437597676742
     if not QFileInfo(ui).isAbsolute():
@@ -83,26 +73,7 @@ def main(args=None):
     sio = io.StringIO(ts.readAll())
     ui = uic.loadUi(sio)
 
-    ui.send_button.clicked.connect(
-        functools.partial(
-            bus.send,
-            can.Message(extended_id=False,
-                        arbitration_id=0x342,
-                        dlc=1,
-                        data=[0x42])
-        )
-    )
-
-    matrix = list(importany.importany('AFE_CAN_ID247.sym').values())[0]
-    neo = epyq.canneo.Neo(matrix=matrix,
-                          frame_class=epyq.txrx.MessageNode,
-                          signal_class=epyq.txrx.SignalNode)
-
-    notifiees = [neo]
-
-    notifier = bus.notifier
-    for notifiee in notifiees:
-        notifier.add(notifiee)
+    bus = epyq.busproxy.BusProxy()
 
     device_file = 'example.epc'
     # TODO: CAMPid 9549757292917394095482739548437597676742
@@ -113,6 +84,39 @@ def main(args=None):
         device_file = device_file
     device = epyq.device.Device(file=device_file, bus=bus,
                                 dash_only=True)
+
+    CAN_EFF_MASK = 0x1FFFFFFF
+    CAN_EFF_FLAG = 0x80000000
+    CAN_RTR_FLAG = 0x40000000
+    filters = [
+        {
+            'can_id': frame.id | CAN_EFF_FLAG,
+            'can_mask': CAN_EFF_MASK | CAN_EFF_FLAG | CAN_RTR_FLAG
+        }
+        for frame in device.connected_frames
+    ]
+
+    interface = 'socketcan'
+    channel = 'can0'
+
+    # TODO: CAMPid 9756652312918432656896822
+    if interface != 'offline':
+        real_bus = can.interface.Bus(bustype=interface, channel=channel,
+                                     can_filters=filters)
+    else:
+        real_bus = None
+    bus.set_bus(bus=real_bus)
+
+    ui.send_button.clicked.connect(
+        functools.partial(
+            bus.send,
+            can.Message(extended_id=False,
+                        arbitration_id=0x342,
+                        dlc=1,
+                        data=[0x42])
+        )
+    )
+
     ui.layout.addWidget(device.ui)
 
     ui.showFullScreen()
