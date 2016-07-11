@@ -125,7 +125,7 @@ class Device:
             self.ui = self.dash_ui
 
             matrix = list(importany.importany(self.can_path).values())[0]
-            self.neo_frames = epyq.canneo.Neo(matrix=matrix)
+            self.neo_frames = epyq.canneo.Neo(matrix=matrix, bus=self.bus)
 
             notifiees = [self.neo_frames]
         else:
