@@ -127,7 +127,7 @@ class Device:
             matrix = list(importany.importany(self.can_path).values())[0]
             self.neo_frames = epyq.canneo.Neo(matrix=matrix)
 
-            notifiees = list(self.neo_frames.frames)
+            notifiees = [self.neo_frames]
         else:
             self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
             self.ui.offline_overlay.label.setText('offline')
