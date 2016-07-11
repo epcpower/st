@@ -30,6 +30,7 @@ import canmatrix.importany as importany
 import copy
 import epyq.busproxy
 import epyq.canneo
+import epyq.device
 import epyq.nv
 from epyq.svgwidget import SvgWidget
 import epyq.txrx
@@ -103,18 +104,16 @@ def main(args=None):
     for notifiee in notifiees:
         notifier.add(notifiee)
 
-    def append(value, signal):
-        ui.log.append('{}: {}'.format(signal.name, signal.get_human_value()))
-
-    for frame in neo.frames:
-        for signal in frame.signals:
-            signal.value_changed.connect(
-                functools.partial(
-                    append,
-                    signal=signal
-                )
-            )
-
+    device_file = 'example.epc'
+    # TODO: CAMPid 9549757292917394095482739548437597676742
+    if not QFileInfo(device_file).isAbsolute():
+        device_file = os.path.join(
+            os.getcwd(), device_file)
+    else:
+        device_file = device_file
+    device = epyq.device.Device(file=device_file, bus=bus,
+                                dash_only=True)
+    ui.layout.addWidget(device.ui)
 
     ui.showFullScreen()
 

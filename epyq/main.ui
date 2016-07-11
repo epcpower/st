@@ -15,16 +15,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="layout">
      <item>
       <widget class="QPushButton" name="send_button">
        <property name="text">
         <string>Send</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <widget class="QTextEdit" name="log"/>
      </item>
     </layout>
    </item>
