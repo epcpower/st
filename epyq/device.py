@@ -47,7 +47,8 @@ class Device:
     def __del__(self):
         self.bus.set_bus()
 
-    def _init_from_file(self, file, bus=None, dash_only=False):
+    def _init_from_file(self, file, bus=None, dash_only=False,
+                        rx_interval=0):
         try:
             zip_file = zipfile.ZipFile(file)
         except zipfile.BadZipFile:
@@ -56,11 +57,14 @@ class Device:
             except TypeError:
                 return
             else:
-                self._load_config(file=file, bus=bus, dash_only=dash_only)
+                self._load_config(file=file, bus=bus, dash_only=dash_only,
+                                  rx_interval=rx_interval)
         else:
-            self._init_from_zip(zip_file, bus=bus, dash_only=dash_only)
+            self._init_from_zip(zip_file, bus=bus, dash_only=dash_only,
+                                rx_interval=rx_interval)
 
-    def _load_config(self, file, bus=None, dash_only=False):
+    def _load_config(self, file, bus=None, dash_only=False,
+                     rx_interval=0):
         s = file.read()
         d = json.loads(s)
 
@@ -74,9 +78,11 @@ class Device:
             ui=self.ui_path,
             serial_number=d.get('serial_number', ''),
             name=d.get('name', ''),
-            dash_only=dash_only)
+            dash_only=dash_only,
+            rx_interval=rx_interval)
 
-    def _init_from_zip(self, zip_file, bus=None, dash_only=False):
+    def _init_from_zip(self, zip_file, bus=None, dash_only=False,
+                       rx_interval=0):
         path = tempfile.mkdtemp()
         zip_file.extractall(path=path)
         # TODO error dialog if no .epc found in zip file
@@ -84,15 +90,17 @@ class Device:
             if f.endswith(".epc"):
                 file = os.path.join(path, f)
         with open(file, 'r') as file:
-            self._load_config(file, bus=bus, dash_only=dash_only)
+            self._load_config(file, bus=bus, dash_only=dash_only,
+                              rx_interval=rx_interval)
 
         shutil.rmtree(path)
 
     def _init_from_parameters(self, ui, serial_number, name, bus=None,
-                              dash_only=False):
+                              dash_only=False, rx_interval=0):
         if not hasattr(self, 'bus'):
             self.bus = BusProxy(bus=bus)
 
+        self.rx_interval = rx_interval
         self.serial_number = serial_number
         self.name = name
 
@@ -125,7 +133,9 @@ class Device:
             self.ui = self.dash_ui
 
             matrix = list(importany.importany(self.can_path).values())[0]
-            self.neo_frames = epyq.canneo.Neo(matrix=matrix, bus=self.bus)
+            self.neo_frames = epyq.canneo.Neo(matrix=matrix,
+                                              bus=self.bus,
+                                              rx_interval=self.rx_interval)
 
             notifiees = [self.neo_frames]
         else:

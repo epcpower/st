@@ -82,8 +82,10 @@ def main(args=None):
             os.getcwd(), device_file)
     else:
         device_file = device_file
-    device = epyq.device.Device(file=device_file, bus=bus,
-                                dash_only=True)
+    device = epyq.device.Device(file=device_file,
+                                bus=bus,
+                                dash_only=True,
+                                rx_interval=1)
 
     CAN_EFF_MASK = 0x1FFFFFFF
     CAN_EFF_FLAG = 0x80000000

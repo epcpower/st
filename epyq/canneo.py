@@ -461,8 +461,11 @@ class Frame(QtCanListener):
 
 class Neo(QtCanListener):
     def __init__(self, matrix, frame_class=Frame, signal_class=Signal,
-                 bus=None, parent=None):
+                 rx_interval=0, bus=None, parent=None):
         QtCanListener.__init__(self, self.message_received, parent=parent)
+
+        self.frame_rx_timestamps = {}
+        self.frame_rx_interval = rx_interval
 
         frames = []
 
@@ -588,7 +591,11 @@ class Neo(QtCanListener):
     def message_received(self, msg):
         frame = self.frame_by_id(msg.arbitration_id)
         if frame is not None:
-            frame.message_received_signal.emit(msg)
+            last = self.frame_rx_timestamps.get(frame,
+                                                -self.frame_rx_interval)
+            if msg.timestamp - last >= self.frame_rx_interval:
+                self.frame_rx_timestamps[frame] = msg.timestamp
+                frame.message_received_signal.emit(msg)
 
 
 def format_identifier(identifier, extended):
