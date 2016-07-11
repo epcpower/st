@@ -17,29 +17,52 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="HorizontalSlider" name="horizontalslider">
-       <property name="frame" stdset="0">
-        <string>CommandVF</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>Frequency_command</string>
-       </property>
-       <property name="tx" stdset="0">
-        <bool>true</bool>
-       </property>
-       <property name="override_range" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="minimum" stdset="0">
-        <double>50.000000000000000</double>
-       </property>
-       <property name="maximum" stdset="0">
-        <double>60.000000000000000</double>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QListWidget" name="demo_list">
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QPushButton" name="up_button">
+           <property name="text">
+            <string>Up</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="down_button">
+           <property name="text">
+            <string>Down</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="Epc" name="epc">
          <property name="frame" stdset="0">
@@ -79,11 +102,6 @@
    <class>Epc</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.epc</header>
-  </customwidget>
-  <customwidget>
-   <class>HorizontalSlider</class>
-   <extends>QWidget</extends>
-   <header>epyq.widgets.horizontalslider</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -15,15 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QVBoxLayout" name="layout">
-     <item>
-      <widget class="QPushButton" name="send_button">
-       <property name="text">
-        <string>Send</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <layout class="QVBoxLayout" name="layout"/>
    </item>
   </layout>
  </widget>

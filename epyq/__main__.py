@@ -59,6 +59,41 @@ def main(args=None):
     app = QApplication(sys.argv)
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
+    app.setStyleSheet('''
+        QScrollBar:vertical {
+            border: 0px solid grey;
+            background: #32CC99;
+            width: 35px;
+            margin: 22px 0 22px 0;
+        }
+        QScrollBar::handle:vertical {
+            background: white;
+            min-height: 20px;
+        }
+        QScrollBar::add-line:vertical {
+            border: 2px solid grey;
+            background: #32CC99;
+            height: 20px;
+            subcontrol-position: bottom;
+            subcontrol-origin: margin;
+        }
+        QScrollBar::sub-line:vertical {
+            border: 2px solid grey;
+            background: green;
+            height: 20px;
+            subcontrol-position: top;
+            subcontrol-origin: margin;
+        }
+        QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+            border: 2px solid grey;
+            width: 3px;
+            height: 3px;
+            background: white;
+        }
+        QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+            background: red;
+        }
+    ''')
 
     ui = 'main.ui'
     # TODO: CAMPid 9549757292917394095482739548437597676742
@@ -109,17 +144,18 @@ def main(args=None):
         real_bus = None
     bus.set_bus(bus=real_bus)
 
-    ui.send_button.clicked.connect(
-        functools.partial(
-            bus.send,
-            can.Message(extended_id=False,
-                        arbitration_id=0x342,
-                        dlc=1,
-                        data=[0x42])
-        )
-    )
-
     ui.layout.addWidget(device.ui)
+
+    color_strings = [
+        'Red',
+        'Green',
+        'Blue',
+        'Cyan',
+        'Magenta',
+        'Yellow',
+        'Black'
+    ]
+    device.ui.demo_list.addItems(color_strings * 5)
 
     ui.showFullScreen()
 
