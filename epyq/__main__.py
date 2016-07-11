@@ -98,7 +98,7 @@ def main(args=None):
                           frame_class=epyq.txrx.MessageNode,
                           signal_class=epyq.txrx.SignalNode)
 
-    notifiees = list(neo.frames)
+    notifiees = [neo]
 
     notifier = bus.notifier
     for notifiee in notifiees:

@@ -459,8 +459,11 @@ class Frame(QtCanListener):
             self.unpack(msg.data)
 
 
-class Neo:
-    def __init__(self, matrix, frame_class=Frame, signal_class=Signal, bus=None):
+class Neo(QtCanListener):
+    def __init__(self, matrix, frame_class=Frame, signal_class=Signal,
+                 bus=None, parent=None):
+        QtCanListener.__init__(self, self.message_received, parent=parent)
+
         frames = []
 
         for frame in matrix._fl._list:
@@ -580,6 +583,12 @@ class Neo:
                 return (None, None)
 
         return (frame, multiplex_value)
+
+    @pyqtSlot(can.Message)
+    def message_received(self, msg):
+        frame = self.frame_by_id(msg.arbitration_id)
+        if frame is not None:
+            frame.message_received_signal.emit(msg)
 
 
 def format_identifier(identifier, extended):
