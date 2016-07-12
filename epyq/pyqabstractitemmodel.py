@@ -86,6 +86,9 @@ class PyQAbstractItemModel(QAbstractItemModel):
     def flags(self, index):
         flags = QAbstractItemModel.flags(self, index)
 
+        if not index.isValid():
+            return flags
+
         if self.editable_columns is not None:
             if self.editable_columns[index.column()]:
                 flags |= Qt.ItemIsEditable
@@ -123,6 +126,16 @@ class PyQAbstractItemModel(QAbstractItemModel):
         return len(self.headers)
 
     def rowCount(self, parent):
+        # TODO: this seems pretty particular to my present model
+        #       "the second column should NOT have the same children
+        #       as the first column in a row"
+        #       https://github.com/bgr/PyQt5_modeltest/blob/62bc86edbad065097c4835ceb4eee5fa3754f527/modeltest.py#L222
+        #
+        #       then again, the Qt example does just this
+        #       http://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
+        if parent.column() > 0:
+            return 0
+
         node = self.node_from_index(parent)
         if node is None:
             return 0

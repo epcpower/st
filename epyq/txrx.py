@@ -20,7 +20,8 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
                               name=self.name,
                               length='{} b'.format(self.signal_size),
                               value='-',
-                              dt=None)
+                              dt='-',
+                              count='')
         self.last_time = None
 
     def unique(self):
@@ -82,8 +83,8 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
                               name=name,
                               length='{} B'.format(self.size),
                               value='-',
-                              dt=None,
-                              count=count)
+                              dt='-',
+                              count=str(count))
 
     @property
     def send_checked(self):
@@ -165,7 +166,7 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         self.count['rx'] += 1
 
         if not self.tx:
-            self.fields.count = self.count['rx']
+            self.fields.count = str(self.count['rx'])
 
         epyq.canneo.Frame.message_received(self, message)
 
@@ -173,7 +174,7 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         self.count['tx'] += 1
 
         if self.tx:
-            self.fields.count = self.count['tx']
+            self.fields.count = str(self.count['tx'])
             self.tree_parent.changed.emit(
                 self, Columns.indexes.count,
                 self, Columns.indexes.count,
