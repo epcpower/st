@@ -60,6 +60,14 @@ def main(args=None):
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
 
+    from PyQt5.QtCore import QUrl
+    from PyQt5.QtQuick import QQuickView
+    label=QQuickView()
+    label.setSource(QUrl('epyq/test.qml'))
+    label.show()
+    app.exec_()
+    sys.exit()
+
     ui = 'main.ui'
     # TODO: CAMPid 9549757292917394095482739548437597676742
     if not QFileInfo(ui).isAbsolute():
