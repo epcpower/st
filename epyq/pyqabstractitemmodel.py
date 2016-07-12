@@ -11,6 +11,9 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+unique_role = Qt.UserRole
+
+
 class PyQAbstractItemModel(QAbstractItemModel):
     def __init__(self, root, checkbox_columns=None, editable_columns=None,
                  parent=None):
@@ -28,6 +31,10 @@ class PyQAbstractItemModel(QAbstractItemModel):
         return QVariant()
 
     def data(self, index, role):
+        if role == unique_role:
+            node = self.node_from_index(index)
+            return QVariant(node.unique())
+
         if role == Qt.DecorationRole:
             return QVariant()
 
@@ -50,13 +57,10 @@ class PyQAbstractItemModel(QAbstractItemModel):
             node = self.node_from_index(index)
 
             column = index.column()
-            if column == len(self.headers):
-                return QVariant(node.unique())
-            else:
-                try:
-                    return QVariant(node.fields[index.column()])
-                except IndexError:
-                    return QVariant()
+            try:
+                return QVariant(node.fields[index.column()])
+            except IndexError:
+                return QVariant()
 
         if role == Qt.EditRole:
             node = self.node_from_index(index)
@@ -160,8 +164,8 @@ class PyQAbstractItemModel(QAbstractItemModel):
             if node is self.root:
                 index = QModelIndex()
             else:
-                index = self.match(self.index(0, len(self.headers), QModelIndex()),
-                                   Qt.DisplayRole,
+                index = self.match(self.index(0, 0, QModelIndex()),
+                                   unique_role,
                                    node.unique(),
                                    1,
                                    Qt.MatchRecursive)[0]
