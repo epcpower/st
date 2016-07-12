@@ -157,6 +157,21 @@ def main(args=None):
     ]
     device.ui.demo_list.addItems(color_strings * 5)
 
+    scroll_bar = device.ui.demo_list.verticalScrollBar()
+
+    from PyQt5.QtWidgets import QAbstractSlider
+    page_up = functools.partial(
+        scroll_bar.triggerAction,
+        QAbstractSlider.SliderPageStepSub,
+    )
+    page_down = functools.partial(
+        scroll_bar.triggerAction,
+        QAbstractSlider.SliderPageStepAdd,
+    )
+
+    device.ui.up_button.clicked.connect(page_up)
+    device.ui.down_button.clicked.connect(page_down)
+
     ui.showFullScreen()
 
     return app.exec_()
