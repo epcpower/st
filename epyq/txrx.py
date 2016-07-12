@@ -229,6 +229,13 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
         #       Rx will add in order received
         self.children.sort(key=lambda c: c.name)
 
+        self.fields = Columns(id='',
+                      name='',
+                      length='',
+                      value='',
+                      dt='',
+                      count='')
+
     def set_node_id(self, node_id):
         # TODO: I think this can go away
         self.node_id = node_id

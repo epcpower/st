@@ -147,6 +147,8 @@ class Device:
         rx = epyq.txrx.TxRx(tx=False, neo=neo_rx)
         notifiees.append(rx)
         rx_model = epyq.txrx.TxRxModel(rx)
+        from epyq.modeltest import ModelTest
+        self.rx_model_test = ModelTest(rx_model, self)
 
         # TODO: put this all in the model...
         rx.changed.connect(rx_model.changed)

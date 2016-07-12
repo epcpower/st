@@ -31,6 +31,9 @@ class PyQAbstractItemModel(QAbstractItemModel):
         if role == Qt.DecorationRole:
             return QVariant()
 
+        if not index.isValid():
+            return QVariant()
+
         if role == Qt.TextAlignmentRole:
             return QVariant(int(Qt.AlignTop | Qt.AlignLeft))
 
@@ -46,7 +49,8 @@ class PyQAbstractItemModel(QAbstractItemModel):
         if role == Qt.DisplayRole:
             node = self.node_from_index(index)
 
-            if index.column() == len(self.headers):
+            column = index.column()
+            if column == len(self.headers):
                 return QVariant(node.unique())
             else:
                 try:
@@ -100,11 +104,14 @@ class PyQAbstractItemModel(QAbstractItemModel):
         # if not parent.isValid():
         #     return QModelIndex()
 
+        if row < 0 or column < 0:
+            return QModelIndex()
+
         node = self.node_from_index(parent)
         child = node.child_at_row(row)
 
-        # if child is None:
-        #     return QModelIndex()
+        if child is None:
+            return QModelIndex()
 
         return self.createIndex(row, column, child)
 

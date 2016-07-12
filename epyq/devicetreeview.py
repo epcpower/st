@@ -137,8 +137,8 @@ class DeviceTreeView(QtWidgets.QWidget):
 
         self.ui.tree_view.header().setStretchLastSection(False)
 
-        for i in epyq.devicetree.Columns.indexes:
-            if self.resize_columns[i]:
+        for i, resize in enumerate(self.resize_columns):
+            if resize:
                 self.ui.tree_view.header().setSectionResizeMode(
                     i, QtWidgets.QHeaderView.ResizeToContents)
 
