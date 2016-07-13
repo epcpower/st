@@ -147,6 +147,8 @@ class Device:
         rx = epyq.txrx.TxRx(tx=False, neo=neo_rx)
         notifiees.append(rx)
         rx_model = epyq.txrx.TxRxModel(rx)
+        # from epyq.modeltest import ModelTest
+        # self.rx_model_test = ModelTest(rx_model, self)
 
         # TODO: put this all in the model...
         rx.changed.connect(rx_model.changed)
@@ -155,6 +157,8 @@ class Device:
 
         tx = epyq.txrx.TxRx(tx=True, neo=neo_tx, bus=self.bus)
         tx_model = epyq.txrx.TxRxModel(tx)
+        # from epyq.modeltest import ModelTest
+        # self.tx_model_test = ModelTest(tx_model, self)
         tx.changed.connect(tx_model.changed)
 
         txrx_views = self.ui.findChildren(epyq.txrxview.TxRxView)
@@ -177,6 +181,8 @@ class Device:
                 pass
             else:
                 nv_model = epyq.nv.NvModel(nvs)
+                # from epyq.modeltest import ModelTest
+                # self.nv_model_test = ModelTest(nv_model, self)
                 nvs.changed.connect(nv_model.changed)
                 notifiees.append(nvs)
 

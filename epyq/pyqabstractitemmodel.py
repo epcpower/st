@@ -11,6 +11,9 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+unique_role = Qt.UserRole
+
+
 class PyQAbstractItemModel(QAbstractItemModel):
     def __init__(self, root, checkbox_columns=None, editable_columns=None,
                  parent=None):
@@ -28,7 +31,14 @@ class PyQAbstractItemModel(QAbstractItemModel):
         return QVariant()
 
     def data(self, index, role):
+        if role == unique_role:
+            node = self.node_from_index(index)
+            return QVariant(node.unique())
+
         if role == Qt.DecorationRole:
+            return QVariant()
+
+        if not index.isValid():
             return QVariant()
 
         if role == Qt.TextAlignmentRole:
@@ -46,13 +56,11 @@ class PyQAbstractItemModel(QAbstractItemModel):
         if role == Qt.DisplayRole:
             node = self.node_from_index(index)
 
-            if index.column() == len(self.headers):
-                return QVariant(node.unique())
-            else:
-                try:
-                    return QVariant(node.fields[index.column()])
-                except IndexError:
-                    return QVariant()
+            column = index.column()
+            try:
+                return QVariant(node.fields[index.column()])
+            except IndexError:
+                return QVariant()
 
         if role == Qt.EditRole:
             node = self.node_from_index(index)
@@ -78,6 +86,9 @@ class PyQAbstractItemModel(QAbstractItemModel):
     def flags(self, index):
         flags = QAbstractItemModel.flags(self, index)
 
+        if not index.isValid():
+            return flags
+
         if self.editable_columns is not None:
             if self.editable_columns[index.column()]:
                 flags |= Qt.ItemIsEditable
@@ -100,11 +111,14 @@ class PyQAbstractItemModel(QAbstractItemModel):
         # if not parent.isValid():
         #     return QModelIndex()
 
+        if row < 0 or column < 0:
+            return QModelIndex()
+
         node = self.node_from_index(parent)
         child = node.child_at_row(row)
 
-        # if child is None:
-        #     return QModelIndex()
+        if child is None:
+            return QModelIndex()
 
         return self.createIndex(row, column, child)
 
@@ -112,6 +126,16 @@ class PyQAbstractItemModel(QAbstractItemModel):
         return len(self.headers)
 
     def rowCount(self, parent):
+        # TODO: this seems pretty particular to my present model
+        #       "the second column should NOT have the same children
+        #       as the first column in a row"
+        #       https://github.com/bgr/PyQt5_modeltest/blob/62bc86edbad065097c4835ceb4eee5fa3754f527/modeltest.py#L222
+        #
+        #       then again, the Qt example does just this
+        #       http://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
+        if parent.column() > 0:
+            return 0
+
         node = self.node_from_index(parent)
         if node is None:
             return 0
@@ -153,8 +177,8 @@ class PyQAbstractItemModel(QAbstractItemModel):
             if node is self.root:
                 index = QModelIndex()
             else:
-                index = self.match(self.index(0, len(self.headers), QModelIndex()),
-                                   Qt.DisplayRole,
+                index = self.match(self.index(0, 0, QModelIndex()),
+                                   unique_role,
                                    node.unique(),
                                    1,
                                    Qt.MatchRecursive)[0]

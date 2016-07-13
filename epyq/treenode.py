@@ -27,7 +27,10 @@ class TreeNode:
         child.tree_parent = self
 
     def child_at_row(self, row):
-        return self.children[row]
+        try:
+            return self.children[row]
+        except IndexError:
+            return None
 
     def row_of_child(self, child):
         for i, item in enumerate(self.children):

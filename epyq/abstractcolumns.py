@@ -37,6 +37,10 @@ class AbstractColumns:
     def fill(cls, value):
         return cls(**dict(zip(cls._members, [value] * len(cls._members))))
 
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
+
     def __getitem__(self, index):
         for attribute in self.__class__._members:
             if index == getattr(self.__class__.indexes, attribute):
