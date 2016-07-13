@@ -28,13 +28,7 @@ class TxRxView(QtWidgets.QWidget):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
-        self.resize_columns = epyq.txrx.Columns(
-            id=True,
-            name=True,
-            length=True,
-            value=False,
-            dt=False,
-            count=True)
+        self.resize_columns = epyq.txrx.Columns.fill(False)
 
     def setModel(self, model):
         self.ui.tree_view.setModel(model)
@@ -58,7 +52,11 @@ class TxRxView(QtWidgets.QWidget):
 
         self.ui.tree_view.setColumnWidth(epyq.txrx.Columns.indexes.value,
                                          self.calculate_max_value_width())
+        self.ui.tree_view.setColumnWidth(epyq.txrx.Columns.indexes.id,
+                                         self.calculate_max_id_width() +
+                                         self.ui.tree_view.indentation())
 
+    # TODO: CAMPid 989849193479134917954791341
     def calculate_max_value_width(self):
         metric = self.ui.tree_view.fontMetrics()
         chars = ['{:X}'.format(i) for i in range(16)]
@@ -66,4 +64,14 @@ class TxRxView(QtWidgets.QWidget):
         widest_width = max(widths)
         widest_char = chars[widths.index(widest_width)]
         string = ' '.join([widest_char * 2] * 8)
+        return metric.width(string)
+
+    # TODO: CAMPid 989849193479134917954791341
+    def calculate_max_id_width(self):
+        metric = self.ui.tree_view.fontMetrics()
+        chars = ['{:X}'.format(i) for i in range(16)]
+        widths = [metric.width(c) for c in chars]
+        widest_width = max(widths)
+        widest_char = chars[widths.index(widest_width)]
+        string = '0x{}'.format(widest_char * 8)
         return metric.width(string)
