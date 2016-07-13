@@ -286,19 +286,14 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
             message = self.messages[id]
 
         message.extract_message(msg)
-        # TODO: for some reason this doesn't seem to needed and
-        #       significantly (3x) increases cpu usage
-        # self.changed.emit(message, Columns.indexes.value,
-        #                   message, Columns.indexes.count)
+        self.changed.emit(
+            message, Columns.indexes.value,
+            message, Columns.indexes.count,
+            [Qt.DisplayRole])
         if len(message.children) > 0:
             self.changed.emit(
                 message.children[0], Columns.indexes.value,
                 message.children[-1], Columns.indexes.count,
-                [Qt.DisplayRole])
-        else:
-            self.changed.emit(
-                message, Columns.indexes.value,
-                message, Columns.indexes.count,
                 [Qt.DisplayRole])
 
     def unique(self):
