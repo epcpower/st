@@ -255,14 +255,6 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
                 dlc=message.dlc,
                 transmitter=None
             )
-            # TODO: Stop doing this when T271 is fixed
-            signal = canmatrix.canmatrix.Signal(
-                name='',
-                startBit=0,
-                signalSize=8*message.dlc,
-                is_signed=False
-            )
-            frame.addSignal(signal)
             message_node = MessageNode(message=message, tx=tx, frame=frame)
             self.neo.frames.append(message_node)
 
