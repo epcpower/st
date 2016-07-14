@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>769</width>
+    <width>803</width>
     <height>809</height>
    </rect>
   </property>
@@ -32,20 +32,10 @@
     </widget>
    </item>
    <item>
-    <widget class="QTabWidget" name="tabWidget">
+    <widget class="QTabWidget" name="tabs">
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="dash">
-      <attribute name="title">
-       <string>Dash</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_9">
-       <item>
-        <layout class="QVBoxLayout" name="dash_layout"/>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="txrx">
       <attribute name="title">
        <string>Tx/Rx</string>

@@ -18,6 +18,7 @@ import shutil
 import tempfile
 import zipfile
 
+from collections import OrderedDict
 from epyq.busproxy import BusProxy
 from epyq.widgets.abstractwidget import AbstractWidget
 from PyQt5 import uic
@@ -52,6 +53,7 @@ class Device:
             zip_file = zipfile.ZipFile(file)
         except zipfile.BadZipFile:
             try:
+                self.config_path = os.path.abspath(file)
                 file = open(file, 'r')
             except TypeError:
                 return
@@ -62,16 +64,29 @@ class Device:
 
     def _load_config(self, file, bus=None):
         s = file.read()
-        d = json.loads(s)
+        d = json.loads(s, object_pairs_hook=OrderedDict)
 
         path = os.path.dirname(file.name)
-        self.ui_path = os.path.join(path, d['ui_path'])
+        for ui_path_name in ['ui_path', 'ui_paths']:
+            try:
+                json_ui_paths = d[ui_path_name]
+                break
+            except KeyError:
+                pass
+
+        self.ui_paths = OrderedDict()
+        try:
+            for name, ui_path in json_ui_paths.items():
+                self.ui_paths[name] = ui_path
+        except AttributeError:
+            self.ui_paths["Dash"] = json_ui_paths
+
         self.can_path = os.path.join(path, d['can_path'])
 
         self.bus = BusProxy(bus=bus)
 
         self._init_from_parameters(
-            ui=self.ui_path,
+            uis=self.ui_paths,
             serial_number=d.get('serial_number', ''),
             name=d.get('name', ''))
 
@@ -82,12 +97,13 @@ class Device:
         for f in os.listdir(path):
             if f.endswith(".epc"):
                 file = os.path.join(path, f)
+        self.config_path = os.path.abspath(file)
         with open(file, 'r') as file:
             self._load_config(file, bus=bus)
 
         shutil.rmtree(path)
 
-    def _init_from_parameters(self, ui, serial_number, name, bus=None):
+    def _init_from_parameters(self, uis, serial_number, name, bus=None):
         if not hasattr(self, 'bus'):
             self.bus = BusProxy(bus=bus)
 
@@ -107,24 +123,30 @@ class Device:
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio)
 
-        # TODO: CAMPid 9549757292917394095482739548437597676742
-        if not QFileInfo(ui).isAbsolute():
-            ui_file = os.path.join(
-                QFileInfo.absolutePath(QFileInfo(__file__)), ui)
-        else:
-            ui_file = ui
-        ui_file = QFile(ui_file)
-        ui_file.open(QFile.ReadOnly | QFile.Text)
-        ts = QTextStream(ui_file)
-        sio = io.StringIO(ts.readAll())
-        self.dash_ui = uic.loadUi(sio)
-
         self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
         self.ui.offline_overlay.label.setText('offline')
 
-        self.ui.dash_layout.addWidget(self.dash_ui)
+        self.ui.name.setText(self.name)
 
-        self.ui.name.setText(name)
+        self.dash_uis = {}
+        for i, (name, path) in enumerate(uis.items()):
+            # TODO: CAMPid 9549757292917394095482739548437597676742
+            if not QFileInfo(path).isAbsolute():
+                ui_file = os.path.join(
+                    QFileInfo.absolutePath(QFileInfo(self.config_path)), path)
+            else:
+                ui_file = path
+            ui_file = QFile(ui_file)
+            ui_file.open(QFile.ReadOnly | QFile.Text)
+            ts = QTextStream(ui_file)
+            sio = io.StringIO(ts.readAll())
+            self.dash_uis[name] = uic.loadUi(sio)
+
+            self.ui.tabs.insertTab(i,
+                                   self.dash_uis[name],
+                                   name)
+
+        self.ui.tabs.setCurrentIndex(0)
 
         # TODO: the repetition here is not so pretty
         matrix_rx = list(importany.importany(self.can_path).values())[0]
