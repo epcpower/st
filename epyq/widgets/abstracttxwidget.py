@@ -26,13 +26,7 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
     def tx(self, tx):
         self._tx = bool(tx)
 
-        if self.signal_object is not None:
-            if self.tx:
-                self.signal_object.frame.cyclic_request(self, self._period)
-            else:
-                self.signal_object.frame.cyclic_request(self, None)
-
-        self.update_connection()
+        self.set_signal(signal=self.signal_object)
         self.ui.value.setDisabled(not self.tx)
 
     def set_signal(self, signal):
