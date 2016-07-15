@@ -378,7 +378,7 @@ class Frame(QtCanListener):
     def unpack(self, data, report_error=True):
         rx_length = len(data)
         if rx_length != self.size and report_error:
-            print('Received message {self.id} with length {rx_length}, expected {self.size}'.format(**locals()))
+            print('Received message 0x{self.id:08X} with length {rx_length}, expected {self.size}'.format(**locals()))
         else:
             self.pad()
 
