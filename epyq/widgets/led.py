@@ -4,12 +4,43 @@
 
 import epyq.widgets.abstractwidget
 import os
+import re
 
-from PyQt5.QtCore import pyqtProperty, QFileInfo
+from PyQt5.QtCore import pyqtProperty, QFile, QFileInfo
+from PyQt5.QtGui import QColor
+from PyQt5.QtXml import QDomDocument
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
+
+
+def set_attribute_recursive(element, tag_name, attribute,
+                            new_color):
+    if element.tagName() == tag_name:
+        text = element.attribute(attribute)
+        text = re.sub('(?<=fill:#)[0-9A-F]{6}', new_color, text)
+        element.setAttribute(attribute, text)
+
+    child_nodes = element.childNodes()
+    children = [child_nodes.at(i) for i in range(child_nodes.length())]
+    for child in children:
+        if child.isElement():
+            set_attribute_recursive(element=child.toElement(),
+                                    tag_name=tag_name,
+                                    attribute=attribute,
+                                    new_color=new_color)
+
+
+def make_color(svg_string, new_color):
+    doc = QDomDocument()
+    doc.setContent(svg_string)
+    set_attribute_recursive(element=doc.documentElement(),
+                            tag_name="circle",
+                            attribute="style",
+                            new_color=new_color)
+
+    return doc.toByteArray()
 
 
 class Led(epyq.widgets.abstractwidget.AbstractWidget):
@@ -20,23 +51,27 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
                 ui=ui_file, parent=parent)
 
-        file = 'led.svg'
+        file_name = 'led.svg'
 
         # TODO: CAMPid 9549757292917394095482739548437597676742
-        if not QFileInfo(file).isAbsolute():
+        if not QFileInfo(file_name).isAbsolute():
             file = os.path.join(
-                QFileInfo.absolutePath(QFileInfo(__file__)), file)
+                QFileInfo.absolutePath(QFileInfo(__file__)), file_name)
         else:
-            file = file
+            file = file_name
+        file = QFile(file)
+        file.open(QFile.ReadOnly | QFile.Text)
+        self.svg_string = file.readAll()
+
+        self._value = False
+        self.bright = None
+        self.dim = None
+
+        self._color = QColor()
+        self.color = QColor("#20C020")
 
         self._relative_height = 1
 
-        self.ui.value.load(file)
-        self.elements = {
-            False: 'dim',
-            True: 'bright'
-        }
-        self.ui.value.main_element = self.elements[False]
         height = self.relative_height * self.ui.label.height()
         ratio = self.ui.value.ratio()
 
@@ -46,6 +81,25 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         # TODO: shouldn't this be in AbstractWidget?
         self._frame = None
         self._signal = None
+
+
+    @pyqtProperty(QColor)
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, new_color):
+        self._color = QColor(new_color)
+
+        def rgb_string(color):
+            return ('{:02X}' * 3).format(*color.getRgb())
+
+        self.bright = make_color(self.svg_string, rgb_string(self._color))
+
+        self.dim = make_color(self.svg_string, rgb_string(
+            self._color.darker(factor=200)))
+
+        self.update_svg()
 
     @pyqtProperty(float)
     def relative_height(self):
@@ -74,7 +128,13 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         else:
             value = bool(value)
 
-        self.ui.value.main_element = self.elements[value]
+        self._value = value
+
+        self.update_svg()
+
+    def update_svg(self):
+        self.ui.value.load(self.bright if self._value else self.dim)
+        self.ui.value.main_element = 'led'
 
 
 if __name__ == '__main__':
