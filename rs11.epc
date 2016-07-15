@@ -1,0 +1,15 @@
+{
+    "can_path": "ICUCAN_ID0_FACTORY.sym",
+    "name": "RS11",
+    "serial_number": "42",
+    "ui_paths": {
+        "Dash": "rs11_dash.ui",
+        "Control": "rs11_control.ui",
+        "Charge": "rs11_charge.ui",
+        "Parameters": "rs11_parameters.ui",
+        "Messages": "rs11_messages.ui",
+        "CAN": "rs11_can.ui",
+        "Test": "rs11_test.ui",
+        "Graphs": "rs11_graphs.ui"
+    }
+}

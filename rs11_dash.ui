@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1691</width>
+    <height>1154</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_5">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="Led" name="led">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>RxEnable</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Toggle" name="toggle">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>CommandBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>Enable</string>
+       </property>
+       <property name="tx" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="0">
+        <widget class="Led" name="led_3">
+         <property name="frame" stdset="0">
+          <string>StatusBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>RxSpeedTorqueControl</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="Led" name="led_5">
+         <property name="frame" stdset="0">
+          <string>StatusBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>UVLOFltOvr</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="Check" name="check_4">
+         <property name="frame" stdset="0">
+          <string>CommandBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>UVLOFltOvr</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="Check" name="check">
+         <property name="frame" stdset="0">
+          <string>CommandBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Mode</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="Check" name="check_3">
+         <property name="frame" stdset="0">
+          <string>CommandBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Direction</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="Check" name="check_2">
+         <property name="frame" stdset="0">
+          <string>CommandBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>SpeedTorqueControl</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="Led" name="led_2">
+         <property name="frame" stdset="0">
+          <string>StatusBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>RxMode</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="Led" name="led_4">
+         <property name="frame" stdset="0">
+          <string>StatusBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>RxDirection</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="Enum" name="enum_4">
+         <property name="frame" stdset="0">
+          <string>CommandBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>UVLOFltOvr</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="Enum" name="enum_2">
+         <property name="frame" stdset="0">
+          <string>CommandBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Mode</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="Enum" name="enum_5">
+         <property name="frame" stdset="0">
+          <string>CommandBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Direction</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="Enum" name="enum_3">
+         <property name="frame" stdset="0">
+          <string>CommandBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>SpeedTorqueControl</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="title">
+            <string>Gauges</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout">
+              <item>
+               <widget class="Scale" name="scale">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="frame" stdset="0">
+                 <string>StatusMotorTorque</string>
+                </property>
+                <property name="signal" stdset="0">
+                 <string>TorqueMeasured</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Epc" name="epc">
+                <property name="frame" stdset="0">
+                 <string>StatusMotorTorque</string>
+                </property>
+                <property name="signal" stdset="0">
+                 <string>TorqueMeasured</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Scale" name="scale_2">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="frame" stdset="0">
+                 <string>StatusMotorSpeed</string>
+                </property>
+                <property name="signal" stdset="0">
+                 <string>SpeedMeasured</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Epc" name="epc_2">
+                <property name="frame" stdset="0">
+                 <string>StatusMotorSpeed</string>
+                </property>
+                <property name="signal" stdset="0">
+                 <string>SpeedMeasured</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="title">
+            <string>DC Parameters</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="Scale" name="scale_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>StatusDCParameters</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>VoltageDC</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Epc" name="epc_3">
+              <property name="frame" stdset="0">
+               <string>StatusDCParameters</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>VoltageDC</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Scale" name="scale_4">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>StatusDCParameters</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>CurrentDC</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Epc" name="epc_4">
+              <property name="frame" stdset="0">
+               <string>StatusDCParameters</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>CurrentDC</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Scale" name="scale_5">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>StatusPower</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>PowerIn</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Epc" name="epc_5">
+              <property name="frame" stdset="0">
+               <string>StatusPower</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>PowerIn</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Motor Control</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0" colspan="2">
+             <widget class="HorizontalSlider" name="horizontalslider">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>CommandMotorVariables</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>TorqueCommand</string>
+              </property>
+              <property name="tx" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="Epc" name="epc_6">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>CommandMotorVariables</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>TorqueCommand</string>
+              </property>
+              <property name="tx" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="5">
+             <widget class="Epc" name="epc_9">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>StatusMotorSpeed</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>SpeedMeasured</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="5">
+             <widget class="Epc" name="epc_11">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>CommandMotorVariables</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>SpeedCommand</string>
+              </property>
+              <property name="tx" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="Epc" name="epc_7">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>StatusMotorTorque</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>TorqueMeasured</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3" colspan="2">
+             <widget class="HorizontalSlider" name="horizontalslider_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>CommandMotorVariables</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>SpeedCommand</string>
+              </property>
+              <property name="tx" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_4">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>Temps</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <widget class="Scale" name="scale_8">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frame" stdset="0">
+           <string>StatusTempIGBTs</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>TempIGBT1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_7">
+          <property name="title">
+           <string>Sensors</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="Text" name="text">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="frame" stdset="0">
+              <string>StatusTempIGBTs</string>
+             </property>
+             <property name="signal" stdset="0">
+              <string>TempIGBT1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Text" name="text_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="frame" stdset="0">
+              <string>StatusTempIGBTs</string>
+             </property>
+             <property name="signal" stdset="0">
+              <string>TempIGBT2</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="Scale" name="scale_7">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frame" stdset="0">
+           <string>StatusTempMotor</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>TempMotor1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_6">
+          <property name="title">
+           <string>Sensors</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="Text" name="text_3">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="frame" stdset="0">
+              <string>StatusTempMotor</string>
+             </property>
+             <property name="signal" stdset="0">
+              <string>TempMotor1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Text" name="text_4">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="frame" stdset="0">
+              <string>StatusTempMotor</string>
+             </property>
+             <property name="signal" stdset="0">
+              <string>TempMotor2</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="Scale" name="scale_6">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frame" stdset="0">
+           <string>StatusTempInternal</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>TempInternal</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="title">
+           <string>Sensor</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="Epc" name="epc_10">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="frame" stdset="0">
+              <string>StatusTempInternal</string>
+             </property>
+             <property name="signal" stdset="0">
+              <string>TempInternal</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Check</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.check</header>
+  </customwidget>
+  <customwidget>
+   <class>Enum</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.enum</header>
+  </customwidget>
+  <customwidget>
+   <class>Epc</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.epc</header>
+  </customwidget>
+  <customwidget>
+   <class>HorizontalSlider</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.horizontalslider</header>
+  </customwidget>
+  <customwidget>
+   <class>Led</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.led</header>
+  </customwidget>
+  <customwidget>
+   <class>Scale</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.scale</header>
+  </customwidget>
+  <customwidget>
+   <class>Text</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.text</header>
+  </customwidget>
+  <customwidget>
+   <class>Toggle</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.toggle</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

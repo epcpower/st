@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1695</width>
+    <height>879</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="3" column="0">
+        <widget class="HorizontalSlider" name="horizontalslider_3">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>CommandChargeVariables</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>CurrentLimitAC</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="Epc" name="epc_3">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>CommandChargeVariables</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>CurrentLimitAC</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="Epc" name="epc_6">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusChargeCommands</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>CurrentLimitACCommanded</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="HorizontalSlider" name="horizontalslider">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>CommandChargeVariables</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>CurrentLimitDC</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="Epc" name="epc_4">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusChargeCommands</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>CurrentLimitDCCommanded</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="Epc" name="epc_5">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusChargeCommands</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>VoltageLimitDCCommanded</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="HorizontalSlider" name="horizontalslider_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>CommandChargeVariables</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>VoltageLimitDC</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="Epc" name="epc_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>CommandChargeVariables</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>VoltageLimitDC</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="Epc" name="epc">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>CommandChargeVariables</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>CurrentLimitDC</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="Led" name="led">
+         <property name="frame" stdset="0">
+          <string>StatusFaults</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Resolver</string>
+         </property>
+         <property name="color" stdset="0">
+          <color>
+           <red>192</red>
+           <green>32</green>
+           <blue>32</blue>
+          </color>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="Epc" name="epc_7">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusACParameters</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>VoltageAC</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Epc" name="epc_8">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusACParameters</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>CurrentAC</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Epc</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.epc</header>
+  </customwidget>
+  <customwidget>
+   <class>HorizontalSlider</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.horizontalslider</header>
+  </customwidget>
+  <customwidget>
+   <class>Led</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.led</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
