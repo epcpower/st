@@ -18,6 +18,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
      <item>
       <widget class="SvgWidget" name="value">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="toolTip">
         <string>SVG with utility</string>
        </property>

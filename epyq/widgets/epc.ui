@@ -10,12 +10,18 @@
     <height>375</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
@@ -27,6 +33,12 @@
        </item>
        <item>
         <widget class="QLabel" name="units">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>TextLabel</string>
          </property>
@@ -36,6 +48,12 @@
      </item>
      <item>
       <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -43,6 +61,22 @@
         <set>Qt::AlignHCenter|Qt::AlignTop</set>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
