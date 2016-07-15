@@ -336,7 +336,8 @@ class Frame(QtCanListener):
                 # raise Exception('frame too long!')
                 print('Frame too long!  (but this is expected for now since the DBC seems wrong)')
             elif padding > 0:
-                Pad(bit, padding)
+                pad = Pad(bit, padding)
+                padded_signals.append(pad)
 
             self.signals = padded_signals
             self.padded = True
