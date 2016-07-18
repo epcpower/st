@@ -1,8 +1,10 @@
 #!/bin/sh
 
-cd /opt
-rm -rf /opt/st.hmi
-tar -xvzf /disk/usbsda1/st.hmi.tgz
+if [ "$1" != "--no-tar" ]; then
+    cd /opt
+    rm -rf /opt/st.hmi
+    tar -xvzf /disk/usbsda1/st.hmi.tgz
+fi
 
 cd /opt/st.hmi/venv/src/python-can
 LD_LIBRARY_PATH=/opt/epc/lib: /opt/epc/bin/python3 setup.py develop
