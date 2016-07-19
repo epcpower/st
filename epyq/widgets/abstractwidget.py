@@ -58,6 +58,14 @@ class AbstractWidget(QtWidgets.QWidget):
         self._label_override = str(new_label_override)
         self.ui.label.setText(self.label_override)
 
+    @pyqtProperty(bool)
+    def label_visible(self):
+        return self.ui.label.isVisible()
+
+    @label_visible.setter
+    def label_visible(self, new_visible):
+        self.ui.label.setVisible(new_visible)
+
     def set_label(self, value):
         if len(self.label_override) > 0:
             value = self.label_override
