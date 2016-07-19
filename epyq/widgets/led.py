@@ -81,7 +81,15 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         # TODO: shouldn't this be in AbstractWidget?
         self._frame = None
         self._signal = None
+        self._on_value = 1
 
+    @pyqtProperty(int)
+    def on_value(self):
+        return self._on_value
+
+    @on_value.setter
+    def on_value(self, new_on_value):
+        self._on_value = int(new_on_value)
 
     @pyqtProperty(QColor)
     def color(self):
@@ -122,13 +130,11 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
     def set_value(self, value):
         # TODO: quit hardcoding this and it's better implemented elsewhere
         if self.signal_object is not None:
-            value = bool(self.signal_object.value)
-        elif value is None:
-            value = False
+            value = self.signal_object.value
         else:
-            value = bool(value)
+            value = value
 
-        self._value = value
+        self._value = (value == self.on_value)
 
         self.update_svg()
 
