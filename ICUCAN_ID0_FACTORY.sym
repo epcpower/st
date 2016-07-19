@@ -204,8 +204,8 @@ ID=00FFAB00h
 Type=Extended
 DLC=8
 CycleTime=10
-Var=TorqueCommanded signed 0,32 -m /u:%
-Var=TorqueMeasured signed 32,32 -m /u:%
+Var=TorqueCommanded signed 0,32 -m /u:% /min:-100 /max:100
+Var=TorqueMeasured signed 32,32 -m /u:% /min:-120 /max:120
 
 [StatusTempMotor]
 ID=0CFFAB38h
@@ -220,8 +220,8 @@ ID=00FFAB08h
 Type=Extended
 DLC=8
 CycleTime=10
-Var=SpeedCommanded signed 0,32 -m /u:RPM
-Var=SpeedMeasured signed 32,32 -m /u:RPM
+Var=SpeedCommanded signed 0,32 -m /u:RPM /min:-6000 /max:6000
+Var=SpeedMeasured signed 32,32 -m /u:RPM /min:-7000 /max:7000
 
 [StatusBits]
 ID=04FFAB20h
@@ -255,7 +255,7 @@ ID=1CFFAB68h
 Type=Extended
 DLC=8
 CycleTime=100
-Var=PowerIn signed 32,32 -m /u:W
+Var=PowerIn signed 32,32 -m /u:W /min:0 /max:66000
 Var=PowerOut signed 0,32 -m /u:W
 
 [StatusTempInternal]
@@ -331,17 +331,17 @@ ID=04FFAB10h
 Type=Extended
 DLC=8
 CycleTime=100
-Var=VoltageDC signed 0,32 -m /u:V
-Var=CurrentDC signed 32,32 -m /u:A
+Var=VoltageDC signed 0,32 -m /u:V /min:0 /max:300
+Var=CurrentDC signed 32,32 -m /u:A /min:0 /max:220
 
 [StatusChargeCommands]
 ID=1CFFAB70h
 Type=Extended
 DLC=8
 CycleTime=100
-Var=CurrentLimitDCCommanded signed 16,16 -m /u:A
-Var=VoltageLimitDCCommanded signed 0,16 -m /u:V
-Var=CurrentLimitACCommanded signed 32,16 -m /u:Arms
+Var=CurrentLimitDCCommanded signed 16,16 -m /u:A /min:0 /max:250
+Var=VoltageLimitDCCommanded signed 0,16 -m /u:V /min:0 /max:600
+Var=CurrentLimitACCommanded signed 32,16 -m /u:Arms /min:0 /max:200
 Var=State unsigned 48,3 -m /e:VtSig_State
 
 [StatusDQCmds]
