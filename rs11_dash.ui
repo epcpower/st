@@ -529,6 +529,9 @@
                 <property name="signal" stdset="0">
                  <string>TorqueMeasured</string>
                 </property>
+                <property name="label_visible" stdset="0">
+                 <bool>false</bool>
+                </property>
                </widget>
               </item>
               <item>
@@ -554,6 +557,9 @@
                 </property>
                 <property name="signal" stdset="0">
                  <string>SpeedMeasured</string>
+                </property>
+                <property name="label_visible" stdset="0">
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -598,6 +604,9 @@
               <property name="signal" stdset="0">
                <string>VoltageDC</string>
               </property>
+              <property name="label_visible" stdset="0">
+               <bool>false</bool>
+              </property>
              </widget>
             </item>
             <item>
@@ -623,6 +632,9 @@
               </property>
               <property name="signal" stdset="0">
                <string>CurrentDC</string>
+              </property>
+              <property name="label_visible" stdset="0">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -650,6 +662,9 @@
               <property name="signal" stdset="0">
                <string>PowerIn</string>
               </property>
+              <property name="label_visible" stdset="0">
+               <bool>false</bool>
+              </property>
              </widget>
             </item>
            </layout>
@@ -669,9 +684,182 @@
           <string>Motor Control</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="1">
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_15">
+              <item>
+               <spacer name="horizontalSpacer_6">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="Epc" name="epc_8">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="frame" stdset="0">
+                 <string>CommandMotorVariables</string>
+                </property>
+                <property name="signal" stdset="0">
+                 <string>SpeedCommand</string>
+                </property>
+                <property name="label_visible" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="tx" stdset="0">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_7">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="HorizontalSlider" name="horizontalslider_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frame" stdset="0">
+               <string>CommandMotorVariables</string>
+              </property>
+              <property name="signal" stdset="0">
+               <string>SpeedCommand</string>
+              </property>
+              <property name="tx" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_16">
+              <item>
+               <spacer name="horizontalSpacer_8">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="Epc" name="epc_12">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="frame" stdset="0">
+                 <string>StatusMotorSpeed</string>
+                </property>
+                <property name="signal" stdset="0">
+                 <string>SpeedMeasured</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_9">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
           <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0" colspan="2">
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_13">
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="Epc" name="epc_6">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="frame" stdset="0">
+                 <string>CommandMotorVariables</string>
+                </property>
+                <property name="signal" stdset="0">
+                 <string>TorqueCommand</string>
+                </property>
+                <property name="label_visible" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="tx" stdset="0">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
              <widget class="HorizontalSlider" name="horizontalslider">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -690,94 +878,51 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="Epc" name="epc_6">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="frame" stdset="0">
-               <string>CommandMotorVariables</string>
-              </property>
-              <property name="signal" stdset="0">
-               <string>TorqueCommand</string>
-              </property>
-              <property name="tx" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="5">
-             <widget class="Epc" name="epc_9">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="frame" stdset="0">
-               <string>StatusMotorSpeed</string>
-              </property>
-              <property name="signal" stdset="0">
-               <string>SpeedMeasured</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="5">
-             <widget class="Epc" name="epc_11">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="frame" stdset="0">
-               <string>CommandMotorVariables</string>
-              </property>
-              <property name="signal" stdset="0">
-               <string>SpeedCommand</string>
-              </property>
-              <property name="tx" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="Epc" name="epc_7">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="frame" stdset="0">
-               <string>StatusMotorTorque</string>
-              </property>
-              <property name="signal" stdset="0">
-               <string>TorqueMeasured</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3" colspan="2">
-             <widget class="HorizontalSlider" name="horizontalslider_3">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="frame" stdset="0">
-               <string>CommandMotorVariables</string>
-              </property>
-              <property name="signal" stdset="0">
-               <string>SpeedCommand</string>
-              </property>
-              <property name="tx" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_14">
+              <item>
+               <spacer name="horizontalSpacer_4">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="Epc" name="epc_7">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="frame" stdset="0">
+                 <string>StatusMotorTorque</string>
+                </property>
+                <property name="signal" stdset="0">
+                 <string>TorqueMeasured</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_5">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>
