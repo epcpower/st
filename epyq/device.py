@@ -218,7 +218,6 @@ class Device:
             frame_name = widget.property('frame')
             signal_name = widget.property('signal')
 
-            widget.set_label('{}:{}'.format(frame_name, signal_name))
             widget.set_range(min=0, max=100)
             widget.set_value(42)
 
