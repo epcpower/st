@@ -182,6 +182,7 @@ def excepthook(excType, excValue, tracebackobj):
 def main(args=None):
     print('starting epyq')
 
+    # TODO: CAMPid 9757656124812312388543272342377
     app = QApplication(sys.argv)
     sys.excepthook = excepthook
     app.setStyleSheet('QMessageBox {{ messagebox-text-interaction-flags: {}; }}'
