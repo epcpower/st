@@ -18,6 +18,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="Enum" name="enum_6">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="frame" stdset="0">
         <string>StatusBits</string>
        </property>
@@ -29,7 +35,7 @@
      <item>
       <widget class="Led" name="led">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -45,7 +51,7 @@
      <item>
       <widget class="Toggle" name="toggle">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -62,14 +68,115 @@
       </widget>
      </item>
      <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="0">
-        <widget class="Led" name="led_3">
+       <item row="1" column="1">
+        <widget class="Enum" name="enum_3">
          <property name="frame" stdset="0">
-          <string>StatusBits</string>
+          <string>CommandBits</string>
          </property>
          <property name="signal" stdset="0">
-          <string>RxSpeedTorqueControl</string>
+          <string>SpeedTorqueControl</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="Enum" name="enum_2">
+         <property name="frame" stdset="0">
+          <string>CommandBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Mode</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="Led" name="led_3">
+           <property name="frame" stdset="0">
+            <string>StatusBits</string>
+           </property>
+           <property name="signal" stdset="0">
+            <string>RxSpeedTorqueControl</string>
+           </property>
+           <property name="label_override" stdset="0">
+            <string>Torque</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="Led" name="led_6">
+           <property name="frame" stdset="0">
+            <string>StatusBits</string>
+           </property>
+           <property name="signal" stdset="0">
+            <string>RxSpeedTorqueControl</string>
+           </property>
+           <property name="label_override" stdset="0">
+            <string>Speed</string>
+           </property>
+           <property name="on_value" stdset="0">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="4">
+        <widget class="Enum" name="enum_4">
+         <property name="frame" stdset="0">
+          <string>CommandBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>UVLOFltOvr</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -83,105 +190,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="4">
-        <widget class="Check" name="check_4">
-         <property name="frame" stdset="0">
-          <string>CommandBits</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>UVLOFltOvr</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="Check" name="check">
-         <property name="frame" stdset="0">
-          <string>CommandBits</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>Mode</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="4">
-        <widget class="Check" name="check_3">
-         <property name="frame" stdset="0">
-          <string>CommandBits</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>Direction</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="Check" name="check_2">
-         <property name="frame" stdset="0">
-          <string>CommandBits</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>SpeedTorqueControl</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="Led" name="led_2">
-         <property name="frame" stdset="0">
-          <string>StatusBits</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>RxMode</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="Led" name="led_4">
-         <property name="frame" stdset="0">
-          <string>StatusBits</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>RxDirection</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="5">
-        <widget class="Enum" name="enum_4">
-         <property name="frame" stdset="0">
-          <string>CommandBits</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>UVLOFltOvr</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="Enum" name="enum_2">
-         <property name="frame" stdset="0">
-          <string>CommandBits</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>Mode</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="5">
         <widget class="Enum" name="enum_5">
          <property name="frame" stdset="0">
           <string>CommandBits</string>
@@ -194,18 +203,126 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="2">
-        <widget class="Enum" name="enum_3">
-         <property name="frame" stdset="0">
-          <string>CommandBits</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>SpeedTorqueControl</string>
-         </property>
-         <property name="tx" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
+       <item row="0" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <item>
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="Led" name="led_7">
+           <property name="frame" stdset="0">
+            <string>StatusBits</string>
+           </property>
+           <property name="signal" stdset="0">
+            <string>RxMode</string>
+           </property>
+           <property name="label_override" stdset="0">
+            <string>Motor</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="Led" name="led_8">
+           <property name="frame" stdset="0">
+            <string>StatusBits</string>
+           </property>
+           <property name="signal" stdset="0">
+            <string>RxMode</string>
+           </property>
+           <property name="label_override" stdset="0">
+            <string>Charge</string>
+           </property>
+           <property name="on_value" stdset="0">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="3">
+        <layout class="QVBoxLayout" name="verticalLayout_9">
+         <item>
+          <spacer name="verticalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="Led" name="led_9">
+           <property name="frame" stdset="0">
+            <string>StatusBits</string>
+           </property>
+           <property name="signal" stdset="0">
+            <string>RxDirection</string>
+           </property>
+           <property name="label_override" stdset="0">
+            <string>Forward</string>
+           </property>
+           <property name="on_value" stdset="0">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="Led" name="led_10">
+           <property name="frame" stdset="0">
+            <string>StatusBits</string>
+           </property>
+           <property name="signal" stdset="0">
+            <string>RxDirection</string>
+           </property>
+           <property name="label_override" stdset="0">
+            <string>Reverse</string>
+           </property>
+           <property name="on_value" stdset="0">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
@@ -687,11 +804,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>Check</class>
-   <extends>QWidget</extends>
-   <header>epyq.widgets.check</header>
-  </customwidget>
   <customwidget>
    <class>Enum</class>
    <extends>QWidget</extends>
