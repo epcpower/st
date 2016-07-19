@@ -31,6 +31,8 @@ class AbstractWidget(QtWidgets.QWidget):
 
         self.signal_object = None
 
+        self._label_override = ''
+
     @pyqtProperty('QString')
     def frame(self):
         return self._frame
@@ -47,9 +49,21 @@ class AbstractWidget(QtWidgets.QWidget):
     def signal(self, signal):
         self._signal = signal
 
+    @pyqtProperty('QString')
+    def label_override(self):
+        return self._label_override
+
+    @label_override.setter
+    def label_override(self, new_label_override):
+        self._label_override = str(new_label_override)
+        self.ui.label.setText(self.label_override)
+
     def set_label(self, value):
-        if value is None:
-            value = '-'
+        if len(self.label_override) > 0:
+            value = self.label_override
+        else:
+            if value is None:
+                value = '-'
 
         self.ui.label.setText(value)
 
