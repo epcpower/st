@@ -40,6 +40,7 @@ enum ReconnectDelay(0="Idle", 1="Active")
 ID=04FFAB90h
 Type=Extended
 DLC=8
+CycleTime=100
 Var=Enable bit 7,1 -m /e:VtSig_RxEnable
 Var=Mode bit 6,1 -m /e:VtSig_RxMode
 Var=FaultClear bit 4,1 -m /e:VtSig_FaultClear
@@ -52,6 +53,7 @@ Var=UVLOFltOvr bit 0,1 -m /e:VtSig_ResolverFltOvr
 ID=04FFAB88h
 Type=Extended
 DLC=8
+CycleTime=100
 Var=VoltageLimitDC signed 0,16 -m /u:V /min:0 /max:600
 Var=CurrentLimitDC signed 16,16 -m /u:A /min:0 /max:250
 Var=CurrentLimitAC signed 32,16 -m /u:A /min:0 /max:200
@@ -60,6 +62,7 @@ Var=CurrentLimitAC signed 32,16 -m /u:A /min:0 /max:200
 ID=00FFAB80h
 Type=Extended
 DLC=8
+CycleTime=100
 Var=TorqueCommand signed 0,32 -m /u:% /min:-100 /max:100
 Var=SpeedCommand signed 32,32 -m /u:RPM /min:-6000 /max:6000
 
