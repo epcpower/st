@@ -2,6 +2,8 @@
 
 #TODO: """DocString if there is one"""
 
+import functools
+
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -41,12 +43,16 @@ class AbstractColumns:
         for i in range(len(self)):
             yield self[i]
 
-    def __getitem__(self, index):
+    @functools.lru_cache(maxsize=None)
+    def index_from_attribute(self, index):
         for attribute in self.__class__._members:
             if index == getattr(self.__class__.indexes, attribute):
-                return getattr(self, attribute)
+                return attribute
 
         raise IndexError('column index out of range')
+
+    def __getitem__(self, index):
+        return getattr(self, self.index_from_attribute(index))
 
     def __getattr__(self, name, value):
         if name in self._members:

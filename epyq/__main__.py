@@ -213,12 +213,12 @@ def main(args=None):
         parser.add_argument('devices', nargs='*')
         args = parser.parse_args()
 
-        if args.channel is None:
-            interface = 'offline'
-            channel = ''
-        else:
-            interface = args.interface
-            channel = args.channel
+    if args.channel is None:
+        interface = 'offline'
+        channel = ''
+    else:
+        interface = args.interface
+        channel = args.channel
 
     # TODO: find the 'proper' way to handle both quoted and non-quoted paths
     for i, arg in enumerate(args.devices):

@@ -25,63 +25,66 @@ class PyQAbstractItemModel(QAbstractItemModel):
 
         self.index_from_node_cache = {}
 
+        self.role_functions = {
+            Qt.DisplayRole: self.data_display,
+            unique_role: self.data_unique,
+            Qt.TextAlignmentRole: lambda index: int(Qt.AlignTop | Qt.AlignLeft),
+            Qt.CheckStateRole: self.data_check_state,
+            Qt.EditRole: self.data_edit
+        }
+
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return QVariant(self.headers[section])
         return QVariant()
 
-    def data(self, index, role):
-        if role == unique_role:
-            node = self.node_from_index(index)
-            return QVariant(node.unique())
+    def data_display(self, index):
+        node = index.internalPointer()
 
-        if role == Qt.DecorationRole:
-            return QVariant()
+        try:
+            return node.fields[index.column()]
+        except IndexError:
+            return None
 
-        if not index.isValid():
-            return QVariant()
+    def data_unique(self, index):
+        return index.internalPointer().unique()
 
-        if role == Qt.TextAlignmentRole:
-            return QVariant(int(Qt.AlignTop | Qt.AlignLeft))
-
-        if role == Qt.CheckStateRole:
-            if self.checkbox_columns is not None:
-                if self.checkbox_columns[index.column()]:
-                    node = self.node_from_index(index)
-                    try:
-                        return node.checked(index.column())
-                    except AttributeError:
-                        return QVariant()
-
-        if role == Qt.DisplayRole:
-            node = self.node_from_index(index)
-
-            column = index.column()
-            try:
-                return QVariant(node.fields[index.column()])
-            except IndexError:
-                return QVariant()
-
-        if role == Qt.EditRole:
-            node = self.node_from_index(index)
-            try:
-                get = node.get_human_value
-            except AttributeError:
-                value = node.fields[index.column()]
-            else:
+    def data_check_state(self, index):
+        if self.checkbox_columns is not None:
+            if self.checkbox_columns[index.column()]:
+                node = index.internalPointer()
                 try:
-                    value = get()
-                except TypeError:
-                    value = ''
+                    return node.checked(index.column())
+                except AttributeError:
+                    return None
 
-            if value is None:
+    def data_edit(self, index):
+        node = index.internalPointer()
+        try:
+            get = node.get_human_value
+        except AttributeError:
+            value = node.fields[index.column()]
+        else:
+            try:
+                value = get()
+            except TypeError:
                 value = ''
-            else:
-                value = str(value)
 
-            return QVariant(value)
+        if value is None:
+            value = ''
+        else:
+            value = str(value)
 
-        return QVariant()
+        return value
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+
+        try:
+            return self.role_functions[role](index=index)
+        except KeyError:
+            return None
 
     def flags(self, index):
         flags = QAbstractItemModel.flags(self, index)
