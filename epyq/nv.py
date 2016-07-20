@@ -77,6 +77,8 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                             self.confirm_save_signal = signal
                             self.confirm_save_value = float(key)
 
+        # TODO: kind of an ugly manual way to connect this
+        self.status_frames[0].set_frame = self.set_frames[0]
         for value, frame in self.set_frames.items():
             signals = [s for s in frame.signals]
             signals = [s for s in signals if s.multiplex is not 'Multiplexor']
