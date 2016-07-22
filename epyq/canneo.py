@@ -461,10 +461,13 @@ class Frame(QtCanListener):
 
 
 class Neo:
-    def __init__(self, matrix, frame_class=Frame, signal_class=Signal, bus=None):
+    def __init__(self, matrix, frame_class=Frame, signal_class=Signal,
+                 bus=None, node_id_adjust=None):
         frames = []
 
         for frame in matrix._fl._list:
+            if node_id_adjust is not None:
+                frame._Id = node_id_adjust(frame._Id)
             multiplex_signal = None
             for signal in frame._signals:
                 if signal._multiplex == 'Multiplexor':

@@ -29,6 +29,23 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+def j1939_node_id_adjust(message_id, node_id):
+    if node_id == 0:
+        return
+
+    raise Exception('J1939 node id adjustment not yet implemented')
+
+
+def transpower_node_id_adjust(message_id, node_id):
+    return message_id + node_id
+
+
+node_id_types = OrderedDict([
+    ('j1939', j1939_node_id_adjust),
+    ('simple', transpower_node_id_adjust)
+])
+
+
 def load(file):
     if isinstance(file, str):
         pass
@@ -84,6 +101,13 @@ class Device:
         self.can_path = os.path.join(path, d['can_path'])
 
         self.bus = BusProxy(bus=bus)
+        self.node_id_type = d.get('node_id_type',
+                                  next(iter(node_id_types))).lower()
+        self.node_id = int(d.get('node_id', 0))
+        self.node_id_adjust = functools.partial(
+            node_id_types[self.node_id_type],
+            node_id=self.node_id
+        )
 
         self._init_from_parameters(
             uis=self.ui_paths,
@@ -152,7 +176,8 @@ class Device:
         matrix_rx = list(importany.importany(self.can_path).values())[0]
         neo_rx = epyq.canneo.Neo(matrix=matrix_rx,
                                  frame_class=epyq.txrx.MessageNode,
-                                 signal_class=epyq.txrx.SignalNode)
+                                 signal_class=epyq.txrx.SignalNode,
+                                 node_id_adjust=self.node_id_adjust)
 
         matrix_tx = list(importany.importany(self.can_path).values())[0]
         message_node_tx_partial = functools.partial(epyq.txrx.MessageNode,
@@ -161,7 +186,8 @@ class Device:
                                                    tx=True)
         neo_tx = epyq.canneo.Neo(matrix=matrix_tx,
                                  frame_class=message_node_tx_partial,
-                                 signal_class=signal_node_tx_partial)
+                                 signal_class=signal_node_tx_partial,
+                                 node_id_adjust=self.node_id_adjust)
 
         self.neo_frames = neo_tx
         notifiees = list(self.neo_frames.frames)
@@ -187,9 +213,12 @@ class Device:
 
 
         matrix_nv = list(importany.importany(self.can_path).values())[0]
-        self.frames_nv = epyq.canneo.Neo(matrix=matrix_nv,
-                                         frame_class=epyq.nv.Frame,
-                                         signal_class=epyq.nv.Nv)
+        self.frames_nv = epyq.canneo.Neo(
+            matrix=matrix_nv,
+            frame_class=epyq.nv.Frame,
+            signal_class=epyq.nv.Nv,
+            node_id_adjust=self.node_id_adjust
+        )
 
         nv_views = self.ui.findChildren(epyq.nvview.NvView)
         if len(nv_views) > 0:
