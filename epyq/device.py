@@ -132,7 +132,8 @@ class Device:
             self.bus = BusProxy(bus=bus)
 
         self.serial_number = serial_number
-        self.name = name
+        self.name = '{name} :{id}'.format(name=name,
+                                          id=self.node_id)
 
         device_ui = 'device.ui'
         # TODO: CAMPid 9549757292917394095482739548437597676742
