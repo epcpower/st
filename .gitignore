@@ -3,6 +3,7 @@
 /activate.bat
 generated/
 *.stats
+EPyQ-*.exe
 
 # PyCharm
 .idea/workspace.xml
