@@ -31,7 +31,7 @@ __license__ = 'GPLv2+'
 
 def j1939_node_id_adjust(message_id, node_id):
     if node_id == 0:
-        return
+        return message_id
 
     raise Exception('J1939 node id adjustment not yet implemented')
 

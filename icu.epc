@@ -3,7 +3,7 @@
     "name": "ICU",
     "serial_number": "42",
     "node_id_type": "simple",
-    "node_id": "1",
+    "node_id": "0",
     "ui_paths": {
         "Dash": "icu_dash.ui",
         "Control": "icu_control.ui",
