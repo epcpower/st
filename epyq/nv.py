@@ -67,15 +67,23 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                             self.save_frame = frame
                             self.save_signal = signal
                             self.save_value = float(key)
+
+        save_status_name = 'SaveToEE_status'
         for frame in self.status_frames.values():
             for signal in frame.signals:
-                if signal.name == 'SaveToEE_status':
+                if signal.name == save_status_name:
                     for key, value in signal.enumeration.items():
                         if value == 'Enable':
                             self.confirm_save_frame = frame
                             self.confirm_save_multiplex_value = signal.multiplex
                             self.confirm_save_signal = signal
                             self.confirm_save_value = float(key)
+
+        if self.confirm_save_frame is None:
+            raise Exception(
+                "'{}' signal not found in NV parameter interface".format(
+                    save_status_name
+                ))
 
         # TODO: kind of an ugly manual way to connect this
         self.status_frames[0].set_frame = self.set_frames[0]
@@ -142,6 +150,9 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
     def message_received(self, msg):
         multiplex_message, multiplex_value =\
             self.neo.get_multiplex(msg)
+
+        if multiplex_message is None:
+            return
 
         if multiplex_message is self.confirm_save_frame:
             if multiplex_value is self.confirm_save_multiplex_value:

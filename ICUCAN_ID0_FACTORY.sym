@@ -33,6 +33,7 @@ enum ModulatorMode(0="Space Vector",
   1="Discontinuous", // Clamps each output for full sector at top/bottom
   2="N/A", 3="N/A", 4="N/A", 5="N/A", 6="N/A", 7="N/A", 8="N/A")
 enum ReconnectDelay(0="Idle", 1="Active")
+enum Enable(0="Disable", 1="Enable", 2="Error", 3="N/A")
 
 {SEND}
 
@@ -189,6 +190,12 @@ DLC=8
 Mux=LineMonitor 0,14 000Eh -m
 Var=ReadParam_command unsigned 14,2 -m /max:1 /e:ReadNV
 Var=ReconnectDelay_command unsigned 32,32 -m /u:ms /max:300000 /d:300000
+
+[CommandSetNVParam]
+DLC=8
+Mux=ManageNV 0,14 000Fh -m
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=SaveToEE_command unsigned 16,2 -m /max:1 /e:Enable
 
 [CommandIDQ]
 ID=0CFFA941h
@@ -494,4 +501,10 @@ DLC=8
 Mux=LineMonitor 0,14 000Eh -m
 Var=ReadParam_status unsigned 14,2 -m /max:1 /e:ReadNV
 Var=ReconnectDelay_status unsigned 32,32 -m /u:ms /max:300000 /d:300000
+
+[StatusNVParam]
+DLC=8
+Mux=ManageNV 0,14 000Fh -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=SaveToEE_status unsigned 16,2 -m /max:1 /e:Enable
 
