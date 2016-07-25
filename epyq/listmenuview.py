@@ -5,6 +5,7 @@
 import epyq.listmenu
 import functools
 import io
+import math
 import os
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QAbstractSlider
@@ -110,6 +111,37 @@ class ListMenuView(QtWidgets.QWidget):
     @pyqtSlot(epyq.listmenu.Node)
     def root_changed(self, node):
         self.ui.label.setText(node.fields.name)
+        self.ui.list_view.scrollToTop()
+
+    def set_padding(self, padding):
+        self.setStyleSheet('''
+            QListView::item
+            {{
+                padding: {}px;
+            }}
+        '''.format(padding))
+
+    def update_item_padding(self):
+        minimum_padding = 0
+        self.set_padding(minimum_padding)
+
+        view = self.ui.list_view
+        model = self.model
+
+        margins = view.contentsMargins()
+        list = (
+            view.contentsRect().height() -
+            (margins.top() + margins.bottom())
+        )
+        item = view.itemDelegate().sizeHint(
+            view.viewOptions(),
+            model.index_from_node(
+                model.root)).height()
+        most_items = math.floor(list / item)
+        remainder = list % item
+        padding = minimum_padding + (remainder / most_items) / 2
+        self.set_padding(padding)
+
 
 if __name__ == '__main__':
     import sys

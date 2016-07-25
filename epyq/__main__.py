@@ -67,10 +67,6 @@ def main(args=None):
             font-size: 30px;
             font-family: Bitstream Vera Sans;
         }
-        QListView::item
-        {
-            padding: 10px;
-        }
     ''')
 
     ui = 'main.ui'
@@ -172,6 +168,8 @@ def main(args=None):
         ui.showFullScreen()
     else:
         ui.show()
+
+    menu.update_item_padding()
 
     return app.exec_()
 
