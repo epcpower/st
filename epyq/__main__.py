@@ -32,6 +32,7 @@ import copy
 import epyq.busproxy
 import epyq.canneo
 import epyq.device
+import epyq.listmenuview
 import epyq.nv
 from epyq.svgwidget import SvgWidget
 import epyq.txrx
@@ -142,13 +143,30 @@ def main(args=None):
 
     dash_item = epyq.listmenu.Node(text='Dashes')
     menu_root.append_child(dash_item)
-    for name in device.dash_uis:
-        node = epyq.listmenu.Node(text=name)
+    for name, dash in device.dash_uis.items():
+        node = epyq.listmenu.Node(
+            text=name,
+            action=functools.partial(
+                ui.stacked.setCurrentWidget,
+                dash
+            )
+        )
         dash_item.append_child(node)
+        ui.stacked.addWidget(dash)
 
     menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
-    ui.list_menu_view.setModel(menu_model)
+    menu = epyq.listmenuview.ListMenuView()
+    menu.setModel(menu_model)
+    ui.stacked.addWidget(menu)
 
+    ui.back_button.clicked.connect(
+        functools.partial(
+            ui.stacked.setCurrentWidget,
+            menu
+        )
+    )
+
+    ui.stacked.setCurrentWidget(menu)
     ui.showFullScreen()
 
     return app.exec_()

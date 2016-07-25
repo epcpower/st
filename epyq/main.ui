@@ -13,30 +13,19 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <layout class="QVBoxLayout" name="layout">
-     <item>
-      <widget class="ListMenuView" name="list_menu_view">
-       <property name="toolTip">
-        <string>canishness</string>
-       </property>
-       <property name="whatsThis">
-        <string>A ListMenuView</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QPushButton" name="back_button">
+     <property name="text">
+      <string>back</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QStackedWidget" name="stacked"/>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ListMenuView</class>
-   <extends>QWidget</extends>
-   <header>epyq.listmenuview</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
