@@ -43,7 +43,7 @@ import platform
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
-                          QSettings, Qt, pyqtSlot, QMarginsF)
+                          QSettings, Qt, pyqtSlot, QMarginsF, QTextCodec)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu)
 from PyQt5.QtGui import QPixmap, QPicture
@@ -68,6 +68,8 @@ def main(args=None):
             font-family: Bitstream Vera Sans;
         }
     ''')
+
+    QTextCodec.setCodecForLocale(QTextCodec.codecForName('UTF-8'))
 
     ui = 'main.ui'
     # TODO: CAMPid 9549757292917394095482739548437597676742
