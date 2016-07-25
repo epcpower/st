@@ -6,4 +6,6 @@ export SSH_CMD='ssh -oKexAlgorithms=+diffie-hellman-group1-sha1'
 export SSH_HOST='root@169.254.1.42'
 rsync -avz --delete --rsync-path=/opt/epc/bin/rsync -e "${SSH_CMD}" . ${SSH_HOST}:"${DEST_PATH}"
 
-${SSH_CMD} ${SSH_HOST} "\"${DEST_PATH}/reinstall-st.hmi\" --no-tar"
+if [ "$1" != "--no-install" ]; then
+    ${SSH_CMD} ${SSH_HOST} "\"${DEST_PATH}/reinstall-st.hmi\" --no-tar"
+fi
