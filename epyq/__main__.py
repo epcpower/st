@@ -167,7 +167,11 @@ def main(args=None):
     )
 
     ui.stacked.setCurrentWidget(menu)
-    ui.showFullScreen()
+
+    if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
+        ui.showFullScreen()
+    else:
+        ui.show()
 
     return app.exec_()
 
