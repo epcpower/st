@@ -17,9 +17,12 @@
    <item>
     <layout class="QVBoxLayout" name="layout">
      <item>
-      <widget class="QPushButton" name="send_button">
-       <property name="text">
-        <string>Send</string>
+      <widget class="ListMenuView" name="list_menu_view">
+       <property name="toolTip">
+        <string>canishness</string>
+       </property>
+       <property name="whatsThis">
+        <string>A ListMenuView</string>
        </property>
       </widget>
      </item>
@@ -27,6 +30,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ListMenuView</class>
+   <extends>QWidget</extends>
+   <header>epyq.listmenuview</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

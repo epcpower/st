@@ -60,6 +60,17 @@ def main(args=None):
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
 
+    app.setStyleSheet('''
+        QWidget {
+            font-size: 30px;
+            font-family: Bitstream Vera Sans;
+        }
+        QListView::item
+        {
+            padding: 10px;
+        }
+    ''')
+
     ui = 'main.ui'
     # TODO: CAMPid 9549757292917394095482739548437597676742
     if not QFileInfo(ui).isAbsolute():
@@ -109,17 +120,26 @@ def main(args=None):
         real_bus = None
     bus.set_bus(bus=real_bus)
 
-    ui.send_button.clicked.connect(
-        functools.partial(
-            bus.send,
-            can.Message(extended_id=False,
-                        arbitration_id=0x342,
-                        dlc=1,
-                        data=[0x42])
-        )
-    )
+    import json
+    from collections import OrderedDict
 
-    ui.layout.addWidget(device.ui)
+    with open('menu.json') as f:
+        menu = json.load(f, object_pairs_hook=OrderedDict)
+
+    menu_root = epyq.listmenu.Node(text='root')
+
+    def traverse(dict_node, model_node):
+        for key, value in dict_node.items():
+            child = epyq.listmenu.Node(text=key)
+            model_node.append_child(child)
+            if isinstance(value, OrderedDict):
+                traverse(dict_node=value,
+                         model_node=child)
+
+    traverse(menu, menu_root)
+
+    menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
+    ui.list_menu_view.setModel(menu_model)
 
     ui.showFullScreen()
 

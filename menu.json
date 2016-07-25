@@ -1,0 +1,49 @@
+{
+  "Quick Setup": {
+    "Wizards": {
+      "Startup": {
+        "Activate": "abc",
+        "Help": "def"
+      },
+      "Fire mode": "ghi"
+    }
+  },
+  "Monitor": {
+    "Multimonitor": "vwx",
+    "Trend curve": "yz0"
+  },
+  "Parameters": "jkl",
+  "Diagnostics": {
+    "Active faults": "mno",
+    "Reset faults": "pqr",
+    "Fault history": "stu"
+  },
+  "Long Garbage": {
+    "A": "b",
+    "B": "b",
+    "C": "b",
+    "D": "b",
+    "E": "b",
+    "F": "b",
+    "G": "b",
+    "H": "b",
+    "I": "b",
+    "J": "b",
+    "K": "b",
+    "L": "b",
+    "M": "b",
+    "N": "b",
+    "O": "b",
+    "P": "b",
+    "Q": "b",
+    "R": "b",
+    "S": "b",
+    "T": "b",
+    "U": "b",
+    "V": "b",
+    "W": "b",
+    "X": "b",
+    "Y": "b",
+    "Z": "b"
+  }
+}
