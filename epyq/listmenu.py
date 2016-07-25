@@ -30,7 +30,7 @@ class Node(TreeNode):
         TreeNode.__init__(self)
 
         self.fields = Columns(name=text,
-                              action=None)
+                              action=action)
 
     # def to_ordered_dict(self):
     #     d = OrderedDict()
@@ -60,11 +60,15 @@ class ListMenuModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
 
     @pyqtSlot(Node)
     def node_clicked(self, node):
-        QTimer.singleShot(100,
-                          functools.partial(
-                              self.set_root,
-                              node
-                          ))
+        if node.fields.action is None:
+            action = functools.partial(
+                self.set_root,
+                node
+            )
+        else:
+            action = node.fields.action
+
+        QTimer.singleShot(100, action)
 
     @pyqtSlot(bool)
     def esc_clicked(self, _):
