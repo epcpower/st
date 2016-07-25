@@ -87,7 +87,7 @@ def main(args=None):
 
     bus = epyq.busproxy.BusProxy()
 
-    device_file = 'example.epc'
+    device_file = 'example_multidash.epc'
     # TODO: CAMPid 9549757292917394095482739548437597676742
     if not QFileInfo(device_file).isAbsolute():
         device_file = os.path.join(
@@ -139,6 +139,12 @@ def main(args=None):
                          model_node=child)
 
     traverse(menu, menu_root)
+
+    dash_item = epyq.listmenu.Node(text='Dashes')
+    menu_root.append_child(dash_item)
+    for name in device.dash_uis:
+        node = epyq.listmenu.Node(text=name)
+        dash_item.append_child(node)
 
     menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
     ui.list_menu_view.setModel(menu_model)
