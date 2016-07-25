@@ -67,9 +67,11 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                             self.save_frame = frame
                             self.save_signal = signal
                             self.save_value = float(key)
+
+        save_status_name = 'SaveToEE_status'
         for frame in self.status_frames.values():
             for signal in frame.signals:
-                if signal.name == 'SaveToEE_status':
+                if signal.name == save_status_name:
                     for key, value in signal.enumeration.items():
                         if value == 'Enable':
                             self.confirm_save_frame = frame
@@ -77,14 +79,22 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
                             self.confirm_save_signal = signal
                             self.confirm_save_value = float(key)
 
+        if self.confirm_save_frame is None:
+            raise Exception(
+                "'{}' signal not found in NV parameter interface".format(
+                    save_status_name
+                ))
+
+        # TODO: kind of an ugly manual way to connect this
+        self.status_frames[0].set_frame = self.set_frames[0]
         for value, frame in self.set_frames.items():
             signals = [s for s in frame.signals]
             signals = [s for s in signals if s.multiplex is not 'Multiplexor']
             signals = [s for s in signals if s.name not in
                        ['SaveToEE_command', 'ReadParam_command',
                         'CommandSetNVParam_MUX']]
+            frame.send.connect(self.send)
             for nv in signals:
-                nv.frame.send.connect(self.send)
                 self.append_child(nv)
                 nv.frame.status_frame = self.status_frames[value]
                 self.status_frames[value].set_frame = nv.frame
@@ -110,12 +120,16 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
 
     def write_all_to_device(self):
         self.set_status_string.emit('Writing to device...')
-        self.traverse(lambda node: node.write_to_device())
+        self.traverse(
+            call_this=lambda node, batch_set: node.write_to_device(batch_set),
+            payload=set())
         self.set_status_string.emit('Finished writing to device...')
 
     def read_all_from_device(self):
         self.set_status_string.emit('Reading from device...')
-        self.traverse(lambda node: node.read_from_device())
+        self.traverse(
+            call_this=lambda node, batch_set: node.read_from_device(batch_set),
+            payload=set())
         self.all_changed()
         self.set_status_string.emit('Finished reading from device...')
 
@@ -130,12 +144,15 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
     @pyqtSlot(can.Message)
     def send(self, message):
         self.bus.send(message)
-        time.sleep(0.01)
+        time.sleep(0.02)
 
     @pyqtSlot(can.Message)
     def message_received(self, msg):
         multiplex_message, multiplex_value =\
             self.neo.get_multiplex(msg)
+
+        if multiplex_message is None:
+            return
 
         if multiplex_message is self.confirm_save_frame:
             if multiplex_value is self.confirm_save_multiplex_value:
@@ -213,16 +230,22 @@ class Nv(epyq.canneo.Signal, TreeNode):
         # self.fields.value = value
         self.set_human_value(data)
 
-    def write_to_device(self):
+    def write_to_device(self, batch_set):
         # TODO: this is going to be repetitive since there are multiple
         #       values in many of the frames
-        self.frame.send_write()
+        frame = self.frame
+        if frame not in batch_set:
+            frame.send_write()
+            batch_set.add(frame)
 
-    def read_from_device(self):
+    def read_from_device(self, batch_set):
         # TODO: this is going to be repetitive since there are multiple
         #       values in many of the frames
+        frame = self.frame
         self.clear()
-        self.frame.send_read()
+        if frame not in batch_set:
+            frame.send_read()
+            batch_set.add(frame)
         # TODO: then we'll have to receive them too...
 
     def clear(self):

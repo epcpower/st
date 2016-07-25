@@ -32,6 +32,47 @@ class BusProxy(QObject):
             #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
             sent = self.bus.send(msg)
 
+            # TODO: this is really hacky and shouldn't be needed but it seems
+            #       to be to keep from forcing socketcan offbus.  the issue
+            #       can be recreated with the following snippet.
+            # import can
+            # import time
+            # bus = can.interface.Bus(bustype='socketcan', channel='can0')
+            # msg = can.message.Message(arbitration_id=0x00FFAB80, bytearray([0, 0, 0, 0, 0, 0, 0, 0]))
+            # for i in range(50):
+            #   bus.send(msg)
+            #   time.sleep(.0003)
+            #
+            #       which results in stuff like
+            #
+            # altendky@tp:/epc/bin$ can0; candump -L -x can0,#FFFFFFFF | grep -E '(0[04]FFAB(88|90|80)|can0 2)'
+            # (1469135699.755374) can0 00FFAB80#0000000000000000
+            # (1469135699.755462) can0 00FFAB80#0000000000000000
+            # (1469135699.755535) can0 00FFAB80#0000000000000000
+            # (1469135699.755798) can0 00FFAB80#0000000000000000
+            # (1469135699.755958) can0 00FFAB80#0000000000000000
+            # (1469135699.756132) can0 00FFAB80#0000000000000000
+            # (1469135699.756446) can0 00FFAB80#0000000000000000
+            # (1469135699.756589) can0 20000004#000C000000000000
+            # (1469135699.756589) can0 20000004#0030000000000000
+            # (1469135699.756731) can0 00FFAB80#0000000000000000
+            # (1469135699.757004) can0 00FFAB80#0000000000000000
+            # (1469135699.757187) can0 00FFAB80#0000000000000000
+            # (1469135699.757308) can0 20000040#0000000000000000
+            # (1469135699.757460) can0 00FFAB80#0000000000000000
+            # (1469135699.757634) can0 00FFAB80#0000000000000000
+            # (1469135699.757811) can0 00FFAB80#0000000000000000
+            # (1469135699.757980) can0 00FFAB80#0000000000000000
+            # (1469135699.758173) can0 00FFAB80#0000000000000000
+            # (1469135699.758319) can0 00FFAB80#0000000000000000
+            # (1469135699.758392) can0 00FFAB80#0000000000000000
+            # (1469135699.758656) can0 00FFAB80#0000000000000000
+            # (1469135699.758726) can0 00FFAB80#0000000000000000
+            # (1469135699.758894) can0 00FFAB80#0000000000000000
+
+            if isinstance(self.bus, can.BusABC):
+                time.sleep(0.0005)
+
             self.verify_bus_ok()
 
             # TODO: since send() doesn't always report failures this won't either

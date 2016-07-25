@@ -148,6 +148,7 @@ Var=K2Close unsigned 32,16 -m /u:ms /max:2000	// Maximum time required for the K
 [CommandSetNVParam]
 DLC=8
 Mux=ManageNV 0,14 000Ch -m
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
 Var=SaveToEE_command unsigned 16,2 -m /max:1 /e:Enable
 
 {SENDRECEIVE}

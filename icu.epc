@@ -1,0 +1,17 @@
+{
+    "can_path": "ICUCAN_ID0_FACTORY.sym",
+    "name": "ICU",
+    "serial_number": "42",
+    "node_id_type": "simple",
+    "node_id": "0",
+    "ui_paths": {
+        "Dash": "icu_dash.ui",
+        "Control": "icu_control.ui",
+        "Charge": "icu_charge.ui",
+        "Parameters": "icu_parameters.ui",
+        "Messages": "icu_messages.ui",
+        "CAN": "icu_can.ui",
+        "Test": "icu_test.ui",
+        "Graphs": "icu_graphs.ui"
+    }
+}

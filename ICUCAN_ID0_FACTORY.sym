@@ -1,0 +1,510 @@
+FormatVersion=5.0 // Do not edit this line!
+Title="ICUCAN_ID0"
+
+{ENUMS}
+enum VtSig_State(0="Power On Reset", 1="Ready", 2="Motor", 3="Charge", 
+  4="Fault")
+enum VtSig_RelayAC(0="Open", 1="Closed")
+enum VtSig_PowerAvailAC(0="None", 1="Available")
+enum VtSig_IGBTsEnabled(0="Disabled", 1="Enabled")
+enum VtSig_WakeUpSignal(0="Not Available", 1="Available")
+enum VtSig_RxEnable(0="Disable", 1="Enable")
+enum VtSig_RxMode(0="Charge", 1="Motor")
+enum VtSig_RxFaultClr(0="No Action", 1="Clear Faults")
+enum VtSig_RxSpeedTorqueControl(0="SpeedControl", 1="TorqueControl")
+enum VtSig_RxDirection(0="Forward", 1="Reverse")
+enum VtSig_MessageValidMotor(0="Invalid", 1="Valid")
+enum VtSig_FaultClear(0="Normal", 1="Clear Faults")
+enum VtSig_SpeedTorqueControl(0="Speed Control", 1="Torque Control")
+enum VtSig_ResolverFltOvr(0="Normal", 1="Override")
+enum VtSig_OvercurrentAC(0="Normal", 1="Fault")
+enum BridgeFlt(0="Normal", 1="FLT_A", 2="N/A", 3="FLT_C", 4="OverVoltage", 
+  5="FLT_B", 6="Overcurrent", 7="5V")
+enum VtSig_Fault(0="Normal", 1="GeneralFault")
+enum VtSig_CANStatus(0="Normal", 1="Warning", 3="ErrorPassive")
+enum MotorControlMode(0="U_F", // Volts/Hz
+  1="FOC", // Field Oriented Closed Loop
+  2="N/A", 3="N/A", 4="N/A", 5="N/A", 6="N/A", 7="N/A", 8="N/A", 9="N/A", 
+  10="N/A", 11="N/A", 12="N/A", 13="N/A", 14="N/A", 15="N/A")
+enum ResolverFault(0="LossOfSignal", 1="LossOfTracking", 
+  2="DegradationOfSignal", 3="None")
+enum ReadNV(0="Write", 1="Read", 2="Error", 3="N/A")
+enum ModulatorMode(0="Space Vector", 
+  1="Discontinuous", // Clamps each output for full sector at top/bottom
+  2="N/A", 3="N/A", 4="N/A", 5="N/A", 6="N/A", 7="N/A", 8="N/A")
+enum ReconnectDelay(0="Idle", 1="Active")
+enum Enable(0="Disable", 1="Enable", 2="Error", 3="N/A")
+
+{SEND}
+
+[CommandBits]
+ID=04FFAB90h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=Enable bit 7,1 -m /e:VtSig_RxEnable
+Var=Mode bit 6,1 -m /e:VtSig_RxMode
+Var=FaultClear bit 4,1 -m /e:VtSig_FaultClear
+Var=SpeedTorqueControl bit 3,1 -m /e:VtSig_SpeedTorqueControl
+Var=Direction bit 2,1 -m /e:VtSig_RxDirection
+Var=ResolverFltOvr bit 1,1 -m /e:VtSig_ResolverFltOvr
+Var=UVLOFltOvr bit 0,1 -m /e:VtSig_ResolverFltOvr
+
+[CommandChargeVariables]
+ID=04FFAB88h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=VoltageLimitDC signed 0,16 -m /u:V /min:0 /max:600
+Var=CurrentLimitDC signed 16,16 -m /u:A /min:0 /max:250
+Var=CurrentLimitAC signed 32,16 -m /u:A /min:0 /max:200
+
+[CommandMotorVariables]
+ID=00FFAB80h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=TorqueCommand signed 0,32 -m /u:% /min:-100 /max:100
+Var=SpeedCommand signed 32,32 -m /u:RPM /min:-6000 /max:6000
+
+[CommandMotorHiRes]
+ID=00FFAB98h
+Type=Extended
+DLC=8
+Var=TorqueCommandHiRes signed 0,32 -m /u:% /f:0.1 /min:-100 /max:100
+Var=SpeedCommand signed 32,32 -m /u:RPM /min:-6000 /max:6000
+
+[CommandFactoryControl]
+ID=0CFFAF41h
+Type=Extended
+DLC=8
+Var=WriteSerialNumber unsigned 6,2 -m /e:VtSig_RxEnable
+Var=SerialNumber unsigned 32,32 -m
+Var=FactoryAccess unsigned 16,16 -m
+Var=AlignResolver unsigned 4,2 -m /max:1 /e:VtSig_RxEnable
+
+[CommandSetNVParam]
+ID=0CFFAA41h
+Type=Extended
+DLC=8
+Mux=Param0 0,14 0  -m
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+
+[CommandSetNVParam]
+DLC=8
+Mux=MotorParams1 0,14 1  -m
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=MotorPolePairs_command unsigned 16,16 -m /min:1 /max:16 /d:6
+Var=MotorNomRpm_command unsigned 48,16 -m /u:rpm /max:60000 /d:6000
+
+[CommandSetNVParam]
+DLC=8
+Mux=ResolverParams1 0,14 2  -m
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=ResolverLobes_command unsigned 16,16 -m /min:1 /max:32 /d:2
+Var=ResolverOffset_command unsigned 32,16 -m /f:0.0001 /max:1 /p:4 /d:0.902
+
+[CommandSetNVParam]
+DLC=8
+Mux=HwRev 0,14 3  -m
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=rev unsigned 16,16 -m
+
+[CommandSetNVParam]
+DLC=8
+Mux=MotorSpeedRamp1 0,14 4  -m	// Primary acceleration/deceleration times
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=AccelerationTime1_command unsigned 16,16 -m /u:seconds /f:0.01 /d:3
+Var=DecelerationTime1_command unsigned 32,16 -m /u:seconds /f:0.01 /d:3
+
+[CommandSetNVParam]
+DLC=8
+Mux=MotorUF 0,14 5  -m	// Motor V/Hz profile
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=MotorNomVoltage_command unsigned 16,16 -m /u:Volts /max:600 /d:460
+Var=MotorMinVoltage_command unsigned 32,16 -m /u:Volts /max:100	// Voltage that will be applied between 0 speed and cutoff speed.
+Var=CutoffSpeed_command unsigned 48,16 -m /u:rpm /max:500	// Speed below which voltage defined by MotorMinVoltage_command will be output.
+
+[CommandSetNVParam]
+DLC=8
+Mux=MotorParams2 0,14 6  -m
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=MotorControlMode_command unsigned 16,4 -m /max:1 /e:MotorControlMode /d:1
+Var=MotorMaxID_command unsigned 32,16 -m /u:Amps /f:0.1 /min:100 /max:1000 /d:500	// The current corresponding to a 100% torque command.
+Var=MotorMaxIQ_command unsigned 48,16 -m /u:Amps /f:0.1 /min:100 /max:1000 /d:500	// The current corresponding to a 100% torque command.
+
+[CommandSetNVParam]
+DLC=8
+Mux=MotorSpeedControlGains 0,14 7  -m	// Configure Speed PI controller gains
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=Kp_command unsigned 16,16 -m /f:0.001 /max:30 /p:3 /d:6	// Proportional gain
+Var=Ki_command unsigned 32,16 -m /f:0.001 /max:30 /p:3 /d:0.033
+
+[CommandSetNVParam]
+DLC=8
+Mux=MotorSpeedControlLimits 0,14 8  -m	// Configure Speed PI controller limits
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=MinOutput_command signed 16,16 -m /u:% /min:-100 /max:0 /d:-60	// Minimum controller output
+Var=MaxOutput_command signed 32,16 -m /u:% /min:0 /max:100 /d:60	// Maximum controller output
+
+[CommandSetNVParam]
+DLC=8
+Mux=LVM_ClearingTimes1 0,14 9  -m	// Line Voltage Monitor fault times.
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=VUnder50pct unsigned 16,16 -m /u:ms /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line rms voltage for a phase remains under 50 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=V50to88pct unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:2000	// Determines the fault trip time when Line-to-line rms voltage for a phase remains between 50 and 88 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=V110to120pct unsigned 48,16 -m /u:ms /min:1 /max:30000 /d:1000	// Determines the fault trip time when Line-to-line rms voltage for a phase remains between 110 and 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+
+[CommandSetNVParam]
+DLC=8
+Mux=LVM_ClearingTimes2 0,14 000Ah -m	// Line Voltage Monitor fault times.
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=VOver120 unsigned 16,16 -m /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line rms voltage for a phase remains Over 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+
+[CommandSetNVParam]
+DLC=8
+Mux=LFM_Limits 0,14 000Bh -m	// Line Frequency Monitor limits.
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=FreqHi unsigned 16,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:60.5	// Determines the upper bound, above which the frequency monitor will trip if the line frequency remains for the time specified in FreqHi of the LFM_ClearingTimes Mux.
+Var=FreqLo unsigned 32,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:59.8	// Determines the upper bound, in which the frequency monitor will trip if the line frequency remains below this bound but above the value of FreqVeryLo for the time specified in FreqLo of the LFM_ClearingTimes Mux.
+Var=FreqVeryLo unsigned 48,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:57	// Determines the upper bound, in which the frequency monitor will trip if the line frequency remains below this bound but above the value of FreqVeryLo for the time specified in FreqLo of the LFM_ClearingTimes Mux.
+
+[CommandSetNVParam]
+DLC=8
+Mux=LFM_ClearingTimes 0,14 000Ch -m	// Line Frequency Monitor Trip times
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=ClearingTime_FreqVeryLo unsigned 16,16 -m /u:ms /min:160 /max:160 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains below the value specified in FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+Var=ClearingTime_FreqLo unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains between the value specified in FreqLo and FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+Var=ClearingTime_FreqHi unsigned 48,16 -m /u:ms /min:160 /max:160 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains above the value specified in FreqHi of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+
+[CommandSetNVParam]
+DLC=8
+Mux=Modulator 0,14 000Dh -m
+Var=ReadParam_command unsigned 14,2 -m /max:1 /e:ReadNV
+Var=ModulatorMode_command unsigned 21,3 -m /max:1 /e:ModulatorMode
+Var=MinClampVoltage_command unsigned 32,8 -m /u:% /max:100 /d:5	// Minimum voltage command at which discontinuous modulation is enabled
+Var=FullClampVoltage_command unsigned 40,8 -m /u:% /max:100 /d:20	// Voltage command at which a phase is clamped for a full 60 degree sector duration.
+
+[CommandSetNVParam]
+DLC=8
+Mux=LineMonitor 0,14 000Eh -m
+Var=ReadParam_command unsigned 14,2 -m /max:1 /e:ReadNV
+Var=ReconnectDelay_command unsigned 32,32 -m /u:ms /max:300000 /d:300000
+
+[CommandSetNVParam]
+DLC=8
+Mux=ManageNV 0,14 000Fh -m
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=SaveToEE_command unsigned 16,2 -m /max:1 /e:Enable
+
+[CommandIDQ]
+ID=0CFFA941h
+Type=Extended
+DLC=8
+Var=Id_command signed 0,16 -m /u:% /f:0.1 /min:-100 /max:100
+Var=Iq_command signed 16,16 -m /u:% /f:0.1 /min:-100 /max:100
+
+{SENDRECEIVE}
+
+[StatusMotorTorque]
+ID=00FFAB00h
+Type=Extended
+DLC=8
+CycleTime=10
+Var=TorqueCommanded signed 0,32 -m /u:% /min:-100 /max:100
+Var=TorqueMeasured signed 32,32 -m /u:% /min:-120 /max:120
+
+[StatusTempMotor]
+ID=0CFFAB38h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=TempMotor1 signed 0,32 -m /u:C /min:0 /max:100
+Var=TempMotor2 signed 32,32 -m /u:C /min:0 /max:100
+
+[StatusMotorSpeed]
+ID=00FFAB08h
+Type=Extended
+DLC=8
+CycleTime=10
+Var=SpeedCommanded signed 0,32 -m /u:RPM /min:-6000 /max:6000
+Var=SpeedMeasured signed 32,32 -m /u:RPM /min:-7000 /max:7000
+
+[StatusBits]
+ID=04FFAB20h
+Type=Extended
+DLC=8
+CycleTime=10
+Var=State unsigned 5,3 -m /e:VtSig_State
+Var=RelayAC bit 4,1 -m /e:VtSig_RelayAC
+Var=RelayMotor bit 3,1 -m /e:VtSig_RelayAC
+Var=PowerAvailAC bit 1,1 -m /e:VtSig_PowerAvailAC
+Var=PowerAvailDC bit 2,1 -m /e:VtSig_PowerAvailAC
+Var=IGBTsEnabled bit 15,1 -m /e:VtSig_IGBTsEnabled
+Var=WakeUpSignal bit 14,1 -m /e:VtSig_WakeUpSignal
+Var=RxEnable bit 12,1 -m /e:VtSig_RxEnable
+Var=RxMode bit 11,1 -m /e:VtSig_RxMode
+Var=RxFaultClr bit 10,1 -m /e:VtSig_RxFaultClr
+Var=RxSpeedTorqueControl bit 9,1 -m /e:VtSig_RxSpeedTorqueControl
+Var=RxDirection bit 8,1 -m /e:VtSig_RxDirection
+Var=MessageValidMotor bit 22,1 -m /e:VtSig_MessageValidMotor
+Var=MessageValidCharge bit 21,1 -m /e:VtSig_MessageValidMotor
+Var=MessageValidControl bit 20,1 -m /e:VtSig_MessageValidMotor
+Var=ResolverFltOvr bit 23,1 -m
+Var=UVLOFltOvr bit 19,1 -m
+Var=EnableTests bit 18,1 -m
+Var=BrkPosFB bit 17,1 -m
+Var=FluxWk bit 13,1 -m
+Var=ReconnectDelayed bit 0,1 -m /e:ReconnectDelay
+
+[StatusPower]
+ID=1CFFAB68h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=PowerIn signed 32,32 -m /u:W /min:0 /max:66000
+Var=PowerOut signed 0,32 -m /u:W
+
+[StatusTempInternal]
+ID=0CFFAB50h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=TempInternal signed 0,32 -m /u:C /min:0 /max:100
+Var=n15V_Supply float 32,32 -m /u:V
+
+[StatusControlVolts1]
+ID=0CFFAB48h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=v5p0_Supply float 0,32 -m /u:V
+Var=v3p3_Supply float 32,32 -m /u:V
+
+[StatusControlVolts2]
+ID=0CFFAB40h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=v24_Supply float 0,32 -m /u:V
+Var=v15_Supply float 32,32 -m /u:V
+
+[StatusTempIGBTs]
+ID=0CFFAB30h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=TempIGBT1 signed 0,32 -m /u:C /min:0 /max:100
+Var=TempIGBT2 signed 32,32 -m /u:C /min:0 /max:100
+
+[StatusFaults]
+ID=0CFFAB28h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=BridgeAFault_status unsigned 61,3 -m /e:BridgeFlt   // Each bridge has hardware protection features as a backup to software protection.  This bitfield indicates which, if any of these protection trips is active.
+Var=BridgeBFault_status unsigned 45,3 -m /e:BridgeFlt   // Each bridge has hardware protection features as a backup to software protection.  This bitfield indicates which, if any of these protection trips is active.
+Var=BridgeAVoltageOk_status unsigned 60,1 -m /e:VtSig_Fault   // Indicates whether a hardware trip has been activated.
+Var=OvercurrentAC bit 15,1 -m /e:VtSig_OvercurrentAC
+Var=BridgeBVoltageOk_status unsigned 44,1 -m /e:VtSig_Fault   // Indicates whether a hardware trip has been activated.
+Var=OvervoltageDC bit 13,1 -m /e:VtSig_OvercurrentAC
+Var=OvertempIGBT bit 12,1 -m /e:VtSig_OvercurrentAC
+Var=OvertempInternal bit 11,1 -m /e:VtSig_OvercurrentAC
+Var=LossValidControlMessage bit 10,1 -m /e:VtSig_OvercurrentAC
+Var=Resolver bit 9,1 -m /e:VtSig_OvercurrentAC
+Var=UndervoltageDC bit 8,1 -m /e:VtSig_OvercurrentAC
+Var=ControlHardwareFail bit 7,1 -m /e:VtSig_OvercurrentAC
+Var=OvercurrentDC bit 14,1 -m /e:VtSig_OvercurrentAC
+Var=Fault bit 6,1 -m /e:VtSig_Fault
+Var=CANStatus unsigned 4,2 -m /e:VtSig_CANStatus
+Var=CmdTimeout bit 23,1 -m
+Var=IllegalTransition bit 22,1 -m
+Var=SpdRequestRange bit 21,1 -m
+Var=TrqRequestRange bit 20,1 -m
+Var=ChrgRequestRange bit 19,1 -m
+Var=InvalidEEHeader unsigned 38,1 -m
+Var=InvalidEESection unsigned 36,1 -m
+
+[StatusACParameters]
+ID=04FFAB18h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=VoltageAC signed 0,32 -m /u:V
+Var=CurrentAC signed 32,32 -m /u:A
+
+[StatusDCParameters]
+ID=04FFAB10h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=VoltageDC signed 0,32 -m /u:V /min:0 /max:300
+Var=CurrentDC signed 32,32 -m /u:A /min:0 /max:220
+
+[StatusChargeCommands]
+ID=1CFFAB70h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=CurrentLimitDCCommanded signed 16,16 -m /u:A /min:0 /max:250
+Var=VoltageLimitDCCommanded signed 0,16 -m /u:V /min:0 /max:600
+Var=CurrentLimitACCommanded signed 32,16 -m /u:Arms /min:0 /max:200
+Var=State unsigned 48,3 -m /e:VtSig_State
+
+[StatusDQCmds]
+ID=1CFFAB58h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=q unsigned 0,32 -m
+Var=d unsigned 32,32 -m
+
+[StatusModulation]
+ID=1CFFAB60h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=comp unsigned 0,32 -m
+Var=index unsigned 32,32 -m
+
+[StatusResolverFlts]
+ID=1CFFAB78h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=lastFault unsigned 0,16 -m /e:ResolverFault
+Var=faultCount unsigned 16,16 -m
+
+[softwareRev]
+ID=1CFFABC0h
+Type=Extended
+DLC=8
+Var=rev string 0,64 -m /d:"ICUx-03p"
+
+[serialNumber]
+ID=1CFFCCF7h
+Type=Extended
+DLC=8
+Var=SerialNumber unsigned 0,32 -m /max:65535
+Var=HardwareRev unsigned 32,16 -m
+
+[softwareRevGit]
+ID=1CFFCDF7h
+Type=Extended
+DLC=8
+Var=Hash unsigned 0,28 -h -m
+
+[StatusNVParam]
+ID=1CFFA9F7h
+Type=Extended
+DLC=8
+Mux=Param0 0,14 0  -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+
+[StatusNVParam]
+DLC=8
+Mux=MotorParams1 0,14 1  -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=MotorPolePairs_status unsigned 16,16 -m /min:1 /max:16 /d:6
+Var=MotorNomRpm_status unsigned 48,16 -m /u:rpm /max:60000 /d:6000
+
+[StatusNVParam]
+DLC=8
+Mux=ResolverParams1 0,14 2  -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=ResolverLobes_status unsigned 16,16 -m /min:1 /max:32 /d:4
+Var=ResolverOffset_status unsigned 32,16 -m /f:0.0001 /max:1 /p:4 /d:0.902
+
+[StatusNVParam]
+DLC=8
+Mux=HwRev 0,14 3  -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=rev unsigned 16,16 -m
+
+[StatusNVParam]
+DLC=8
+Mux=MotorSpeedRamp1 0,14 4  -m	// Primary acceleration/deceleration times
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=AccelerationTime1_status unsigned 16,16 -m /u:seconds /f:0.01 /d:3
+Var=DecelerationTime1_status unsigned 32,16 -m /u:seconds /f:0.01 /d:3
+
+[StatusNVParam]
+DLC=8
+Mux=MotorUF 0,14 5  -m	// Motor V/Hz profile
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=MotorNomVoltage_status unsigned 16,16 -m /u:Volts /max:600 /d:460
+Var=MotorMinVoltage_status unsigned 32,16 -m /u:Volts /max:100	// Voltage that will be applied between 0 speed and cutoff speed.
+Var=CutoffSpeed_status unsigned 48,16 -m /u:rpm /max:500	// Speed below which voltage defined by MotorMinVoltage_command will be output.
+
+[StatusNVParam]
+DLC=8
+Mux=MotorParams2 0,14 6  -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=MotorControlMode_status unsigned 16,4 -m /max:1 /e:MotorControlMode
+Var=MotorMaxID_status unsigned 32,16 -m /u:Amps /f:0.1 /min:100 /max:580 /d:500	// The current corresponding to a 100% torque command.
+Var=MotorMaxIQ_status unsigned 48,16 -m /u:Amps /f:0.1 /min:100 /max:580 /d:500	// The current corresponding to a 100% torque command.
+
+[StatusNVParam]
+DLC=8
+Mux=MotorSpeedControlGains 0,14 7  -m	// Configure Speed PI controller gains
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=Kp_status unsigned 16,16 -m /f:0.001 /max:30 /p:3 /d:6	// Proportional gain
+Var=Ki_status unsigned 32,16 -m /f:0.001 /max:30 /p:3 /d:0.033
+
+[StatusNVParam]
+DLC=8
+Mux=MotorSpeedControlLimits 0,14 8  -m	// Configure Speed PI controller limits
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=MinOutput_status signed 16,16 -m /u:% /min:-100 /max:0 /d:-60	// Minimum controller output
+Var=MaxOutput_status signed 32,16 -m /u:% /min:0 /max:100 /d:60	// Maximum controller output
+
+[StatusNVParam]
+DLC=8
+Mux=LVM_ClearingTimes1 0,14 9  -m	// Line Voltage Monitor fault times.
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=VUnder50pct unsigned 16,16 -m /u:ms /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line rms voltage for a phase remains under 50 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=V50to88pct unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:2000	// Determines the fault trip time when Line-to-line rms voltage for a phase remains between 50 and 88 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=V110to120pct unsigned 48,16 -m /u:ms /min:1 /max:30000 /d:1000	// Determines the fault trip time when Line-to-line rms voltage for a phase remains between 110 and 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+
+[StatusNVParam]
+DLC=8
+Mux=LVM_ClearingTimes2 0,14 000Ah -m	// Line Voltage Monitor fault times.
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=VOver120 unsigned 16,16 -m /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line rms voltage for a phase remains Over 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+
+[StatusNVParam]
+DLC=8
+Mux=LFM_Limits 0,14 000Bh -m	// Line Frequency Monitor limits.
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=FreqHi unsigned 16,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:60.5	// Determines the upper bound, above which the frequency monitor will trip if the line frequency remains for the time specified in FreqHi of the LFM_ClearingTimes Mux.
+Var=FreqLo unsigned 32,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:59.8	// Determines the upper bound, in which the frequency monitor will trip if the line frequency remains below this bound but above the value of FreqVeryLo for the time specified in FreqLo of the LFM_ClearingTimes Mux.
+Var=FreqVeryLo unsigned 48,16 -m /u:Hz /f:0.1 /min:40 /max:70 /d:57	// Determines the upper bound, in which the frequency monitor will trip if the line frequency remains below this bound but above the value of FreqVeryLo for the time specified in FreqLo of the LFM_ClearingTimes Mux.
+
+[StatusNVParam]
+DLC=8
+Mux=LFM_ClearingTimes 0,14 000Ch -m	// Line Frequency Monitor Trip times
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=ClearingTime_FreqVeryLo unsigned 16,16 -m /u:ms /min:160 /max:160 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains below the value specified in FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+Var=ClearingTime_FreqLo unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains between the value specified in FreqLo and FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+Var=ClearingTime_FreqHi unsigned 48,16 -m /u:ms /min:160 /max:160 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains above the value specified in FreqHi of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+
+[StatusNVParam]
+DLC=8
+Mux=Modulator 0,14 000Dh  -m
+Var=ReadParam_status unsigned 14,2 -m /max:1 /e:ReadNV
+Var=ModulatorMode_status unsigned 21,3 -m /max:1 /e:ModulatorMode
+Var=MinClampVoltage_status unsigned 32,8 -m /u:% /max:100 /d:5	// Minimum voltage command at which discontinuous modulation is enabled
+Var=FullClampVoltage_status unsigned 40,8 -m /u:% /max:100 /d:20	// Voltage command at which a phase is clamped for a full 60 degree sector duration.
+
+[StatusNVParam]
+DLC=8
+Mux=LineMonitor 0,14 000Eh -m
+Var=ReadParam_status unsigned 14,2 -m /max:1 /e:ReadNV
+Var=ReconnectDelay_status unsigned 32,32 -m /u:ms /max:300000 /d:300000
+
+[StatusNVParam]
+DLC=8
+Mux=ManageNV 0,14 000Fh -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=SaveToEE_status unsigned 16,2 -m /max:1 /e:Enable
+

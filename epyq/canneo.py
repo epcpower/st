@@ -336,7 +336,8 @@ class Frame(QtCanListener):
                 # raise Exception('frame too long!')
                 print('Frame too long!  (but this is expected for now since the DBC seems wrong)')
             elif padding > 0:
-                Pad(bit, padding)
+                pad = Pad(bit, padding)
+                padded_signals.append(pad)
 
             self.signals = padded_signals
             self.padded = True
@@ -378,7 +379,7 @@ class Frame(QtCanListener):
     def unpack(self, data, report_error=True):
         rx_length = len(data)
         if rx_length != self.size and report_error:
-            print('Received message {self.id} with length {rx_length}, expected {self.size}'.format(**locals()))
+            print('Received message 0x{self.id:08X} with length {rx_length}, expected {self.size}'.format(**locals()))
         else:
             self.pad()
 
@@ -461,7 +462,7 @@ class Frame(QtCanListener):
 
 class Neo(QtCanListener):
     def __init__(self, matrix, frame_class=Frame, signal_class=Signal,
-                 rx_interval=0, bus=None, parent=None):
+                 rx_interval=0, bus=None, node_id_adjust=None, parent=None):
         QtCanListener.__init__(self, self.message_received, parent=parent)
 
         self.frame_rx_timestamps = {}
@@ -470,6 +471,8 @@ class Neo(QtCanListener):
         frames = []
 
         for frame in matrix._fl._list:
+            if node_id_adjust is not None:
+                frame._Id = node_id_adjust(frame._Id)
             multiplex_signal = None
             for signal in frame._signals:
                 if signal._multiplex == 'Multiplexor':

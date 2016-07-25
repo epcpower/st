@@ -20,7 +20,8 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
                               name=self.name,
                               length='{} b'.format(self.signal_size),
                               value='-',
-                              dt=None)
+                              dt='-',
+                              count='')
         self.last_time = None
 
     def unique(self):
@@ -82,8 +83,8 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
                               name=name,
                               length='{} B'.format(self.size),
                               value='-',
-                              dt=None,
-                              count=count)
+                              dt='-',
+                              count=str(count))
 
     @property
     def send_checked(self):
@@ -165,7 +166,7 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         self.count['rx'] += 1
 
         if not self.tx:
-            self.fields.count = self.count['rx']
+            self.fields.count = str(self.count['rx'])
 
         epyq.canneo.Frame.message_received(self, message)
 
@@ -173,7 +174,7 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         self.count['tx'] += 1
 
         if self.tx:
-            self.fields.count = self.count['tx']
+            self.fields.count = str(self.count['tx'])
             self.tree_parent.changed.emit(
                 self, Columns.indexes.count,
                 self, Columns.indexes.count,
@@ -229,6 +230,13 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
         #       Rx will add in order received
         self.children.sort(key=lambda c: c.name)
 
+        self.fields = Columns(id='',
+                      name='',
+                      length='',
+                      value='',
+                      dt='',
+                      count='')
+
     def set_node_id(self, node_id):
         # TODO: I think this can go away
         self.node_id = node_id
@@ -247,14 +255,6 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
                 dlc=message.dlc,
                 transmitter=None
             )
-            # TODO: Stop doing this when T271 is fixed
-            signal = canmatrix.canmatrix.Signal(
-                name='',
-                startBit=0,
-                signalSize=8*message.dlc,
-                is_signed=False
-            )
-            frame.addSignal(signal)
             message_node = MessageNode(message=message, tx=tx, frame=frame)
             self.neo.frames.append(message_node)
 
@@ -286,19 +286,14 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
             message = self.messages[id]
 
         message.extract_message(msg)
-        # TODO: for some reason this doesn't seem to needed and
-        #       significantly (3x) increases cpu usage
-        # self.changed.emit(message, Columns.indexes.value,
-        #                   message, Columns.indexes.count)
+        self.changed.emit(
+            message, Columns.indexes.value,
+            message, Columns.indexes.count,
+            [Qt.DisplayRole])
         if len(message.children) > 0:
             self.changed.emit(
                 message.children[0], Columns.indexes.value,
                 message.children[-1], Columns.indexes.count,
-                [Qt.DisplayRole])
-        else:
-            self.changed.emit(
-                message, Columns.indexes.value,
-                message, Columns.indexes.count,
                 [Qt.DisplayRole])
 
     def unique(self):

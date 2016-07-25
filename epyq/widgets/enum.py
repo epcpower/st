@@ -28,7 +28,7 @@ class Enum(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
     def set_value(self, value):
         if self.signal_object is not None:
-            if len(self.signal_object.signal._values) > 0:
+            if len(self.signal_object.enumeration) > 0:
                 value = self.signal_object.full_string
             else:
                 value = self.signal_object.format_float()
@@ -44,11 +44,13 @@ class Enum(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         if signal is not self.signal_object:
             self.ui.value.clear()
             if signal is not None:
+
+
                 full_strings = []
                 # TODO: CAMPid 94562754956589992752348667
-                for value in sorted(signal.signal._values.keys()):
+                for value in sorted(signal.enumeration.keys()):
                     # TODO: CAMPid 85478672616219005471279
-                    enum_string = signal.signal._values[value]
+                    enum_string = signal.enumeration[value]
                     full_strings.append(signal.enumeration_format_re['format'].format(
                         s=enum_string, v=value))
 

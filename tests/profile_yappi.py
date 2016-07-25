@@ -30,10 +30,10 @@ class Bunch:
 
 def main():
     print('Main TID: {}'.format(gettid()))
-    can_file = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)),
-        '..', 'epyq', 'AFE_CAN_ID247_FACTORY.sym')
-    args = Bunch(can=can_file, generate=False)
+    args = Bunch(channel=None,
+                 devices=[],
+                 generate=False,
+                 ui='main.ui')
     yappi.start()
     exit_value = epyq.__main__.main(args=args)
     yappi.stop()

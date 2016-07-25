@@ -11,6 +11,9 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+unique_role = Qt.UserRole
+
+
 class PyQAbstractItemModel(QAbstractItemModel):
     root_changed = pyqtSignal(TreeNode)
 
@@ -23,67 +26,78 @@ class PyQAbstractItemModel(QAbstractItemModel):
         self.editable_columns = editable_columns
 
         if alignment is not None:
-            self.alignment = QVariant(int(alignment))
+            self.alignment = alignment
         else:
-            self.alignment = QVariant(int(Qt.AlignTop | Qt.AlignLeft))
+            self.alignment = Qt.AlignTop | Qt.AlignLeft
 
         self.index_from_node_cache = {}
+
+        self.role_functions = {
+            Qt.DisplayRole: self.data_display,
+            unique_role: self.data_unique,
+            Qt.TextAlignmentRole: lambda index: int(self.alignment),
+            Qt.CheckStateRole: self.data_check_state,
+            Qt.EditRole: self.data_edit
+        }
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return QVariant(self.headers[section])
         return QVariant()
 
-    def data(self, index, role):
-        if role == Qt.DecorationRole:
-            return QVariant()
+    def data_display(self, index):
+        node = index.internalPointer()
 
-        if role == Qt.TextAlignmentRole:
-            return self.alignment
+        try:
+            return node.fields[index.column()]
+        except IndexError:
+            return None
 
-        if role == Qt.CheckStateRole:
-            if self.checkbox_columns is not None:
-                if self.checkbox_columns[index.column()]:
-                    node = self.node_from_index(index)
-                    try:
-                        return node.checked(index.column())
-                    except AttributeError:
-                        return QVariant()
+    def data_unique(self, index):
+        return index.internalPointer().unique()
 
-        if role == Qt.DisplayRole:
-            node = self.node_from_index(index)
-
-            if index.column() == len(self.headers):
-                return QVariant(node.unique())
-            else:
+    def data_check_state(self, index):
+        if self.checkbox_columns is not None:
+            if self.checkbox_columns[index.column()]:
+                node = index.internalPointer()
                 try:
-                    return QVariant(node.fields[index.column()])
-                except IndexError:
-                    return QVariant()
+                    return node.checked(index.column())
+                except AttributeError:
+                    return None
 
-        if role == Qt.EditRole:
-            node = self.node_from_index(index)
+    def data_edit(self, index):
+        node = index.internalPointer()
+        try:
+            get = node.get_human_value
+        except AttributeError:
+            value = node.fields[index.column()]
+        else:
             try:
-                get = node.get_human_value
-            except AttributeError:
-                value = node.fields[index.column()]
-            else:
-                try:
-                    value = get()
-                except TypeError:
-                    value = ''
-
-            if value is None:
+                value = get()
+            except TypeError:
                 value = ''
-            else:
-                value = str(value)
 
-            return QVariant(value)
+        if value is None:
+            value = ''
+        else:
+            value = str(value)
 
-        return QVariant()
+        return value
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+
+        try:
+            return self.role_functions[role](index=index)
+        except KeyError:
+            return None
 
     def flags(self, index):
         flags = QAbstractItemModel.flags(self, index)
+
+        if not index.isValid():
+            return flags
 
         if self.editable_columns is not None:
             if self.editable_columns[index.column()]:
@@ -107,11 +121,14 @@ class PyQAbstractItemModel(QAbstractItemModel):
         # if not parent.isValid():
         #     return QModelIndex()
 
+        if row < 0 or column < 0:
+            return QModelIndex()
+
         node = self.node_from_index(parent)
         child = node.child_at_row(row)
 
-        # if child is None:
-        #     return QModelIndex()
+        if child is None:
+            return QModelIndex()
 
         return self.createIndex(row, column, child)
 
@@ -119,6 +136,16 @@ class PyQAbstractItemModel(QAbstractItemModel):
         return len(self.headers)
 
     def rowCount(self, parent):
+        # TODO: this seems pretty particular to my present model
+        #       "the second column should NOT have the same children
+        #       as the first column in a row"
+        #       https://github.com/bgr/PyQt5_modeltest/blob/62bc86edbad065097c4835ceb4eee5fa3754f527/modeltest.py#L222
+        #
+        #       then again, the Qt example does just this
+        #       http://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
+        if parent.column() > 0:
+            return 0
+
         node = self.node_from_index(parent)
         if node is None:
             return 0
@@ -160,8 +187,8 @@ class PyQAbstractItemModel(QAbstractItemModel):
             if node is self.root:
                 index = QModelIndex()
             else:
-                index = self.match(self.index(0, len(self.headers), QModelIndex()),
-                                   Qt.DisplayRole,
+                index = self.match(self.index(0, 0, QModelIndex()),
+                                   unique_role,
                                    node.unique(),
                                    1,
                                    Qt.MatchRecursive)[0]
