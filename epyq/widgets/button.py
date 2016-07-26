@@ -33,6 +33,21 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
         if signal is not None:
             self.set(0)
+
+            def get_text_width(widget, text):
+                return widget.fontMetrics().boundingRect(text).width()
+
+            button = self.ui.value
+            # TODO: it would be nice to use the 'normal' extra width
+            # initial_margin = button.width() - get_text_width(button,
+            #                                                  button.text())
+
+            widths = []
+            for text in [self.calculate_text(v) for v in
+                         self.signal_object.enumeration]:
+                widths.append(get_text_width(button, text))
+
+            button.setMinimumWidth(1.3 * max(widths))
         else:
             self.ui.value.setText('')
 
@@ -40,7 +55,7 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         self.widget_value_changed(value)
         self.set_text(value)
 
-    def set_text(self, value):
+    def calculate_text(self, value):
         # TODO: CAMPid 85478672616219005471279
         try:
             enum_string = self.signal_object.enumeration[value]
@@ -49,7 +64,10 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         except (AttributeError, KeyError):
             text = str(value)
 
-        self.ui.value.setText(text)
+        return text
+
+    def set_text(self, value):
+        self.ui.value.setText(self.calculate_text(value))
 
     def pressed(self):
         self.set(1)
