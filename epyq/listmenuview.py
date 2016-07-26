@@ -8,6 +8,7 @@ import io
 import math
 import os
 from PyQt5 import QtWidgets, uic
+from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import QAbstractSlider
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QFile, QFileInfo, QTextStream,
                           QCoreApplication, QModelIndex)
@@ -47,6 +48,8 @@ class ListMenuView(QtWidgets.QWidget):
             QAbstractSlider.SliderPageStepAdd
         )
         self.ui.down_button.clicked.connect(down)
+
+        self.ui.list_view.viewport().setAutoFillBackground(False)
 
         self.ui.list_view.clicked.connect(self.clicked)
 
@@ -112,6 +115,7 @@ class ListMenuView(QtWidgets.QWidget):
     def root_changed(self, node):
         self.ui.label.setText(node.fields.name)
         self.ui.list_view.scrollToTop()
+        self.ui.esc_button.setDisabled(node.tree_parent is None)
 
     def set_padding(self, padding):
         self.setStyleSheet('''
@@ -121,18 +125,14 @@ class ListMenuView(QtWidgets.QWidget):
             }}
         '''.format(padding))
 
-    def update_item_padding(self):
+    def update_calculated_layout(self):
         minimum_padding = 0
         self.set_padding(minimum_padding)
 
         view = self.ui.list_view
         model = self.model
 
-        margins = view.contentsMargins()
-        list = (
-            view.contentsRect().height() -
-            (margins.top() + margins.bottom())
-        )
+        list = view.contentsRect().height()
         item = view.itemDelegate().sizeHint(
             view.viewOptions(),
             model.index_from_node(
@@ -141,6 +141,12 @@ class ListMenuView(QtWidgets.QWidget):
         remainder = list % item
         padding = minimum_padding + (remainder / most_items) / 2
         self.set_padding(padding)
+
+        for button in [self.ui.down_button,
+                       self.ui.up_button,
+                       self.ui.esc_button]:
+            # TODO: CAMPid 98754713241621231778985432
+            button.setMaximumWidth(button.height())
 
 
 if __name__ == '__main__':

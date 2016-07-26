@@ -17,7 +17,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QPushButton" name="back_button">
+      <widget class="QPushButton" name="menu_button">
        <property name="font">
         <font>
          <family>FontAwesome</family>

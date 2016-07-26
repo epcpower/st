@@ -45,7 +45,8 @@ from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
                           QSettings, Qt, pyqtSlot, QMarginsF, QTextCodec)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
-                             QListWidgetItem, QAction, QMenu)
+                             QListWidgetItem, QAction, QMenu, QFrame,
+                             QAbstractScrollArea)
 from PyQt5.QtGui import QPixmap, QPicture
 import time
 import traceback
@@ -127,7 +128,7 @@ def main(args=None):
     with open('menu.json') as f:
         menu = json.load(f, object_pairs_hook=OrderedDict)
 
-    menu_root = epyq.listmenu.Node(text='root')
+    menu_root = epyq.listmenu.Node(text='Main Menu')
 
     def traverse(dict_node, model_node):
         for key, value in dict_node.items():
@@ -139,7 +140,7 @@ def main(args=None):
 
     traverse(menu, menu_root)
 
-    dash_item = epyq.listmenu.Node(text='Dashes')
+    dash_item = epyq.listmenu.Node(text='Dashboards')
     menu_root.append_child(dash_item)
     for name, dash in device.dash_uis.items():
         node = epyq.listmenu.Node(
@@ -157,7 +158,7 @@ def main(args=None):
     menu.setModel(menu_model)
     ui.stacked.addWidget(menu)
 
-    ui.back_button.clicked.connect(
+    ui.menu_button.clicked.connect(
         functools.partial(
             ui.stacked.setCurrentWidget,
             menu
@@ -166,12 +167,33 @@ def main(args=None):
 
     ui.stacked.setCurrentWidget(menu)
 
+    def traverse(widget):
+        try:
+            widget.setFlat(True)
+        except AttributeError:
+            pass
+        try:
+            widget.setFocusPolicy(Qt.NoFocus)
+        except AttributeError:
+            pass
+
+        if isinstance(widget, QAbstractScrollArea):
+            widget.setFrameStyle(QFrame.NoFrame)
+
+        for child in widget.children():
+            traverse(child)
+
+    traverse(ui)
+
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
         ui.showFullScreen()
     else:
         ui.show()
 
-    menu.update_item_padding()
+    # TODO: CAMPid 98754713241621231778985432
+    # ui.menu_button.setMaximumWidth(ui.menu_button.height())
+
+    menu.update_calculated_layout()
 
     return app.exec_()
 
