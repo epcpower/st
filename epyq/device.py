@@ -36,13 +36,13 @@ def j1939_node_id_adjust(message_id, node_id):
     raise Exception('J1939 node id adjustment not yet implemented')
 
 
-def transpower_node_id_adjust(message_id, node_id):
+def simple_node_id_adjust(message_id, node_id):
     return message_id + node_id
 
 
 node_id_types = OrderedDict([
     ('j1939', j1939_node_id_adjust),
-    ('simple', transpower_node_id_adjust)
+    ('simple', simple_node_id_adjust)
 ])
 
 
