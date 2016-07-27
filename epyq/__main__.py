@@ -40,6 +40,9 @@ import functools
 import io
 import math
 import platform
+import socket
+# TODO: figure out why this is negative on embedded... :[
+socket.CAN_EFF_FLAG = abs(socket.CAN_EFF_FLAG)
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
@@ -100,24 +103,13 @@ def main(args=None):
                                 rx_interval=1)
     # TODO: CAMPid 9757656124812312388543272342377
 
-    CAN_EFF_MASK = 0x1FFFFFFF
-    CAN_EFF_FLAG = 0x80000000
-    CAN_RTR_FLAG = 0x40000000
-    filters = [
-        {
-            'can_id': frame.id | CAN_EFF_FLAG,
-            'can_mask': CAN_EFF_MASK | CAN_EFF_FLAG | CAN_RTR_FLAG
-        }
-        for frame in device.connected_frames
-    ]
-
     interface = 'socketcan'
     channel = 'can0'
 
     # TODO: CAMPid 9756652312918432656896822
     if interface != 'offline':
         real_bus = can.interface.Bus(bustype=interface, channel=channel,
-                                     can_filters=filters)
+                                     can_filters=[])
     else:
         real_bus = None
     bus.set_bus(bus=real_bus)
@@ -140,14 +132,28 @@ def main(args=None):
 
     traverse(menu, menu_root)
 
+    def focus_dash(name, dash):
+        filters = [
+            {
+                'can_id': frame.id | socket.CAN_EFF_FLAG,
+                'can_mask': socket.CAN_EFF_MASK |
+                            socket.CAN_EFF_FLAG |
+                            socket.CAN_RTR_FLAG
+            }
+            for frame in device.dash_connected_frames[name]
+        ]
+        real_bus.setFilters(filters)
+        ui.stacked.setCurrentWidget(dash)
+
     dash_item = epyq.listmenu.Node(text='Dashboards')
     menu_root.append_child(dash_item)
     for name, dash in device.dash_uis.items():
         node = epyq.listmenu.Node(
             text=name,
             action=functools.partial(
-                ui.stacked.setCurrentWidget,
-                dash
+                focus_dash,
+                name=name,
+                dash=dash
             )
         )
         dash_item.append_child(node)
@@ -158,12 +164,11 @@ def main(args=None):
     menu.setModel(menu_model)
     ui.stacked.addWidget(menu)
 
-    ui.menu_button.clicked.connect(
-        functools.partial(
-            ui.stacked.setCurrentWidget,
-            menu
-        )
-    )
+    def to_menu():
+        real_bus.setFilters(can_filters=[])
+        ui.stacked.setCurrentWidget(menu)
+
+    ui.menu_button.clicked.connect(to_menu)
 
     ui.stacked.setCurrentWidget(menu)
 

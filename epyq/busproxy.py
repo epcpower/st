@@ -152,14 +152,20 @@ class BusProxy(QObject):
                     pass
 
 class NotifierProxy(QtCanListener):
-    def __init__(self, bus, listeners=[], parent=None):
+    def __init__(self, bus, listeners=[], filtered_ids=None, parent=None):
         QtCanListener.__init__(self, receiver=self.message_received, parent=parent)
 
         self.listeners = set(listeners)
+        if filtered_ids is None:
+            self.filtered_ids = None
+        else:
+            self.filtered_ids = set(filtered_ids)
 
     def message_received(self, message):
-        for listener in self.listeners:
-            listener.message_received_signal.emit(message)
+        if (self.filtered_ids is None or
+                message.arbitration_id in self.filtered_ids):
+            for listener in self.listeners:
+                listener.message_received_signal.emit(message)
 
     def add(self, listener):
         self.listeners.add(listener)

@@ -260,28 +260,31 @@ class Device:
         for notifiee in notifiees:
             notifier.add(notifiee)
 
-        # TODO: CAMPid 99457281212789437474299
-        children = self.ui.findChildren(QObject)
-        widgets = [c for c in children if
-                   isinstance(c, AbstractWidget)]
+        self.dash_connected_frames = {}
+        for name, dash in self.dash_uis.items():
+            # TODO: CAMPid 99457281212789437474299
+            children = dash.findChildren(QObject)
+            widgets = [c for c in children if
+                       isinstance(c, AbstractWidget)]
 
-        self.connected_frames = []
+            self.dash_connected_frames[name] = set()
+            frames = self.dash_connected_frames[name]
 
-        for widget in widgets:
-            frame_name = widget.property('frame')
-            signal_name = widget.property('signal')
+            for widget in widgets:
+                frame_name = widget.property('frame')
+                signal_name = widget.property('signal')
 
-            widget.set_range(min=0, max=100)
-            widget.set_value(42)
+                widget.set_range(min=0, max=100)
+                widget.set_value(42)
 
-            # TODO: add some notifications
-            frame = self.neo_frames.frame_by_name(frame_name)
-            if frame is not None:
-                signal = frame.signal_by_name(signal_name)
-                if signal is not None:
-                    self.connected_frames.append(frame)
-                    widget.set_signal(signal)
-                    frame.user_send_control = False
+                # TODO: add some notifications
+                frame = self.neo_frames.frame_by_name(frame_name)
+                if frame is not None:
+                    signal = frame.signal_by_name(signal_name)
+                    if signal is not None:
+                        frames.add(frame)
+                        widget.set_signal(signal)
+                        frame.user_send_control = False
 
     def get_frames(self):
         return self.frames
