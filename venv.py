@@ -131,7 +131,7 @@ else:
 
     zip_repos = {
         'python-can': 'https://bitbucket.org/altendky/python-can/get/'
-                      '114b6b3db88f9d877c77b7a04e26c30d716ea6dc.zip',
+                      '076a7864f1e292647a501ae60ea90f62b5703d71.zip',
         'canmatrix': 'https://github.com/ebroecker/canmatrix/archive/'
                      '7f6a03feb436bcfad4d54d57f6f2b8edee0b444a.zip',
         'bitstruct': 'https://github.com/altendky/bitstruct/archive/'

@@ -4,7 +4,7 @@
 
 from epyq.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QAbstractItemModel, QVariant,
-                          QModelIndex, pyqtSlot)
+                          QModelIndex, pyqtSignal, pyqtSlot)
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -15,20 +15,27 @@ unique_role = Qt.UserRole
 
 
 class PyQAbstractItemModel(QAbstractItemModel):
+    root_changed = pyqtSignal(TreeNode)
+
     def __init__(self, root, checkbox_columns=None, editable_columns=None,
-                 parent=None):
+                 alignment=None, parent=None):
         QAbstractItemModel.__init__(self, parent=parent)
 
         self.root = root
         self.checkbox_columns = checkbox_columns
         self.editable_columns = editable_columns
 
+        if alignment is not None:
+            self.alignment = alignment
+        else:
+            self.alignment = Qt.AlignTop | Qt.AlignLeft
+
         self.index_from_node_cache = {}
 
         self.role_functions = {
             Qt.DisplayRole: self.data_display,
             unique_role: self.data_unique,
-            Qt.TextAlignmentRole: lambda index: int(Qt.AlignTop | Qt.AlignLeft),
+            Qt.TextAlignmentRole: lambda index: int(self.alignment),
             Qt.CheckStateRole: self.data_check_state,
             Qt.EditRole: self.data_edit
         }
@@ -155,7 +162,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
 
         parent = node.tree_parent
 
-        if parent is None:
+        if parent in [None, self.root]:
             return QModelIndex()
 
         grandparent = parent.tree_parent
@@ -228,6 +235,14 @@ class PyQAbstractItemModel(QAbstractItemModel):
     def end_remove_rows(self):
         self.index_from_node_cache = {}
         self.endRemoveRows()
+
+    @pyqtSlot()
+    def set_root(self, root):
+        self.beginResetModel()
+        self.root = root
+        self.endResetModel()
+        self.root_changed.emit(root)
+
 
 if __name__ == '__main__':
     import sys

@@ -65,7 +65,8 @@ class Device:
     def __del__(self):
         self.bus.set_bus()
 
-    def _init_from_file(self, file, bus=None):
+    def _init_from_file(self, file, bus=None, dash_only=False,
+                        rx_interval=0):
         try:
             zip_file = zipfile.ZipFile(file)
         except zipfile.BadZipFile:
@@ -75,11 +76,14 @@ class Device:
             except TypeError:
                 return
             else:
-                self._load_config(file=file, bus=bus)
+                self._load_config(file=file, bus=bus, dash_only=dash_only,
+                                  rx_interval=rx_interval)
         else:
-            self._init_from_zip(zip_file, bus=bus)
+            self._init_from_zip(zip_file, bus=bus, dash_only=dash_only,
+                                rx_interval=rx_interval)
 
-    def _load_config(self, file, bus=None):
+    def _load_config(self, file, bus=None, dash_only=False,
+                     rx_interval=0):
         s = file.read()
         d = json.loads(s, object_pairs_hook=OrderedDict)
 
@@ -112,9 +116,12 @@ class Device:
         self._init_from_parameters(
             uis=self.ui_paths,
             serial_number=d.get('serial_number', ''),
-            name=d.get('name', ''))
+            name=d.get('name', ''),
+            dash_only=dash_only,
+            rx_interval=rx_interval)
 
-    def _init_from_zip(self, zip_file, bus=None):
+    def _init_from_zip(self, zip_file, bus=None, dash_only=False,
+                       rx_interval=0):
         path = tempfile.mkdtemp()
         zip_file.extractall(path=path)
         # TODO error dialog if no .epc found in zip file
@@ -123,14 +130,17 @@ class Device:
                 file = os.path.join(path, f)
         self.config_path = os.path.abspath(file)
         with open(file, 'r') as file:
-            self._load_config(file, bus=bus)
+            self._load_config(file, bus=bus, dash_only=dash_only,
+                              rx_interval=rx_interval)
 
         shutil.rmtree(path)
 
-    def _init_from_parameters(self, uis, serial_number, name, bus=None):
+    def _init_from_parameters(self, uis, serial_number, name, bus=None,
+                              dash_only=False, rx_interval=0):
         if not hasattr(self, 'bus'):
             self.bus = BusProxy(bus=bus)
 
+        self.rx_interval = rx_interval
         self.serial_number = serial_number
         self.name = '{name} :{id}'.format(name=name,
                                           id=self.node_id)
@@ -148,13 +158,9 @@ class Device:
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio)
 
-        self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
-        self.ui.offline_overlay.label.setText('offline')
 
-        self.ui.name.setText(self.name)
-
-        self.dash_uis = {}
-        for i, (name, path) in enumerate(uis.items()):
+        self.dash_uis = OrderedDict()
+        for name, path in uis.items():
             # TODO: CAMPid 9549757292917394095482739548437597676742
             if not QFileInfo(path).isAbsolute():
                 ui_file = os.path.join(
@@ -167,97 +173,117 @@ class Device:
             sio = io.StringIO(ts.readAll())
             self.dash_uis[name] = uic.loadUi(sio)
 
-            self.ui.tabs.insertTab(i,
-                                   self.dash_uis[name],
-                                   name)
+        if dash_only:
+            self.uis = self.dash_uis
 
-        self.ui.tabs.setCurrentIndex(0)
+            matrix = list(importany.importany(self.can_path).values())[0]
+            self.neo_frames = epyq.canneo.Neo(matrix=matrix,
+                                              bus=self.bus,
+                                              rx_interval=self.rx_interval)
 
-        # TODO: the repetition here is not so pretty
-        matrix_rx = list(importany.importany(self.can_path).values())[0]
-        neo_rx = epyq.canneo.Neo(matrix=matrix_rx,
-                                 frame_class=epyq.txrx.MessageNode,
-                                 signal_class=epyq.txrx.SignalNode,
-                                 node_id_adjust=self.node_id_adjust)
+            notifiees = [self.neo_frames]
+        else:
+            for i, (name, dash) in enumerate(self.dash_uis.items()):
+                self.ui.tabs.insertTab(i,
+                                       dash,
+                                       name)
+            self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
+            self.ui.offline_overlay.label.setText('offline')
 
-        matrix_tx = list(importany.importany(self.can_path).values())[0]
-        message_node_tx_partial = functools.partial(epyq.txrx.MessageNode,
-                                                    tx=True)
-        signal_node_tx_partial = functools.partial(epyq.txrx.SignalNode,
-                                                   tx=True)
-        neo_tx = epyq.canneo.Neo(matrix=matrix_tx,
-                                 frame_class=message_node_tx_partial,
-                                 signal_class=signal_node_tx_partial,
-                                 node_id_adjust=self.node_id_adjust)
+            self.ui.name.setText(name)
+            self.ui.tabs.setCurrentIndex(0)
 
-        self.neo_frames = neo_tx
-        notifiees = list(self.neo_frames.frames)
+            # TODO: the repetition here is not so pretty
+            matrix_rx = list(importany.importany(self.can_path).values())[0]
+            neo_rx = epyq.canneo.Neo(matrix=matrix_rx,
+                                     frame_class=epyq.txrx.MessageNode,
+                                     signal_class=epyq.txrx.SignalNode,
+                                     node_id_adjust=self.node_id_adjust)
 
-        rx = epyq.txrx.TxRx(tx=False, neo=neo_rx)
-        notifiees.append(rx)
-        rx_model = epyq.txrx.TxRxModel(rx)
+            matrix_tx = list(importany.importany(self.can_path).values())[0]
+            message_node_tx_partial = functools.partial(epyq.txrx.MessageNode,
+                                                        tx=True)
+            signal_node_tx_partial = functools.partial(epyq.txrx.SignalNode,
+                                                       tx=True)
+            neo_tx = epyq.canneo.Neo(matrix=matrix_tx,
+                                     frame_class=message_node_tx_partial,
+                                     signal_class=signal_node_tx_partial,
+                                     node_id_adjust=self.node_id_adjust)
 
-        # TODO: put this all in the model...
-        rx.changed.connect(rx_model.changed)
-        rx.begin_insert_rows.connect(rx_model.begin_insert_rows)
-        rx.end_insert_rows.connect(rx_model.end_insert_rows)
+            self.neo_frames = neo_tx
+            notifiees = list(self.neo_frames.frames)
 
-        tx = epyq.txrx.TxRx(tx=True, neo=neo_tx, bus=self.bus)
-        tx_model = epyq.txrx.TxRxModel(tx)
-        tx.changed.connect(tx_model.changed)
+            rx = epyq.txrx.TxRx(tx=False, neo=neo_rx)
+            notifiees.append(rx)
+            rx_model = epyq.txrx.TxRxModel(rx)
 
-        txrx_views = self.ui.findChildren(epyq.txrxview.TxRxView)
-        if len(txrx_views) > 0:
-            # TODO: actually find them and actually support multiple
-            self.ui.rx.setModel(rx_model)
-            self.ui.tx.setModel(tx_model)
+            # TODO: put this all in the model...
+            rx.changed.connect(rx_model.changed)
+            rx.begin_insert_rows.connect(rx_model.begin_insert_rows)
+            rx.end_insert_rows.connect(rx_model.end_insert_rows)
+
+            tx = epyq.txrx.TxRx(tx=True, neo=neo_tx, bus=self.bus)
+            tx_model = epyq.txrx.TxRxModel(tx)
+            tx.changed.connect(tx_model.changed)
+
+            txrx_views = self.ui.findChildren(epyq.txrxview.TxRxView)
+            if len(txrx_views) > 0:
+                # TODO: actually find them and actually support multiple
+                self.ui.rx.setModel(rx_model)
+                self.ui.tx.setModel(tx_model)
 
 
-        matrix_nv = list(importany.importany(self.can_path).values())[0]
-        self.frames_nv = epyq.canneo.Neo(
-            matrix=matrix_nv,
-            frame_class=epyq.nv.Frame,
-            signal_class=epyq.nv.Nv,
-            node_id_adjust=self.node_id_adjust
-        )
+            matrix_nv = list(importany.importany(self.can_path).values())[0]
+            self.frames_nv = epyq.canneo.Neo(
+                matrix=matrix_nv,
+                frame_class=epyq.nv.Frame,
+                signal_class=epyq.nv.Nv,
+                node_id_adjust=self.node_id_adjust
+            )
 
-        nv_views = self.ui.findChildren(epyq.nvview.NvView)
-        if len(nv_views) > 0:
-            try:
-                nvs = epyq.nv.Nvs(self.frames_nv, self.bus)
-            except epyq.nv.NoNv:
-                pass
-            else:
-                nv_model = epyq.nv.NvModel(nvs)
-                nvs.changed.connect(nv_model.changed)
-                notifiees.append(nvs)
+            nv_views = self.ui.findChildren(epyq.nvview.NvView)
+            if len(nv_views) > 0:
+                try:
+                    nvs = epyq.nv.Nvs(self.frames_nv, self.bus)
+                except epyq.nv.NoNv:
+                    pass
+                else:
+                    nv_model = epyq.nv.NvModel(nvs)
+                    nvs.changed.connect(nv_model.changed)
+                    notifiees.append(nvs)
 
-            for view in nv_views:
-                view.setModel(nv_model)
+                for view in nv_views:
+                    view.setModel(nv_model)
 
         notifier = self.bus.notifier
         for notifiee in notifiees:
             notifier.add(notifiee)
 
-        # TODO: CAMPid 99457281212789437474299
-        children = self.ui.findChildren(QObject)
-        widgets = [c for c in children if
-                   isinstance(c, AbstractWidget)]
+        self.dash_connected_frames = {}
+        for name, dash in self.dash_uis.items():
+            # TODO: CAMPid 99457281212789437474299
+            children = dash.findChildren(QObject)
+            widgets = [c for c in children if
+                       isinstance(c, AbstractWidget)]
 
-        for widget in widgets:
-            frame_name = widget.property('frame')
-            signal_name = widget.property('signal')
+            self.dash_connected_frames[name] = set()
+            frames = self.dash_connected_frames[name]
 
-            widget.set_range(min=0, max=100)
-            widget.set_value(42)
+            for widget in widgets:
+                frame_name = widget.property('frame')
+                signal_name = widget.property('signal')
 
-            # TODO: add some notifications
-            frame = self.neo_frames.frame_by_name(frame_name)
-            if frame is not None:
-                signal = frame.signal_by_name(signal_name)
-                if signal is not None:
-                    widget.set_signal(signal)
-                    frame.user_send_control = False
+                widget.set_range(min=0, max=100)
+                widget.set_value(42)
+
+                # TODO: add some notifications
+                frame = self.neo_frames.frame_by_name(frame_name)
+                if frame is not None:
+                    signal = frame.signal_by_name(signal_name)
+                    if signal is not None:
+                        frames.add(frame)
+                        widget.set_signal(signal)
+                        frame.user_send_control = False
 
     def get_frames(self):
         return self.frames
