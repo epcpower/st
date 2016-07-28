@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
 
+# TODO: CAMPid 097541134161236179854863478319
+try:
+    import pip
+except ImportError:
+    print('')
+    print('')
+    print('    pip not installed:')
+    print('')
+    print('        Use your package manager to install')
+    print('')
+    print('        e.g. sudo apt-get install python3-pip')
+    print('')
+
+    sys.exit(1)
+
+
 # TODO: CAMPid 98852142341263132467998754961432
 import epyq.tee
 import os
@@ -117,7 +133,7 @@ qt_root = 'C:/qt/Qt5.5.1'
 
 env = os.environ
 
-env['SYSROOT'] = 'C:/epc/t/134/pqd/sysroot'
+env['SYSROOT'] = os.path.abspath(os.path.join('..', 'sysroot'))
 env['INTERPRETER'] = 'C:/Python34/python.exe'
 env['CL'] = '/MP'
 env['PATH'] = ';'.join([
@@ -137,6 +153,21 @@ try:
     shutil.rmtree('build')
 except FileNotFoundError:
     pass
+
+
+# TODO: CAMPid 9811163648546549994313612126896
+def pip_install(package, no_ssl_verify, site=False):
+    pip_parameters = ['install']
+    if no_ssl_verify:
+        pip_parameters.append('--index-url=http://pypi.python.org/simple/')
+        pip_parameters.append('--trusted-host')
+        pip_parameters.append('pypi.python.org')
+    if not site:
+        pip_parameters.append('--user')
+    pip_parameters.append(package)
+    return pip.main(pip_parameters)
+
+pip_install('pyqtdeploy', no_ssl_verify=False, site=True)
 
 proc = Popen(
     args=[

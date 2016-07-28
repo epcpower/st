@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 
+# TODO: CAMPid 097541134161236179854863478319
 try:
     import pip
 except ImportError:
@@ -38,6 +39,7 @@ args = parser.parse_args()
 myfile = os.path.realpath(__file__)
 mydir = os.path.dirname(myfile)
 
+# TODO: CAMPid 9811163648546549994313612126896
 def pip_install(package, no_ssl_verify, virtual=False):
     pip_parameters = ['install']
     if no_ssl_verify:
