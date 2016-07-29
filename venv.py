@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from collections import OrderedDict
 from distutils.core import run_setup
 import os
 import subprocess
@@ -207,21 +208,23 @@ else:
 
     activate = args.activate
     if sys.platform == 'win32':
-        designer_paths = [
-            [''],
-            ['epyq'],
-            ['epyq', 'widgets']
-        ]
-        designer_paths = [os.path.join('%cd%', *p) for p in designer_paths]
-
-        designer_variables = ['PYQTDESIGNERPATH', 'PYTHONPATH']
+        path_variables = OrderedDict([
+            ('PYQTDESIGNERPATH', [
+                ['epyq'],
+                ['epyq', 'widgets']
+            ]),
+            ('PYTHONPATH', [
+                ['']
+            ])
+        ])
 
         set_commands = []
-        for variable in designer_variables:
-            command = 'set {}='.format(variable)
-            command += ';'.join(designer_paths)
+        for name, paths in path_variables.items():
+            command = 'set {}='.format(name)
+            paths = [os.path.join('%cd%', *p) for p in paths]
+            command += ';'.join(paths)
             set_commands.append(command)
-
+        
         with open(os.path.join(mydir, 'activate.bat'), 'w') as f:
             activate = activate.replace('\\', '/')
             for command in set_commands:
