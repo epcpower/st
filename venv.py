@@ -132,6 +132,14 @@ else:
     src = os.path.join(mydir, args.virtualenv, 'src')
     os.makedirs(src, exist_ok=True)
 
+    wheels = [
+        'https://github.com/altendky/pyqt5-tools/releases/download/'
+            'v5.7.dev1/PyQt5_Tools-5.7.dev1-py3-none-any.whl'
+    ]
+
+    for url in wheels:
+        pip_install(url, args.no_ssl_verify, virtual=True)
+
     zip_repos = {
         'python-can': 'https://bitbucket.org/altendky/python-can/get/'
                       '076a7864f1e292647a501ae60ea90f62b5703d71.zip',
