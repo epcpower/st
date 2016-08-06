@@ -2,7 +2,6 @@
 
 import argparse
 from collections import OrderedDict
-from distutils.core import run_setup
 import os
 import subprocess
 import sys
@@ -126,7 +125,7 @@ else:
     def setup(path):
         backup = os.getcwd()
         os.chdir(path)
-        run_setup(os.path.join(path, 'setup.py'), script_args=['develop'])
+        subprocess.run([sys.executable, os.path.join(path, 'setup.py'), 'develop'])
         os.chdir(backup)
 
     src = os.path.join(mydir, args.virtualenv, 'src')
