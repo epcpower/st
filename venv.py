@@ -3,6 +3,7 @@
 import argparse
 from collections import OrderedDict
 import os
+import shutil
 import subprocess
 import sys
 
@@ -32,6 +33,7 @@ parser.add_argument('--activate')
 parser.add_argument('--no-ssl-verify', action='store_true')
 parser.add_argument('--virtualenv', '--venv', default='venv')
 parser.add_argument('--in-virtual', action='store_true', default=False)
+parser.add_argument('--rebuild', action='store_true')
 
 args = parser.parse_args()
 
@@ -52,6 +54,9 @@ def pip_install(package, no_ssl_verify, virtual=False):
     return pip.main(pip_parameters)
 
 if not args.in_virtual:
+    if args.rebuild:
+        shutil.rmtree(args.virtualenv, ignore_errors=True)
+
     try:
         os.mkdir(args.virtualenv)
     except FileExistsError:
