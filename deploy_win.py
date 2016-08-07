@@ -98,7 +98,7 @@ from subprocess import Popen
 
 proc = Popen(
     args=[
-        'c:/python34/python.exe',
+        sys.executable,
         'epyq/generaterevision.py'
     ],
     stdout=subprocess.PIPE,
@@ -110,15 +110,11 @@ for line in proc.stdout:
 
 proc.wait()
 
-try:
-    shutil.rmtree('venv')
-except FileNotFoundError:
-    pass
-
 proc = Popen(
     args=[
-        'c:/python34/python.exe',
-        'venv.py'
+        sys.executable,
+        'venv.py',
+        '--rebuild'
     ],
     stdout=subprocess.PIPE,
     stderr=subprocess.STDOUT
@@ -129,31 +125,27 @@ for line in proc.stdout:
 
 proc.wait()
 
-qt_root = 'C:/qt/Qt5.5.1'
+qt_root = os.path.join('C:/', 'Qt', 'Qt5.7.0')
 
 env = os.environ
 
-env['SYSROOT'] = os.path.abspath(os.path.join('..', 'sysroot'))
-env['INTERPRETER'] = 'C:/Python34/python.exe'
+env['INTERPRETER'] = sys.executable
 env['CL'] = '/MP'
 env['PATH'] = ';'.join([
-        qt_root + '/5.5/msvc2010/bin',
-        qt_root + '/qtbase/bin',
-        qt_root + '/gnuwin32/bin',
+        os.path.join(qt_root, '5.7', 'msvc2015', 'bin'),
         os.environ['PATH']
     ])
-env['QMAKESPEC'] = 'win32-msvc2010'
+env['QMAKESPEC'] = 'win32-msvc2015'
 
 env = get_environment_from_batch_command(
-    ['C:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/vcvarsall.bat', 'x86'],
+    [
+        os.path.join('C:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'vcvarsall.bat'),
+        'x86'
+    ],
     initial=env
 )
 
-try:
-    shutil.rmtree('build')
-except FileNotFoundError:
-    pass
-
+shutil.rmtree('build', ignore_errors=True)
 
 # TODO: CAMPid 9811163648546549994313612126896
 def pip_install(package, no_ssl_verify, site=False):
@@ -171,7 +163,9 @@ pip_install('pyqtdeploy', no_ssl_verify=False, site=True)
 
 proc = Popen(
     args=[
-        'c:/python34/scripts/pyqtdeploycli.exe',
+        os.path.expandvars(os.path.join(
+            '%APPDATA%', 'Python', 'Python35', 'Scripts', 'pyqtdeploycli.exe'
+        )),
         '--project', 'epyq.pdy',
         'build'
     ],
