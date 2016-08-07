@@ -133,7 +133,7 @@ else:
 
     wheels = [
         'https://github.com/altendky/pyqt5-tools/releases/download/'
-            'v5.7.dev1/PyQt5_Tools-5.7.dev1-py3-none-any.whl'
+            'v5.7.dev2/PyQt5_Tools-5.7.dev2-py3-none-any.whl'
     ]
 
     for url in wheels:
