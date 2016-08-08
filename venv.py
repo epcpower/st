@@ -26,8 +26,6 @@ except ImportError:
 #       https://virtualenv.readthedocs.org/en/latest/reference.html#extending-virtualenv
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--pyqt5')
-parser.add_argument('--pyqt5-plugins')
 parser.add_argument('--bin')
 parser.add_argument('--activate')
 parser.add_argument('--no-ssl-verify', action='store_true')
@@ -69,26 +67,6 @@ if not args.in_virtual:
 
         sys.exit(1)
 
-    try:
-        import PyQt5.QtCore
-    except ImportError:
-        print('')
-        print('')
-        print('    PyQt5 not installed:')
-        print('')
-
-        if sys.platform == 'win32':
-            print('        https://riverbankcomputing.com/software/pyqt/download5')
-            print('')
-            print('        Select the appropriate architecture to match your python install')
-        else:
-            print('        Use your package manager to install')
-            print('')
-            print('        e.g. sudo apt-get install python3-pyqt5')
-        print('')
-
-        sys.exit(1)
-
     if sys.platform not in ['win32', 'linux']:
         raise Exception("Unsupported sys.platform: {}".format(sys.platform))
 
@@ -96,10 +74,6 @@ if not args.in_virtual:
         bin = os.path.join(args.virtualenv, 'Scripts')
     else:
         bin = os.path.join(args.virtualenv, 'bin')
-
-    pyqt5 = os.path.dirname(PyQt5.__file__)
-    pyqt5_plugins = PyQt5.QtCore.QLibraryInfo.location(
-        PyQt5.QtCore.QLibraryInfo.PluginsPath)
 
     activate = os.path.join(bin, 'activate')
 
@@ -115,8 +89,6 @@ if not args.in_virtual:
     virtualenv_python = os.path.realpath(os.path.join(bin, 'python'))
     virtualenv_python_command = [virtualenv_python,
                                  myfile,
-                                 '--pyqt5', pyqt5,
-                                 '--pyqt5-plugins', pyqt5_plugins,
                                  '--bin', bin,
                                  '--activate', activate,
                                  '--in-virtual']
@@ -136,13 +108,14 @@ else:
     src = os.path.join(mydir, args.virtualenv, 'src')
     os.makedirs(src, exist_ok=True)
 
-    wheels = [
+    packages = [
+		'pyqt5',
         'https://github.com/altendky/pyqt5-tools/releases/download/'
             'v5.7.dev2/PyQt5_Tools-5.7.dev2-py3-none-any.whl'
     ]
 
-    for url in wheels:
-        pip_install(url, args.no_ssl_verify, virtual=True)
+    for package in packages:
+        pip_install(package, args.no_ssl_verify, virtual=True)
 
     zip_repos = {
         'python-can': 'https://bitbucket.org/altendky/python-can/get/'
@@ -204,17 +177,22 @@ else:
     setup(mydir)
 
     with open(os.path.join(args.bin, 'qt.conf'), 'w') as f:
+        import PyQt5.QtCore
+        pyqt5 = os.path.dirname(PyQt5.__file__)
+        pyqt5_plugins = PyQt5.QtCore.QLibraryInfo.location(
+            PyQt5.QtCore.QLibraryInfo.PluginsPath)
+
         content = [
             '[Paths]',
-            'Prefix = "{}"'.format(args.pyqt5),
-            'Binaries = "{}"'.format(args.pyqt5)
+            'Prefix = "{}"'.format(pyqt5),
+            'Binaries = "{}"'.format(pyqt5)
         ]
 
         if sys.platform == 'win32':
             content = [l.replace('\\', '/') for l in content]
 
         if sys.platform == 'linux':
-            content.append('Plugins = "{}"'.format(args.pyqt5_plugins))
+            content.append('Plugins = "{}"'.format(pyqt5_plugins))
 
         f.write('\n'.join(content) + '\n')
 
