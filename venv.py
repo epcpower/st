@@ -111,7 +111,7 @@ else:
     packages = [
 		'pyqt5',
         'https://github.com/altendky/pyqt5-tools/releases/download/'
-            'v5.7.dev4/PyQt5_Tools-5.7.dev4-py3-none-any.whl'
+            'v5.7.dev5/PyQt5_Tools-5.7.dev5-cp35-none-win32.whl'
     ]
 
     for package in packages:
