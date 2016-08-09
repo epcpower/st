@@ -17,7 +17,7 @@ __license__ = 'GPLv2+'
 class BusProxy(QObject):
     went_offline = pyqtSignal()
 
-    def __init__(self, bus=None, timeout=0.1, parent=None):
+    def __init__(self, bus=None, timeout=0.1, transmit=True, parent=None):
         QObject.__init__(self, parent=parent)
 
         self.timeout = timeout
@@ -26,8 +26,18 @@ class BusProxy(QObject):
         self.bus = None
         self.set_bus(bus)
 
+        self._transmit = transmit
+
+    @property
+    def transmit(self):
+        return self._transmit
+
+    @transmit.setter
+    def transmit(self, transmit):
+        self._transmit = transmit
+
     def send(self, msg):
-        if self.bus is not None:
+        if self.bus is not None and self._transmit:
             # TODO: I would use message=message (or msg=msg) but:
             #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
             sent = self.bus.send(msg)
