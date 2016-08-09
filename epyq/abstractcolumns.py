@@ -52,7 +52,14 @@ class AbstractColumns:
         raise IndexError('column index out of range')
 
     def __getitem__(self, index):
+        if index < 0:
+            index += len(self)
         return getattr(self, self.index_from_attribute(index))
+
+    def __setitem__(self, index, value):
+        if index < 0:
+            index += len(self)
+        return setattr(self, self.index_from_attribute(index), value)
 
     def __getattr__(self, name, value):
         if name in self._members:
