@@ -32,6 +32,7 @@ parser.add_argument('--no-ssl-verify', action='store_true')
 parser.add_argument('--virtualenv', '--venv', default='venv')
 parser.add_argument('--in-virtual', action='store_true', default=False)
 parser.add_argument('--rebuild', action='store_true')
+parser.add_argument('--no-designer', action='store_true')
 
 args = parser.parse_args()
 
@@ -96,6 +97,9 @@ if not args.in_virtual:
     if args.no_ssl_verify:
         virtualenv_python_command.append('--no-ssl-verify')
 
+    if args.no_designer:
+        virtualenv_python_command.append('--no-designer')
+
     returncode = subprocess.call(virtualenv_python_command)
 
     sys.exit(returncode)
@@ -110,10 +114,14 @@ else:
     os.makedirs(src, exist_ok=True)
 
     packages = [
-        'pyqt5',
-        'https://github.com/altendky/pyqt5-tools/releases/download/'
-            'v5.7.dev5/PyQt5_Tools-5.7.dev5-cp35-none-win32.whl'
+        'pyqt5'
     ]
+
+    if not args.no_designer:
+        packages.append(
+            'https://github.com/altendky/pyqt5-tools/releases/download/'
+            'v5.7.dev5/PyQt5_Tools-5.7.dev5-cp35-none-win32.whl'
+        )
 
     for package in packages:
         pip_install(package, args.no_ssl_verify, virtual=True)
