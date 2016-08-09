@@ -49,7 +49,8 @@ def pip_install(package, no_ssl_verify, virtual=False):
     if not virtual:
         pip_parameters.append('--user')
     pip_parameters.append(package)
-    return pip.main(pip_parameters)
+    if pip.main(pip_parameters):
+        raise Exception('Failed to install {}'.format(package))
 
 if not args.in_virtual:
     if args.rebuild:
