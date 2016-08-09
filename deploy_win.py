@@ -110,20 +110,6 @@ for line in proc.stdout:
 
 proc.wait()
 
-proc = Popen(
-    args=[
-        sys.executable,
-        'venv.py',
-        '--rebuild'
-    ],
-    stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT
-    )
-
-for line in proc.stdout:
-    sys.stdout.write(str(line, 'UTF-8'))
-
-proc.wait()
 
 qt_root = os.path.join('C:/', 'Qt', 'Qt5.7.0')
 
