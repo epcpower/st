@@ -2,6 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
+import enum
 import functools
 import io
 import os
@@ -14,6 +15,13 @@ from PyQt5.QtGui import QFontMetrics
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
+
+styles = {
+    'red': "background-color: rgba(255, 255, 255, 0);"
+                           "color: rgba(255, 85, 85, 25);",
+    'yellow': "background-color: rgba(255, 255, 255, 0);"
+                           "color: rgba(255, 255, 85, 25);"
+}
 
 def parent_resizeEvent(event, child, parent_resizeEvent):
     child.resize(event.size())
@@ -49,8 +57,7 @@ class OverlayLabel(QtWidgets.QWidget):
 
             parent_widget.resizeEvent = new_resizeEvent
 
-        self.setStyleSheet("background-color: rgba(255, 255, 255, 0);"
-                           "color: rgba(255, 85, 85, 25);")
+        self.setStyleSheet(styles['red'])
 
         self.ui.setAttribute(Qt.WA_TransparentForMouseEvents)
 

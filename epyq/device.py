@@ -188,7 +188,6 @@ class Device:
                                        dash,
                                        name)
             self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
-            self.ui.offline_overlay.label.setText('offline')
 
             self.ui.name.setText(name)
             self.ui.tabs.setCurrentIndex(0)
@@ -285,12 +284,25 @@ class Device:
                         widget.set_signal(signal)
                         frame.user_send_control = False
 
+        self.bus_status_changed(online=False, transmit=False)
+
     def get_frames(self):
         return self.frames
 
     @pyqtSlot(bool)
-    def bus_status_changed(self, online):
-        self.ui.offline_overlay.setVisible(not online)
+    def bus_status_changed(self, online, transmit):
+        style = epyq.overlaylabel.styles['red']
+        text = ''
+        if online:
+            if not transmit:
+                text = 'passive'
+                style = epyq.overlaylabel.styles['yellow']
+        else:
+            text = 'offline'
+
+        self.ui.offline_overlay.label.setText(text)
+        self.ui.offline_overlay.setVisible(len(text) > 0)
+        self.ui.offline_overlay.setStyleSheet(style)
 
 
 if __name__ == '__main__':
