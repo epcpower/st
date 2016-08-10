@@ -205,17 +205,23 @@ class Device:
             sio = io.StringIO(ts.readAll())
             self.dash_uis[name] = uic.loadUi(sio)
 
+        if Tabs.txrx not in tabs:
+            self.elements.remove(Elements.tx)
+            self.elements.remove(Elements.rx)
+
         notifiees = []
 
         if Elements.dash in self.elements:
             self.uis = self.dash_uis
 
             matrix = list(importany.importany(self.can_path).values())[0]
-            self.neo_frames = epyq.canneo.Neo(matrix=matrix,
-                                              bus=self.bus,
-                                              rx_interval=self.rx_interval)
+            # TODO: this is icky
+            if Elements.tx not in self.elements:
+                self.neo_frames = epyq.canneo.Neo(matrix=matrix,
+                                                  bus=self.bus,
+                                                  rx_interval=self.rx_interval)
 
-            notifiees.append(self.neo_frames)
+                notifiees.append(self.neo_frames)
 
         if Elements.rx in self.elements:
             # TODO: the repetition here is not so pretty
