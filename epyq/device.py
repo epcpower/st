@@ -296,7 +296,7 @@ class Device:
         if online:
             if not transmit:
                 text = 'passive'
-                style = epyq.overlaylabel.styles['yellow']
+                style = epyq.overlaylabel.styles['blue']
         else:
             text = 'offline'
 

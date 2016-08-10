@@ -19,8 +19,8 @@ __license__ = 'GPLv2+'
 styles = {
     'red': "background-color: rgba(255, 255, 255, 0);"
                            "color: rgba(255, 85, 85, 25);",
-    'yellow': "background-color: rgba(255, 255, 255, 0);"
-                           "color: rgba(255, 255, 85, 25);"
+    'blue': "background-color: rgba(255, 255, 255, 0);"
+                           "color: rgba(85, 85, 255, 25);"
 }
 
 def parent_resizeEvent(event, child, parent_resizeEvent):
