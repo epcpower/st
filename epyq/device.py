@@ -82,8 +82,13 @@ class Device:
     def __del__(self):
         self.bus.set_bus()
 
-    def _init_from_file(self, file, bus=None, elements=set(Elements),
-                        tabs=set(Tabs), rx_interval=0):
+    def _init_from_file(self, file, bus=None, elements=None,
+                        tabs=None, rx_interval=0):
+        if elements is None:
+            elements = set(Elements)
+        if tabs is None:
+            tabs = set(Tabs)
+
         try:
             zip_file = zipfile.ZipFile(file)
         except zipfile.BadZipFile:
@@ -99,8 +104,13 @@ class Device:
             self._init_from_zip(zip_file, bus=bus, elements=elements,
                                 tabs=tabs, rx_interval=rx_interval)
 
-    def _load_config(self, file, bus=None, elements=set(Elements),
-                     tabs=set(Tabs), rx_interval=0):
+    def _load_config(self, file, bus=None, elements=None,
+                     tabs=None, rx_interval=0):
+        if elements is None:
+            elements = set(Elements)
+        if tabs is None:
+            tabs = set(Tabs)
+
         s = file.read()
         d = json.loads(s, object_pairs_hook=OrderedDict)
 
@@ -149,8 +159,13 @@ class Device:
             tabs=tabs,
             rx_interval=rx_interval)
 
-    def _init_from_zip(self, zip_file, bus=None, elements=set(Elements),
-                       tabs=set(Tabs), rx_interval=0):
+    def _init_from_zip(self, zip_file, bus=None, elements=None,
+                       tabs=None, rx_interval=0):
+        if elements is None:
+            elements = set(Elements)
+        if tabs is None:
+            tabs = set(Tabs)
+
         path = tempfile.mkdtemp()
         zip_file.extractall(path=path)
         # TODO error dialog if no .epc found in zip file
@@ -206,8 +221,8 @@ class Device:
             self.dash_uis[name] = uic.loadUi(sio)
 
         if Tabs.txrx not in tabs:
-            self.elements.remove(Elements.tx)
-            self.elements.remove(Elements.rx)
+            self.elements.discard(Elements.tx)
+            self.elements.discard(Elements.rx)
 
         notifiees = []
 
