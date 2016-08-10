@@ -19,6 +19,8 @@ import tempfile
 import zipfile
 
 from collections import OrderedDict
+from distutils.util import strtobool
+from enum import Enum, unique
 from epyq.busproxy import BusProxy
 from epyq.widgets.abstractwidget import AbstractWidget
 from PyQt5 import uic
@@ -27,6 +29,21 @@ from PyQt5.QtCore import pyqtSlot, Qt, QFile, QFileInfo, QTextStream, QObject
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
+
+
+@unique
+class Elements(Enum):
+    dash = 1
+    tx = 2
+    rx = 3
+    nv = 4
+
+
+@unique
+class Tabs(Enum):
+    dashes = 1
+    txrx = 2
+    nv = 3
 
 
 def j1939_node_id_adjust(message_id, node_id):
@@ -65,8 +82,8 @@ class Device:
     def __del__(self):
         self.bus.set_bus()
 
-    def _init_from_file(self, file, bus=None, dash_only=False,
-                        rx_interval=0):
+    def _init_from_file(self, file, bus=None, elements=set(Elements),
+                        tabs=set(Tabs), rx_interval=0):
         try:
             zip_file = zipfile.ZipFile(file)
         except zipfile.BadZipFile:
@@ -76,14 +93,14 @@ class Device:
             except TypeError:
                 return
             else:
-                self._load_config(file=file, bus=bus, dash_only=dash_only,
-                                  rx_interval=rx_interval)
+                self._load_config(file=file, bus=bus, elements=elements,
+                                  tabs=tabs, rx_interval=rx_interval)
         else:
-            self._init_from_zip(zip_file, bus=bus, dash_only=dash_only,
-                                rx_interval=rx_interval)
+            self._init_from_zip(zip_file, bus=bus, elements=elements,
+                                tabs=tabs, rx_interval=rx_interval)
 
-    def _load_config(self, file, bus=None, dash_only=False,
-                     rx_interval=0):
+    def _load_config(self, file, bus=None, elements=set(Elements),
+                     tabs=set(Tabs), rx_interval=0):
         s = file.read()
         d = json.loads(s, object_pairs_hook=OrderedDict)
 
@@ -94,6 +111,17 @@ class Device:
                 break
             except KeyError:
                 pass
+
+        for tab in Tabs:
+            try:
+                value = d['tabs'][tab.name]
+            except KeyError:
+                pass
+            else:
+                if strtobool(value):
+                    tabs.add(tab)
+                else:
+                    tabs.discard(tab)
 
         self.ui_paths = OrderedDict()
         try:
@@ -117,11 +145,12 @@ class Device:
             uis=self.ui_paths,
             serial_number=d.get('serial_number', ''),
             name=d.get('name', ''),
-            dash_only=dash_only,
+            elements=elements,
+            tabs=tabs,
             rx_interval=rx_interval)
 
-    def _init_from_zip(self, zip_file, bus=None, dash_only=False,
-                       rx_interval=0):
+    def _init_from_zip(self, zip_file, bus=None, elements=set(Elements),
+                       tabs=set(Tabs), rx_interval=0):
         path = tempfile.mkdtemp()
         zip_file.extractall(path=path)
         # TODO error dialog if no .epc found in zip file
@@ -130,13 +159,16 @@ class Device:
                 file = os.path.join(path, f)
         self.config_path = os.path.abspath(file)
         with open(file, 'r') as file:
-            self._load_config(file, bus=bus, dash_only=dash_only,
+            self._load_config(file, bus=bus, elements=elements, tabs=tabs,
                               rx_interval=rx_interval)
 
         shutil.rmtree(path)
 
     def _init_from_parameters(self, uis, serial_number, name, bus=None,
-                              dash_only=False, rx_interval=0):
+                              elements=set(Elements), tabs=set(Tabs),
+                              rx_interval=0):
+        self.elements = elements
+
         if not hasattr(self, 'bus'):
             self.bus = BusProxy(bus=bus)
 
@@ -173,7 +205,9 @@ class Device:
             sio = io.StringIO(ts.readAll())
             self.dash_uis[name] = uic.loadUi(sio)
 
-        if dash_only:
+        notifiees = []
+
+        if Elements.dash in self.elements:
             self.uis = self.dash_uis
 
             matrix = list(importany.importany(self.can_path).values())[0]
@@ -181,17 +215,9 @@ class Device:
                                               bus=self.bus,
                                               rx_interval=self.rx_interval)
 
-            notifiees = [self.neo_frames]
-        else:
-            for i, (name, dash) in enumerate(self.dash_uis.items()):
-                self.ui.tabs.insertTab(i,
-                                       dash,
-                                       name)
-            self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
+            notifiees.append(self.neo_frames)
 
-            self.ui.name.setText(name)
-            self.ui.tabs.setCurrentIndex(0)
-
+        if Elements.rx in self.elements:
             # TODO: the repetition here is not so pretty
             matrix_rx = list(importany.importany(self.can_path).values())[0]
             neo_rx = epyq.canneo.Neo(matrix=matrix_rx,
@@ -199,6 +225,16 @@ class Device:
                                      signal_class=epyq.txrx.SignalNode,
                                      node_id_adjust=self.node_id_adjust)
 
+            rx = epyq.txrx.TxRx(tx=False, neo=neo_rx)
+            notifiees.append(rx)
+            rx_model = epyq.txrx.TxRxModel(rx)
+
+            # TODO: put this all in the model...
+            rx.changed.connect(rx_model.changed)
+            rx.begin_insert_rows.connect(rx_model.begin_insert_rows)
+            rx.end_insert_rows.connect(rx_model.end_insert_rows)
+
+        if Elements.tx in self.elements:
             matrix_tx = list(importany.importany(self.can_path).values())[0]
             message_node_tx_partial = functools.partial(epyq.txrx.MessageNode,
                                                         tx=True)
@@ -210,28 +246,21 @@ class Device:
                                      node_id_adjust=self.node_id_adjust)
 
             self.neo_frames = neo_tx
-            notifiees = list(self.neo_frames.frames)
-
-            rx = epyq.txrx.TxRx(tx=False, neo=neo_rx)
-            notifiees.append(rx)
-            rx_model = epyq.txrx.TxRxModel(rx)
-
-            # TODO: put this all in the model...
-            rx.changed.connect(rx_model.changed)
-            rx.begin_insert_rows.connect(rx_model.begin_insert_rows)
-            rx.end_insert_rows.connect(rx_model.end_insert_rows)
 
             tx = epyq.txrx.TxRx(tx=True, neo=neo_tx, bus=self.bus)
             tx_model = epyq.txrx.TxRxModel(tx)
             tx.changed.connect(tx_model.changed)
 
+        # TODO: something with sets instead?
+        if (Elements.rx in self.elements or
+            Elements.tx in self.elements):
             txrx_views = self.ui.findChildren(epyq.txrxview.TxRxView)
             if len(txrx_views) > 0:
                 # TODO: actually find them and actually support multiple
                 self.ui.rx.setModel(rx_model)
                 self.ui.tx.setModel(tx_model)
 
-
+        if Elements.nv in self.elements:
             matrix_nv = list(importany.importany(self.can_path).values())[0]
             self.frames_nv = epyq.canneo.Neo(
                 matrix=matrix_nv,
@@ -240,19 +269,35 @@ class Device:
                 node_id_adjust=self.node_id_adjust
             )
 
+            self.nvs = epyq.nv.Nvs(self.frames_nv, self.bus)
+            notifiees.append(self.nvs)
+            print('appended')
+
             nv_views = self.ui.findChildren(epyq.nvview.NvView)
             if len(nv_views) > 0:
-                try:
-                    nvs = epyq.nv.Nvs(self.frames_nv, self.bus)
-                except epyq.nv.NoNv:
-                    pass
-                else:
-                    nv_model = epyq.nv.NvModel(nvs)
-                    nvs.changed.connect(nv_model.changed)
-                    notifiees.append(nvs)
+                nv_model = epyq.nv.NvModel(self.nvs)
+                self.nvs.changed.connect(nv_model.changed)
 
                 for view in nv_views:
                     view.setModel(nv_model)
+
+        if Tabs.dashes in tabs:
+            for i, (name, dash) in enumerate(self.dash_uis.items()):
+                self.ui.tabs.insertTab(i,
+                                       dash,
+                                       name)
+        if Tabs.txrx not in tabs:
+            self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.txrx))
+        if Tabs.nv not in tabs:
+            self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.nv))
+        if tabs:
+            self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
+            self.ui.offline_overlay.label.setText('offline')
+
+            self.ui.name.setText(name)
+            self.ui.tabs.setCurrentIndex(0)
+
+
 
         notifier = self.bus.notifier
         for notifiee in notifiees:
