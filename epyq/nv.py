@@ -143,7 +143,7 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
 
     @pyqtSlot(can.Message)
     def send(self, message):
-        self.bus.send(message)
+        self.bus.send(message, passive=True)
         time.sleep(0.02)
 
     @pyqtSlot(can.Message)
