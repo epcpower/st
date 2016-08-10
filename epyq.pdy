@@ -32,8 +32,6 @@ win32 {
                 QMAKE_POST_LINK +=$$quote($${QMAKE_COPY} /Y $$shell_quote($${FILE}) $${DESTDIR_WIN}$$escape_expand(\n\t))
     }
 
-    QMAKE_POST_LINK += $$quote(robocopy .. release/source /e /xd "build" ".git" ".hg" "__pycache__" "*.egg-info") &amp;
-
     QMAKE_POST_LINK += $$quote(xcopy /e /y ..\installer installer\ ) &amp;
     QMAKE_POST_LINK += $$quote(xcopy /e /y release\* installer\packages\com.epcpower.st\data\ ) &amp;
     QMAKE_POST_LINK += $$quote(copy /y ..\COPYING installer\packages\com.epcpower.st\meta\epyq-COPYING.txt ) &amp;
