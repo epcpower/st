@@ -19,7 +19,6 @@ import tempfile
 import zipfile
 
 from collections import OrderedDict
-from distutils.util import strtobool
 from enum import Enum, unique
 from epyq.busproxy import BusProxy
 from epyq.widgets.abstractwidget import AbstractWidget
@@ -128,7 +127,7 @@ class Device:
             except KeyError:
                 pass
             else:
-                if strtobool(value):
+                if int(value):
                     tabs.add(tab)
                 else:
                     tabs.discard(tab)
