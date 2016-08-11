@@ -186,7 +186,7 @@ class Device(TreeNode):
         self.device.bus.transmit = self._checked.transmit == Qt.Checked
 
     def unique(self):
-        return self.device.name
+        return self.device
 
     def checked(self, column):
         return self._checked[column]
