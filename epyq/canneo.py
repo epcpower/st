@@ -140,6 +140,7 @@ class Signal(QObject):
         if value is None:
             self.value = None
             self.full_string = '-'
+            self.value_changed.emit(float('nan'))
         elif self.value != value:
             # TODO: be careful here, should all be int which is immutable
             #       and therefore safe but...  otherwise a copy would be
@@ -180,6 +181,7 @@ class Signal(QObject):
         self.value_changed.emit(value)
 
     def format_float(self, value=None):
+        # TODO: ack fix this since it's getting called with an actual None value...
         if value is None:
             value = self.scaled_value
         return '{{:.{}f}}'.format(self.get_decimal_places()).format(value)

@@ -59,6 +59,20 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+def load_ui(filename):
+    # TODO: CAMPid 9549757292917394095482739548437597676742
+    if not QFileInfo(filename).isAbsolute():
+        ui_file = os.path.join(
+            QFileInfo.absolutePath(QFileInfo(__file__)), filename)
+    else:
+        ui_file = filename
+    ui_file = QFile(ui_file)
+    ui_file.open(QFile.ReadOnly | QFile.Text)
+    ts = QTextStream(ui_file)
+    sio = io.StringIO(ts.readAll())
+    return uic.loadUi(sio)
+
+
 def main(args=None):
     print('starting epyq')
 
@@ -75,18 +89,7 @@ def main(args=None):
 
     QTextCodec.setCodecForLocale(QTextCodec.codecForName('UTF-8'))
 
-    ui = 'main.ui'
-    # TODO: CAMPid 9549757292917394095482739548437597676742
-    if not QFileInfo(ui).isAbsolute():
-        ui_file = os.path.join(
-            QFileInfo.absolutePath(QFileInfo(__file__)), ui)
-    else:
-        ui_file = ui
-    ui_file = QFile(ui_file)
-    ui_file.open(QFile.ReadOnly | QFile.Text)
-    ts = QTextStream(ui_file)
-    sio = io.StringIO(ts.readAll())
-    ui = uic.loadUi(sio)
+    ui = load_ui('main.ui')
 
     bus = epyq.busproxy.BusProxy()
 
@@ -97,9 +100,12 @@ def main(args=None):
             os.getcwd(), device_file)
     else:
         device_file = device_file
+
     device = epyq.device.Device(file=device_file,
                                 bus=bus,
-                                dash_only=True,
+                                tabs=[],
+                                elements=[epyq.device.Elements.dash,
+                                          epyq.device.Elements.nv],
                                 rx_interval=1)
     # TODO: CAMPid 9757656124812312388543272342377
 
@@ -158,6 +164,45 @@ def main(args=None):
         )
         dash_item.append_child(node)
         ui.stacked.addWidget(dash)
+
+    def focus_nv(name, nv):
+        filters = [
+            {
+                'can_id': frame.id | socket.CAN_EFF_FLAG,
+                'can_mask': socket.CAN_EFF_MASK |
+                            socket.CAN_EFF_FLAG |
+                            socket.CAN_RTR_FLAG
+            }
+            for frame in device.frames_nv.frames
+        ]
+        real_bus.setFilters(filters)
+        # TODO: get these filters right
+
+        nv.read_from_device()
+        # TODO: actually wait for a response
+        print('{name}: {value}'.format(name=name,
+                                       value=nv.value))
+        ui.stacked.setCurrentWidget(nv.ui)
+
+
+    nv_item = epyq.listmenu.Node(text='Parameters')
+    menu_root.append_child(nv_item)
+    for nv in device.nvs.children:
+        nv.ui = load_ui('parameter_edit.ui')
+        nv.ui.from_device.set_signal(nv.status_signal)
+        nv.ui.to_device.set_signal(nv)
+        nv.status_signal.value_changed.connect(nv.value_changed)
+        # nv.status_signal.value_changed.connect(testy)
+        ui.stacked.addWidget(nv.ui)
+        node = epyq.listmenu.Node(
+            text=nv.name,
+            action=functools.partial(
+                focus_nv,
+                name=nv.name,
+                nv=nv
+            )
+        )
+        nv_item.append_child(node)
 
     menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
     menu = epyq.listmenuview.ListMenuView()
