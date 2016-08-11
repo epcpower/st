@@ -17,7 +17,7 @@ class AbstractPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent=None):
         QtDesigner.QPyDesignerCustomWidgetPlugin.__init__(self)
 
-        self._group = "EPC"
+        self._group = "EPC - Signals"
         self._icon = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                              '..', 'icon.ico')
         self._init = None
