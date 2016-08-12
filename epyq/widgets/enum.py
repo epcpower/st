@@ -13,12 +13,12 @@ __license__ = 'GPLv2+'
 
 
 class Enum(epyq.widgets.abstracttxwidget.AbstractTxWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'enum.ui')
 
         epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
-                ui=ui_file, parent=parent)
+                ui=ui_file, parent=parent, in_designer=in_designer)
 
         # TODO: CAMPid 398956661298765098124690765
         self.ui.value.currentTextChanged.connect(self.widget_value_changed)
@@ -40,8 +40,8 @@ class Enum(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
         self.ui.value.setCurrentText(value)
 
-    def set_signal(self, signal):
-        if signal is not self.signal_object:
+    def set_signal(self, signal=None, force_update=False):
+        if signal is not self.signal_object or force_update:
             self.ui.value.clear()
             if signal is not None:
 
@@ -56,7 +56,8 @@ class Enum(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
                 self.ui.value.addItems(full_strings)
 
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(self, signal)
+        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
+            self, signal, force_update=force_update)
 
 
 if __name__ == '__main__':

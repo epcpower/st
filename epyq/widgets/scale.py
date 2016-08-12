@@ -14,12 +14,12 @@ __license__ = 'GPLv2+'
 
 class Scale(epyq.widgets.abstractwidget.AbstractWidget,
             epyq.mixins.OverrideRange):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'scale.ui')
 
         epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
-                ui=ui_file, parent=parent)
+                ui=ui_file, parent=parent, in_designer=in_designer)
 
         epyq.mixins.OverrideRange.__init__(self)
 

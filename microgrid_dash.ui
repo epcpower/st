@@ -6,12 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1172</width>
-    <height>807</height>
+    <width>1421</width>
+    <height>914</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
+  </property>
+  <property name="can_file" stdset="0">
+   <string>AFE_CAN_ID247.sym</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

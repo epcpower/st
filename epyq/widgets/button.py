@@ -14,12 +14,12 @@ __license__ = 'GPLv2+'
 
 
 class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'button.ui')
 
         epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
-                ui=ui_file, parent=parent)
+                ui=ui_file, parent=parent, in_designer=in_designer)
 
         # TODO: CAMPid 398956661298765098124690765
         self.ui.value.pressed.connect(self.pressed)
@@ -28,8 +28,9 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         self._frame = None
         self._signal = None
 
-    def set_signal(self, signal):
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(self, signal)
+    def set_signal(self, signal=None, force_update=False):
+        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
+            self, signal, force_update=force_update)
 
         if signal is not None:
             self.set(0)

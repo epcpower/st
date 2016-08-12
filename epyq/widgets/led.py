@@ -44,12 +44,12 @@ def make_color(svg_string, new_color):
 
 
 class Led(epyq.widgets.abstractwidget.AbstractWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'led.ui')
 
         epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
-                ui=ui_file, parent=parent)
+                ui=ui_file, parent=parent, in_designer=in_designer)
 
         file_name = 'led.svg'
 
