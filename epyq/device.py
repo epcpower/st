@@ -292,7 +292,6 @@ class Device:
 
             self.nvs = epyq.nv.Nvs(self.frames_nv, self.bus)
             notifiees.append(self.nvs)
-            print('appended')
 
             nv_views = self.ui.findChildren(epyq.nvview.NvView)
             if len(nv_views) > 0:
