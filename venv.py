@@ -3,6 +3,7 @@
 import argparse
 from collections import OrderedDict
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -118,10 +119,27 @@ else:
     ]
 
     if not args.no_designer:
-        packages.append(
-            'https://github.com/altendky/pyqt5-tools/releases/download/'
-            'v5.7.dev5/PyQt5_Tools-5.7.dev5-cp35-none-win32.whl'
-        )
+        arch = platform.architecture()
+        if arch[1].lower().startswith('win'):
+            # TODO: CAMPid 994391911172312371845393249991437
+            bits = int(arch[0][0:2])
+            plat_names = {
+                32: 'win32',
+                64: 'win_amd64'
+            }
+            try:
+                plat_name = plat_names[bits]
+            except KeyError:
+                raise Exception('Bit depth {bits} not recognized {}'.format(plat_names.keys()))
+
+            python_tag = 'cp{major}{minor}'.format(
+                major=sys.version_info[0],
+                minor=sys.version_info[1],
+            )
+            version = '5.7.dev7'
+            file_name = 'PyQt5_Tools-{version}-{python_tag}-none-{plat_name}.whl'.format(**locals())
+            url = 'https://github.com/altendky/pyqt5-tools/releases/download/v{version}/{file_name}'.format(**locals())
+            packages.append(url)
 
     for package in packages:
         pip_install(package, args.no_ssl_verify, virtual=True)
