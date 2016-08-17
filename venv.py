@@ -132,7 +132,11 @@ else:
         ('canmatrix', 'https://github.com/ebroecker/canmatrix/archive/'
                      '7f6a03feb436bcfad4d54d57f6f2b8edee0b444a.zip'),
         ('bitstruct', 'https://github.com/altendky/bitstruct/archive/'
-                     '129a72e290c533654a91bd556b1d4b0822df423f.zip')
+                     '129a72e290c533654a91bd556b1d4b0822df423f.zip'),
+        ('pysunspec', 'https://github.com/altendky/pysunspec/archive/'
+                     '61a948e12a14a03642ca279fdd560ac642256a28.zip'),
+        ('pysunspec/sunspec/models', 'https://github.com/altendky/models/archive/'
+                     'cf2357f69da246795a7a41b7df95c590cd9b7bdb.zip')
     ])
 
 #    pip_install('gitpython', args.no_ssl_verify)
