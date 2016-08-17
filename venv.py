@@ -126,14 +126,14 @@ else:
     for package in packages:
         pip_install(package, args.no_ssl_verify, virtual=True)
 
-    zip_repos = {
-        'python-can': 'https://bitbucket.org/altendky/python-can/get/'
-                      '076a7864f1e292647a501ae60ea90f62b5703d71.zip',
-        'canmatrix': 'https://github.com/ebroecker/canmatrix/archive/'
-                     '7f6a03feb436bcfad4d54d57f6f2b8edee0b444a.zip',
-        'bitstruct': 'https://github.com/altendky/bitstruct/archive/'
-                     '129a72e290c533654a91bd556b1d4b0822df423f.zip'
-    }
+    zip_repos = OrderedDict([
+        ('python-can', 'https://bitbucket.org/altendky/python-can/get/'
+                      '076a7864f1e292647a501ae60ea90f62b5703d71.zip'),
+        ('canmatrix', 'https://github.com/ebroecker/canmatrix/archive/'
+                     '7f6a03feb436bcfad4d54d57f6f2b8edee0b444a.zip'),
+        ('bitstruct', 'https://github.com/altendky/bitstruct/archive/'
+                     '129a72e290c533654a91bd556b1d4b0822df423f.zip')
+    ])
 
 #    pip_install('gitpython', args.no_ssl_verify)
 #    import git
@@ -172,6 +172,10 @@ else:
         zip_file = zipfile.ZipFile(zip_data)
         zip_dir = os.path.split(zip_file.namelist()[0])[0]
         zip_file.extractall(path=src)
+        try:
+            shutil.rmtree(os.path.join(src, name))
+        except FileNotFoundError:
+            pass
         shutil.move(os.path.join(src, zip_dir),
                     os.path.join(src, name))
         # TODO: remove this because it is a goofy workaround for the issue being discussed
