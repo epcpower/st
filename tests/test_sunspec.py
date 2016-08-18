@@ -2,6 +2,7 @@
 
 # TODO: get some docstrings in here!
 
+import serial.tools.list_ports
 import sunspec.core.client as client
 import sys
 
@@ -11,6 +12,9 @@ __license__ = 'GPLv2+'
 
 
 def main(args=None):
+    for port in serial.tools.list_ports.comports():
+        print(port)
+
     device = client.SunSpecClientDevice(client.RTU, 1, '/dev/ttymod', max_count=14)
     print(device.common)
     device.common.read()
