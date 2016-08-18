@@ -116,9 +116,10 @@ class DeviceTreeView(QtWidgets.QWidget):
             self.remove_device(node)
         elif action is add_device_action:
             device = self.add_device(node)
-            self.ui.tree_view.selectionModel().setCurrentIndex(
-                self.model.index_from_node(device),
-                QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows)
+            if device is not None:
+                self.ui.tree_view.selectionModel().setCurrentIndex(
+                    self.model.index_from_node(device),
+                    QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows)
 
     def add_device(self, bus):
         device = load_device()
