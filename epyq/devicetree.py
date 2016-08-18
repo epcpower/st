@@ -5,6 +5,7 @@
 import can
 import epyq.pyqabstractitemmodel
 import functools
+import serial.tools.list_ports
 import sys
 import time
 
@@ -25,15 +26,6 @@ class Columns(AbstractColumns):
 
 Columns.indexes = Columns.indexes()
 
-bitrates = OrderedDict([
-    (1000000, '1 MBit/s'),
-    (500000, '500 kBit/s'),
-    (250000, '250 kBit/s'),
-    (125000, '125 kBit/s')
-])
-
-default_bitrate = 500000
-
 def available_buses():
     valid = []
 
@@ -47,8 +39,8 @@ def available_buses():
                     pass
                 else:
                     bus.shutdown()
-                    valid.append({'interface': interface,
-                                  'channel': channel})
+                    valid.append({'type': CanBus,
+                                  'device': [interface, channel]})
         elif interface == 'socketcan':
             for n in range(9):
                 channel = 'can{}'.format(n)
@@ -58,8 +50,8 @@ def available_buses():
                     pass
                 else:
                     bus.shutdown()
-                    valid.append({'interface': interface,
-                                  'channel': channel})
+                    valid.append({'type': CanBus,
+                                  'device': [interface, channel]})
             for n in range(9):
                 channel = 'vcan{}'.format(n)
                 try:
@@ -68,40 +60,40 @@ def available_buses():
                     pass
                 else:
                     bus.shutdown()
-                    valid.append({'interface': interface,
-                                  'channel': channel})
+                    valid.append({'type': CanBus,
+                                  'device': [interface, channel]})
         else:
             print('Availability check not implemented for {}'
                   .format(interface), file=sys.stderr)
+
+
+    for port in sorted(serial.tools.list_ports.comports()):
+        valid.append({'type': SunspecBus,
+                      'device': [port.device]})
 
     return valid
 
 
 class Bus(TreeNode):
-    def __init__(self, interface, channel):
+    def __init__(self, device, type_string):
         TreeNode.__init__(self)
 
-        self.interface = interface
-        self.channel = channel
+        self.device = device
+        self.type_string = type_string
 
-        self.bitrate = default_bitrate
+        self.bitrate = self.default_bitrate
         self.separator = ' - '
 
-        if self.interface is not None:
-            name = '{}{}{}'.format(self.interface,
-                                   self.separator,
-                                   self.channel)
+        if self.device is not None:
+            name = self.separator.join(self.device)
         else:
-            name = 'Offline'
+            name = 'Offline ({})'.format(self.type_string)
 
         self.fields = Columns(name=name,
-                              bitrate=bitrates[self.bitrate],
+                              bitrate=self.bitrates[self.default_bitrate],
                               transmit='')
 
         self._checked = Columns.fill(Qt.Unchecked)
-
-        self.bus = epyq.busproxy.BusProxy(
-            transmit=self.checked(Columns.indexes.transmit))
 
     def set_data(self, data):
         for key, value in bitrates.items():
@@ -120,7 +112,10 @@ class Bus(TreeNode):
         return bitrates.values()
 
     def unique(self):
-        return '{} - {}'.format(self.interface, self.channel)
+        if self.device is not None:
+            return self.separator.join(self.device)
+
+        return None
 
     def append_child(self, child):
         TreeNode.append_child(self, child)
@@ -154,22 +149,64 @@ class Bus(TreeNode):
                 self.bus.transmit = checked == Qt.Checked
 
     def set_bus(self):
-        if self.interface == None:
+        if self.device == None:
             return
 
         self.bus.set_bus(None)
 
         if self._checked.name == Qt.Checked:
-            real_bus = can.interface.Bus(bustype=self.interface,
-                                         channel=self.channel,
-                                         bitrate=self.bitrate)
-            # TODO: Yuck, but it helps recover after connecting to a bus with
-            #       the wrong speed.  So, find a better way.
-            time.sleep(0.5)
+            real_bus = self.construct_real_bus()
         else:
             real_bus = None
 
         self.bus.set_bus(bus=real_bus)
+
+
+class SunspecBus(Bus):
+    bitrates = OrderedDict([
+        (9600, '9600 Bit/s')
+    ])
+
+    default_bitrate = 9600
+
+    def __init__(self, device):
+        Bus.__init__(self, device=device, type_string='SunSpec')
+
+        self.bus = epyq.busproxy.BusProxy(
+            transmit=self.checked(Columns.indexes.transmit))
+
+
+class CanBus(Bus):
+    bitrates = OrderedDict([
+        (1000000, '1 MBit/s'),
+        (500000, '500 kBit/s'),
+        (250000, '250 kBit/s'),
+        (125000, '125 kBit/s')
+    ])
+
+    default_bitrate = 500000
+
+    def __init__(self, device):
+        Bus.__init__(self, device=device, type_string='CAN')
+
+        if self.device is not None:
+            self.interface = self.device.pop(0)
+            self.channel = self.device.pop(0)
+            if len(device) > 0:
+                raise Exception('Extra device parameters passed: {}'.format(device))
+
+        self.bus = epyq.busproxy.BusProxy(
+            transmit=self.checked(Columns.indexes.transmit))
+
+    def construct_real_bus(self):
+        real_bus = can.interface.Bus(bustype=self.interface,
+                                     channel=self.channel,
+                                     bitrate=self.bitrate)
+        # TODO: Yuck, but it helps recover after connecting to a bus with
+        #       the wrong speed.  So, find a better way.
+        time.sleep(0.5)
+
+        return real_bus
 
 
 class Device(TreeNode):
@@ -229,10 +266,20 @@ class Model(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
     device_removed = pyqtSignal(epyq.device.Device)
 
     def __init__(self, root, parent=None):
-        buses = [{'interface': None, 'channel': None}] + available_buses()
+        buses = (
+            [
+                {'type': CanBus, 'device': None},
+                {'type': SunspecBus, 'device': None}
+            ]
+            + available_buses()
+        )
         for bus in buses:
-            bus = Bus(interface=bus['interface'],
-                      channel=bus['channel'])
+            parameters = set(bus.keys())
+            parameters.discard('type')
+            parameters = {name: bus[name] for name in parameters}
+
+            constructor = bus['type']
+            bus = constructor(**parameters)
             root.append_child(bus)
             went_offline = functools.partial(self.went_offline, node=bus)
             bus.bus.went_offline.connect(went_offline)
