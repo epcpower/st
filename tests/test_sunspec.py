@@ -11,16 +11,20 @@ __license__ = 'GPLv2+'
 
 
 def main(args=None):
-    d = client.SunSpecClientDevice(client.RTU, 1, '/dev/ttymod')
-    print(d.common)
-    d.common.read()
-    print(d.common)
-    for model in [getattr(d, model) for model in d.models]:
+    device = client.SunSpecClientDevice(client.RTU, 1, '/dev/ttymod', max_count=14)
+    print(device.common)
+    device.common.read()
+    print(device.common)
+    for model in [getattr(device, model) for model in device.models]:
         model.read()
         print('  -  -  -  Model {}'.format(model.name))
         print(model)
         print()
 
+    for model in [getattr(device, name) for name in device.models]:
+        model.read()
+        for name, point in [(name, getattr(model, name)) for name in model.points]:
+            print('{}-{}: {}'.format(model.name, name, point))
 
 if __name__ == '__main__':
     sys.exit(main())

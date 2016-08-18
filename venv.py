@@ -134,7 +134,7 @@ else:
         ('bitstruct', 'https://github.com/altendky/bitstruct/archive/'
                      '129a72e290c533654a91bd556b1d4b0822df423f.zip'),
         ('pysunspec', 'https://github.com/altendky/pysunspec/archive/'
-                     '61a948e12a14a03642ca279fdd560ac642256a28.zip'),
+                     'c66b20b5b8e13ccc680154b2ecd6552c622d0504.zip'),
         ('pysunspec/sunspec/models', 'https://github.com/altendky/models/archive/'
                      '04e44d84263f8201d31ff886f759b00973e4d95a.zip')
     ])
