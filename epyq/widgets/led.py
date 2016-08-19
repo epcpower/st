@@ -63,6 +63,11 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         file.open(QFile.ReadOnly | QFile.Text)
         self.svg_string = file.readAll()
 
+        # TODO: shouldn't this be in AbstractWidget?
+        self._frame = None
+        self._signal = None
+        self._on_value = 1
+
         self._value = False
         self.bright = None
         self.dim = None
@@ -78,18 +83,16 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self.ui.value.setMaximumHeight(height)
         self.ui.value.setMaximumWidth(height / ratio)
 
-        # TODO: shouldn't this be in AbstractWidget?
-        self._frame = None
-        self._signal = None
-        self._on_value = 1
-
     @pyqtProperty(int)
     def on_value(self):
         return self._on_value
 
     @on_value.setter
     def on_value(self, new_on_value):
-        self._on_value = int(new_on_value)
+        new_on_value = int(new_on_value)
+        if self._on_value != new_on_value:
+            self._on_value = new_on_value
+            self.update_svg()
 
     @pyqtProperty(QColor)
     def color(self):
@@ -139,7 +142,9 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self.update_svg()
 
     def update_svg(self):
-        self.ui.value.load(self.bright if self._value else self.dim)
+        self.ui.value.load(self.bright
+                           if self._value == self.on_value
+                           else self.dim)
         self.ui.value.main_element = 'led'
 
 
