@@ -21,7 +21,6 @@ win32 {
         "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/redist/x86/Microsoft.VC140.CRT/msvcp140.dll" \
         C:/Windows/SysWOW64/PCANBasic.dll \
 
-
     # TODO: CAMPid 9949839459389895687824372734
     EXTRA_BINFILES_WIN = $${EXTRA_BINFILES}
     EXTRA_BINFILES_WIN ~= s,/,\\,g
@@ -60,6 +59,12 @@ win32 {
     QMAKE_POST_LINK += $$quote(echo    == Qt ================== &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
     QMAKE_POST_LINK += $$quote(echo. &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
     QMAKE_POST_LINK += $$quote(type c:\Qt\Qt5.7.0\Licenses\LICENSE &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(echo. &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(echo    == Microsoft Visual C++ Build Tools ======== &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(echo. &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(echo https://www.visualstudio.com/en-us/support/legal/mt644918 &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(echo. &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(type ..\installer\microsoft_visual_cpp_build_tools_eula.html &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
 
     QMAKE_POST_LINK += $$quote(copy /y ..\epyq\icon.ico installer\config ) &amp;
     QMAKE_POST_LINK += $$quote(copy /y ..\epyq\icon.png installer\config ) &amp;
