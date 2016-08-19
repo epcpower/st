@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<Project version="6"><Python hostinterpreter="$INTERPRETER" major="3" minor="5" patch="2" platformpython="win32" sourcedir="$SYSROOT/src/Python-$PDY_PY_MAJOR.$PDY_PY_MINOR.$PDY_PY_MICRO" ssl="1" targetincludedir="$SYSROOT/include/python$PDY_PY_MAJOR.$PDY_PY_MINOR" targetlibrary="$SYSROOT/lib/libpython$PDY_PY_MAJOR.$PDY_PY_MINOR.a" targetstdlibdir="$SYSROOT/lib/python$PDY_PY_MAJOR.$PDY_PY_MINOR" /><Application entrypoint="epyq.__main__:main" isbundle="1" isconsole="0" ispyqt5="1" name="" script="" syspath=""><QMakeConfiguration># http://stackoverflow.com/a/3984180/228539
+<Project version="6"><Python hostinterpreter="$INTERPRETER" major="3" minor="5" patch="1" platformpython="win32" sourcedir="$SYSROOT/src/Python-$PDY_PY_MAJOR.$PDY_PY_MINOR.$PDY_PY_MICRO" ssl="1" targetincludedir="$SYSROOT/include/python$PDY_PY_MAJOR.$PDY_PY_MINOR" targetlibrary="$SYSROOT/lib/libpython$PDY_PY_MAJOR.$PDY_PY_MINOR.a" targetstdlibdir="$SYSROOT/lib/python$PDY_PY_MAJOR.$PDY_PY_MINOR" /><Application entrypoint="epyq.__main__:main" isbundle="1" isconsole="0" ispyqt5="1" name="" script="" syspath=""><QMakeConfiguration># http://stackoverflow.com/a/3984180/228539
 
 RC_ICONS = ../epyq/icon.ico
 
