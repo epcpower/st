@@ -60,6 +60,13 @@ win32 {
     QMAKE_POST_LINK += $$quote(echo. &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
     QMAKE_POST_LINK += $$quote(type c:\Qt\Qt5.7.0\Licenses\LICENSE &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
     QMAKE_POST_LINK += $$quote(echo. &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(echo    == PEAK-System ========= &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(echo. &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(echo http://www.peak-system.com/produktcd/Develop/PC%20interfaces/Windows/API-ReadMe.txt &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(echo. &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(type ..\installer\peak-system.txt &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(echo. &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
+    QMAKE_POST_LINK += $$quote(echo. &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
     QMAKE_POST_LINK += $$quote(echo    == Microsoft Visual C++ Build Tools ======== &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
     QMAKE_POST_LINK += $$quote(echo. &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
     QMAKE_POST_LINK += $$quote(echo https://www.visualstudio.com/en-us/support/legal/mt644918 &gt;&gt; $${THIRD_PARTY_LICENSE} ) &amp;
