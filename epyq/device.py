@@ -179,8 +179,12 @@ class Device:
         shutil.rmtree(path)
 
     def _init_from_parameters(self, uis, serial_number, name, bus=None,
-                              elements=set(Elements), tabs=set(Tabs),
+                              elements=None, tabs=None,
                               rx_interval=0):
+        self.elements = set(Elements) if elements == None else elements
+        if tabs is None:
+            tabs = set(Tabs)
+
         self.elements = elements
 
         if not hasattr(self, 'bus'):

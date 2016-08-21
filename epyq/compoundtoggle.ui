@@ -29,10 +29,10 @@
       </sizepolicy>
      </property>
      <property name="frame" stdset="0">
-      <string>CommandBits</string>
+      <string/>
      </property>
      <property name="signal" stdset="0">
-      <string>SpeedTorqueControl</string>
+      <string/>
      </property>
      <property name="label_visible" stdset="0">
       <bool>false</bool>
@@ -53,10 +53,10 @@
         </sizepolicy>
        </property>
        <property name="frame" stdset="0">
-        <string>StatusBits</string>
+        <string/>
        </property>
        <property name="signal" stdset="0">
-        <string>RxSpeedTorqueControl</string>
+        <string/>
        </property>
        <property name="label_override" stdset="0">
         <string/>
@@ -75,10 +75,10 @@
         </sizepolicy>
        </property>
        <property name="frame" stdset="0">
-        <string>StatusBits</string>
+        <string/>
        </property>
        <property name="signal" stdset="0">
-        <string>RxSpeedTorqueControl</string>
+        <string/>
        </property>
        <property name="label_override" stdset="0">
         <string/>

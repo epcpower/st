@@ -43,6 +43,9 @@ class AbstractWidget(QtWidgets.QWidget):
 
         self.set_signal(force_update=True)
 
+        self._frame = ''
+        self._signal = ''
+
     def changeEvent(self, event):
         QtWidgets.QWidget.changeEvent(self, event)
         if event.type() == QEvent.ParentChange:
