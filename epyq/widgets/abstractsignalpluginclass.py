@@ -13,7 +13,11 @@ __license__ = 'GPLv2+'
 
 class AbstractSignalPlugin(epyq.abstractpluginclass.AbstractPlugin):
     def __init__(self, parent=None, in_designer=True):
-        epyq.abstractpluginclass.AbstractPlugin.__init__(self, parent=parent)
+        epyq.abstractpluginclass.AbstractPlugin.__init__(
+            self,
+            parent=parent,
+            in_designer=in_designer
+        )
 
         self.in_designer = in_designer
 

@@ -11,8 +11,11 @@ __license__ = 'GPLv2+'
 
 
 class SvgWidget(QSvgWidget):
-    def __init__(self, *args, **kwargs):
-        QSvgWidget.__init__(self, *args, **kwargs)
+    def __init__(self, parent=None, in_designer=False):
+        QSvgWidget.__init__(self, parent=parent)
+
+        self.in_designer = in_designer
+
         self._main_element = ''
 
     @pyqtProperty(str)

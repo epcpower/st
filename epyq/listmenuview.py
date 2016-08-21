@@ -21,8 +21,10 @@ __license__ = 'GPLv2+'
 class ListMenuView(QtWidgets.QWidget):
     node_clicked = pyqtSignal(epyq.listmenu.Node)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         QtWidgets.QWidget.__init__(self, parent=parent)
+
+        self.in_designer = in_designer
 
         ui = 'listmenuview.ui'
         # TODO: CAMPid 9549757292917394095482739548437597676742

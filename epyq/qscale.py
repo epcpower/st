@@ -20,8 +20,11 @@ __license__ = 'GPLv2+'
 
 
 class QScale(QtWidgets.QWidget):
-    def __init__(self,parent=None):
+    def __init__(self, parent=None, in_designer=False):
         QtWidgets.QWidget.__init__(self, parent=parent)
+
+        self.in_designer = in_designer
+
         self.m_minimum = 0
         self.m_maximum = 100
         self.m_value = 0
