@@ -45,6 +45,14 @@ class CompoundToggle(QWidget):
             self.ui.status_on.set_value(self.ui.status_off.on_value)
 
     @pyqtProperty(str)
+    def box_title(self):
+        return self.ui.box.title()
+
+    @box_title.setter
+    def box_title(self, title):
+        self.ui.box.setTitle(title)
+
+    @pyqtProperty(str)
     def command_frame(self):
         return self.ui.command.frame
 
