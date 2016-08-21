@@ -176,7 +176,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self.update_svg()
 
     def update_svg(self):
-        if self.value == self.on_value:
+        if self._value:
             svg = self.svg['on']
         elif self.automatic_off_color:
             svg = self.svg['automatic_off']
