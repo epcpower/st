@@ -227,6 +227,9 @@ class Device:
             self.elements.discard(Elements.tx)
             self.elements.discard(Elements.rx)
 
+        if Tabs.nv not in tabs:
+            self.elements.discard(Elements.nv)
+
         notifiees = []
 
         if Elements.dash in self.elements:
