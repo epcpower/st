@@ -43,6 +43,10 @@ def make_color(svg_string, new_color):
     return doc.toByteArray()
 
 
+def rgb_string(color):
+    return ('{:02X}' * 3).format(*color.getRgb())
+
+
 class Led(epyq.widgets.abstractwidget.AbstractWidget):
     def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
@@ -69,11 +73,18 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self._on_value = 1
 
         self._value = False
-        self.bright = None
-        self.dim = None
+        self.svg = {
+            'on': None,
+            'automatic_off': None,
+            'manual_off': None
+        }
+        self.ui.value.main_element = 'led'
 
-        self._color = QColor()
-        self.color = QColor("#20C020")
+        self._on_color = QColor()
+        self._manual_off_color = QColor()
+        self._automatic_off_color = True
+        self.on_color = QColor("#20C020")
+        self.manual_off_color = self.on_color.darker(factor=200)
 
         self._relative_height = 1
 
@@ -94,21 +105,44 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
             self._on_value = new_on_value
             self.update_svg()
 
+    @pyqtProperty(bool)
+    def automatic_off_color(self):
+        return self._automatic_off_color
+
+    @automatic_off_color.setter
+    def automatic_off_color(self, automatic):
+        automatic = bool(automatic)
+        if automatic != self._automatic_off_color:
+            self._automatic_off_color = bool(automatic)
+            self.update_svg()
+
     @pyqtProperty(QColor)
-    def color(self):
-        return self._color
+    def on_color(self):
+        return self._on_color
 
-    @color.setter
-    def color(self, new_color):
-        self._color = QColor(new_color)
+    @on_color.setter
+    def on_color(self, new_color):
+        self._on_color = QColor(new_color)
 
-        def rgb_string(color):
-            return ('{:02X}' * 3).format(*color.getRgb())
+        self.svg['on'] = make_color(self.svg_string, rgb_string(self._on_color))
 
-        self.bright = make_color(self.svg_string, rgb_string(self._color))
+        if self.automatic_off_color:
+            self.svg['automatic_off'] = make_color(
+                self.svg_string,
+                rgb_string(self._on_color.darker(factor=200))
+            )
 
-        self.dim = make_color(self.svg_string, rgb_string(
-            self._color.darker(factor=200)))
+        self.update_svg()
+
+    @pyqtProperty(QColor)
+    def manual_off_color(self):
+        return self._manual_off_color
+
+    @manual_off_color.setter
+    def manual_off_color(self, new_color):
+        self._manual_off_color = QColor(new_color)
+
+        self.svg['manual_off'] = make_color(self.svg_string, rgb_string(self._manual_off_color))
 
         self.update_svg()
 
@@ -142,10 +176,14 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self.update_svg()
 
     def update_svg(self):
-        self.ui.value.load(self.bright
-                           if self._value == self.on_value
-                           else self.dim)
-        self.ui.value.main_element = 'led'
+        if self.value == self.on_value:
+            svg = self.svg['on']
+        elif self.automatic_off_color:
+            svg = self.svg['automatic_off']
+        else:
+            svg = self.svg['manual_off']
+
+        self.ui.value.load(svg)
 
 
 if __name__ == '__main__':
