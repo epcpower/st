@@ -87,6 +87,30 @@ class CompoundScale(QWidget):
     def status_signal(self, signal):
         self.ui.status.signal = signal
 
+    @pyqtProperty(bool)
+    def status_override_range(self):
+        return self.ui.status.override_range
+
+    @status_override_range.setter
+    def status_override_range(self, override):
+        self.ui.status.override_range = override
+
+    @pyqtProperty(float)
+    def status_minimum(self):
+        return self.ui.status.minimum
+
+    @status_minimum.setter
+    def status_minimum(self, min):
+        self.ui.status.minimum = float(min)
+
+    @pyqtProperty(float)
+    def status_maximum(self):
+        return self.ui.status.maximum
+
+    @status_maximum.setter
+    def status_maximum(self, max):
+        self.ui.status.maximum = float(max)
+
 
 if __name__ == '__main__':
     import sys
