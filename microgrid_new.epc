@@ -1,0 +1,8 @@
+{
+    "can_path": "AFE_CAN_ID247.sym",
+    "name": "Microgrid (New)",
+    "ui_paths": {
+        "Control": "microgrid_new_control.ui",
+        "Setup and Status": "microgrid_new_setup.ui"
+    }
+}
