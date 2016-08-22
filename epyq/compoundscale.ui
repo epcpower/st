@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>233</width>
+    <width>278</width>
     <height>263</height>
    </rect>
   </property>
@@ -35,7 +35,7 @@
      <item>
       <widget class="Epc" name="echo">
        <property name="label_override" stdset="0">
-        <string>Echo</string>
+        <string>Response</string>
        </property>
        <property name="label_visible" stdset="0">
         <bool>true</bool>
