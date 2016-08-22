@@ -77,6 +77,16 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
+         <widget class="Epc" name="epc_5">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v24_Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="Epc" name="epc">
           <property name="frame" stdset="0">
            <string>StatusTemps</string>
