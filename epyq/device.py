@@ -331,6 +331,7 @@ class Device:
             notifier.add(notifiee)
 
         self.dash_connected_frames = {}
+        self.dash_connected_signals = set()
         for name, dash in self.dash_uis.items():
             # TODO: CAMPid 99457281212789437474299
             children = dash.findChildren(QObject)
@@ -353,10 +354,23 @@ class Device:
                     signal = frame.signal_by_name(signal_name)
                     if signal is not None:
                         frames.add(frame)
+                        self.dash_connected_signals.add(signal)
                         widget.set_signal(signal)
                         frame.user_send_control = False
 
         self.bus_status_changed(online=False, transmit=False)
+
+        all_signals = set()
+        for frame in self.neo_frames.frames:
+            for signal in frame.signals:
+                if signal.name != '__padding__':
+                    all_signals.add(signal)
+
+        frame_signals = []
+        for signal in all_signals - self.dash_connected_signals:
+            frame_signals.append('{} : {}'.format(signal.frame.name, signal.name))
+        for frame_signal in sorted(frame_signals):
+            print(frame_signal)
 
     def get_frames(self):
         return self.frames
