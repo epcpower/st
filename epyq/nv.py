@@ -218,7 +218,8 @@ class Nv(epyq.canneo.Signal, TreeNode):
                                     parent=parent)
         TreeNode.__init__(self)
 
-        self.fields = Columns(name=signal._name,
+        self.fields = Columns(name='{}:{}'.format(self.frame.mux_name,
+                                                  self.name),
                               value='')
         self.clear()
 
