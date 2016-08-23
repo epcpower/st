@@ -157,7 +157,34 @@
      <property name="title">
       <string>DC</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <widget class="Scale" name="scale_8">
+          <property name="frame" stdset="0">
+           <string>StatusDCParameters</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>VoltageDCInput_measured</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Epc" name="epc_2">
+          <property name="frame" stdset="0">
+           <string>StatusDCParameters</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>VoltageDCInput_measured</string>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
@@ -166,7 +193,7 @@
            <string>StatusDCParameters</string>
           </property>
           <property name="signal" stdset="0">
-           <string>VoltageDCInput_measured</string>
+           <string>CurrentDC_measured</string>
           </property>
          </widget>
         </item>
