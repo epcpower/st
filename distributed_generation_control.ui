@@ -237,25 +237,25 @@
       <string>AC</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="1">
-       <widget class="CompoundScale" name="compoundscale_2">
+      <item row="2" column="1">
+       <widget class="CompoundScale" name="compoundscale_4">
         <property name="command_frame" stdset="0">
-         <string>CommandPower</string>
+         <string>CommandVF</string>
         </property>
         <property name="command_signal" stdset="0">
-         <string>ReactivePower_command</string>
+         <string>Frequency_command</string>
         </property>
         <property name="echo_frame" stdset="0">
-         <string>StatusCommandedPower</string>
+         <string>StatusCommandVF</string>
         </property>
         <property name="echo_signal" stdset="0">
-         <string>ReactivePower_echo</string>
+         <string>Frequency_echo</string>
         </property>
         <property name="status_frame" stdset="0">
-         <string>StatusMeasuredPower</string>
+         <string>StatusACParameters</string>
         </property>
         <property name="status_signal" stdset="0">
-         <string>ReactivePower_measured</string>
+         <string>Frequency_measured</string>
         </property>
        </widget>
       </item>
@@ -281,25 +281,25 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="CompoundScale" name="compoundscale_4">
+      <item row="1" column="1">
+       <widget class="CompoundScale" name="compoundscale_2">
         <property name="command_frame" stdset="0">
-         <string>CommandVF</string>
+         <string>CommandPower</string>
         </property>
         <property name="command_signal" stdset="0">
-         <string>Frequency_command</string>
+         <string>ReactivePower_command</string>
         </property>
         <property name="echo_frame" stdset="0">
-         <string>StatusCommandVF</string>
+         <string>StatusCommandedPower</string>
         </property>
         <property name="echo_signal" stdset="0">
-         <string>Frequency_echo</string>
+         <string>ReactivePower_echo</string>
         </property>
         <property name="status_frame" stdset="0">
-         <string>StatusACParameters</string>
+         <string>StatusMeasuredPower</string>
         </property>
         <property name="status_signal" stdset="0">
-         <string>Frequency_measured</string>
+         <string>ReactivePower_measured</string>
         </property>
        </widget>
       </item>
@@ -334,7 +334,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
+      <item row="3" column="1">
        <widget class="Led" name="led_43">
         <property name="frame" stdset="0">
          <string>StatusBits</string>
@@ -350,7 +350,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="3" column="0">
        <widget class="Led" name="led_47">
         <property name="frame" stdset="0">
          <string>StatusBits</string>
