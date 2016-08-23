@@ -173,8 +173,8 @@ ID=0CFFCAF7h	// Returns the actual measured power.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=RealPower_measured signed 0,32 -m /u:W /ln:"Meas. real power"	// Measured real power.
-Var=ReactivePower_measured signed 32,32 -m /u:VA /ln:"Meas. reactive power"	// Measured reactive power.
+Var=RealPower_measured signed 0,32 -m /u:W /min:-200000 /max:200000 /ln:"Meas. real power"	// Measured real power.
+Var=ReactivePower_measured signed 32,32 -m /u:VA /min:-200000 /max:200000 /ln:"Meas. reactive power"	// Measured reactive power.
 
 [StatusCommandedPower]
 ID=18FFC4F7h	// Echoes the commanded power (P&Q) as received in CommandPQ.
@@ -271,7 +271,7 @@ DLC=8
 CycleTime=100
 Var=VoltageAC_measured signed 0,16 -m /u:V /f:0.1 /ln:"Meas. VAC"	// Measured RMS AC voltage.
 Var=CurrentAC_measured signed 16,16 -m /u:A /ln:"Meas. AC current"	// Measured RMS AC current.
-Var=Frequency_measured signed 32,16 -m /u:Hz /f:0.1 /ln:"Meas. AC freq."	// Measured frequency.
+Var=Frequency_measured signed 32,16 -m /u:Hz /f:0.1 /min:45 /max:65 /ln:"Meas. AC freq."	// Measured frequency.
 
 [StatusDCParameters]
 ID=1CFFC7F7h	// Measured (boosted) DC Bus voltage, DC Current, and estimated DC Input voltage.
@@ -280,7 +280,7 @@ DLC=8
 CycleTime=100
 Var=VoltageDCBus signed 16,16 -m /u:V /ln:"VBus"	// Measured DC bus voltage.
 Var=CurrentDC_measured signed 32,16 -m /u:A /ln:"Meas. IDC"	// Measured DC current.
-Var=VoltageDCInput_measured signed 0,16 -m /u:V /ln:"Est. input VDC"	// Estimated DC input voltage.
+Var=VoltageDCInput_measured signed 0,16 -m /u:V /min:0 /max:900 /ln:"Est. input VDC"	// Estimated DC input voltage.
 
 [StatusControlVolts2]
 ID=1CFFC6F7h	// Present voltage of the -15V power supply on the control board.
