@@ -309,13 +309,6 @@ class Model(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
         persistent_index = QPersistentModelIndex(self.index_from_node(bus))
         self.layoutChanged.emit([persistent_index])
 
-        # TODO: This reset should not be needed but I have been unable
-        #       so far to resolve them otherwise.  Since this doesn't
-        #       happen much the performance cost is low but it does
-        #       collapse the entire tree...
-        self.beginResetModel()
-        self.endResetModel()
-
         self.device_removed.emit(device.device)
 
 if __name__ == '__main__':
