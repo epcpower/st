@@ -1,8 +1,0 @@
-{
-    "can_path": "microgrid_new.sym",
-    "name": "Microgrid (New)",
-    "ui_paths": {
-        "Control": "microgrid_new_control.ui",
-        "Setup and Status": "microgrid_new_setup.ui"
-    }
-}

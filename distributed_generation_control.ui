@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <property name="can_file" stdset="0">
-   <string>microgrid_new.sym</string>
+   <string>distributed_generation.sym</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="1">
