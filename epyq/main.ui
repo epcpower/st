@@ -24,12 +24,6 @@
        <bool>false</bool>
       </property>
       <widget class="DeviceTreeView" name="device_tree">
-       <property name="toolTip">
-        <string>Buses!</string>
-       </property>
-       <property name="whatsThis">
-        <string>A DeviceTreeView</string>
-       </property>
       </widget>
       <widget class="QStackedWidget" name="stacked"/>
      </widget>

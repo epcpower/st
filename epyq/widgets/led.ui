@@ -48,12 +48,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="toolTip">
-        <string>SVG with utility</string>
-       </property>
-       <property name="whatsThis">
-        <string>An SvgWidget</string>
-       </property>
        <property name="main_element" stdset="0">
         <string/>
        </property>
