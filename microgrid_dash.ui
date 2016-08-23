@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <property name="can_file" stdset="0">
-   <string>AFE_CAN_ID247.sym</string>
+   <string>microgrid_new.sym</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

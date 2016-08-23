@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>1293</width>
-    <height>987</height>
+    <height>953</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <property name="can_file" stdset="0">
-   <string>AFE_CAN_ID247.sym</string>
+   <string>microgrid_new.sym</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
@@ -102,7 +102,10 @@
            <string>StatusTemps</string>
           </property>
           <property name="signal" stdset="0">
-           <string>TempHeatsink_measured</string>
+           <string>TempInlet_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>Internal/Inlet/Ambient</string>
           </property>
          </widget>
         </item>
@@ -113,6 +116,9 @@
           </property>
           <property name="signal" stdset="0">
            <string>TempInternal_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>Inlet/Heatsink/Coolant</string>
           </property>
          </widget>
         </item>
