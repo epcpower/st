@@ -69,8 +69,8 @@ Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:60 /ln:"
 ID=0CFFCAF6h	// Returns the actual measured power.
 Type=Extended
 DLC=8
-Var=RealPower_measured signed 0,32 -m /u:W /ln:"Real Power"	// Measured real power of master unit.
-Var=ReactivePower_measured signed 32,32 -m /u:VA /ln:"Reactive Power"	// Measured reactive power of master unit.
+Var=RealPower_measured signed 0,32 -m /u:W /min:-200000 /max:200000 /ln:"Real Power"	// Measured real power of master unit.
+Var=ReactivePower_measured signed 32,32 -m /min:-200000 /max:200000 /u:VA /ln:"Reactive Power"	// Measured reactive power of master unit.
 
 [CommandFactoryControl]
 ID=0CFFAF41h
@@ -181,8 +181,8 @@ ID=18FFC4F7h	// Echoes the commanded power (P&Q) as received in CommandPQ.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=RealPower_echo signed 0,32 -m /u:W /ln:"Real Power"	// Echoed real power command.
-Var=ReactivePower_echo signed 32,32 -m /u:VA /ln:"Reactive Power"	// Echoed reactive power command.
+Var=RealPower_echo signed 0,32 -m /u:W /min:-200000 /max:200000 /ln:"Real Power"	// Echoed real power command.
+Var=ReactivePower_echo signed 32,32 -m /u:VA /min:-200000 /max:200000 /ln:"Reactive Power"	// Echoed reactive power command.
 
 [StatusBits]
 ID=0CFFC3F7h	// Bits representing the status of the power module.
@@ -215,28 +215,28 @@ ID=1CFFC5F7h	// Lists present voltage of each power supply on the control board 
 Type=Extended
 DLC=8
 CycleTime=100
-Var=v5p0_Supply signed 0,16 -m /u:V /f:0.01 /ln:"5V Supply"	// Present voltage of the control board 5V power suppy.
-Var=v3p3_Supply signed 16,16 -m /u:V /f:0.01 /ln:"3.3V Supply"	// Present voltage of the control board 3.3V power supply.
-Var=v24_Supply signed 32,16 -m /u:V /f:0.01 /ln:"24V Supply"	// Present voltage of the control board 24V power supply.
-Var=v15_Supply signed 48,16 -m /u:V /f:0.01 /ln:"15V Supply"	// Present voltage of the control board 15V power supply.
+Var=v5p0_Supply signed 0,16 -m /u:V /f:0.01 /min:4.5 /max:5.5 /ln:"5V Supply"	// Present voltage of the control board 5V power suppy.
+Var=v3p3_Supply signed 16,16 -m /u:V /f:0.01 /min:3.0 /max:3.6 /ln:"3.3V Supply"	// Present voltage of the control board 3.3V power supply.
+Var=v24_Supply signed 32,16 -m /u:V /f:0.01 /min:23 /max:25 /ln:"24V Supply"	// Present voltage of the control board 24V power supply.
+Var=v15_Supply signed 48,16 -m /u:V /f:0.01 /min:14 /max:16 /ln:"15V Supply"	// Present voltage of the control board 15V power supply.
 
 [StatusTemps]
 ID=18FFCBF7h	// Returns the inlet water temperature to the module as well as module internal ambient temperature.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=TempInlet_measured signed 0,16 -m /u:C /f:0.1 /ln:"Heatsink Temp."	// Coolant inlet temperature
-Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /ln:"Inlet Temp."	// Internal ambient temperature
-Var=ConverterLosses unsigned 32,16 -m /u:W /max:1 /ln:"Converter Losses"	// Power converter thermal loss
+Var=TempInlet_measured signed 0,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Heatsink Temp."	// Coolant inlet temperature
+Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Inlet Temp."	// Internal ambient temperature
+Var=ConverterLosses unsigned 32,16 -m /u:W /ln:"Converter Losses"	// Power converter thermal loss
 
 [StatusDeviceTemps]
 ID=18FFCCF7h	// Returns the inlet water temperature to the module as well as module internal ambient temperature.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=TempDeviceBrdgA_measured signed 0,16 -m /u:C /f:0.1 /ln:"Bridge A"	// BridgeA Device temp
-Var=TempDeviceBrdgB_measured signed 16,16 -m /u:C /f:0.1 /ln:"Bridge B"	// BridgeB Device temp
-Var=TempTmodel_calculated signed 32,16 -m /u:C /f:0.1 /ln:"Model"	// Thermal Model prediceted temp
+Var=TempDeviceBrdgA_measured signed 0,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Bridge A"	// BridgeA Device temp
+Var=TempDeviceBrdgB_measured signed 16,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Bridge B"	// BridgeB Device temp
+Var=TempTmodel_calculated signed 32,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Model"	// Thermal Model prediceted temp
 
 [StatusFaults]
 ID=0CFFC8F7h	// Fault bits.
@@ -279,7 +279,7 @@ Type=Extended
 DLC=8
 CycleTime=100
 Var=VoltageDCBus signed 16,16 -m /u:V /min:0 /max:900 /ln:"VBus"	// Measured DC bus voltage.
-Var=CurrentDC_measured signed 32,16 -m /u:A /ln:"Meas. IDC"	// Measured DC current.
+Var=CurrentDC_measured signed 32,16 -m /u:A /min:0 /max:900 /ln:"Meas. IDC"	// Measured DC current.
 Var=VoltageDCInput_measured signed 0,16 -m /u:V /min:0 /max:900 /ln:"Meas. Input VDC"	// Measured DC input voltage.
 
 [StatusControlVolts2]
@@ -288,8 +288,8 @@ Type=Extended
 DLC=8
 CycleTime=100
 Var=n15V_Supply signed 0,16 -m /u:V /f:0.01 /ln:"-15V Supply"	// Present voltage of the control board -15V power supply.
-Var=DiodeTemperature unsigned 32,16 -m /u:C /max:1 /ln:"Diode"	// Hottest diode
-Var=IGBTTemperature unsigned 48,16 -m /u:C /max:1 /ln:"IGBT"	// Hottest IGBT
+Var=DiodeTemperature unsigned 32,16 -m /u:C /min:0 /max:100 /ln:"Diode"	// Hottest diode
+Var=IGBTTemperature unsigned 48,16 -m /u:C /min:0 /max:100 /ln:"IGBT"	// Hottest IGBT
 
 [softwareRev]
 ID=1CFFC1F7h	// Software revision.
@@ -305,7 +305,7 @@ Type=Extended
 DLC=8
 CycleTime=100
 Var=Voltage_echo unsigned 0,16 -m /u:Vrms /f:0.1 /ln:"Voltage"	// Echoed voltage command
-Var=Frequency_echo unsigned 16,16 -m /u:Hz /f:0.1 /ln:"Frequency"	// Echoed frequency command.
+Var=Frequency_echo unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /ln:"Frequency"	// Echoed frequency command.
 
 [serialNumber]
 ID=1CFFCCF7h	// Serial number of the power module.
@@ -412,16 +412,16 @@ ID=18FFD0F7h	// Measured RMS line currents.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=L1Current_measured unsigned 0,16 -m /u:A /max:1 /ln:"L1"	// Measured L1 RMS line current.
-Var=L2Current_measured unsigned 16,16 -m /u:A /max:1 /ln:"L2"	// Measured L2 RMS line current.
-Var=L3Current_measured unsigned 32,16 -m /u:A /max:1 /ln:"L3"	// Measured L3 RMS line current.
+Var=L1Current_measured unsigned 0,16 -m /u:A /ln:"L1"	// Measured L1 RMS line current.
+Var=L2Current_measured unsigned 16,16 -m /u:A /ln:"L2"	// Measured L2 RMS line current.
+Var=L3Current_measured unsigned 32,16 -m /u:A /ln:"L3"	// Measured L3 RMS line current.
 
 [StatusLineVoltages]
 ID=18FFD1F7h	// Measured RMS line voltages.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=L1Voltage_measured unsigned 0,16 -m /u:Vrms /f:0.1 /max:1 /ln:"L1"	// Measured L1 RMS line-neutral voltage
-Var=L2Voltage_measured unsigned 16,16 -m /u:Vrms /f:0.1 /max:1 /ln:"L2"	// Measured L2 RMS line-neutral voltage
-Var=L3Voltage_measured unsigned 32,16 -m /u:Vrms /f:0.1 /max:1 /ln:"L3"	// Measured L3 RMS line-neutral voltage
+Var=L1Voltage_measured unsigned 0,16 -m /u:Vrms /f:0.1 /ln:"L1"	// Measured L1 RMS line-neutral voltage
+Var=L2Voltage_measured unsigned 16,16 -m /u:Vrms /f:0.1 /ln:"L2"	// Measured L2 RMS line-neutral voltage
+Var=L3Voltage_measured unsigned 32,16 -m /u:Vrms /f:0.1 /ln:"L3"	// Measured L3 RMS line-neutral voltage
 
