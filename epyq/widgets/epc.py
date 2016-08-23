@@ -13,9 +13,9 @@ __license__ = 'GPLv2+'
 
 
 class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
-    def __init__(self, parent=None, in_designer=False):
+    def __init__(self, parent=None, ui_file='epc.ui', in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
-                               'epc.ui')
+                               ui_file)
 
         epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
                 ui=ui_file, parent=parent, in_designer=in_designer)
