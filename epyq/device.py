@@ -321,7 +321,7 @@ class Device:
             self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
             self.ui.offline_overlay.label.setText('offline')
 
-            self.ui.name.setText(name)
+            self.ui.name.setText(self.name)
             self.ui.tabs.setCurrentIndex(0)
 
 
