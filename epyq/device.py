@@ -363,7 +363,7 @@ class Device:
 
                 if not found:
                     self.dash_missing_signals.add(
-                        '{}:{}'.format(frame_name, signal_name))
+                        '{} : {}'.format(frame_name, signal_name))
 
         self.bus_status_changed(online=False, transmit=False)
 
@@ -376,6 +376,16 @@ class Device:
         frame_signals = []
         for signal in all_signals - self.dash_connected_signals:
             frame_signals.append('{} : {}'.format(signal.frame.name, signal.name))
+
+        if Elements.nv in self.elements:
+            nv_frame_signals = []
+            for frame in (list(self.nvs.set_frames.values())
+                              + list(self.nvs.status_frames.values())):
+                for signal in frame.signals:
+                    nv_frame_signals.append(
+                        '{} : {}'.format(signal.frame.name, signal.name))
+
+            frame_signals = list(set(frame_signals) - set(nv_frame_signals))
 
         if len(frame_signals) > 0:
             print('\n === Signals not referenced by a widget')
