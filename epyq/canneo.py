@@ -321,7 +321,10 @@ class Frame(QtCanListener):
             for signal in unpadded_signals:
                 startbit = signal.start_bit
                 if startbit < bit:
-                    raise Exception('too far ahead!')
+                    raise Exception('{}({}):{}: too far ahead!'
+                                    .format(self.name,
+                                            self.mux_name,
+                                            signal.name))
                 padding = startbit - bit
                 if padding:
                     pad = Pad(bit, padding)
