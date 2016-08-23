@@ -62,8 +62,8 @@ ID=0CFFAE41h	// Sets the desired voltage and frequency for the module to produce
 Type=Extended
 DLC=8
 CycleTime=100
-Var=Voltage_command unsigned 0,16 -m /u:Vrms /f:0.1 /min:10 /max:500 /d:240 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
-Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:50 /ln:"Frequency"	// Desired output frequency while in grid forming mode.
+Var=Voltage_command unsigned 0,16 -m /u:Vrms /f:0.1 /min:10 /max:500 /d:208 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
+Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:60 /ln:"Frequency"	// Desired output frequency while in grid forming mode.
 
 [MasterMeasuredPower]
 ID=0CFFCAF6h	// Returns the actual measured power.
@@ -280,7 +280,7 @@ DLC=8
 CycleTime=100
 Var=VoltageDCBus signed 16,16 -m /u:V /ln:"VBus"	// Measured DC bus voltage.
 Var=CurrentDC_measured signed 32,16 -m /u:A /ln:"Meas. IDC"	// Measured DC current.
-Var=VoltageDCInput_measured signed 0,16 -m /u:V /min:0 /max:900 /ln:"Est. input VDC"	// Estimated DC input voltage.
+Var=VoltageDCInput_measured signed 0,16 -m /u:V /min:0 /max:900 /ln:"Meas. VDC"	// Measured DC voltage.
 
 [StatusControlVolts2]
 ID=1CFFC6F7h	// Present voltage of the -15V power supply on the control board.
