@@ -71,6 +71,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self._frame = None
         self._signal = None
         self._on_value = 1
+        self._relative_height = 1
 
         self._value = False
         self.svg = {
@@ -85,8 +86,6 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self._automatic_off_color = True
         self.on_color = QColor("#20C020")
         self.manual_off_color = self.on_color.darker(factor=200)
-
-        self._relative_height = 1
 
         height = self.relative_height * self.ui.label.height()
         ratio = self.ui.value.ratio()
@@ -154,15 +153,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
     def relative_height(self, multiplier):
         self._relative_height = multiplier
 
-        height = self.relative_height * self.ui.label.height()
-        ratio = self.ui.value.ratio()
-
-        self.ui.value.setMaximumHeight(height)
-        self.ui.value.setMinimumHeight(height)
-
-        width = height / ratio
-        self.ui.value.setMaximumWidth(width)
-        self.ui.value.setMinimumWidth(width)
+        self.update_svg()
 
     def set_value(self, value):
         # TODO: quit hardcoding this and it's better implemented elsewhere
@@ -184,6 +175,12 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
             svg = self.svg['manual_off']
 
         self.ui.value.load(svg)
+
+        height = self.relative_height * self.ui.label.height()
+
+        width = height / self.ui.value.ratio()
+
+        self.ui.value.setFixedSize(width, height)
 
 
 if __name__ == '__main__':
