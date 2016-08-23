@@ -40,6 +40,7 @@ class AbstractWidget(QtWidgets.QWidget):
         self.signal_object = None
 
         self._label_override = ''
+        self._tool_tip_override = ''
 
         self.set_signal(force_update=True)
 
@@ -116,6 +117,16 @@ class AbstractWidget(QtWidgets.QWidget):
         self.ui.label.setText(self.label_override)
         self.update_metadata()
 
+    @pyqtProperty('QString')
+    def tool_tip_override(self):
+        return self._tool_tip_override
+
+    @tool_tip_override.setter
+    def tool_tip_override(self, new_tool_tip_override):
+        self._tool_tip_override = str(new_tool_tip_override)
+        self.update_tool_tip()
+        self.update_metadata()
+
     @pyqtProperty(bool)
     def label_visible(self):
         return self.ui.label.isVisible()
@@ -169,12 +180,11 @@ class AbstractWidget(QtWidgets.QWidget):
                 self.set_label(label)
                 self.set_units(signal.unit)
                 self.set_value(None)
-
-                self.setToolTip(signal.comment)
             else:
                 self.set_label(None)
                 self.set_units(None)
-                self.setToolTip('')
+
+            self.update_tool_tip()
 
             self.update_connection(signal)
             self.signal_object = signal
@@ -184,6 +194,16 @@ class AbstractWidget(QtWidgets.QWidget):
                                max=float(signal.max))
 
                 signal.force_value_changed()
+
+    def update_tool_tip(self):
+        if len(self.tool_tip_override) > 0:
+            tip = self.tool_tip_override
+        elif self.signal_object is not None:
+            tip = signal_object.comment
+        else:
+            tip = ''
+
+        self.setToolTip(tip)
 
 
 if __name__ == '__main__':
