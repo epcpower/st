@@ -176,7 +176,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
 
         self.ui.value.load(svg)
 
-        height = self.relative_height * self.ui.label.height()
+        height = self.relative_height * self.ui.label.fontMetrics().height()
 
         width = height / self.ui.value.ratio()
 
