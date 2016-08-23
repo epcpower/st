@@ -332,6 +332,7 @@ class Device:
 
         self.dash_connected_frames = {}
         self.dash_connected_signals = set()
+        self.dash_missing_signals = set()
         for name, dash in self.dash_uis.items():
             # TODO: CAMPid 99457281212789437474299
             children = dash.findChildren(QObject)
@@ -349,14 +350,20 @@ class Device:
                 widget.set_value(42)
 
                 # TODO: add some notifications
+                found = False
                 frame = self.neo_frames.frame_by_name(frame_name)
                 if frame is not None:
                     signal = frame.signal_by_name(signal_name)
                     if signal is not None:
+                        found = True
                         frames.add(frame)
                         self.dash_connected_signals.add(signal)
                         widget.set_signal(signal)
                         frame.user_send_control = False
+
+                if not found:
+                    self.dash_missing_signals.add(
+                        '{}:{}'.format(frame_name, signal_name))
 
         self.bus_status_changed(online=False, transmit=False)
 
@@ -369,8 +376,16 @@ class Device:
         frame_signals = []
         for signal in all_signals - self.dash_connected_signals:
             frame_signals.append('{} : {}'.format(signal.frame.name, signal.name))
-        for frame_signal in sorted(frame_signals):
-            print(frame_signal)
+
+        if len(frame_signals) > 0:
+            print('\n === Signals not referenced by a widget')
+            for frame_signal in sorted(frame_signals):
+                print(frame_signal)
+
+        if len(self.dash_missing_signals) > 0:
+            print('\n === Signals referenced by a widget but not defined')
+            for frame_signal in sorted(self.dash_missing_signals):
+                print(frame_signal)
 
     def get_frames(self):
         return self.frames
