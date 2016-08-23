@@ -87,11 +87,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self.on_color = QColor("#20C020")
         self.manual_off_color = self.on_color.darker(factor=200)
 
-        height = self.relative_height * self.ui.label.height()
-        ratio = self.ui.value.ratio()
-
-        self.ui.value.setMaximumHeight(height)
-        self.ui.value.setMaximumWidth(height / ratio)
+        self.update_svg()
 
     @pyqtProperty(int)
     def on_value(self):

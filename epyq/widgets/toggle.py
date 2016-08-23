@@ -29,6 +29,8 @@ class Toggle(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         self._frame = None
         self._signal = None
 
+        self.ui.value.setFixedHeight(3 * self.ui.on.fontMetrics().height())
+
     def eventFilter(self, qobject, qevent):
         if isinstance(qevent, QMouseEvent) and self.tx:
             if (qevent.button() == Qt.LeftButton and
