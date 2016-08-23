@@ -3,7 +3,6 @@
     "name": "Distributed Generation",
     "ui_paths": {
         "Control": "distributed_generation_control.ui",
-        "Setup and Status": "distributed_generation_setup.ui",
-        "Misc": "distributed_generation_misc.ui"
+        "Setup and Status": "distributed_generation_setup.ui"
     }
 }
