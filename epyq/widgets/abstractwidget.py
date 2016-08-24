@@ -202,7 +202,7 @@ class AbstractWidget(QtWidgets.QWidget):
         if len(self.tool_tip_override) > 0:
             tip = self.tool_tip_override
         elif self.signal_object is not None:
-            tip = signal_object.comment
+            tip = self.signal_object.comment
         else:
             tip = ''
 
