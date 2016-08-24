@@ -226,7 +226,7 @@ Type=Extended
 DLC=8
 CycleTime=100
 Var=TempInlet_measured signed 0,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Inlet Coolant Temp."	// Coolant inlet temperature
-Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Ambient Air Temp."	// Internal ambient temperature
+Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Internal Ambient Temp."	// Internal ambient temperature
 Var=ConverterLosses unsigned 32,16 -m /u:W /ln:"Converter Losses"	// Power converter thermal loss
 
 [StatusDeviceTemps]
