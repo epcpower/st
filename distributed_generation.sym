@@ -288,8 +288,8 @@ Type=Extended
 DLC=8
 CycleTime=100
 Var=n15V_Supply signed 0,16 -m /u:V /f:0.01 /ln:"-15V Supply"	// Present voltage of the control board -15V power supply.
-Var=DiodeTemperature unsigned 32,16 -m /u:C /min:0 /max:100 /ln:"Diode"	// Hottest diode
-Var=IGBTTemperature unsigned 48,16 -m /u:C /min:0 /max:100 /ln:"IGBT"	// Hottest IGBT
+Var=DiodeTemperature unsigned 32,16 -m /u:C /min:0 /max:175 /ln:"Diode"	// Hottest diode
+Var=IGBTTemperature unsigned 48,16 -m /u:C /min:0 /max:175 /ln:"IGBT"	// Hottest IGBT
 
 [softwareRev]
 ID=1CFFC1F7h	// Software revision.
