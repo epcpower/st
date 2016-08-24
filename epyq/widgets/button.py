@@ -57,15 +57,18 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         self.set_text(value)
 
     def calculate_text(self, value):
-        # TODO: CAMPid 85478672616219005471279
-        try:
-            enum_string = self.signal_object.enumeration[value]
-            text = self.signal_object.enumeration_format_re['format'].format(
-                s=enum_string, v=value)
-        except (AttributeError, KeyError):
-            text = str(value)
+        if self.label_visible:
+            # TODO: CAMPid 85478672616219005471279
+            try:
+                enum_string = self.signal_object.enumeration[value]
+                text = self.signal_object.enumeration_format_re['format'].format(
+                    s=enum_string, v=value)
+            except (AttributeError, KeyError):
+                text = str(value)
 
-        return text
+            return text
+        else:
+            return self.label.text()
 
     def set_text(self, value):
         self.ui.value.setText(self.calculate_text(value))
@@ -80,6 +83,9 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         # TODO  exception?
         pass
 
+    def showEvent(self, event):
+        epyq.widgets.abstracttxwidget.AbstractTxWidget.showEvent(self, event)
+        self.set(0)
 
 if __name__ == '__main__':
     import sys
