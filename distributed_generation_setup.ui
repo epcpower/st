@@ -797,6 +797,9 @@ device startup</string>
             <property name="signal" stdset="0">
              <string>FaultClear_command</string>
             </property>
+            <property name="label_visible" stdset="0">
+             <bool>false</bool>
+            </property>
             <property name="tx" stdset="0">
              <bool>true</bool>
             </property>

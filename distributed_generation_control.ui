@@ -327,39 +327,23 @@
    </item>
    <item row="1" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_5">
-     <item row="0" column="2">
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="3">
-      <widget class="CompoundToggle" name="compoundtoggle_4">
-       <property name="box_title" stdset="0">
-        <string>Phase Rotation</string>
-       </property>
-       <property name="command_frame" stdset="0">
-        <string>CommandModeControl</string>
-       </property>
-       <property name="command_signal" stdset="0">
-        <string>PhaseRotation_command</string>
-       </property>
-       <property name="status_frame" stdset="0">
+     <item row="2" column="0" colspan="3">
+      <widget class="Led" name="led_46">
+       <property name="frame" stdset="0">
         <string>StatusBits</string>
        </property>
-       <property name="status_signal" stdset="0">
-        <string>PhaseRotation_echo</string>
+       <property name="signal" stdset="0">
+        <string>PowerCircuitEnabled_status</string>
+       </property>
+       <property name="label_override" stdset="0">
+        <string/>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
+     <item row="0" column="0" rowspan="2">
       <widget class="CompoundToggle" name="compoundtoggle_5">
        <property name="box_title" stdset="0">
         <string>Enable</string>
@@ -385,33 +369,52 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="3" colspan="2" alignment="Qt::AlignLeft">
-      <widget class="CompactEpc" name="compactepc_2">
+     <item row="0" column="3">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="1" column="2">
+      <widget class="Button" name="button_2">
+       <property name="frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>FaultClear_command</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="tx" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="3">
+      <widget class="Led" name="led_43">
        <property name="frame" stdset="0">
         <string>StatusBits</string>
        </property>
        <property name="signal" stdset="0">
-        <string>PhaseRotation_status</string>
+        <string>PowerAvailAC_status</string>
+       </property>
+       <property name="label_override" stdset="0">
+        <string/>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="Enum" name="enum_7">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>State_status</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4">
+     <item row="0" column="5" rowspan="2">
       <widget class="CompoundToggle" name="compoundtoggle_6">
        <property name="box_title" stdset="0">
         <string>Phase Mode</string>
@@ -430,23 +433,72 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="2">
-      <widget class="Led" name="led_46">
+     <item row="2" column="4" colspan="2" alignment="Qt::AlignLeft">
+      <widget class="CompactEpc" name="compactepc_2">
        <property name="frame" stdset="0">
         <string>StatusBits</string>
        </property>
        <property name="signal" stdset="0">
-        <string>PowerCircuitEnabled_status</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string/>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>true</bool>
+        <string>PhaseRotation_status</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="2">
+     <item row="1" column="1">
+      <widget class="Led" name="led_26">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusFaults</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>GeneralFault_status</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="automatic_off_color" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="on_color" stdset="0">
+        <color>
+         <red>192</red>
+         <green>32</green>
+         <blue>32</blue>
+        </color>
+       </property>
+       <property name="manual_off_color" stdset="0">
+        <color>
+         <red>32</red>
+         <green>192</green>
+         <blue>32</blue>
+        </color>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4" rowspan="2">
+      <widget class="CompoundToggle" name="compoundtoggle_4">
+       <property name="box_title" stdset="0">
+        <string>Phase Rotation</string>
+       </property>
+       <property name="command_frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="command_signal" stdset="0">
+        <string>PhaseRotation_command</string>
+       </property>
+       <property name="status_frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="status_signal" stdset="0">
+        <string>PhaseRotation_echo</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="3">
       <widget class="Led" name="led_47">
        <property name="frame" stdset="0">
         <string>StatusBits</string>
@@ -462,19 +514,19 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="2">
-      <widget class="Led" name="led_43">
+     <item row="0" column="1" colspan="2">
+      <widget class="Enum" name="enum_7">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="frame" stdset="0">
         <string>StatusBits</string>
        </property>
        <property name="signal" stdset="0">
-        <string>PowerAvailAC_status</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string/>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>true</bool>
+        <string>State_status</string>
        </property>
       </widget>
      </item>
@@ -492,6 +544,11 @@
    <class>CompoundToggle</class>
    <extends>QWidget</extends>
    <header>epyq.compoundtoggle</header>
+  </customwidget>
+  <customwidget>
+   <class>Button</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.button</header>
   </customwidget>
   <customwidget>
    <class>CompactEpc</class>
