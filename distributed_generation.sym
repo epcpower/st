@@ -29,6 +29,11 @@ enum FaultConfig(0="Warning", 1="Fault", 2="Error", 3="N/A")
 enum MasterFollower(0="Master", // Master or standalone mode
   1="Follower", 2="Error", 3="N/A")
 enum ReadNV(0="Write", 1="Read", 2="Error", 3="N/A")
+// Control digital outputs from CAN interface
+enum ForceDO(0="Normal", // Normal Application control
+  1="ForceOn", // Force output on
+  2="ForceOff")
+enum OnOff(0="off", 1="on", 2="Error", 3="N/A")
 
 {SEND}
 
@@ -36,7 +41,6 @@ enum ReadNV(0="Write", 1="Read", 2="Error", 3="N/A")
 ID=00FFAB41h	// Operational commands are received by the module via control bits within this message.
 Type=Extended
 DLC=8
-CycleTime=100
 CycleTime=100
 Var=Enable_command unsigned 6,2 -m /max:1 /e:Enable /ln:"Run"	// Run command.  When set to a value of 'Enable', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to 'Disable' to leave POR or FAULTED state.
 Var=FaultClear_command unsigned 4,2 -m /max:1 /e:FaultClear /ln:"Clear faults"	// Clears the latched fault message. 
@@ -48,6 +52,10 @@ Var=ForceRelayMX2_command unsigned 36,2 -m /max:1 /e:RelayCommand /ln:"Close MX2
 Var=ForceRelayK1_Precharge_command unsigned 34,2 -m /max:1 /p:0 /e:RelayCommand /ln:"Close K1 precharge"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
 Var=ForceRelayRelayK2_DCRun_comand unsigned 32,2 -m /max:1 /e:RelayCommand /ln:"Close K2"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
 Var=PhaseRotation_command unsigned 56,2 -m /max:1 /e:PhaseRotation /ln:"Positive phase rotation"	// Specifies phase rotation direction.  Only active while transitioning from READY to GRID_FORMING.
+Var=ForceDO1 unsigned 44,2 -m /max:2 /e:ForceDO
+Var=ForceDO2 unsigned 42,2 -m /max:2 /e:ForceDO
+Var=ForceDO3 unsigned 40,2 -m /max:2 /e:ForceDO
+Var=ForceDO4 unsigned 48,2 -m /max:2 /e:ForceDO
 
 [CommandPower]
 ID=0CFFAC41h	// Sets the desired real (P) and reactive (Q) power levels for the module to follow while in the GRID FOLLOWING mode.
@@ -64,13 +72,6 @@ DLC=8
 CycleTime=100
 Var=Voltage_command unsigned 0,16 -m /u:VRMS /f:0.1 /min:10 /max:500 /d:208 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
 Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:60 /ln:"Frequency"	// Desired output frequency while in grid forming mode.
-
-[MasterMeasuredPower]
-ID=0CFFCAF6h	// Returns the actual measured power.
-Type=Extended
-DLC=8
-Var=RealPower_measured signed 0,32 -m /u:W /min:-200000 /max:200000 /ln:"Real Power"	// Measured real power of master unit.
-Var=ReactivePower_measured signed 32,32 -m /min:-200000 /max:200000 /u:VA /ln:"Reactive Power"	// Measured reactive power of master unit.
 
 [CommandFactoryControl]
 ID=0CFFAF41h
@@ -209,6 +210,14 @@ Var=EnableSplitPhase_echo unsigned 36,2 -m /e:EnableSplitPhase /ln:"Split Phase"
 Var=PhaseRotation_status unsigned 34,2 -m /max:1 /e:PhaseRotation /ln:"Rotation"	// Phase rotation order.  When L1 phase angle leads L2 phase angle, rotation is considered positive.
 Var=LineVoltageDetected_status unsigned 32,2 -m /max:1 /e:LineVoltagePresent /ln:"Line Voltage Detected"	// Flag indicating if voltage is detected on L1, L2 or L3.
 Var=PhaseRotation_echo unsigned 46,2 -m /max:1 /e:PhaseRotation /ln:"Rotation"	// Echos the state of PhaseRotation_command withing the CommandModeControl message.
+Var=DI1_status unsigned 54,2 -m /max:1 /e:OnOff
+Var=DI2_status unsigned 52,2 -m /max:1 /e:OnOff
+Var=DI3_status unsigned 50,2 -m /max:1 /e:OnOff
+Var=DI4_status unsigned 48,2 -m /max:1 /e:OnOff
+Var=DO1_status unsigned 62,2 -m /max:1 /e:OnOff
+Var=DO2_status unsigned 60,2 -m /max:1 /e:OnOff
+Var=DO3_status unsigned 58,2 -m /max:1 /e:OnOff
+Var=DO4_status unsigned 56,2 -m /max:1 /e:OnOff
 
 [StatusControlVoltage]
 ID=1CFFC5F7h	// Lists present voltage of each power supply on the control board (24V, 15V, 5V, and 3.3V.)
@@ -262,7 +271,8 @@ Var=IllegalTransition_status unsigned 28,2 -m /max:1 /e:Fault /ln:"Illegal Trans
 Var=InvalidEEHeader_status unsigned 26,2 -m /max:1 /e:Fault /ln:"Invalid NV Header"	// Indicates that reading of non-volatile parameters at power-up failed.
 Var=InvalidEESection_status unsigned 24,2 -m /max:1 /e:Fault /ln:"Invalid NV Section"	// Indicates that reading or writing of an non-volatile parameter section failed.
 Var=ThermalOverload unsigned 38,2 -m /max:1 /e:Fault /ln:"Thermal Overload"
-Var=CoolingSystem unsigned 36,2 -m /max:1 /e:Fault /ln:"Cooling System"
+Var=TimedOverload unsigned 36,2 -m /max:1 /e:Fault /ln:"Timed Overload"
+Var=CoolingSystem unsigned 40,2 -m /max:1 /e:Fault /ln:"Cooling System"
 
 [StatusACParameters]
 ID=0CFFC2F7h	// RMS AC Voltage, current, and frequency measured by line A, B and C feedbacks.
@@ -399,7 +409,6 @@ DLC=8
 Mux=HardwareDef1 0,14 000Ah -m
 Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=DeviceOvertempLimit_status unsigned 16,16 -m /u:C /max:300 /d:165
-
 
 [StatusNVParam]
 DLC=8

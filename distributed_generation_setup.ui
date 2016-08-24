@@ -656,22 +656,6 @@ device startup</string>
             </property>
            </widget>
           </item>
-          <item row="12" column="1">
-           <widget class="Led" name="led_40">
-            <property name="frame" stdset="0">
-             <string>StatusBits</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>FaultClr_echo</string>
-            </property>
-            <property name="label_override" stdset="0">
-             <string>Response</string>
-            </property>
-            <property name="label_visible" stdset="0">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
           <item row="8" column="0">
            <widget class="Led" name="led_21">
             <property name="frame" stdset="0">
@@ -785,22 +769,6 @@ device startup</string>
              <string/>
             </property>
             <property name="label_visible" stdset="0">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="11" column="1">
-           <widget class="Button" name="button_2">
-            <property name="frame" stdset="0">
-             <string>CommandModeControl</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>FaultClear_command</string>
-            </property>
-            <property name="label_visible" stdset="0">
-             <bool>false</bool>
-            </property>
-            <property name="tx" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -967,7 +935,7 @@ device startup</string>
             </property>
            </widget>
           </item>
-          <item row="11" column="0">
+          <item row="12" column="0">
            <widget class="Led" name="led_25">
             <property name="frame" stdset="0">
              <string>StatusFaults</string>
@@ -984,6 +952,55 @@ device startup</string>
             </property>
             <property name="relative_height" stdset="0">
              <double>2.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="12" column="1">
+           <widget class="Button" name="button_2">
+            <property name="frame" stdset="0">
+             <string>CommandModeControl</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>FaultClear_command</string>
+            </property>
+            <property name="label_visible" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="tx" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="1">
+           <widget class="Led" name="led_40">
+            <property name="frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>FaultClr_echo</string>
+            </property>
+            <property name="label_override" stdset="0">
+             <string>Fault Clear Response</string>
+            </property>
+            <property name="label_visible" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="0">
+           <widget class="Led" name="led_45">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>TimedOverload</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
             </property>
            </widget>
           </item>
