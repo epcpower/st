@@ -38,10 +38,10 @@
         <item>
          <widget class="Epc" name="epc_8">
           <property name="frame" stdset="0">
-           <string>StatusDeviceTemps</string>
+           <string>StatusTemps</string>
           </property>
           <property name="signal" stdset="0">
-           <string>TempDeviceBrdgA_measured</string>
+           <string>TempInlet_measured</string>
           </property>
           <property name="label_visible" stdset="0">
            <bool>false</bool>
@@ -65,10 +65,10 @@
         <item>
          <widget class="Epc" name="epc_7">
           <property name="frame" stdset="0">
-           <string>StatusDeviceTemps</string>
+           <string>StatusTemps</string>
           </property>
           <property name="signal" stdset="0">
-           <string>TempDeviceBrdgA_measured</string>
+           <string>TempInternal_measured</string>
           </property>
           <property name="label_visible" stdset="0">
            <bool>false</bool>
