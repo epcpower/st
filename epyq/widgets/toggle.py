@@ -33,8 +33,9 @@ class Toggle(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
     def eventFilter(self, qobject, qevent):
         if isinstance(qevent, QMouseEvent) and self.tx:
-            if (qevent.button() == Qt.LeftButton and
-                        qevent.type() == QEvent.MouseButtonRelease):
+            if (qevent.button() == Qt.LeftButton
+                    and qevent.type() == QEvent.MouseButtonRelease
+                    and self.rect().contains(qevent.localPos().toPoint())):
                 self.toggle_released()
 
             return True
