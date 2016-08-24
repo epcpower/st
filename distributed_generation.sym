@@ -62,7 +62,7 @@ ID=0CFFAE41h	// Sets the desired voltage and frequency for the module to produce
 Type=Extended
 DLC=8
 CycleTime=100
-Var=Voltage_command unsigned 0,16 -m /u:Vrms /f:0.1 /min:10 /max:500 /d:208 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
+Var=Voltage_command unsigned 0,16 -m /u:VRMS /f:0.1 /min:10 /max:500 /d:208 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
 Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:60 /ln:"Frequency"	// Desired output frequency while in grid forming mode.
 
 [MasterMeasuredPower]
@@ -92,15 +92,15 @@ Var=Dummy unsigned 16,16 -m
 DLC=8
 Mux=LVM_ClearingTimes1 0,14 1  -m	// Line Voltage Monitor fault times.
 Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
-Var=VUnder50pct unsigned 16,16 -m /u:ms /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line rms voltage for a phase remains under 50 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
-Var=V50to88pct unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:2000	// Determines the fault trip time when Line-to-line rms voltage for a phase remains between 50 and 88 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
-Var=V110to120pct unsigned 48,16 -m /u:ms /min:1 /max:30000 /d:1000	// Determines the fault trip time when Line-to-line rms voltage for a phase remains between 110 and 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=VUnder50pct unsigned 16,16 -m /u:ms /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains under 50 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=V50to88pct unsigned 32,16 -m /u:ms /min:1 /max:30000 /d:2000	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains between 50 and 88 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=V110to120pct unsigned 48,16 -m /u:ms /min:1 /max:30000 /d:1000	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains between 110 and 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
 
 [CommandSetNVParam]
 DLC=8
 Mux=LVM_ClearingTimes2 0,14 2  -m	// Line Voltage Monitor fault times.
 Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
-Var=VOver120 unsigned 16,16 -m /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line rms voltage for a phase remains Over 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=VOver120 unsigned 16,16 -m /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains Over 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
 
 [CommandSetNVParam]
 DLC=8
@@ -304,7 +304,7 @@ ID=18FFC9F7h	// Echoes the voltage and frequency commands from commandVF.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=Voltage_echo unsigned 0,16 -m /u:Vrms /f:0.1 /ln:"Voltage"	// Echoed voltage command
+Var=Voltage_echo unsigned 0,16 -m /u:VRMS /f:0.1 /ln:"Voltage"	// Echoed voltage command
 Var=Frequency_echo unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /ln:"Frequency"	// Echoed frequency command.
 
 [serialNumber]
@@ -421,7 +421,7 @@ ID=18FFD1F7h	// Measured RMS line voltages.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=L1Voltage_measured unsigned 0,16 -m /u:Vrms /f:0.1 /ln:"L1"	// Measured L1 RMS line-neutral voltage
-Var=L2Voltage_measured unsigned 16,16 -m /u:Vrms /f:0.1 /ln:"L2"	// Measured L2 RMS line-neutral voltage
-Var=L3Voltage_measured unsigned 32,16 -m /u:Vrms /f:0.1 /ln:"L3"	// Measured L3 RMS line-neutral voltage
+Var=L1Voltage_measured unsigned 0,16 -m /u:VRMS /f:0.1 /ln:"L1"	// Measured L1 RMS line-neutral voltage
+Var=L2Voltage_measured unsigned 16,16 -m /u:VRMS /f:0.1 /ln:"L2"	// Measured L2 RMS line-neutral voltage
+Var=L3Voltage_measured unsigned 32,16 -m /u:VRMS /f:0.1 /ln:"L3"	// Measured L3 RMS line-neutral voltage
 
