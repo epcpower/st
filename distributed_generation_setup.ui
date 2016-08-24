@@ -25,25 +25,6 @@
         <string>Mode Settings</string>
        </property>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="1">
-         <widget class="CompoundToggle" name="compoundtoggle_6">
-          <property name="box_title" stdset="0">
-           <string>HW Enable</string>
-          </property>
-          <property name="command_frame" stdset="0">
-           <string>CommandModeControl</string>
-          </property>
-          <property name="command_signal" stdset="0">
-           <string>InvertHwEnable_command</string>
-          </property>
-          <property name="status_frame" stdset="0">
-           <string>StatusBits</string>
-          </property>
-          <property name="status_signal" stdset="0">
-           <string>InvertHwEnable_echo</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="3">
          <widget class="CompoundToggle" name="compoundtoggle_5">
           <property name="box_title" stdset="0">
@@ -63,7 +44,47 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1" colspan="2">
+        <item row="0" column="2">
+         <widget class="QGroupBox" name="groupBox_7">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>HW Enable</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <property name="leftMargin">
+            <number>13</number>
+           </property>
+           <property name="topMargin">
+            <number>13</number>
+           </property>
+           <property name="rightMargin">
+            <number>13</number>
+           </property>
+           <property name="bottomMargin">
+            <number>13</number>
+           </property>
+           <item>
+            <widget class="Toggle" name="toggle">
+             <property name="frame" stdset="0">
+              <string>CommandModeControl</string>
+             </property>
+             <property name="signal" stdset="0">
+              <string>InvertHwEnable_command</string>
+             </property>
+             <property name="label_visible" stdset="0">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="2" colspan="2">
          <widget class="Led" name="led_39">
           <property name="frame" stdset="0">
            <string>StatusBits</string>
@@ -1043,6 +1064,11 @@ device startup</string>
    <class>Scale</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.scale</header>
+  </customwidget>
+  <customwidget>
+   <class>Toggle</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.toggle</header>
   </customwidget>
  </customwidgets>
  <resources/>
