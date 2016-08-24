@@ -36,6 +36,9 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget,
 
         self.ui.scale.setRange(min=min, max=max)
 
+    def set_unit_text(self, units):
+        self.ui.units.setText('[{}]'.format(units))
+
 
 if __name__ == '__main__':
     import sys

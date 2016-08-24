@@ -149,6 +149,9 @@ class AbstractWidget(QtWidgets.QWidget):
         if units is None:
             units = '-'
 
+        self.set_unit_text(units)
+
+    def set_unit_text(self, units):
         try:
             widget = self.ui.units
         except AttributeError:
