@@ -225,8 +225,8 @@ ID=18FFCBF7h	// Returns the inlet water temperature to the module as well as mod
 Type=Extended
 DLC=8
 CycleTime=100
-Var=TempInlet_measured signed 0,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Heatsink Temp."	// Coolant inlet temperature
-Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Inlet Temp."	// Internal ambient temperature
+Var=TempInlet_measured signed 0,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Inlet Coolant Temp."	// Coolant inlet temperature
+Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Ambient Air Temp."	// Internal ambient temperature
 Var=ConverterLosses unsigned 32,16 -m /u:W /ln:"Converter Losses"	// Power converter thermal loss
 
 [StatusDeviceTemps]
@@ -234,8 +234,8 @@ ID=18FFCCF7h	// Returns the inlet water temperature to the module as well as mod
 Type=Extended
 DLC=8
 CycleTime=100
-Var=TempDeviceBrdgA_measured signed 0,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Bridge A"	// BridgeA Device temp
-Var=TempDeviceBrdgB_measured signed 16,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Bridge B"	// BridgeB Device temp
+Var=TempDeviceBrdgA_measured signed 0,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Bridge A Temp."	// BridgeA Device temp
+Var=TempDeviceBrdgB_measured signed 16,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Bridge B Temp."	// BridgeB Device temp
 Var=TempTmodel_calculated signed 32,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Model"	// Thermal Model prediceted temp
 
 [StatusFaults]
@@ -269,7 +269,7 @@ ID=0CFFC2F7h	// RMS AC Voltage, current, and frequency measured by line A, B and
 Type=Extended
 DLC=8
 CycleTime=100
-Var=VoltageAC_measured signed 0,16 -m /u:V /f:0.1 /ln:"Meas. VAC"	// Measured RMS AC voltage.
+Var=VoltageAC_measured signed 0,16 -m /u:VRMS /f:0.1 /ln:"Meas. AC Voltage"	// Measured RMS AC voltage.
 Var=CurrentAC_measured signed 16,16 -m /u:A /ln:"Meas. AC current"	// Measured RMS AC current.
 Var=Frequency_measured signed 32,16 -m /u:Hz /f:0.1 /min:45 /max:65 /ln:"Meas. AC freq."	// Measured frequency.
 
@@ -278,8 +278,8 @@ ID=1CFFC7F7h	// Measured (boosted) DC Bus voltage, DC Current, and estimated DC 
 Type=Extended
 DLC=8
 CycleTime=100
-Var=VoltageDCBus signed 16,16 -m /u:V /min:0 /max:900 /ln:"VBus"	// Measured DC bus voltage.
-Var=CurrentDC_measured signed 32,16 -m /u:A /min:0 /max:900 /ln:"Meas. IDC"	// Measured DC current.
+Var=VoltageDCBus signed 16,16 -m /u:VDC /min:0 /max:900 /ln:"DC Voltage"	// Measured DC bus voltage.
+Var=CurrentDC_measured signed 32,16 -m /u:ADC /min:0 /max:900 /ln:"Estimated DC Current"	// Measured DC current.
 Var=VoltageDCInput_measured signed 0,16 -m /u:V /min:0 /max:900 /ln:"Meas. Input VDC"	// Measured DC input voltage.
 
 [StatusControlVolts2]

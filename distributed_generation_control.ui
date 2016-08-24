@@ -33,9 +33,6 @@
           <property name="signal" stdset="0">
            <string>TempDeviceBrdgA_measured</string>
           </property>
-          <property name="label_override" stdset="0">
-           <string>Bridge A</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -62,9 +59,6 @@
           </property>
           <property name="signal" stdset="0">
            <string>TempInternal_measured</string>
-          </property>
-          <property name="label_override" stdset="0">
-           <string>Inlet/Heatsink/Coolant</string>
           </property>
          </widget>
         </item>
@@ -93,9 +87,6 @@
           <property name="signal" stdset="0">
            <string>TempDeviceBrdgB_measured</string>
           </property>
-          <property name="label_override" stdset="0">
-           <string>Bridge B</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -122,9 +113,6 @@
           </property>
           <property name="signal" stdset="0">
            <string>TempInlet_measured</string>
-          </property>
-          <property name="label_override" stdset="0">
-           <string>Internal/Inlet/Ambient</string>
           </property>
          </widget>
         </item>
@@ -192,7 +180,7 @@
            <string>StatusDCParameters</string>
           </property>
           <property name="signal" stdset="0">
-           <string>VoltageDCInput_measured</string>
+           <string>VoltageDCBus</string>
           </property>
           <property name="label_visible" stdset="0">
            <bool>false</bool>
@@ -219,7 +207,7 @@
            <string>StatusDCParameters</string>
           </property>
           <property name="signal" stdset="0">
-           <string>VoltageDCInput_measured</string>
+           <string>CurrentDC_measured</string>
           </property>
           <property name="label_visible" stdset="0">
            <bool>false</bool>
