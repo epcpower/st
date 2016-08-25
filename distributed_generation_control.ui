@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1079</width>
-    <height>1449</height>
+    <height>1225</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -354,16 +354,6 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1" rowspan="2">
-       <widget class="Lcd" name="lcd">
-        <property name="frame" stdset="0">
-         <string>StatusACParameters</string>
-        </property>
-        <property name="signal" stdset="0">
-         <string>CurrentAC_measured</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -580,11 +570,6 @@
    <class>Epc</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.epc</header>
-  </customwidget>
-  <customwidget>
-   <class>Lcd</class>
-   <extends>QWidget</extends>
-   <header>epyq.widgets.lcd</header>
   </customwidget>
   <customwidget>
    <class>Led</class>
