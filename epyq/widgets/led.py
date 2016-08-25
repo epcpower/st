@@ -72,6 +72,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self._signal = None
         self._on_value = 1
         self._relative_height = 1
+        self._label_from_enumeration = False
 
         self._value = False
         self.svg = {
@@ -88,6 +89,18 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self.manual_off_color = self.on_color.darker(factor=200)
 
         self.update_svg()
+
+    @pyqtProperty(bool)
+    def label_from_enumeration(self):
+        return self._label_from_enumeration
+
+    @label_from_enumeration.setter
+    def label_from_enumeration(self, from_enumeration):
+        self._label_from_enumeration =  bool(from_enumeration)
+
+        # TODO: this is a hacky way to trigger an update
+        self.set_signal(signal=self.signal_object,
+                        force_update=True)
 
     @pyqtProperty(int)
     def on_value(self):
@@ -178,6 +191,20 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
 
         self.ui.value.setFixedSize(width, height)
 
+    def set_label_custom(self, new_signal=None):
+        label = None
+
+        if new_signal is not None:
+            try:
+                label_from_enumeration = self.label_from_enumeration
+            except AttributeError:
+                pass
+            else:
+                if (label_from_enumeration
+                        and new_signal is not None):
+                    label = new_signal.enumeration[self.on_value]
+
+        return label
 
 if __name__ == '__main__':
     import sys

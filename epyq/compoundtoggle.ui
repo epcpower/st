@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>202</width>
-    <height>217</height>
+    <width>152</width>
+    <height>169</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -46,6 +46,9 @@
         <property name="tx" stdset="0">
          <bool>true</bool>
         </property>
+        <property name="value_labels_visible" stdset="0">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -68,7 +71,10 @@
            <string/>
           </property>
           <property name="label_visible" stdset="0">
-           <bool>false</bool>
+           <bool>true</bool>
+          </property>
+          <property name="label_from_enumeration" stdset="0">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -90,7 +96,10 @@
            <string/>
           </property>
           <property name="label_visible" stdset="0">
-           <bool>false</bool>
+           <bool>true</bool>
+          </property>
+          <property name="label_from_enumeration" stdset="0">
+           <bool>true</bool>
           </property>
           <property name="on_value" stdset="0">
            <number>0</number>

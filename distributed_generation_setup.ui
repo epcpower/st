@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1521</width>
+    <width>1428</width>
     <height>1095</height>
    </rect>
   </property>
@@ -550,9 +550,22 @@ device startup</string>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox_8">
          <property name="title">
-          <string>AC</string>
+          <string>AC Relays</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_10">
           <item>
@@ -564,7 +577,7 @@ device startup</string>
              </sizepolicy>
             </property>
             <property name="box_title" stdset="0">
-             <string>Relay MX1 (AC Main)</string>
+             <string>MX1 (Main)</string>
             </property>
             <property name="command_frame" stdset="0">
              <string>CommandModeControl</string>
@@ -619,7 +632,7 @@ device startup</string>
              </sizepolicy>
             </property>
             <property name="box_title" stdset="0">
-             <string>Relay MX2 (AC Remote)</string>
+             <string>MX2 (Remote)</string>
             </property>
             <property name="command_frame" stdset="0">
              <string>CommandModeControl</string>
@@ -666,22 +679,9 @@ device startup</string>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QGroupBox" name="groupBox_9">
          <property name="title">
-          <string>DC</string>
+          <string>DC Relays</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_12">
           <item>
@@ -693,7 +693,7 @@ device startup</string>
              </sizepolicy>
             </property>
             <property name="box_title" stdset="0">
-             <string>Relay K1 (Precharge)</string>
+             <string>K1 (Precharge)</string>
             </property>
             <property name="command_frame" stdset="0">
              <string>CommandModeControl</string>
@@ -745,7 +745,7 @@ device startup</string>
              </sizepolicy>
             </property>
             <property name="box_title" stdset="0">
-             <string>Relay K2 (DC Main)</string>
+             <string>K2 (Main)</string>
             </property>
             <property name="command_frame" stdset="0">
              <string>CommandModeControl</string>

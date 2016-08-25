@@ -28,8 +28,19 @@ class Toggle(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
         self._frame = None
         self._signal = None
+        self._value_labels_visible = True
 
         self.ui.value.setFixedHeight(3 * self.ui.on.fontMetrics().height())
+
+    @pyqtProperty(bool)
+    def value_labels_visible(self):
+        return self._value_labels_visible
+
+    @value_labels_visible.setter
+    def value_labels_visible(self, visible):
+        self._value_labels_visible = bool(visible)
+        self.ui.on.setVisible(self.value_labels_visible)
+        self.ui.off.setVisible(self.value_labels_visible)
 
     def eventFilter(self, qobject, qevent):
         if isinstance(qevent, QMouseEvent) and self.tx:

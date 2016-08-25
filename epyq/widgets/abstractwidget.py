@@ -136,14 +136,34 @@ class AbstractWidget(QtWidgets.QWidget):
         self.ui.label.setVisible(new_visible)
         self.update_metadata()
 
-    def set_label(self, value):
+    # TODO: CAMPid 943989817913241236127998452684328
+    def set_label(self, new_signal=None):
+        label = None
         if len(self.label_override) > 0:
-            value = self.label_override
-        else:
-            if value is None:
-                value = '-'
+            label = self.label_override
 
-        self.ui.label.setText(value)
+        if label is None:
+            label = self.set_label_custom(new_signal=new_signal)
+
+        if label is None:
+            try:
+                label = new_signal.long_name
+            except AttributeError:
+                pass
+
+        if label is None:
+            try:
+                label = new_signal.name
+            except AttributeError:
+                pass
+
+        if label is None:
+            label = '-'
+
+        self.ui.label.setText(label)
+
+    def set_label_custom(self, new_signal=None):
+        return None
 
     def set_units(self, units):
         if units is None:
@@ -175,16 +195,11 @@ class AbstractWidget(QtWidgets.QWidget):
 
     def set_signal(self, signal=None, force_update=False):
         if signal is not self.signal_object or force_update:
+            self.set_label(new_signal=signal)
             if signal is not None:
-                label = signal.long_name
-                if label is None:
-                    label = signal.name
-
-                self.set_label(label)
                 self.set_units(signal.unit)
                 self.set_value(None)
             else:
-                self.set_label(None)
                 self.set_units(None)
 
             self.update_tool_tip()
