@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1380</width>
-    <height>1189</height>
+    <height>1225</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -359,6 +359,170 @@
    </item>
    <item row="1" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_5">
+     <item row="0" column="0" rowspan="2">
+      <widget class="CompoundToggle" name="compoundtoggle_5">
+       <property name="box_title" stdset="0">
+        <string>Enable</string>
+       </property>
+       <property name="command_frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="command_signal" stdset="0">
+        <string>Enable_command</string>
+       </property>
+       <property name="status_frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="status_signal" stdset="0">
+        <string>Enable_echo</string>
+       </property>
+       <property name="status_off_on_color" stdset="0">
+        <color>
+         <red>192</red>
+         <green>32</green>
+         <blue>32</blue>
+        </color>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5" rowspan="2">
+      <widget class="CompoundToggle" name="compoundtoggle_6">
+       <property name="box_title" stdset="0">
+        <string>Phase Mode</string>
+       </property>
+       <property name="command_frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="command_signal" stdset="0">
+        <string>EnableSplitPhase_command</string>
+       </property>
+       <property name="status_frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="status_signal" stdset="0">
+        <string>EnableSplitPhase_echo</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="Led" name="led_26">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusFaults</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>GeneralFault_status</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="automatic_off_color" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="on_color" stdset="0">
+        <color>
+         <red>192</red>
+         <green>32</green>
+         <blue>32</blue>
+        </color>
+       </property>
+       <property name="manual_off_color" stdset="0">
+        <color>
+         <red>32</red>
+         <green>192</green>
+         <blue>32</blue>
+        </color>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="Button" name="button_2">
+       <property name="frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>FaultClear_command</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="tx" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4" colspan="2">
+      <widget class="CompactEpc" name="compactepc_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>PhaseRotation_status</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="Enum" name="enum_7">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>State_status</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="3">
+      <widget class="Led" name="led_46">
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>PowerCircuitEnabled_status</string>
+       </property>
+       <property name="label_override" stdset="0">
+        <string/>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4" rowspan="2">
+      <widget class="CompoundToggle" name="compoundtoggle_4">
+       <property name="box_title" stdset="0">
+        <string>Phase Rotation</string>
+       </property>
+       <property name="command_frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="command_signal" stdset="0">
+        <string>PhaseRotation_command</string>
+       </property>
+       <property name="status_frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="status_signal" stdset="0">
+        <string>PhaseRotation_echo</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="3" rowspan="3">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
@@ -411,167 +575,26 @@
        </item>
       </layout>
      </item>
-     <item row="1" column="2">
-      <widget class="Button" name="button_2">
-       <property name="frame" stdset="0">
-        <string>CommandModeControl</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>FaultClear_command</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="tx" stdset="0">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="4" colspan="2">
-      <widget class="CompactEpc" name="compactepc_2">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+     <item row="3" column="0">
+      <widget class="Led" name="led">
        <property name="frame" stdset="0">
         <string>StatusBits</string>
        </property>
        <property name="signal" stdset="0">
-        <string>PhaseRotation_status</string>
+        <string>DI4_status</string>
        </property>
-      </widget>
-     </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="Enum" name="enum_7">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>State_status</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="Led" name="led_26">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusFaults</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>GeneralFault_status</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
+       <property name="label_override" stdset="0">
+        <string>Pump Running</string>
        </property>
        <property name="automatic_off_color" stdset="0">
         <bool>false</bool>
        </property>
-       <property name="on_color" stdset="0">
-        <color>
-         <red>192</red>
-         <green>32</green>
-         <blue>32</blue>
-        </color>
-       </property>
        <property name="manual_off_color" stdset="0">
         <color>
-         <red>32</red>
-         <green>192</green>
-         <blue>32</blue>
-        </color>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" rowspan="2">
-      <widget class="CompoundToggle" name="compoundtoggle_5">
-       <property name="box_title" stdset="0">
-        <string>Enable</string>
-       </property>
-       <property name="command_frame" stdset="0">
-        <string>CommandModeControl</string>
-       </property>
-       <property name="command_signal" stdset="0">
-        <string>Enable_command</string>
-       </property>
-       <property name="status_frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="status_signal" stdset="0">
-        <string>Enable_echo</string>
-       </property>
-       <property name="status_off_on_color" stdset="0">
-        <color>
          <red>192</red>
          <green>32</green>
          <blue>32</blue>
         </color>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4" rowspan="2">
-      <widget class="CompoundToggle" name="compoundtoggle_4">
-       <property name="box_title" stdset="0">
-        <string>Phase Rotation</string>
-       </property>
-       <property name="command_frame" stdset="0">
-        <string>CommandModeControl</string>
-       </property>
-       <property name="command_signal" stdset="0">
-        <string>PhaseRotation_command</string>
-       </property>
-       <property name="status_frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="status_signal" stdset="0">
-        <string>PhaseRotation_echo</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="5" rowspan="2">
-      <widget class="CompoundToggle" name="compoundtoggle_6">
-       <property name="box_title" stdset="0">
-        <string>Phase Mode</string>
-       </property>
-       <property name="command_frame" stdset="0">
-        <string>CommandModeControl</string>
-       </property>
-       <property name="command_signal" stdset="0">
-        <string>EnableSplitPhase_command</string>
-       </property>
-       <property name="status_frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="status_signal" stdset="0">
-        <string>EnableSplitPhase_echo</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0" colspan="3">
-      <widget class="Led" name="led_46">
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>PowerCircuitEnabled_status</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string/>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>true</bool>
        </property>
       </widget>
      </item>

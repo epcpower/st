@@ -95,6 +95,9 @@
              <property name="label_visible" stdset="0">
               <bool>false</bool>
              </property>
+             <property name="tx" stdset="0">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
           </layout>
