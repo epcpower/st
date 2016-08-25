@@ -289,7 +289,7 @@ Type=Extended
 DLC=8
 CycleTime=100
 Var=VoltageDCBus signed 16,16 -m /u:VDC /min:0 /max:900 /ln:"DC Voltage"	// Measured DC bus voltage.
-Var=CurrentDC_measured signed 32,16 -m /u:ADC /min:0 /max:900 /ln:"Estimated DC Current"	// Measured DC current.
+Var=CurrentDC_measured signed 32,16 -m /u:ADC /min:-500 /max:500 /ln:"Estimated DC Current"	// Measured DC current.
 Var=VoltageDCInput_measured signed 0,16 -m /u:V /min:0 /max:900 /ln:"Meas. Input VDC"	// Measured DC input voltage.
 
 [StatusControlVolts2]
