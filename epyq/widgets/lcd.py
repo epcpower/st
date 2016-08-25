@@ -24,8 +24,14 @@ class Lcd(epyq.widgets.abstractwidget.AbstractWidget):
         self._signal = None
 
     def set_value(self, value):
-        if value is None:
-            value = '-'
+        if self.signal_object is not None:
+            if len(self.signal_object.enumeration) > 0:
+                value = self.signal_object.full_string
+            else:
+                value = self.signal_object.format_float()
+        elif value is None:
+            # TODO: quit hardcoding this and it's better implemented elsewhere
+            value = '{0:.2f}'.format(0)
         else:
             # TODO: quit hardcoding this and it's better implemented elsewhere
             value = '{0:.2f}'.format(value)
