@@ -38,6 +38,7 @@ class CompoundScale(QWidget):
         self.ui.command.in_designer = in_designer
         self.ui.echo.in_designer = in_designer
         self.ui.status.in_designer = in_designer
+        self.ui.numeric_status.in_designer = in_designer
 
     @pyqtProperty(str)
     def command_frame(self):
@@ -78,6 +79,7 @@ class CompoundScale(QWidget):
     @status_frame.setter
     def status_frame(self, frame):
         self.ui.status.frame = frame
+        self.ui.numeric_status.frame = frame
 
     @pyqtProperty(str)
     def status_signal(self):
@@ -86,6 +88,7 @@ class CompoundScale(QWidget):
     @status_signal.setter
     def status_signal(self, signal):
         self.ui.status.signal = signal
+        self.ui.numeric_status.signal = signal
 
     @pyqtProperty(bool)
     def status_override_range(self):
@@ -110,6 +113,14 @@ class CompoundScale(QWidget):
     @status_maximum.setter
     def status_maximum(self, max):
         self.ui.status.maximum = float(max)
+
+    @pyqtProperty(str)
+    def status_label(self):
+        return self.ui.numeric_status.label_override
+
+    @status_label.setter
+    def status_label(self, label):
+        self.ui.numeric_status.label_override = label
 
 
 if __name__ == '__main__':

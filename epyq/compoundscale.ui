@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>278</width>
-    <height>263</height>
+    <width>330</width>
+    <height>211</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,6 +36,19 @@
       <widget class="Epc" name="echo">
        <property name="label_override" stdset="0">
         <string>Response</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="tx" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Epc" name="numeric_status">
+       <property name="label_override" stdset="0">
+        <string>Measured</string>
        </property>
        <property name="label_visible" stdset="0">
         <bool>true</bool>
