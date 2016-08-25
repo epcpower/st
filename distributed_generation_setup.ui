@@ -319,6 +319,93 @@ device startup</string>
       </spacer>
      </item>
      <item>
+      <widget class="QGroupBox" name="groupBox_10">
+       <property name="title">
+        <string>Pump Control</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_11">
+        <item>
+         <widget class="Button" name="button">
+          <property name="frame" stdset="0">
+           <string>CommandModeControl</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>ForceDO4</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>Pump Reset</string>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="tx" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="on_value" stdset="0">
+           <number>2</number>
+          </property>
+          <property name="off_value" stdset="0">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Led" name="led">
+          <property name="frame" stdset="0">
+           <string>StatusBits</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>DI4_status</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>Pump Running</string>
+          </property>
+          <property name="automatic_off_color" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="manual_off_color" stdset="0">
+           <color>
+            <red>192</red>
+            <green>32</green>
+            <blue>32</blue>
+           </color>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Led" name="led_2">
+          <property name="frame" stdset="0">
+           <string>StatusBits</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>DI3_status</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>Pump VFD Faulted</string>
+          </property>
+          <property name="automatic_off_color" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="on_color" stdset="0">
+           <color>
+            <red>192</red>
+            <green>32</green>
+            <blue>32</blue>
+           </color>
+          </property>
+          <property name="manual_off_color" stdset="0">
+           <color>
+            <red>96</red>
+            <green>96</green>
+            <blue>96</blue>
+           </color>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
       <widget class="QGroupBox" name="groupBox_5">
        <property name="title">
         <string>Measured Line Currents</string>

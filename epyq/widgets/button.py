@@ -27,13 +27,32 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
         self._frame = None
         self._signal = None
+        self._on_value = 1
+        self._off_value = 0
+
+    @pyqtProperty(int)
+    def on_value(self):
+        return self._on_value
+
+    @on_value.setter
+    def on_value(self, new_on_value):
+        self._on_value = int(new_on_value)
+
+    @pyqtProperty(int)
+    def off_value(self):
+        return self._off_value
+
+    @off_value.setter
+    def off_value(self, new_off_value):
+        self._off_value = int(new_off_value)
+        self.set(self.off_value)
 
     def set_signal(self, signal=None, force_update=False):
         epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
             self, signal, force_update=force_update)
 
         if signal is not None:
-            self.set(0)
+            self.set(self.off_value)
 
             def get_text_width(widget, text):
                 return widget.fontMetrics().boundingRect(text).width()
@@ -74,10 +93,10 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         self.ui.value.setText(self.calculate_text(value))
 
     def pressed(self):
-        self.set(1)
+        self.set(self.on_value)
 
     def released(self):
-        self.set(0)
+        self.set(self.off_value)
 
     def set_value(self, value):
         # TODO  exception?
@@ -85,7 +104,7 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
     def showEvent(self, event):
         epyq.widgets.abstracttxwidget.AbstractTxWidget.showEvent(self, event)
-        self.set(0)
+        self.set(self.off_value)
 
 if __name__ == '__main__':
     import sys
