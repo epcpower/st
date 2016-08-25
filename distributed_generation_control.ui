@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1240</width>
-    <height>1217</height>
+    <width>1079</width>
+    <height>1449</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -225,51 +225,23 @@
       <string>AC</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="Led" name="led_47">
+        <property name="frame" stdset="0">
+         <string>StatusBits</string>
+        </property>
+        <property name="signal" stdset="0">
+         <string>LineVoltageDetected_status</string>
+        </property>
+        <property name="label_override" stdset="0">
+         <string/>
+        </property>
+        <property name="label_visible" stdset="0">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="1">
-       <widget class="CompoundScale" name="compoundscale_4">
-        <property name="command_frame" stdset="0">
-         <string>CommandVF</string>
-        </property>
-        <property name="command_signal" stdset="0">
-         <string>Frequency_command</string>
-        </property>
-        <property name="echo_frame" stdset="0">
-         <string>StatusCommandVF</string>
-        </property>
-        <property name="echo_signal" stdset="0">
-         <string>Frequency_echo</string>
-        </property>
-        <property name="status_frame" stdset="0">
-         <string>StatusACParameters</string>
-        </property>
-        <property name="status_signal" stdset="0">
-         <string>Frequency_measured</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="CompoundScale" name="compoundscale">
-        <property name="command_frame" stdset="0">
-         <string>CommandPower</string>
-        </property>
-        <property name="command_signal" stdset="0">
-         <string>RealCurrent_command</string>
-        </property>
-        <property name="echo_frame" stdset="0">
-         <string>StatusCommandedPower</string>
-        </property>
-        <property name="echo_signal" stdset="0">
-         <string>RealPower_echo</string>
-        </property>
-        <property name="status_frame" stdset="0">
-         <string>StatusMeasuredPower</string>
-        </property>
-        <property name="status_signal" stdset="0">
-         <string>RealPower_measured</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
        <widget class="CompoundScale" name="compoundscale_2">
         <property name="command_frame" stdset="0">
          <string>CommandPower</string>
@@ -292,6 +264,50 @@
        </widget>
       </item>
       <item row="2" column="0">
+       <widget class="CompoundScale" name="compoundscale">
+        <property name="command_frame" stdset="0">
+         <string>CommandPower</string>
+        </property>
+        <property name="command_signal" stdset="0">
+         <string>RealCurrent_command</string>
+        </property>
+        <property name="echo_frame" stdset="0">
+         <string>StatusCommandedPower</string>
+        </property>
+        <property name="echo_signal" stdset="0">
+         <string>RealPower_echo</string>
+        </property>
+        <property name="status_frame" stdset="0">
+         <string>StatusMeasuredPower</string>
+        </property>
+        <property name="status_signal" stdset="0">
+         <string>RealPower_measured</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="CompoundScale" name="compoundscale_4">
+        <property name="command_frame" stdset="0">
+         <string>CommandVF</string>
+        </property>
+        <property name="command_signal" stdset="0">
+         <string>Frequency_command</string>
+        </property>
+        <property name="echo_frame" stdset="0">
+         <string>StatusCommandVF</string>
+        </property>
+        <property name="echo_signal" stdset="0">
+         <string>Frequency_echo</string>
+        </property>
+        <property name="status_frame" stdset="0">
+         <string>StatusACParameters</string>
+        </property>
+        <property name="status_signal" stdset="0">
+         <string>Frequency_measured</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
        <widget class="CompoundScale" name="compoundscale_3">
         <property name="command_frame" stdset="0">
          <string>CommandVF</string>
@@ -319,6 +335,32 @@
         </property>
         <property name="status_maximum" stdset="0">
          <double>250.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="Led" name="led_43">
+        <property name="frame" stdset="0">
+         <string>StatusBits</string>
+        </property>
+        <property name="signal" stdset="0">
+         <string>PowerAvailAC_status</string>
+        </property>
+        <property name="label_override" stdset="0">
+         <string/>
+        </property>
+        <property name="label_visible" stdset="0">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" rowspan="2">
+       <widget class="Lcd" name="lcd">
+        <property name="frame" stdset="0">
+         <string>StatusACParameters</string>
+        </property>
+        <property name="signal" stdset="0">
+         <string>CurrentAC_measured</string>
         </property>
        </widget>
       </item>
@@ -398,22 +440,6 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="0" colspan="3">
-      <widget class="Led" name="led_43">
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>PowerAvailAC_status</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string/>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="5" rowspan="2">
       <widget class="CompoundToggle" name="compoundtoggle_6">
        <property name="box_title" stdset="0">
@@ -488,22 +514,6 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="3">
-      <widget class="Led" name="led_47">
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>LineVoltageDetected_status</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string/>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1" colspan="2">
       <widget class="Enum" name="enum_7">
        <property name="sizePolicy">
@@ -520,7 +530,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="4" rowspan="3" colspan="2" alignment="Qt::AlignTop">
+     <item row="2" column="4" colspan="2">
       <widget class="CompactEpc" name="compactepc_2">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -533,16 +543,6 @@
        </property>
        <property name="signal" stdset="0">
         <string>PhaseRotation_status</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="3" rowspan="3">
-      <widget class="Lcd" name="lcd">
-       <property name="frame" stdset="0">
-        <string>StatusACParameters</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>CurrentAC_measured</string>
        </property>
       </widget>
      </item>
