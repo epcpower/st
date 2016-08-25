@@ -488,22 +488,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="3">
-      <widget class="Led" name="led_46">
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>PowerCircuitEnabled_status</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string/>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="4" rowspan="2">
       <widget class="CompoundToggle" name="compoundtoggle_4">
        <property name="box_title" stdset="0">
@@ -575,28 +559,48 @@
        </item>
       </layout>
      </item>
-     <item row="3" column="0">
-      <widget class="Led" name="led">
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>DI4_status</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string>Pump Running</string>
-       </property>
-       <property name="automatic_off_color" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="manual_off_color" stdset="0">
-        <color>
-         <red>192</red>
-         <green>32</green>
-         <blue>32</blue>
-        </color>
-       </property>
-      </widget>
+     <item row="2" column="0" rowspan="2" colspan="3">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="Led" name="led_48">
+         <property name="frame" stdset="0">
+          <string>StatusBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>PowerCircuitEnabled_status</string>
+         </property>
+         <property name="label_override" stdset="0">
+          <string/>
+         </property>
+         <property name="label_visible" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Led" name="led">
+         <property name="frame" stdset="0">
+          <string>StatusBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>DI4_status</string>
+         </property>
+         <property name="label_override" stdset="0">
+          <string>Pump Running</string>
+         </property>
+         <property name="automatic_off_color" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="manual_off_color" stdset="0">
+          <color>
+           <red>192</red>
+           <green>32</green>
+           <blue>32</blue>
+          </color>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
