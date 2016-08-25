@@ -101,7 +101,7 @@ Var=V110to120pct unsigned 48,16 -m /u:ms /min:1 /max:30000 /d:1000	// Determines
 DLC=8
 Mux=LVM_ClearingTimes2 0,14 2  -m	// Line Voltage Monitor fault times.
 Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
-Var=VOver120 unsigned 16,16 -m /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains Over 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=VOver120 unsigned 16,16 -m /u:ms /min:1 /max:30000 /d:160	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains Over 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
 
 [CommandSetNVParam]
 DLC=8

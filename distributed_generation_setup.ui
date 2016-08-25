@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1459</width>
-    <height>1063</height>
+    <width>1521</width>
+    <height>1095</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,6 +25,22 @@
         <string>Mode Settings</string>
        </property>
        <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="2" colspan="2">
+         <widget class="Led" name="led_39">
+          <property name="frame" stdset="0">
+           <string>StatusBits</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>HardwareEnable_status</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string/>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="3">
          <widget class="CompoundToggle" name="compoundtoggle_5">
           <property name="box_title" stdset="0">
@@ -82,22 +98,6 @@
             </widget>
            </item>
           </layout>
-         </widget>
-        </item>
-        <item row="1" column="2" colspan="2">
-         <widget class="Led" name="led_39">
-          <property name="frame" stdset="0">
-           <string>StatusBits</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>HardwareEnable_status</string>
-          </property>
-          <property name="label_override" stdset="0">
-           <string/>
-          </property>
-          <property name="label_visible" stdset="0">
-           <bool>true</bool>
-          </property>
          </widget>
         </item>
        </layout>
@@ -460,6 +460,122 @@ device startup</string>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="title">
+          <string>AC</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="CompoundToggle" name="compoundtoggle_8">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="box_title" stdset="0">
+             <string>Relay MX1 (AC Main)</string>
+            </property>
+            <property name="command_frame" stdset="0">
+             <string>CommandModeControl</string>
+            </property>
+            <property name="command_signal" stdset="0">
+             <string>ForceRelayMX1_command</string>
+            </property>
+            <property name="status_frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="status_signal" stdset="0">
+             <string>MX1Permissive_status</string>
+            </property>
+            <property name="status_on_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_on_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+            <property name="off_value" stdset="0">
+             <number>0</number>
+            </property>
+            <property name="status_off_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_off_on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+            <property name="status_off_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="CompoundToggle" name="compoundtoggle_9">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="box_title" stdset="0">
+             <string>Relay MX2 (AC Remote)</string>
+            </property>
+            <property name="command_frame" stdset="0">
+             <string>CommandModeControl</string>
+            </property>
+            <property name="command_signal" stdset="0">
+             <string>ForceRelayMX2_command</string>
+            </property>
+            <property name="status_frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="status_signal" stdset="0">
+             <string>MX2Permissive_status</string>
+            </property>
+            <property name="status_on_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_on_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+            <property name="status_off_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_off_on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+            <property name="status_off_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -473,108 +589,117 @@ device startup</string>
         </spacer>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="1" column="0">
-          <widget class="CompoundToggle" name="compoundtoggle_9">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="box_title" stdset="0">
-            <string>Relay MX2 (AC Remote)</string>
-           </property>
-           <property name="command_frame" stdset="0">
-            <string>CommandModeControl</string>
-           </property>
-           <property name="command_signal" stdset="0">
-            <string>ForceRelayMX2_command</string>
-           </property>
-           <property name="status_frame" stdset="0">
-            <string>StatusBits</string>
-           </property>
-           <property name="status_signal" stdset="0">
-            <string>MX2Permissive_status</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="CompoundToggle" name="compoundtoggle_7">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="box_title" stdset="0">
-            <string>Relay MX1 (AC Main)</string>
-           </property>
-           <property name="command_frame" stdset="0">
-            <string>CommandModeControl</string>
-           </property>
-           <property name="command_signal" stdset="0">
-            <string>ForceRelayMX1_command</string>
-           </property>
-           <property name="status_frame" stdset="0">
-            <string>StatusBits</string>
-           </property>
-           <property name="status_signal" stdset="0">
-            <string>MX1Permissive_status</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="CompoundToggle" name="compoundtoggle_8">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="box_title" stdset="0">
-            <string>Relay K1 (Precharge)</string>
-           </property>
-           <property name="command_frame" stdset="0">
-            <string>CommandModeControl</string>
-           </property>
-           <property name="command_signal" stdset="0">
-            <string>ForceRelayK1_Precharge_command</string>
-           </property>
-           <property name="status_frame" stdset="0">
-            <string>StatusBits</string>
-           </property>
-           <property name="status_signal" stdset="0">
-            <string>K1PrechargePermissive_status</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="CompoundToggle" name="compoundtoggle_10">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="box_title" stdset="0">
-            <string>Relay K2 (DC Main)</string>
-           </property>
-           <property name="command_frame" stdset="0">
-            <string>CommandModeControl</string>
-           </property>
-           <property name="command_signal" stdset="0">
-            <string>ForceRelayRelayK2_DCRun_comand</string>
-           </property>
-           <property name="status_frame" stdset="0">
-            <string>StatusBits</string>
-           </property>
-           <property name="status_signal" stdset="0">
-            <string>K2DCRunPermissive_status</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QGroupBox" name="groupBox_9">
+         <property name="title">
+          <string>DC</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item>
+           <widget class="CompoundToggle" name="compoundtoggle_12">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="box_title" stdset="0">
+             <string>Relay K1 (Precharge)</string>
+            </property>
+            <property name="command_frame" stdset="0">
+             <string>CommandModeControl</string>
+            </property>
+            <property name="command_signal" stdset="0">
+             <string>ForceRelayK1_Precharge_command</string>
+            </property>
+            <property name="status_frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="status_signal" stdset="0">
+             <string>K1PrechargePermissive_status</string>
+            </property>
+            <property name="status_on_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_on_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+            <property name="status_off_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_off_on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+            <property name="status_off_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="CompoundToggle" name="compoundtoggle_13">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="box_title" stdset="0">
+             <string>Relay K2 (DC Main)</string>
+            </property>
+            <property name="command_frame" stdset="0">
+             <string>CommandModeControl</string>
+            </property>
+            <property name="command_signal" stdset="0">
+             <string>ForceRelayRelayK2_DCRun_comand</string>
+            </property>
+            <property name="status_frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="status_signal" stdset="0">
+             <string>K2DCRunPermissive_status</string>
+            </property>
+            <property name="status_on_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_on_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+            <property name="status_off_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_off_on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+            <property name="status_off_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </item>
