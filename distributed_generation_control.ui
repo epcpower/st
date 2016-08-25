@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1079</width>
-    <height>1225</height>
+    <width>1240</width>
+    <height>1217</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -433,16 +433,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="4" colspan="2" alignment="Qt::AlignLeft">
-      <widget class="CompactEpc" name="compactepc_2">
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>PhaseRotation_status</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="Led" name="led_26">
        <property name="sizePolicy">
@@ -530,6 +520,32 @@
        </property>
       </widget>
      </item>
+     <item row="2" column="4" rowspan="3" colspan="2" alignment="Qt::AlignTop">
+      <widget class="CompactEpc" name="compactepc_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>PhaseRotation_status</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3" rowspan="3">
+      <widget class="Lcd" name="lcd">
+       <property name="frame" stdset="0">
+        <string>StatusACParameters</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>CurrentAC_measured</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
@@ -564,6 +580,11 @@
    <class>Epc</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.epc</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcd</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.lcd</header>
   </customwidget>
   <customwidget>
    <class>Led</class>
