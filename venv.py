@@ -130,7 +130,7 @@ else:
         ('python-can', 'https://bitbucket.org/altendky/python-can/get/'
                       '076a7864f1e292647a501ae60ea90f62b5703d71.zip'),
         ('canmatrix', 'https://github.com/ebroecker/canmatrix/archive/'
-                     '7f6a03feb436bcfad4d54d57f6f2b8edee0b444a.zip'),
+                     '0b2c6679b732b0849484d958d63782526a18f6ca.zip'),
         ('bitstruct', 'https://github.com/altendky/bitstruct/archive/'
                      '129a72e290c533654a91bd556b1d4b0822df423f.zip')
     ])

@@ -56,7 +56,7 @@ class Signal(QObject):
         self.name = signal._name # {str} 'Enable_command'
         # self._receiver = signal._receiver # {str} ''
         self.signal_size = int(signal._signalsize) # {int} 2
-        self.start_bit = int(signal.getMsbReverseStartbit()) # {int} 0
+        self.start_bit = int(signal.getStartbit()) # {int} 0
         self.unit = signal._unit # {str} ''
         self.enumeration = {int(k): v for k, v in signal._values.items()} # {dict} {'0': 'Disable', '2': 'Error', '1': 'Enable', '3': 'N/A'}
         self.signed = signal._is_signed
@@ -307,7 +307,7 @@ class Frame(QtCanListener):
                 is_little_endian=0)
             def Matrix_Pad_Fixed(start_bit, length):
                 pad = Matrix_Pad(start_bit, length)
-                pad.setMsbReverseStartbit(start_bit)
+                pad.setStartbit(start_bit)
                 return pad
             Pad = lambda start_bit, length: Signal(
                 signal=Matrix_Pad_Fixed(start_bit, length),
