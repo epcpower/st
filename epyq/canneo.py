@@ -29,6 +29,9 @@ class Signal(QObject):
         else:
             self.default_value = float(self.default_value)
         self.long_name = signal._attributes.get('LongName', None)
+        self.hexadecimal_output = signal._attributes.get('HexadecimalOutput',
+                                                         None)
+        self.hexadecimal_output = self.hexadecimal_output is not None
         self.little_endian = signal._is_little_endian # {int} 0
         self.comment = signal._comment # {str} 'Run command.  When set to a value of \\'Enable\\', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to \\'Disable\\' to leave POR or FAULTED state.'
         # TODO: maybe not use a string, but used to help with decimal places
@@ -155,6 +158,9 @@ class Signal(QObject):
                 # TODO: this should be a subclass or something
                 if self.name == '__padding__':
                     self.full_string = '__padding__'
+                elif self.hexadecimal_output:
+                    format = '{{:0{}X}}'.format(math.ceil(self.signal_size/math.log2(16)))
+                    self.full_string = format.format(int(self.value))
                 else:
                     # TODO: CAMPid 9395616283654658598648263423685
                     # TODO: and _offset...
