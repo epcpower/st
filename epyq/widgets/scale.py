@@ -26,11 +26,19 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget,
 
         self._breakpoints = [self._min + (self._max - self._min) * n
                              for n in [0.10, 0.25, 0.75, 0.90]]
-        self._colors = [Qt.darkRed,
-                        Qt.darkYellow,
-                        Qt.darkGreen,
-                        Qt.darkYellow,
-                        Qt.darkRed]
+
+        dark_red_transparent = QColor(Qt.darkRed)
+        dark_red_transparent.setAlpha(0)
+        dark_yellow_transparent = QColor(Qt.darkYellow)
+        dark_yellow_transparent.setAlpha(0)
+        dark_green_transparent = QColor(Qt.darkGreen)
+        dark_green_transparent.setAlpha(0)
+
+        self._colors = [dark_red_transparent,
+                        dark_yellow_transparent,
+                        dark_green_transparent,
+                        dark_yellow_transparent,
+                        dark_red_transparent]
 
         self._frame = None
         self._signal = None
