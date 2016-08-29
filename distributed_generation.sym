@@ -290,7 +290,7 @@ Var=InvalidEESection_status unsigned 24,2 -m /max:1 /e:Fault /ln:"Invalid NV Sec
 Var=ThermalOverload unsigned 38,2 -m /max:1 /e:Fault /ln:"Thermal Overload"
 Var=TimedOverload unsigned 36,2 -m /max:1 /e:Fault /ln:"Timed Overload"
 Var=CoolingSystem unsigned 40,2 -m /max:1 /e:Fault /ln:"Cooling System"
-Var=SystemFault_status unsigned 56,4 -m
+Var=SystemFault_status unsigned 56,4 -m /ln:"System Fault"
 
 [StatusACParameters]
 ID=0CFFC2F7h	// RMS AC Voltage, current, and frequency measured by line A, B and C feedbacks.
