@@ -73,21 +73,12 @@ CycleTime=100
 Var=Voltage_command unsigned 0,16 -m /u:VRMS /f:0.1 /min:10 /max:500 /d:208 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
 Var=Frequency_command unsigned 16,16 -m /u:Hz /f:0.1 /min:45 /max:65 /d:60 /ln:"Frequency"	// Desired output frequency while in grid forming mode.
 
-[CommandFactoryControl]
-ID=0CFFAF41h
-Type=Extended
-DLC=8
-Var=WriteSerialNumber unsigned 6,2 -m /e:Enable
-Var=SerialNumber unsigned 32,32 -m
-Var=FactoryAccess unsigned 16,16 -m
-
 [CommandSetNVParam]
 ID=0CFFAA41h	// Provides access to configure non-volatile parameters.  Note that these parameters can only be set when the inverter's power stage is disabled (PowerCircuitEnabled_status in StatusBits message is 'Disabled.')
 Type=Extended
 DLC=8
 Mux=Param0 0,14 0  -m
 Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
-Var=Dummy unsigned 16,16 -m
 
 [CommandSetNVParam]
 DLC=8
@@ -166,6 +157,32 @@ Var=DeviceOvertempLimit_command unsigned 16,16 -m /u:C /max:300 /d:165
 DLC=8
 Mux=ManageNV 0,14 000Ch -m
 Var=SaveToEE_command unsigned 16,2 -m /max:1 /e:Enable
+
+[CommandSetNVParam]
+DLC=8
+Mux=Factory 0,14 0010h -m
+Var=ReadParam_command unsigned 14,2 -m /max:1 /e:ReadNV
+Var=SerialNumber unsigned 32,32 -m
+Var=FactoryAccess unsigned 16,16 -m
+
+[CommandSetNVParam]
+DLC=8
+Mux=SoftwareRevisions 0,14 0011h -m
+Var=ReadParam_command unsigned 14,2 -m /max:1 /e:ReadNV
+Var=InterfaceRev unsigned 16,16 -m /f:0.01 /p:2	// Software revision of the CAN communication interface.
+Var=ControlSwRev unsigned 32,16 -m /f:0.01 /p:2	// Software revision of the control firmware.
+
+[CommandSetNVParam]
+DLC=8
+Mux=BuildTime 0,14 0012h -m
+Var=ReadParam_command unsigned 14,2 -m /max:1 /e:ReadNV
+Var=BuildTime unsigned 32,32 -m	// Build timestamp.
+
+[CommandSetNVParam]
+DLC=8
+Mux=SoftwareHash 0,14 0013h -m
+Var=ReadParam_command unsigned 14,2 -m /max:1 /e:ReadNV
+Var=SoftwareHash unsigned 32,28 -h -m	// Unique revision identification hashcode.
 
 {SENDRECEIVE}
 
@@ -273,6 +290,7 @@ Var=InvalidEESection_status unsigned 24,2 -m /max:1 /e:Fault /ln:"Invalid NV Sec
 Var=ThermalOverload unsigned 38,2 -m /max:1 /e:Fault /ln:"Thermal Overload"
 Var=TimedOverload unsigned 36,2 -m /max:1 /e:Fault /ln:"Timed Overload"
 Var=CoolingSystem unsigned 40,2 -m /max:1 /e:Fault /ln:"Cooling System"
+Var=SystemFault_status unsigned 56,4 -m
 
 [StatusACParameters]
 ID=0CFFC2F7h	// RMS AC Voltage, current, and frequency measured by line A, B and C feedbacks.
@@ -335,7 +353,6 @@ Type=Extended
 DLC=8
 Mux=ActParam0 0,14 0  -m
 Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
-Var=Dummy unsigned 16,16 -m /min:5 /max:10
 
 [StatusNVParam]
 DLC=8
@@ -415,6 +432,32 @@ DLC=8
 Mux=ManageNV 0,14 000Ch -m
 Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=SaveToEE_status unsigned 16,2 -m /max:1 /e:Enable
+
+[StatusNVParam]
+DLC=8
+Mux=Factory 0,14 0010h -m
+Var=ReadParam_status unsigned 14,2 -m /max:1 /e:ReadNV
+Var=SerialNumber unsigned 32,32 -m
+Var=FactoryAccess unsigned 16,16 -m
+
+[StatusNVParam]
+DLC=8
+Mux=SoftwareRevisions 0,14 0011h -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=InterfaceRev unsigned 16,16 -m /f:0.01 /p:2	// Software revision of the CAN communication interface.
+Var=ControlSwRev unsigned 32,16 -m /f:0.01 /p:2	// Software revision of the control firmware.
+
+[StatusNVParam]
+DLC=8
+Mux=BuildTime 0,14 0012h -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=BuildTime unsigned 32,32 -m	// Build timestamp.
+
+[StatusNVParam]
+DLC=8
+Mux=SoftwareHash 0,14 0013h -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=SoftwareHash unsigned 32,28 -h -m	// Unique revision identification hashcode.
 
 [StatusLineCurrents]
 ID=18FFD0F7h	// Measured RMS line currents.
