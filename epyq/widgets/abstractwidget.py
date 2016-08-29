@@ -202,7 +202,7 @@ class AbstractWidget(QtWidgets.QWidget):
             else:
                 self.set_units(None)
 
-            self.update_tool_tip()
+            self.update_tool_tip(new_signal=signal)
 
             self.update_connection(signal)
             self.signal_object = signal
@@ -213,11 +213,11 @@ class AbstractWidget(QtWidgets.QWidget):
 
                 signal.force_value_changed()
 
-    def update_tool_tip(self):
+    def update_tool_tip(self, new_signal=None):
         if len(self.tool_tip_override) > 0:
             tip = self.tool_tip_override
-        elif self.signal_object is not None:
-            tip = self.signal_object.comment
+        elif new_signal is not None:
+            tip = new_signal.comment
         else:
             tip = ''
 
