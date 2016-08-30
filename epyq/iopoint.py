@@ -126,7 +126,6 @@ class IoPoint(QWidget):
         self.update_configuration()
 
     def update_configuration(self):
-        print([self.ui.status.signal, self.ui.status.frame])
         self.ui.set.setVisible(self.tx)
         self.ui.override.setVisible(self.tx)
         if self.tx:
