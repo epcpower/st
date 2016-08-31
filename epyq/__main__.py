@@ -85,6 +85,19 @@ def main(args=None):
             font-size: 30px;
             font-family: Bitstream Vera Sans;
         }
+
+        QAbstractScrollArea {
+            qproperty-frameShape: NoFrame;
+        }
+
+        QPushButton {
+            qproperty-flat: true;
+        }
+
+        QLineEdit {
+            qproperty-frame: false;
+            qproperty-clearButtonEnabled: true;
+        }
     ''')
 
     QTextCodec.setCodecForLocale(QTextCodec.codecForName('UTF-8'))
@@ -215,20 +228,6 @@ def main(args=None):
     ui.menu_button.clicked.connect(to_menu)
 
     ui.stacked.setCurrentWidget(menu)
-
-    def traverse(widget):
-        try:
-            widget.setFlat(True)
-        except AttributeError:
-            pass
-
-        if isinstance(widget, QAbstractScrollArea):
-            widget.setFrameStyle(QFrame.NoFrame)
-
-        for child in widget.children():
-            traverse(child)
-
-    traverse(ui)
 
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
         ui.showFullScreen()
