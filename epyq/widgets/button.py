@@ -62,12 +62,13 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
             # initial_margin = button.width() - get_text_width(button,
             #                                                  button.text())
 
-            widths = []
-            for text in [self.calculate_text(v) for v in
-                         self.signal_object.enumeration]:
-                widths.append(get_text_width(button, text))
+            if len(self.signal_object.enumeration):
+                widths = []
+                for text in [self.calculate_text(v) for v in
+                             self.signal_object.enumeration]:
+                    widths.append(get_text_width(button, text))
 
-            button.setMinimumWidth(1.3 * max(widths))
+                button.setMinimumWidth(1.3 * max(widths))
         else:
             self.ui.value.setText('')
 
