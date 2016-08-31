@@ -165,25 +165,24 @@ def main(args=None):
         dash_item.append_child(node)
         ui.stacked.addWidget(dash)
 
-    def focus_nv(name, nv):
-        filters = [
-            {
-                'can_id': frame.id | socket.CAN_EFF_FLAG,
-                'can_mask': socket.CAN_EFF_MASK |
-                            socket.CAN_EFF_FLAG |
-                            socket.CAN_RTR_FLAG
-            }
-            for frame in device.frames_nv.frames
+    nv_filters = [
+        {
+            'can_id': frame.id | socket.CAN_EFF_FLAG,
+            'can_mask': socket.CAN_EFF_MASK |
+                        socket.CAN_EFF_FLAG |
+                        socket.CAN_RTR_FLAG
+        }
+        for frame in [device.nvs.set_frames[0], device.nvs.status_frames[0]]
         ]
-        real_bus.setFilters(filters)
-        # TODO: get these filters right
+
+    def focus_nv(name, nv):
+        real_bus.setFilters(nv_filters)
 
         nv.read_from_device()
         # TODO: actually wait for a response
         print('{name}: {value}'.format(name=name,
                                        value=nv.value))
         ui.stacked.setCurrentWidget(nv.ui)
-
 
     nv_item = epyq.listmenu.Node(text='Parameters')
     menu_root.append_child(nv_item)
