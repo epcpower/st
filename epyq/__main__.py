@@ -221,10 +221,6 @@ def main(args=None):
             widget.setFlat(True)
         except AttributeError:
             pass
-        try:
-            widget.setFocusPolicy(Qt.NoFocus)
-        except AttributeError:
-            pass
 
         if isinstance(widget, QAbstractScrollArea):
             widget.setFrameStyle(QFrame.NoFrame)
