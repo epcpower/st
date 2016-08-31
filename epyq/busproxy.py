@@ -17,7 +17,7 @@ __license__ = 'GPLv2+'
 class BusProxy(QObject):
     went_offline = pyqtSignal()
 
-    def __init__(self, bus=None, timeout=0.1, parent=None):
+    def __init__(self, bus=None, timeout=0.1, transmit=True, parent=None):
         QObject.__init__(self, parent=parent)
 
         self.timeout = timeout
@@ -26,13 +26,19 @@ class BusProxy(QObject):
         self.bus = None
         self.set_bus(bus)
 
-    def send(self, msg):
-        if self.bus is not None:
-            # TODO: I would use message=message (or msg=msg) but:
-            #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
-            sent = self.bus.send(msg)
+        self._transmit = transmit
 
-            # TODO: this is really hacky and shouldn't be needed but it seems
+    @property
+    def transmit(self):
+        return self._transmit
+
+    @transmit.setter
+    def transmit(self, transmit):
+        self._transmit = transmit
+
+    def send(self, msg, passive=False):
+        if self.bus is not None and (self._transmit or passive):
+            # TODO: this (the silly sleep) is really hacky and shouldn't be needed but it seems
             #       to be to keep from forcing socketcan offbus.  the issue
             #       can be recreated with the following snippet.
             # import can
@@ -71,7 +77,14 @@ class BusProxy(QObject):
             # (1469135699.758894) can0 00FFAB80#0000000000000000
 
             if isinstance(self.bus, can.BusABC):
+                # TODO: I would use message=message (or msg=msg) but:
+                #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
+                sent = self.bus.send(msg)
                 time.sleep(0.0005)
+            else:
+                # TODO: I would use message=message (or msg=msg) but:
+                #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
+                sent = self.bus.send(msg, passive=passive)
 
             self.verify_bus_ok()
 

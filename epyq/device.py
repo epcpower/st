@@ -105,10 +105,17 @@ class Device:
 
     def _load_config(self, file, bus=None, elements=None,
                      tabs=None, rx_interval=0):
-        if elements is None:
-            elements = set(Elements)
         if tabs is None:
             tabs = set(Tabs)
+
+        if elements is None:
+            elements = set(Elements)
+            if Tabs.txrx not in tabs:
+                self.elements.discard(Elements.tx)
+                self.elements.discard(Elements.rx)
+
+            if Tabs.nv not in tabs:
+                self.elements.discard(Elements.nv)
 
         s = file.read()
         d = json.loads(s, object_pairs_hook=OrderedDict)
@@ -181,14 +188,9 @@ class Device:
     def _init_from_parameters(self, uis, serial_number, name, bus=None,
                               elements=None, tabs=None,
                               rx_interval=0):
-        if elements is None:
-            elements = set(Elements)
-        else:
-            elements = set(elements)
+        self.elements = set(Elements) if elements == None else set(elements)
         if tabs is None:
             tabs = set(Tabs)
-
-        self.elements = elements
 
         if not hasattr(self, 'bus'):
             self.bus = BusProxy(bus=bus)
@@ -226,10 +228,6 @@ class Device:
             sio = io.StringIO(ts.readAll())
             self.dash_uis[name] = uic.loadUi(sio)
 
-        if Tabs.txrx not in tabs:
-            self.elements.discard(Elements.tx)
-            self.elements.discard(Elements.rx)
-
         notifiees = []
 
         if Elements.dash in self.elements:
@@ -242,7 +240,8 @@ class Device:
                                                   bus=self.bus,
                                                   rx_interval=self.rx_interval)
 
-            notifiees.append(self.neo_frames)
+                notifiees.append(self.neo_frames)
+
         if Elements.rx in self.elements:
             # TODO: the repetition here is not so pretty
             matrix_rx = list(importany.importany(self.can_path).values())[0]
@@ -298,7 +297,7 @@ class Device:
 
             self.nvs = epyq.nv.Nvs(self.frames_nv, self.bus)
             notifiees.append(self.nvs)
-            print('appended')
+
 
             nv_views = self.ui.findChildren(epyq.nvview.NvView)
             if len(nv_views) > 0:
@@ -326,11 +325,31 @@ class Device:
 
 
 
+        if Tabs.dashes in tabs:
+            for i, (name, dash) in enumerate(self.dash_uis.items()):
+                self.ui.tabs.insertTab(i,
+                                       dash,
+                                       name)
+        if Tabs.txrx not in tabs:
+            self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.txrx))
+        if Tabs.nv not in tabs:
+            self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.nv))
+        if tabs:
+            self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
+            self.ui.offline_overlay.label.setText('offline')
+
+            self.ui.name.setText(self.name)
+            self.ui.tabs.setCurrentIndex(0)
+
+
+
         notifier = self.bus.notifier
         for notifiee in notifiees:
             notifier.add(notifiee)
 
         self.dash_connected_frames = {}
+        self.dash_connected_signals = set()
+        self.dash_missing_signals = set()
         for name, dash in self.dash_uis.items():
             # TODO: CAMPid 99457281212789437474299
             children = dash.findChildren(QObject)
@@ -348,20 +367,75 @@ class Device:
                 widget.set_value(42)
 
                 # TODO: add some notifications
+                found = False
                 frame = self.neo_frames.frame_by_name(frame_name)
                 if frame is not None:
                     signal = frame.signal_by_name(signal_name)
                     if signal is not None:
+                        found = True
                         frames.add(frame)
+                        self.dash_connected_signals.add(signal)
                         widget.set_signal(signal)
                         frame.user_send_control = False
+
+                if not found:
+                    self.dash_missing_signals.add(
+                        '{} : {}'.format(frame_name, signal_name))
+
+        self.bus_status_changed(online=False, transmit=False)
+
+        all_signals = set()
+        for frame in self.neo_frames.frames:
+            for signal in frame.signals:
+                if signal.name != '__padding__':
+                    all_signals.add(signal)
+
+        frame_signals = []
+        for signal in all_signals - self.dash_connected_signals:
+            frame_signals.append('{} : {}'.format(signal.frame.name, signal.name))
+
+        if Elements.nv in self.elements:
+            nv_frame_signals = []
+            for frame in (list(self.nvs.set_frames.values())
+                              + list(self.nvs.status_frames.values())):
+                for signal in frame.signals:
+                    nv_frame_signals.append(
+                        '{} : {}'.format(signal.frame.name, signal.name))
+
+            frame_signals = list(set(frame_signals) - set(nv_frame_signals))
+
+        if len(frame_signals) > 0:
+            print('\n === Signals not referenced by a widget')
+            for frame_signal in sorted(frame_signals):
+                print(frame_signal)
+
+        if len(self.dash_missing_signals) > 0:
+            print('\n === Signals referenced by a widget but not defined')
+            for frame_signal in sorted(self.dash_missing_signals):
+                print(frame_signal)
 
     def get_frames(self):
         return self.frames
 
     @pyqtSlot(bool)
-    def bus_status_changed(self, online):
-        self.ui.offline_overlay.setVisible(not online)
+    def bus_status_changed(self, online, transmit):
+        style = epyq.overlaylabel.styles['red']
+        text = ''
+        if online:
+            if not transmit:
+                text = 'passive'
+                style = epyq.overlaylabel.styles['blue']
+        else:
+            text = 'offline'
+
+        try:
+            offline_overlay = self.ui.offline_overlay
+        except AttributeError:
+            pass
+        else:
+            offline_overlay.label.setText(text)
+            offline_overlay.setVisible(len(text) > 0)
+            offline_overlay.setStyleSheet(style)
 
 
 if __name__ == '__main__':

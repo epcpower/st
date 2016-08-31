@@ -29,6 +29,9 @@ class Signal(QObject):
         else:
             self.default_value = float(self.default_value)
         self.long_name = signal._attributes.get('LongName', None)
+        self.hexadecimal_output = signal._attributes.get('HexadecimalOutput',
+                                                         None)
+        self.hexadecimal_output = self.hexadecimal_output is not None
         self.little_endian = signal._is_little_endian # {int} 0
         self.comment = signal._comment # {str} 'Run command.  When set to a value of \\'Enable\\', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to \\'Disable\\' to leave POR or FAULTED state.'
         # TODO: maybe not use a string, but used to help with decimal places
@@ -56,7 +59,7 @@ class Signal(QObject):
         self.name = signal._name # {str} 'Enable_command'
         # self._receiver = signal._receiver # {str} ''
         self.signal_size = int(signal._signalsize) # {int} 2
-        self.start_bit = int(signal.getMsbReverseStartbit()) # {int} 0
+        self.start_bit = int(signal.getStartbit()) # {int} 0
         self.unit = signal._unit # {str} ''
         self.enumeration = {int(k): v for k, v in signal._values.items()} # {dict} {'0': 'Disable', '2': 'Error', '1': 'Enable', '3': 'N/A'}
         self.signed = signal._is_signed
@@ -141,6 +144,8 @@ class Signal(QObject):
             self.value = None
             self.full_string = '-'
             self.value_changed.emit(float('nan'))
+        elif type(value) is float and math.isnan(value):
+            pass
         elif self.value != value:
             # TODO: be careful here, should all be int which is immutable
             #       and therefore safe but...  otherwise a copy would be
@@ -156,6 +161,9 @@ class Signal(QObject):
                 # TODO: this should be a subclass or something
                 if self.name == '__padding__':
                     self.full_string = '__padding__'
+                elif self.hexadecimal_output:
+                    format = '{{:0{}X}}'.format(math.ceil(self.signal_size/math.log2(16)))
+                    self.full_string = format.format(int(self.value))
                 else:
                     # TODO: CAMPid 9395616283654658598648263423685
                     # TODO: and _offset...
@@ -309,7 +317,7 @@ class Frame(QtCanListener):
                 is_little_endian=0)
             def Matrix_Pad_Fixed(start_bit, length):
                 pad = Matrix_Pad(start_bit, length)
-                pad.setMsbReverseStartbit(start_bit)
+                pad.setStartbit(start_bit)
                 return pad
             Pad = lambda start_bit, length: Signal(
                 signal=Matrix_Pad_Fixed(start_bit, length),
@@ -323,7 +331,10 @@ class Frame(QtCanListener):
             for signal in unpadded_signals:
                 startbit = signal.start_bit
                 if startbit < bit:
-                    raise Exception('too far ahead!')
+                    raise Exception('{}({}):{}: too far ahead!'
+                                    .format(self.name,
+                                            self.mux_name,
+                                            signal.name))
                 padding = startbit - bit
                 if padding:
                     pad = Pad(bit, padding)

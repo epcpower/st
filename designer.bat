@@ -1,2 +1,2 @@
 call activate.bat
-designer.exe
+"venv\Lib\site-packages\PyQt5-tools\designer\designer.exe"

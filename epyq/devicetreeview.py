@@ -10,7 +10,7 @@ import os
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QAction, QFileDialog, QHeaderView, QMenu
 from PyQt5.QtCore import (Qt, pyqtSignal, pyqtSlot, QFile, QFileInfo,
-                          QTextStream, QModelIndex)
+                          QTextStream, QModelIndex, QItemSelectionModel)
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -58,8 +58,10 @@ def load_device(bus=None, file=None):
 class DeviceTreeView(QtWidgets.QWidget):
     device_selected = pyqtSignal(epyq.device.Device)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         QtWidgets.QWidget.__init__(self, parent=parent)
+
+        self.in_designer = in_designer
 
         ui = 'devicetreeview.ui'
         # TODO: CAMPid 9549757292917394095482739548437597676742
@@ -115,7 +117,11 @@ class DeviceTreeView(QtWidgets.QWidget):
         elif action is remove_device_action:
             self.remove_device(node)
         elif action is add_device_action:
-            self.add_device(node)
+            device = self.add_device(node)
+            if device is not None:
+                self.ui.tree_view.selectionModel().setCurrentIndex(
+                    self.model.index_from_node(device),
+                    QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows)
 
     def add_device(self, bus):
         device = load_device()
@@ -126,6 +132,8 @@ class DeviceTreeView(QtWidgets.QWidget):
             index = self.model.index_from_node(bus)
             index = self.model.index(index.row(), 0, index.parent())
             self.ui.tree_view.setExpanded(index, True)
+
+        return device
 
     def remove_device(self, device):
         self.ui.tree_view.clearSelection()

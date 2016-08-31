@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractpluginclass
+import epyq.widgets.abstractsignalpluginclass
 import epyq.widgets.progressbar
 
 # See file COPYING in this source tree
@@ -10,9 +10,10 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class ProgressBarPlugin(epyq.widgets.abstractpluginclass.AbstractPlugin):
-    def __init__(self):
-        epyq.widgets.abstractpluginclass.AbstractPlugin.__init__(self)
+class ProgressBarPlugin(epyq.widgets.abstractsignalpluginclass.AbstractSignalPlugin):
+    def __init__(self, parent=None):
+        epyq.widgets.abstractsignalpluginclass.AbstractSignalPlugin.__init__(
+            self, parent=parent)
 
         self._init = epyq.widgets.progressbar.ProgressBar
         self._module_path = 'epyq.widgets.progressbar'

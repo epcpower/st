@@ -21,7 +21,7 @@ __license__ = 'GPLv2+'
 
 
 class Columns(AbstractColumns):
-    _members = ['name', 'bitrate']
+    _members = ['name', 'bitrate', 'transmit']
 
 Columns.indexes = Columns.indexes()
 
@@ -87,8 +87,6 @@ class Bus(TreeNode):
         self.bitrate = default_bitrate
         self.separator = ' - '
 
-        self.bus = epyq.busproxy.BusProxy()
-
         if self.interface is not None:
             name = '{}{}{}'.format(self.interface,
                                    self.separator,
@@ -97,9 +95,13 @@ class Bus(TreeNode):
             name = 'Offline'
 
         self.fields = Columns(name=name,
-                              bitrate=bitrates[self.bitrate])
+                              bitrate=bitrates[self.bitrate],
+                              transmit='')
 
-        self._checked = Qt.Unchecked
+        self._checked = Columns.fill(Qt.Unchecked)
+
+        self.bus = epyq.busproxy.BusProxy(
+            transmit=self.checked(Columns.indexes.transmit))
 
     def set_data(self, data):
         for key, value in bitrates.items():
@@ -123,27 +125,33 @@ class Bus(TreeNode):
     def append_child(self, child):
         TreeNode.append_child(self, child)
 
-    def checked(self, column=None):
-        return self._checked
+    def checked(self, column):
+        return self._checked[column]
 
-    def set_checked(self, checked):
-        if self.interface is None:
-            self._checked = Qt.Unchecked
+    def set_checked(self, checked, column):
+        if column in [Columns.indexes.name, Columns.indexes.transmit]:
+            if self.interface is None:
+                self._checked[column] = Qt.Unchecked
 
-            return
+                return
 
-        self._checked = checked
+            self._checked[column] = checked
 
-        if self._checked == Qt.Checked:
-            for device in self.children:
-                if device.checked() != Qt.Unchecked:
-                    device.set_checked(Qt.Checked)
-        elif self._checked == Qt.Unchecked:
-            for device in self.children:
-                if device.checked() != Qt.Unchecked:
-                    device.set_checked(Qt.PartiallyChecked)
+            if self._checked[column] == Qt.Checked:
+                for device in self.children:
+                    if device.checked(column) != Qt.Unchecked:
+                        device.set_checked(checked=Qt.Checked,
+                                           column=column)
+            elif self._checked[column] == Qt.Unchecked:
+                for device in self.children:
+                    if device.checked(column) != Qt.Unchecked:
+                        device.set_checked(checked=Qt.PartiallyChecked,
+                                           column=column)
 
-        self.set_bus()
+            if column == Columns.indexes.name:
+                self.set_bus()
+            elif column == Columns.indexes.transmit:
+                self.bus.transmit = checked == Qt.Checked
 
     def set_bus(self):
         if self.interface == None:
@@ -151,7 +159,7 @@ class Bus(TreeNode):
 
         self.bus.set_bus(None)
 
-        if self._checked == Qt.Checked:
+        if self._checked.name == Qt.Checked:
             real_bus = can.interface.Bus(bustype=self.interface,
                                          channel=self.channel,
                                          bitrate=self.bitrate)
@@ -168,39 +176,48 @@ class Device(TreeNode):
     def __init__(self, device):
         TreeNode.__init__(self)
 
-        self.device = device
-
         self.fields = Columns(name=device.name,
-                              bitrate='')
+                              bitrate='',
+                              transmit='')
 
-        self._checked = Qt.Unchecked
+        self._checked = Columns.fill(Qt.Unchecked)
+
+        self.device = device
+        self.device.bus.transmit = self._checked.transmit == Qt.Checked
 
     def unique(self):
-        return self.device.name
+        return self.device
 
-    def checked(self, column=None):
-        return self._checked
+    def checked(self, column):
+        return self._checked[column]
 
-    def set_checked(self, checked):
-        if checked == Qt.Checked:
-            if self.tree_parent.checked() == Qt.Checked:
-                self._checked = Qt.Checked
-            else:
-                if self._checked == Qt.Unchecked:
-                    self._checked = Qt.PartiallyChecked
+    def set_checked(self, checked, column):
+        if column in [Columns.indexes.name, Columns.indexes.transmit]:
+            if checked == Qt.Checked:
+                if self.tree_parent.checked(column) == Qt.Checked:
+                    self._checked[column] = Qt.Checked
                 else:
-                    self._checked = Qt.Unchecked
-        elif checked == Qt.PartiallyChecked:
-            self._checked = Qt.PartiallyChecked
-        else:
-            self._checked = Qt.Unchecked
+                    if self._checked[column] == Qt.Unchecked:
+                        self._checked[column] = Qt.PartiallyChecked
+                    else:
+                        self._checked[column] = Qt.Unchecked
+            elif checked == Qt.PartiallyChecked:
+                self._checked[column] = Qt.PartiallyChecked
+            else:
+                self._checked[column] = Qt.Unchecked
 
-        if self._checked == Qt.Unchecked:
-            self.device.bus.set_bus()
-        else:
-            self.device.bus.set_bus(self.tree_parent.bus)
+            self.device.bus_status_changed(
+                online=self._checked.name == Qt.Checked,
+                transmit=self._checked.transmit == Qt.Checked)
 
-        self.device.bus_status_changed(self._checked == Qt.Checked)
+            if column == Columns.indexes.name:
+                if self._checked[column] == Qt.Unchecked:
+                    self.device.bus.set_bus()
+                else:
+                    self.device.bus.set_bus(self.tree_parent.bus)
+
+            elif column == Columns.indexes.transmit:
+                self.device.bus.transmit = self._checked[column] == Qt.Checked
 
 
 class Tree(TreeNode):
@@ -225,17 +242,20 @@ class Model(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
 
         checkbox_columns = Columns.fill(False)
         checkbox_columns.name = True
+        checkbox_columns.transmit = True
 
         epyq.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
                 self, root=root, editable_columns=editable_columns,
                 checkbox_columns=checkbox_columns, parent=parent)
 
         self.headers = Columns(name='Name',
-                               bitrate='Bitrate')
+                               bitrate='Bitrate',
+                               transmit='Transmit')
 
     def went_offline(self, node):
         # TODO: trigger gui update, or find a way that does it automatically
-        node.set_checked(Qt.Unchecked)
+        node.set_checked(checked=Qt.Unchecked,
+                         column=Columns.indexes.name)
         self.changed(node, Columns.indexes.name,
                      node, Columns.indexes.name,
                      [Qt.CheckStateRole])
@@ -250,16 +270,17 @@ class Model(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
                     return False
                 self.dataChanged.emit(index, index)
                 return True
-        elif index.column() == Columns.indexes.name:
+        elif index.column() in [Columns.indexes.name, Columns.indexes.transmit]:
             if role == Qt.CheckStateRole:
                 node = self.node_from_index(index)
 
-                node.set_checked(checked=data)
+                node.set_checked(checked=data, column=index.column())
 
+                # TODO: CAMPid 9349911217316754793971391349
                 children = len(node.children)
                 if children > 0:
-                    self.changed(node.children[0], Columns.indexes.name,
-                                 node.children[-1], Columns.indexes.name,
+                    self.changed(node.children[0], Columns.indexes[0],
+                                 node.children[-1], Columns.indexes[-1],
                                  [Qt.CheckStateRole])
 
                 return True
@@ -287,13 +308,6 @@ class Model(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
 
         persistent_index = QPersistentModelIndex(self.index_from_node(bus))
         self.layoutChanged.emit([persistent_index])
-
-        # TODO: This reset should not be needed but I have been unable
-        #       so far to resolve them otherwise.  Since this doesn't
-        #       happen much the performance cost is low but it does
-        #       collapse the entire tree...
-        self.beginResetModel()
-        self.endResetModel()
 
         self.device_removed.emit(device.device)
 

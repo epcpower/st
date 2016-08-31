@@ -14,12 +14,12 @@ __license__ = 'GPLv2+'
 
 
 class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'button.ui')
 
         epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
-                ui=ui_file, parent=parent)
+                ui=ui_file, parent=parent, in_designer=in_designer)
 
         # TODO: CAMPid 398956661298765098124690765
         self.ui.value.pressed.connect(self.pressed)
@@ -27,12 +27,47 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
         self._frame = None
         self._signal = None
+        self._on_value = 1
+        self._off_value = 0
 
-    def set_signal(self, signal):
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(self, signal)
+    @pyqtProperty(int)
+    def on_value(self):
+        return self._on_value
+
+    @on_value.setter
+    def on_value(self, new_on_value):
+        self._on_value = int(new_on_value)
+
+    @pyqtProperty(int)
+    def off_value(self):
+        return self._off_value
+
+    @off_value.setter
+    def off_value(self, new_off_value):
+        self._off_value = int(new_off_value)
+        self.set(self.off_value)
+
+    def set_signal(self, signal=None, force_update=False):
+        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
+            self, signal, force_update=force_update)
 
         if signal is not None:
-            self.set(0)
+            self.set(self.off_value)
+
+            def get_text_width(widget, text):
+                return widget.fontMetrics().boundingRect(text).width()
+
+            button = self.ui.value
+            # TODO: it would be nice to use the 'normal' extra width
+            # initial_margin = button.width() - get_text_width(button,
+            #                                                  button.text())
+
+            widths = []
+            for text in [self.calculate_text(v) for v in
+                         self.signal_object.enumeration]:
+                widths.append(get_text_width(button, text))
+
+            button.setMinimumWidth(1.3 * max(widths))
         else:
             self.ui.value.setText('')
 
@@ -40,27 +75,36 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         self.widget_value_changed(value)
         self.set_text(value)
 
-    def set_text(self, value):
-        # TODO: CAMPid 85478672616219005471279
-        try:
-            enum_string = self.signal_object.enumeration[value]
-            text = self.signal_object.enumeration_format_re['format'].format(
-                s=enum_string, v=value)
-        except (AttributeError, KeyError):
-            text = str(value)
+    def calculate_text(self, value):
+        if self.label_visible:
+            # TODO: CAMPid 85478672616219005471279
+            try:
+                enum_string = self.signal_object.enumeration[value]
+                text = self.signal_object.enumeration_format_re['format'].format(
+                    s=enum_string, v=value)
+            except (AttributeError, KeyError):
+                text = str(value)
 
-        self.ui.value.setText(text)
+            return text
+        else:
+            return self.label.text()
+
+    def set_text(self, value):
+        self.ui.value.setText(self.calculate_text(value))
 
     def pressed(self):
-        self.set(1)
+        self.set(self.on_value)
 
     def released(self):
-        self.set(0)
+        self.set(self.off_value)
 
     def set_value(self, value):
         # TODO  exception?
         pass
 
+    def showEvent(self, event):
+        epyq.widgets.abstracttxwidget.AbstractTxWidget.showEvent(self, event)
+        self.set(self.off_value)
 
 if __name__ == '__main__':
     import sys

@@ -13,19 +13,25 @@ __license__ = 'GPLv2+'
 
 
 class Lcd(epyq.widgets.abstractwidget.AbstractWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'lcd.ui')
 
         epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
-                ui=ui_file, parent=parent)
+                ui=ui_file, parent=parent, in_designer=in_designer)
 
         self._frame = None
         self._signal = None
 
     def set_value(self, value):
-        if value is None:
-            value = '-'
+        if self.signal_object is not None:
+            if len(self.signal_object.enumeration) > 0:
+                value = self.signal_object.full_string
+            else:
+                value = self.signal_object.format_float()
+        elif value is None:
+            # TODO: quit hardcoding this and it's better implemented elsewhere
+            value = '{0:.2f}'.format(0)
         else:
             # TODO: quit hardcoding this and it's better implemented elsewhere
             value = '{0:.2f}'.format(value)

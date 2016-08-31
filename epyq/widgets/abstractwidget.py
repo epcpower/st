@@ -2,19 +2,27 @@
 
 #TODO: """DocString if there is one"""
 
+import canmatrix.importany as importany
+import epyq.canneo
 import io
 import os
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
-                          QFile, QFileInfo, QTextStream)
+                          QFile, QFileInfo, QTextStream, QEvent)
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+event_type_to_name = {
+    getattr(QEvent, t): t for t in dir(QEvent)
+    if isinstance(getattr(QEvent, t), QEvent.Type)
+}
+
 class AbstractWidget(QtWidgets.QWidget):
-    def __init__(self, ui, parent=None):
+    def __init__(self, ui, parent=None, in_designer=False):
+        self.in_designer = in_designer
         QtWidgets.QWidget.__init__(self, parent=parent)
 
         # TODO: CAMPid 9549757292917394095482739548437597676742
@@ -32,6 +40,54 @@ class AbstractWidget(QtWidgets.QWidget):
         self.signal_object = None
 
         self._label_override = ''
+        self._tool_tip_override = ''
+
+        self.set_signal(force_update=True)
+
+        self._frame = ''
+        self._signal = ''
+
+    def changeEvent(self, event):
+        QtWidgets.QWidget.changeEvent(self, event)
+        if event.type() == QEvent.ParentChange:
+            self.update_metadata()
+
+    def update_metadata(self):
+        if not self.in_designer:
+            return
+
+        parent = self
+
+        self.set_signal(force_update=True)
+
+        while parent is not None:
+            name = 'can_file'
+            if name in parent.dynamicPropertyNames():
+                can_file = parent.property(name)
+                break
+            else:
+                parent = parent.parent()
+        else:
+            return
+
+        try:
+            matrix = list(importany.importany(can_file).values())[0]
+            neo = epyq.canneo.Neo(matrix=matrix)
+
+            frame_name = self.property('frame')
+            signal_name = self.property('signal')
+
+            self.set_range(min=0, max=100)
+            self.set_value(42)
+
+            # TODO: add some notifications
+            frame = neo.frame_by_name(frame_name)
+            if frame is not None:
+                signal = frame.signal_by_name(signal_name)
+                if signal is not None:
+                    self.set_signal(signal)
+        except:
+            pass
 
     @pyqtProperty('QString')
     def frame(self):
@@ -40,6 +96,7 @@ class AbstractWidget(QtWidgets.QWidget):
     @frame.setter
     def frame(self, frame):
         self._frame = frame
+        self.update_metadata()
 
     @pyqtProperty('QString')
     def signal(self):
@@ -48,6 +105,7 @@ class AbstractWidget(QtWidgets.QWidget):
     @signal.setter
     def signal(self, signal):
         self._signal = signal
+        self.update_metadata()
 
     @pyqtProperty('QString')
     def label_override(self):
@@ -57,6 +115,17 @@ class AbstractWidget(QtWidgets.QWidget):
     def label_override(self, new_label_override):
         self._label_override = str(new_label_override)
         self.ui.label.setText(self.label_override)
+        self.update_metadata()
+
+    @pyqtProperty('QString')
+    def tool_tip_override(self):
+        return self._tool_tip_override
+
+    @tool_tip_override.setter
+    def tool_tip_override(self, new_tool_tip_override):
+        self._tool_tip_override = str(new_tool_tip_override)
+        self.update_tool_tip()
+        self.update_metadata()
 
     @pyqtProperty(bool)
     def label_visible(self):
@@ -65,20 +134,44 @@ class AbstractWidget(QtWidgets.QWidget):
     @label_visible.setter
     def label_visible(self, new_visible):
         self.ui.label.setVisible(new_visible)
+        self.update_metadata()
 
-    def set_label(self, value):
+    # TODO: CAMPid 943989817913241236127998452684328
+    def set_label(self, new_signal=None):
+        label = None
         if len(self.label_override) > 0:
-            value = self.label_override
-        else:
-            if value is None:
-                value = '-'
+            label = self.label_override
 
-        self.ui.label.setText(value)
+        if label is None:
+            label = self.set_label_custom(new_signal=new_signal)
+
+        if label is None:
+            try:
+                label = new_signal.long_name
+            except AttributeError:
+                pass
+
+        if label is None:
+            try:
+                label = new_signal.name
+            except AttributeError:
+                pass
+
+        if label is None:
+            label = '-'
+
+        self.ui.label.setText(label)
+
+    def set_label_custom(self, new_signal=None):
+        return None
 
     def set_units(self, units):
         if units is None:
             units = '-'
 
+        self.set_unit_text(units)
+
+    def set_unit_text(self, units):
         try:
             widget = self.ui.units
         except AttributeError:
@@ -100,22 +193,16 @@ class AbstractWidget(QtWidgets.QWidget):
             if signal is not None:
                 signal.value_changed.connect(self.set_value)
 
-    def set_signal(self, signal):
-        if signal is not self.signal_object:
+    def set_signal(self, signal=None, force_update=False):
+        if signal is not self.signal_object or force_update:
+            self.set_label(new_signal=signal)
             if signal is not None:
-                label = signal.long_name
-                if label is None:
-                    label = signal.name
-
-                self.set_label(label)
                 self.set_units(signal.unit)
                 self.set_value(None)
-
-                self.setToolTip(signal.comment)
             else:
-                self.set_label(None)
                 self.set_units(None)
-                self.setToolTip('')
+
+            self.update_tool_tip(new_signal=signal)
 
             self.update_connection(signal)
             self.signal_object = signal
@@ -124,7 +211,17 @@ class AbstractWidget(QtWidgets.QWidget):
                 self.set_range(min=float(signal.min),
                                max=float(signal.max))
 
-            signal.force_value_changed()
+                signal.force_value_changed()
+
+    def update_tool_tip(self, new_signal=None):
+        if len(self.tool_tip_override) > 0:
+            tip = self.tool_tip_override
+        elif new_signal is not None:
+            tip = new_signal.comment
+        else:
+            tip = ''
+
+        self.setToolTip(tip)
 
 
 if __name__ == '__main__':

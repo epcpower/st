@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
 import argparse
-from distutils.core import run_setup
+from collections import OrderedDict
 import os
+import platform
+import shutil
 import subprocess
 import sys
 
+# TODO: CAMPid 097541134161236179854863478319
 try:
     import pip
 except ImportError:
@@ -24,13 +27,13 @@ except ImportError:
 #       https://virtualenv.readthedocs.org/en/latest/reference.html#extending-virtualenv
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--pyqt5')
-parser.add_argument('--pyqt5-plugins')
 parser.add_argument('--bin')
 parser.add_argument('--activate')
 parser.add_argument('--no-ssl-verify', action='store_true')
 parser.add_argument('--virtualenv', '--venv', default='venv')
 parser.add_argument('--in-virtual', action='store_true', default=False)
+parser.add_argument('--rebuild', action='store_true')
+parser.add_argument('--no-designer', action='store_true')
 
 args = parser.parse_args()
 
@@ -38,6 +41,7 @@ args = parser.parse_args()
 myfile = os.path.realpath(__file__)
 mydir = os.path.dirname(myfile)
 
+# TODO: CAMPid 9811163648546549994313612126896
 def pip_install(package, no_ssl_verify, virtual=False):
     pip_parameters = ['install']
     if no_ssl_verify:
@@ -47,9 +51,13 @@ def pip_install(package, no_ssl_verify, virtual=False):
     if not virtual:
         pip_parameters.append('--user')
     pip_parameters.append(package)
-    return pip.main(pip_parameters)
+    if pip.main(pip_parameters):
+        raise Exception('Failed to install {}'.format(package))
 
 if not args.in_virtual:
+    if args.rebuild:
+        shutil.rmtree(args.virtualenv, ignore_errors=True)
+
     try:
         os.mkdir(args.virtualenv)
     except FileExistsError:
@@ -62,26 +70,6 @@ if not args.in_virtual:
 
         sys.exit(1)
 
-    try:
-        import PyQt5.QtCore
-    except ImportError:
-        print('')
-        print('')
-        print('    PyQt5 not installed:')
-        print('')
-
-        if sys.platform == 'win32':
-            print('        https://riverbankcomputing.com/software/pyqt/download5')
-            print('')
-            print('        Select the appropriate architecture to match your python install')
-        else:
-            print('        Use your package manager to install')
-            print('')
-            print('        e.g. sudo apt-get install python3-pyqt5')
-        print('')
-
-        sys.exit(1)
-
     if sys.platform not in ['win32', 'linux']:
         raise Exception("Unsupported sys.platform: {}".format(sys.platform))
 
@@ -89,10 +77,6 @@ if not args.in_virtual:
         bin = os.path.join(args.virtualenv, 'Scripts')
     else:
         bin = os.path.join(args.virtualenv, 'bin')
-
-    pyqt5 = os.path.dirname(PyQt5.__file__)
-    pyqt5_plugins = PyQt5.QtCore.QLibraryInfo.location(
-        PyQt5.QtCore.QLibraryInfo.PluginsPath)
 
     activate = os.path.join(bin, 'activate')
 
@@ -108,13 +92,14 @@ if not args.in_virtual:
     virtualenv_python = os.path.realpath(os.path.join(bin, 'python'))
     virtualenv_python_command = [virtualenv_python,
                                  myfile,
-                                 '--pyqt5', pyqt5,
-                                 '--pyqt5-plugins', pyqt5_plugins,
                                  '--bin', bin,
                                  '--activate', activate,
                                  '--in-virtual']
     if args.no_ssl_verify:
         virtualenv_python_command.append('--no-ssl-verify')
+
+    if args.no_designer:
+        virtualenv_python_command.append('--no-designer')
 
     returncode = subprocess.call(virtualenv_python_command)
 
@@ -123,20 +108,32 @@ else:
     def setup(path):
         backup = os.getcwd()
         os.chdir(path)
-        run_setup(os.path.join(path, 'setup.py'), script_args=['develop'])
+        subprocess.run([sys.executable, os.path.join(path, 'setup.py'), 'develop'])
         os.chdir(backup)
 
     src = os.path.join(mydir, args.virtualenv, 'src')
     os.makedirs(src, exist_ok=True)
 
-    zip_repos = {
-        'python-can': 'https://bitbucket.org/altendky/python-can/get/'
-                      '076a7864f1e292647a501ae60ea90f62b5703d71.zip',
-        'canmatrix': 'https://github.com/ebroecker/canmatrix/archive/'
-                     '7f6a03feb436bcfad4d54d57f6f2b8edee0b444a.zip',
-        'bitstruct': 'https://github.com/altendky/bitstruct/archive/'
-                     '129a72e290c533654a91bd556b1d4b0822df423f.zip'
-    }
+    packages = [
+        'pyqt5'
+    ]
+
+    if not args.no_designer:
+        arch = platform.architecture()
+        if arch[1].lower().startswith('win'):
+            packages.append('pyqt5-tools')
+
+    for package in packages:
+        pip_install(package, args.no_ssl_verify, virtual=True)
+
+    zip_repos = OrderedDict([
+        ('python-can', 'https://bitbucket.org/altendky/python-can/get/'
+                      '076a7864f1e292647a501ae60ea90f62b5703d71.zip'),
+        ('canmatrix', 'https://github.com/ebroecker/canmatrix/archive/'
+                     'c64004b785febe4613677ab0107f1bc63b01e339.zip'),
+        ('bitstruct', 'https://github.com/altendky/bitstruct/archive/'
+                     '129a72e290c533654a91bd556b1d4b0822df423f.zip')
+    ])
 
 #    pip_install('gitpython', args.no_ssl_verify)
 #    import git
@@ -175,6 +172,10 @@ else:
         zip_file = zipfile.ZipFile(zip_data)
         zip_dir = os.path.split(zip_file.namelist()[0])[0]
         zip_file.extractall(path=src)
+        try:
+            shutil.rmtree(os.path.join(src, name))
+        except FileNotFoundError:
+            pass
         shutil.move(os.path.join(src, zip_dir),
                     os.path.join(src, name))
         # TODO: remove this because it is a goofy workaround for the issue being discussed
@@ -189,37 +190,44 @@ else:
     setup(mydir)
 
     with open(os.path.join(args.bin, 'qt.conf'), 'w') as f:
+        import PyQt5.QtCore
+        pyqt5 = os.path.dirname(PyQt5.__file__)
+        pyqt5_plugins = PyQt5.QtCore.QLibraryInfo.location(
+            PyQt5.QtCore.QLibraryInfo.PluginsPath)
+
         content = [
             '[Paths]',
-            'Prefix = "{}"'.format(args.pyqt5),
-            'Binaries = "{}"'.format(args.pyqt5)
+            'Prefix = "{}"'.format(pyqt5),
+            'Binaries = "{}"'.format(pyqt5)
         ]
 
         if sys.platform == 'win32':
             content = [l.replace('\\', '/') for l in content]
 
         if sys.platform == 'linux':
-            content.append('Plugins = "{}"'.format(args.pyqt5_plugins))
+            content.append('Plugins = "{}"'.format(pyqt5_plugins))
 
         f.write('\n'.join(content) + '\n')
 
     activate = args.activate
     if sys.platform == 'win32':
-        designer_paths = [
-            [''],
-            ['epyq'],
-            ['epyq', 'widgets']
-        ]
-        designer_paths = [os.path.join('%cd%', *p) for p in designer_paths]
-
-        designer_variables = ['PYQTDESIGNERPATH', 'PYTHONPATH']
+        path_variables = OrderedDict([
+            ('PYQTDESIGNERPATH', [
+                ['epyq'],
+                ['epyq', 'widgets']
+            ]),
+            ('PYTHONPATH', [
+                ['']
+            ])
+        ])
 
         set_commands = []
-        for variable in designer_variables:
-            command = 'set {}='.format(variable)
-            command += ';'.join(designer_paths)
+        for name, paths in path_variables.items():
+            command = 'set {}='.format(name)
+            paths = [os.path.join('%cd%', *p) for p in paths]
+            command += ';'.join(paths)
             set_commands.append(command)
-
+        
         with open(os.path.join(mydir, 'activate.bat'), 'w') as f:
             activate = activate.replace('\\', '/')
             for command in set_commands:

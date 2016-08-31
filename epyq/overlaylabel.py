@@ -2,6 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
+import enum
 import functools
 import io
 import os
@@ -15,14 +16,23 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+styles = {
+    'red': "background-color: rgba(255, 255, 255, 0);"
+                           "color: rgba(255, 85, 85, 25);",
+    'blue': "background-color: rgba(255, 255, 255, 0);"
+                           "color: rgba(85, 85, 255, 25);"
+}
+
 def parent_resizeEvent(event, child, parent_resizeEvent):
     child.resize(event.size())
     parent_resizeEvent(event)
 
 
 class OverlayLabel(QtWidgets.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         QtWidgets.QWidget.__init__(self, parent=parent)
+
+        self.in_designer = in_designer
 
         ui = 'overlaylabel.ui'
         # TODO: CAMPid 9549757292917394095482739548437597676742
@@ -49,8 +59,7 @@ class OverlayLabel(QtWidgets.QWidget):
 
             parent_widget.resizeEvent = new_resizeEvent
 
-        self.setStyleSheet("background-color: rgba(255, 255, 255, 0);"
-                           "color: rgba(255, 85, 85, 25);")
+        self.setStyleSheet(styles['red'])
 
         self.ui.setAttribute(Qt.WA_TransparentForMouseEvents)
 

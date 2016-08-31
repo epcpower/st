@@ -147,7 +147,7 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
 
     @pyqtSlot(can.Message)
     def send(self, message):
-        self.bus.send(message)
+        self.bus.send(message, passive=True)
         time.sleep(0.02)
 
     @pyqtSlot(can.Message)
@@ -222,7 +222,8 @@ class Nv(epyq.canneo.Signal, TreeNode):
                                     parent=parent)
         TreeNode.__init__(self)
 
-        self.fields = Columns(name=signal._name,
+        self.fields = Columns(name='{}:{}'.format(self.frame.mux_name,
+                                                  self.name),
                               value='')
         self.clear()
 

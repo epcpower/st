@@ -1,0 +1,8 @@
+{
+    "can_path": "distributed_generation.sym",
+    "name": "Distributed Generation",
+    "ui_paths": {
+        "Control": "distributed_generation_control.ui",
+        "Setup and Status": "distributed_generation_setup.ui"
+    }
+}

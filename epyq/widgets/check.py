@@ -15,12 +15,12 @@ __license__ = 'GPLv2+'
 
 
 class Check(epyq.widgets.abstracttxwidget.AbstractTxWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'check.ui')
 
         epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
-                ui=ui_file, parent=parent)
+                ui=ui_file, parent=parent, in_designer=in_designer)
 
         # TODO: CAMPid 398956661298765098124690765
         self.ui.value.toggled.connect(self.widget_value_changed)

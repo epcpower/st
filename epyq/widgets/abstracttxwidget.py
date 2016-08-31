@@ -11,8 +11,9 @@ __license__ = 'GPLv2+'
 
 
 class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
-    def __init__(self, ui, parent=None):
-        epyq.widgets.abstractwidget.AbstractWidget.__init__(self, ui, parent)
+    def __init__(self, ui, parent=None, in_designer=False):
+        epyq.widgets.abstractwidget.AbstractWidget.__init__(
+            self, ui=ui, parent=parent, in_designer=in_designer)
 
         self.tx = False
 
@@ -29,7 +30,7 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
         self.set_signal(signal=self.signal_object)
         self.ui.value.setDisabled(not self.tx)
 
-    def set_signal(self, signal):
+    def set_signal(self, signal=None, force_update=False):
         if signal is not None and self.tx:
             period = signal.frame.cycle_time
             if period is None:
@@ -39,7 +40,8 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
         else:
             self._period = None
 
-        epyq.widgets.abstractwidget.AbstractWidget.set_signal(self, signal)
+        epyq.widgets.abstractwidget.AbstractWidget.set_signal(
+            self, signal, force_update=force_update)
 
     def update_connection(self, signal=None):
         if signal is not self.signal_object:

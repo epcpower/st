@@ -6,18 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1055</width>
-    <height>1079</height>
+    <width>1028</width>
+    <height>1001</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="can_file" stdset="0">
+   <string>ICUCAN_ID0_FACTORY.sym</string>
+  </property>
   <layout class="QHBoxLayout" name="horizontalLayout_6">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,1">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
@@ -127,7 +130,7 @@
          <item>
           <widget class="Epc" name="epc_9">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -143,7 +146,7 @@
          <item>
           <widget class="Epc" name="epc_10">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -159,7 +162,7 @@
          <item>
           <widget class="Epc" name="epc_11">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -181,8 +184,8 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -232,7 +235,7 @@
          <property name="signal" stdset="0">
           <string>OvercurrentAC</string>
          </property>
-         <property name="color" stdset="0">
+         <property name="on_color" stdset="0">
           <color>
            <red>192</red>
            <green>32</green>
@@ -249,7 +252,7 @@
          <property name="signal" stdset="0">
           <string>OvercurrentDC</string>
          </property>
-         <property name="color" stdset="0">
+         <property name="on_color" stdset="0">
           <color>
            <red>192</red>
            <green>32</green>
@@ -266,7 +269,7 @@
          <property name="signal" stdset="0">
           <string>OvervoltageDC</string>
          </property>
-         <property name="color" stdset="0">
+         <property name="on_color" stdset="0">
           <color>
            <red>192</red>
            <green>32</green>
@@ -283,7 +286,7 @@
          <property name="signal" stdset="0">
           <string>OvertempIGBT</string>
          </property>
-         <property name="color" stdset="0">
+         <property name="on_color" stdset="0">
           <color>
            <red>192</red>
            <green>32</green>
@@ -300,7 +303,7 @@
          <property name="signal" stdset="0">
           <string>OvertempInternal</string>
          </property>
-         <property name="color" stdset="0">
+         <property name="on_color" stdset="0">
           <color>
            <red>192</red>
            <green>32</green>
@@ -317,7 +320,7 @@
          <property name="signal" stdset="0">
           <string>LossValidControlMessage</string>
          </property>
-         <property name="color" stdset="0">
+         <property name="on_color" stdset="0">
           <color>
            <red>192</red>
            <green>32</green>
@@ -334,7 +337,7 @@
          <property name="signal" stdset="0">
           <string>Resolver</string>
          </property>
-         <property name="color" stdset="0">
+         <property name="on_color" stdset="0">
           <color>
            <red>192</red>
            <green>32</green>
@@ -351,7 +354,7 @@
          <property name="signal" stdset="0">
           <string>UndervoltageDC</string>
          </property>
-         <property name="color" stdset="0">
+         <property name="on_color" stdset="0">
           <color>
            <red>192</red>
            <green>32</green>
@@ -368,7 +371,7 @@
          <property name="signal" stdset="0">
           <string>ControlHardwareFail</string>
          </property>
-         <property name="color" stdset="0">
+         <property name="on_color" stdset="0">
           <color>
            <red>192</red>
            <green>32</green>
@@ -378,38 +381,34 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="Led" name="led_10">
-           <property name="frame" stdset="0">
-            <string>StatusFaults</string>
-           </property>
-           <property name="signal" stdset="0">
-            <string>Fault</string>
-           </property>
-           <property name="color" stdset="0">
-            <color>
-             <red>192</red>
-             <green>32</green>
-             <blue>32</blue>
-            </color>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="Button" name="button">
-           <property name="frame" stdset="0">
-            <string>CommandBits</string>
-           </property>
-           <property name="signal" stdset="0">
-            <string>FaultClear</string>
-           </property>
-           <property name="tx" stdset="0">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="Led" name="led_10">
+         <property name="frame" stdset="0">
+          <string>StatusFaults</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Fault</string>
+         </property>
+         <property name="on_color" stdset="0">
+          <color>
+           <red>192</red>
+           <green>32</green>
+           <blue>32</blue>
+          </color>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Button" name="button">
+         <property name="frame" stdset="0">
+          <string>CommandBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>FaultClear</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>

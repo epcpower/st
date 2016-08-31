@@ -43,13 +43,17 @@ def make_color(svg_string, new_color):
     return doc.toByteArray()
 
 
+def rgb_string(color):
+    return ('{:02X}' * 3).format(*color.getRgb())
+
+
 class Led(epyq.widgets.abstractwidget.AbstractWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'led.ui')
 
         epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
-                ui=ui_file, parent=parent)
+                ui=ui_file, parent=parent, in_designer=in_designer)
 
         file_name = 'led.svg'
 
@@ -63,25 +67,40 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         file.open(QFile.ReadOnly | QFile.Text)
         self.svg_string = file.readAll()
 
-        self._value = False
-        self.bright = None
-        self.dim = None
-
-        self._color = QColor()
-        self.color = QColor("#20C020")
-
-        self._relative_height = 1
-
-        height = self.relative_height * self.ui.label.height()
-        ratio = self.ui.value.ratio()
-
-        self.ui.value.setMaximumHeight(height)
-        self.ui.value.setMaximumWidth(height / ratio)
-
         # TODO: shouldn't this be in AbstractWidget?
         self._frame = None
         self._signal = None
         self._on_value = 1
+        self._relative_height = 1
+        self._label_from_enumeration = False
+
+        self._value = False
+        self.svg = {
+            'on': None,
+            'automatic_off': None,
+            'manual_off': None
+        }
+        self.ui.value.main_element = 'led'
+
+        self._on_color = QColor()
+        self._manual_off_color = QColor()
+        self._automatic_off_color = True
+        self.on_color = QColor("#20C020")
+        self.manual_off_color = self.on_color.darker(factor=200)
+
+        self.update_svg()
+
+    @pyqtProperty(bool)
+    def label_from_enumeration(self):
+        return self._label_from_enumeration
+
+    @label_from_enumeration.setter
+    def label_from_enumeration(self, from_enumeration):
+        self._label_from_enumeration =  bool(from_enumeration)
+
+        # TODO: this is a hacky way to trigger an update
+        self.set_signal(signal=self.signal_object,
+                        force_update=True)
 
     @pyqtProperty(int)
     def on_value(self):
@@ -89,23 +108,49 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
 
     @on_value.setter
     def on_value(self, new_on_value):
-        self._on_value = int(new_on_value)
+        new_on_value = int(new_on_value)
+        if self._on_value != new_on_value:
+            self._on_value = new_on_value
+            self.update_svg()
+
+    @pyqtProperty(bool)
+    def automatic_off_color(self):
+        return self._automatic_off_color
+
+    @automatic_off_color.setter
+    def automatic_off_color(self, automatic):
+        automatic = bool(automatic)
+        if automatic != self._automatic_off_color:
+            self._automatic_off_color = bool(automatic)
+            self.update_svg()
 
     @pyqtProperty(QColor)
-    def color(self):
-        return self._color
+    def on_color(self):
+        return self._on_color
 
-    @color.setter
-    def color(self, new_color):
-        self._color = QColor(new_color)
+    @on_color.setter
+    def on_color(self, new_color):
+        self._on_color = QColor(new_color)
 
-        def rgb_string(color):
-            return ('{:02X}' * 3).format(*color.getRgb())
+        self.svg['on'] = make_color(self.svg_string, rgb_string(self._on_color))
 
-        self.bright = make_color(self.svg_string, rgb_string(self._color))
+        if self.automatic_off_color:
+            self.svg['automatic_off'] = make_color(
+                self.svg_string,
+                rgb_string(self._on_color.darker(factor=200))
+            )
 
-        self.dim = make_color(self.svg_string, rgb_string(
-            self._color.darker(factor=200)))
+        self.update_svg()
+
+    @pyqtProperty(QColor)
+    def manual_off_color(self):
+        return self._manual_off_color
+
+    @manual_off_color.setter
+    def manual_off_color(self, new_color):
+        self._manual_off_color = QColor(new_color)
+
+        self.svg['manual_off'] = make_color(self.svg_string, rgb_string(self._manual_off_color))
 
         self.update_svg()
 
@@ -117,15 +162,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
     def relative_height(self, multiplier):
         self._relative_height = multiplier
 
-        height = self.relative_height * self.ui.label.height()
-        ratio = self.ui.value.ratio()
-
-        self.ui.value.setMaximumHeight(height)
-        self.ui.value.setMinimumHeight(height)
-
-        width = height / ratio
-        self.ui.value.setMaximumWidth(width)
-        self.ui.value.setMinimumWidth(width)
+        self.update_svg()
 
     def set_value(self, value):
         # TODO: quit hardcoding this and it's better implemented elsewhere
@@ -139,9 +176,35 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self.update_svg()
 
     def update_svg(self):
-        self.ui.value.load(self.bright if self._value else self.dim)
-        self.ui.value.main_element = 'led'
+        if self._value:
+            svg = self.svg['on']
+        elif self.automatic_off_color:
+            svg = self.svg['automatic_off']
+        else:
+            svg = self.svg['manual_off']
 
+        self.ui.value.load(svg)
+
+        height = self.relative_height * self.ui.label.fontMetrics().height()
+
+        width = height / self.ui.value.ratio()
+
+        self.ui.value.setFixedSize(width, height)
+
+    def set_label_custom(self, new_signal=None):
+        label = None
+
+        if new_signal is not None:
+            try:
+                label_from_enumeration = self.label_from_enumeration
+            except AttributeError:
+                pass
+            else:
+                if (label_from_enumeration
+                        and new_signal is not None):
+                    label = new_signal.enumeration[self.on_value]
+
+        return label
 
 if __name__ == '__main__':
     import sys

@@ -14,12 +14,14 @@ __license__ = 'GPLv2+'
 class AbstractPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     # https://wiki.python.org/moin/PyQt/Using_Python_Custom_Widgets_in_Qt_Designer
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=True):
         QtDesigner.QPyDesignerCustomWidgetPlugin.__init__(self)
 
-        self._group = "EPC"
+        self.in_designer = in_designer
+
+        self._group = "EPC - Signals"
         self._icon = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
-                             '..', 'icon.ico')
+                             'icon.ico')
         self._init = None
         self._module_path = None
         self._name = None
@@ -38,7 +40,7 @@ class AbstractPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return self._init(parent)
+        return self._init(parent, in_designer=True)
 
     def name(self):
         return self._name

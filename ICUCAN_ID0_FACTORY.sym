@@ -33,7 +33,6 @@ enum ModulatorMode(0="Space Vector",
   1="Discontinuous", // Clamps each output for full sector at top/bottom
   2="N/A", 3="N/A", 4="N/A", 5="N/A", 6="N/A", 7="N/A", 8="N/A")
 enum ReconnectDelay(0="Idle", 1="Active")
-enum Enable(0="Disable", 1="Enable", 2="Error", 3="N/A")
 
 {SEND}
 
@@ -78,9 +77,6 @@ Var=SpeedCommand signed 32,32 -m /u:RPM /min:-6000 /max:6000
 ID=0CFFAF41h
 Type=Extended
 DLC=8
-Var=WriteSerialNumber unsigned 6,2 -m /e:VtSig_RxEnable
-Var=SerialNumber unsigned 32,32 -m
-Var=FactoryAccess unsigned 16,16 -m
 Var=AlignResolver unsigned 4,2 -m /max:1 /e:VtSig_RxEnable
 
 [CommandSetNVParam]
@@ -130,8 +126,8 @@ DLC=8
 Mux=MotorParams2 0,14 6  -m
 Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
 Var=MotorControlMode_command unsigned 16,4 -m /max:1 /e:MotorControlMode /d:1
-Var=MotorMaxID_command unsigned 32,16 -m /u:Amps /f:0.1 /min:100 /max:1000 /d:500	// The current corresponding to a 100% torque command.
-Var=MotorMaxIQ_command unsigned 48,16 -m /u:Amps /f:0.1 /min:100 /max:1000 /d:500	// The current corresponding to a 100% torque command.
+Var=MotorMaxID_command unsigned 32,16 -m /u:Amps /f:0.1 /min:100 /max:5000 /d:500	// The current corresponding to a 100% torque command.
+Var=MotorMaxIQ_command unsigned 48,16 -m /u:Amps /f:0.1 /min:100 /max:5000 /d:500	// The current corresponding to a 100% torque command.
 
 [CommandSetNVParam]
 DLC=8
@@ -194,8 +190,15 @@ Var=ReconnectDelay_command unsigned 32,32 -m /u:ms /max:300000 /d:300000
 [CommandSetNVParam]
 DLC=8
 Mux=ManageNV 0,14 000Fh -m
-Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
-Var=SaveToEE_command unsigned 16,2 -m /max:1 /e:Enable
+Var=ReadParam_command unsigned 14,2 -m /max:1 /e:ReadNV
+Var=SaveToEE_command unsigned 16,2 -m /max:1 /e:VtSig_RxEnable
+
+[CommandSetNVParam]
+DLC=8
+Mux=Factory 0,14 0010h -m
+Var=ReadParam_command unsigned 14,2 -m /max:1 /e:ReadNV
+Var=SerialNumber unsigned 32,32 -m
+Var=FactoryAccess unsigned 16,16 -m
 
 [CommandIDQ]
 ID=0CFFA941h
@@ -256,6 +259,7 @@ Var=EnableTests bit 18,1 -m
 Var=BrkPosFB bit 17,1 -m
 Var=FluxWk bit 13,1 -m
 Var=ReconnectDelayed bit 0,1 -m /e:ReconnectDelay
+Var=LineVoltageDetected unsigned 16,1 -m /ln:"Grid voltage detected"	// True when more than 5% of full-scale voltage is present on at least one of the three grid-side lines
 
 [StatusPower]
 ID=1CFFAB68h
@@ -302,11 +306,11 @@ ID=0CFFAB28h
 Type=Extended
 DLC=8
 CycleTime=100
-Var=BridgeAFault_status unsigned 61,3 -m /e:BridgeFlt   // Each bridge has hardware protection features as a backup to software protection.  This bitfield indicates which, if any of these protection trips is active.
-Var=BridgeBFault_status unsigned 45,3 -m /e:BridgeFlt   // Each bridge has hardware protection features as a backup to software protection.  This bitfield indicates which, if any of these protection trips is active.
-Var=BridgeAVoltageOk_status unsigned 60,1 -m /e:VtSig_Fault   // Indicates whether a hardware trip has been activated.
+Var=BridgeAFault_status unsigned 61,3 -m /e:BridgeFlt	// Each bridge has hardware protection features as a backup to software protection.  This bitfield indicates which, if any of these protection trips is active.
+Var=BridgeBFault_status unsigned 45,3 -m /e:BridgeFlt	// Each bridge has hardware protection features as a backup to software protection.  This bitfield indicates which, if any of these protection trips is active.
+Var=BridgeAVoltageOk_status unsigned 60,1 -m /e:VtSig_Fault	// Indicates whether a hardware trip has been activated.
 Var=OvercurrentAC bit 15,1 -m /e:VtSig_OvercurrentAC
-Var=BridgeBVoltageOk_status unsigned 44,1 -m /e:VtSig_Fault   // Indicates whether a hardware trip has been activated.
+Var=BridgeBVoltageOk_status unsigned 44,1 -m /e:VtSig_Fault	// Indicates whether a hardware trip has been activated.
 Var=OvervoltageDC bit 13,1 -m /e:VtSig_OvercurrentAC
 Var=OvertempIGBT bit 12,1 -m /e:VtSig_OvercurrentAC
 Var=OvertempInternal bit 11,1 -m /e:VtSig_OvercurrentAC
@@ -379,7 +383,7 @@ Var=faultCount unsigned 16,16 -m
 ID=1CFFABC0h
 Type=Extended
 DLC=8
-Var=rev string 0,64 -m /d:"ICUx-03p"
+Var=rev string 0,64 -m /d:"ICU2-04a"
 
 [serialNumber]
 ID=1CFFCCF7h
@@ -490,7 +494,7 @@ Var=ClearingTime_FreqHi unsigned 48,16 -m /u:ms /min:160 /max:160 /d:160	// Dete
 
 [StatusNVParam]
 DLC=8
-Mux=Modulator 0,14 000Dh  -m
+Mux=Modulator 0,14 000Dh -m
 Var=ReadParam_status unsigned 14,2 -m /max:1 /e:ReadNV
 Var=ModulatorMode_status unsigned 21,3 -m /max:1 /e:ModulatorMode
 Var=MinClampVoltage_status unsigned 32,8 -m /u:% /max:100 /d:5	// Minimum voltage command at which discontinuous modulation is enabled
@@ -505,6 +509,13 @@ Var=ReconnectDelay_status unsigned 32,32 -m /u:ms /max:300000 /d:300000
 [StatusNVParam]
 DLC=8
 Mux=ManageNV 0,14 000Fh -m
-Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
-Var=SaveToEE_status unsigned 16,2 -m /max:1 /e:Enable
+Var=ReadParam_status unsigned 14,2 -m /max:1 /e:ReadNV
+Var=SaveToEE_status unsigned 16,2 -m /max:1 /e:VtSig_RxEnable
+
+[StatusNVParam]
+DLC=8
+Mux=Factory 0,14 0010h -m
+Var=ReadParam_status unsigned 14,2 -m /max:1 /e:ReadNV
+Var=SerialNumber unsigned 32,32 -m
+Var=FactoryAccess unsigned 16,16 -m
 

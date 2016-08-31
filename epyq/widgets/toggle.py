@@ -15,12 +15,12 @@ __license__ = 'GPLv2+'
 
 
 class Toggle(epyq.widgets.abstracttxwidget.AbstractTxWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'toggle.ui')
 
         epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
-                ui=ui_file, parent=parent)
+                ui=ui_file, parent=parent, in_designer=in_designer)
 
         self.ui.value.installEventFilter(self)
         # TODO: CAMPid 398956661298765098124690765
@@ -28,11 +28,25 @@ class Toggle(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
         self._frame = None
         self._signal = None
+        self._value_labels_visible = True
+
+        self.ui.value.setFixedHeight(3 * self.ui.on.fontMetrics().height())
+
+    @pyqtProperty(bool)
+    def value_labels_visible(self):
+        return self._value_labels_visible
+
+    @value_labels_visible.setter
+    def value_labels_visible(self, visible):
+        self._value_labels_visible = bool(visible)
+        self.ui.on.setVisible(self.value_labels_visible)
+        self.ui.off.setVisible(self.value_labels_visible)
 
     def eventFilter(self, qobject, qevent):
         if isinstance(qevent, QMouseEvent) and self.tx:
-            if (qevent.button() == Qt.LeftButton and
-                        qevent.type() == QEvent.MouseButtonRelease):
+            if (qevent.button() == Qt.LeftButton
+                    and qevent.type() == QEvent.MouseButtonRelease
+                    and self.rect().contains(qevent.localPos().toPoint())):
                 self.toggle_released()
 
             return True
@@ -56,8 +70,8 @@ class Toggle(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         else:
             self.ui.value.setSliderPosition(True)
 
-    def set_signal(self, signal):
-        if signal is not self.signal_object:
+    def set_signal(self, signal=None, force_update=False):
+        if signal is not self.signal_object or force_update:
             if signal is not None:
                 self.ui.off.setText(signal.enumeration[0])
                 self.ui.on.setText(signal.enumeration[1])
@@ -65,7 +79,8 @@ class Toggle(epyq.widgets.abstracttxwidget.AbstractTxWidget):
             else:
                 self.ui.off.setText('-')
                 self.ui.on.setText('-')
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(self, signal)
+        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
+            self, signal, force_update=force_update)
 
     def signal_value_changed(self, value):
         self.ui.value.setSliderPosition(bool(value))

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>803</width>
+    <width>824</width>
     <height>809</height>
    </rect>
   </property>
@@ -46,21 +46,39 @@
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <widget class="TxRxView" name="tx">
-          <property name="toolTip">
-           <string>canishness</string>
-          </property>
-          <property name="whatsThis">
-           <string>A TxRxView</string>
-          </property>
+         <widget class="QWidget" name="layoutWidget">
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Transmit</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="TxRxView" name="tx"/>
+           </item>
+          </layout>
          </widget>
-         <widget class="TxRxView" name="rx">
-          <property name="toolTip">
-           <string>canishness</string>
-          </property>
-          <property name="whatsThis">
-           <string>A TxRxView</string>
-          </property>
+         <widget class="QWidget" name="layoutWidget_2">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Receive</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="TxRxView" name="rx"/>
+           </item>
+          </layout>
          </widget>
         </widget>
        </item>
@@ -72,14 +90,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="NvView" name="nv">
-         <property name="toolTip">
-          <string>canishness</string>
-         </property>
-         <property name="whatsThis">
-          <string>An NvView</string>
-         </property>
-        </widget>
+        <widget class="NvView" name="nv"/>
        </item>
       </layout>
      </widget>
