@@ -93,7 +93,7 @@ def main(args=None):
 
     bus = epyq.busproxy.BusProxy()
 
-    device_file = 'example_multidash.epc'
+    device_file = 'example_hmi.epc'
     # TODO: CAMPid 9549757292917394095482739548437597676742
     if not QFileInfo(device_file).isAbsolute():
         device_file = os.path.join(

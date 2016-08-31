@@ -1,0 +1,10 @@
+{
+    "can_path": "example.sym",
+    "name": "Example Device",
+    "serial_number": "42",
+    "ui_paths": {
+        "Dash A": "example_hmi_dash.ui",
+        "Dash B": "example_hmi_dash.ui",
+        "Dash C": "example_hmi_dash.ui"
+    }
+}

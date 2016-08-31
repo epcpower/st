@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1172</width>
+    <height>932</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="HorizontalSlider" name="horizontalslider">
+       <property name="frame" stdset="0">
+        <string>CommandVF</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>Frequency_command</string>
+       </property>
+       <property name="tx" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="override_range" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="minimum" stdset="0">
+        <double>50.000000000000000</double>
+       </property>
+       <property name="maximum" stdset="0">
+        <double>60.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="Epc" name="epc">
+         <property name="frame" stdset="0">
+          <string>StatusControlVoltage</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>v24_Supply</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Button" name="button">
+         <property name="frame" stdset="0">
+          <string>CommandModeControl</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>FaultClear_command</string>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Button</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.button</header>
+  </customwidget>
+  <customwidget>
+   <class>Epc</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.epc</header>
+  </customwidget>
+  <customwidget>
+   <class>HorizontalSlider</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.horizontalslider</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
