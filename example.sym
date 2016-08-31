@@ -31,6 +31,10 @@ enum MasterFollower(0="Master", // Master or standalone mode
 enum RemoteVoltageSense(0="Use Local Sense", 1="Use Remote Sense", 2="Error", 
   3="N/A")
 enum ReadNV(0="Write", 1="Read", 2="Error", 3="N/A")
+// Control digital outputs from CAN interface
+enum DOController(0="Application", 1="CAN")
+enum DIOInverted(0="Normal", 1="Inverted", 2="Error", 3="N/A")
+enum OnOff(0="off", 1="on", 2="Error", 3="N/A")
 
 {SEND}
 
@@ -53,6 +57,14 @@ Var=MasterFollowerMode_command unsigned 22,2 -m /max:1 /e:MasterFollower /ln:"Fo
 Var=ForceFanOn unsigned 46,2 -m /max:1 /e:RelayCommand /ln:"Force fan on"	// Forces cooling fan on (air cooled units only)
 Var=UseVoltageSenseAsRemote_command unsigned 20,2 -m /max:1 /e:RemoteVoltageSense /ln:"Use VSense as remote"	// Use voltage sense input as either local or remote reference.
 Var=SyncToRemoteSource_command unsigned 18,2 -m /max:1 /e:Enable /ln:"Sync to remote"	// Sync and connect to remote source.
+Var=DO1Controller unsigned 14,2 -m /max:1 /e:DOController
+Var=DO2Controller unsigned 12,2 -m /max:1 /e:DOController
+Var=DO3Controller unsigned 10,2 -m /max:1 /e:DOController
+Var=DO4Controller unsigned 8,2 -m /max:1 /e:DOController
+Var=DO1Command unsigned 30,2 -m /max:1 /e:OnOff
+Var=DO2Command unsigned 28,2 -m /max:1 /e:OnOff
+Var=DO3Command unsigned 26,2 -m /max:1 /e:OnOff
+Var=DO4Command unsigned 24,2 -m /max:1 /e:OnOff
 
 [CommandPower]
 ID=0CFFAC41h	// Sets the desired real (P) and reactive (Q) power levels for the module to follow while in the GRID FOLLOWING mode.
@@ -150,6 +162,19 @@ DLC=8
 Mux=ManageNV 0,14 000Ch -m
 Var=SaveToEE_command unsigned 16,2 -m /max:1 /e:Enable
 
+[CommandSetNVParam]
+DLC=8
+Mux=InvertDIO 0,14 0014h -m
+Var=ReadParam_command unsigned 14,2 -m /e:ReadNV
+Var=DI1 unsigned 16,2 -m /max:1 /e:DIOInverted
+Var=DI2 unsigned 18,2 -m /max:1 /e:DIOInverted
+Var=DI3 unsigned 20,2 -m /max:1 /e:DIOInverted
+Var=DI4 unsigned 22,2 -m /max:1 /e:DIOInverted
+Var=DO1 unsigned 24,2 -m /max:1 /e:DIOInverted
+Var=DO2 unsigned 26,2 -m /max:1 /e:DIOInverted
+Var=DO3 unsigned 28,2 -m /max:1 /e:DIOInverted
+Var=DO4 unsigned 30,2 -m /max:1 /e:DIOInverted
+
 {SENDRECEIVE}
 
 [StatusMeasuredPower]
@@ -196,6 +221,14 @@ Var=PhaseRotation_echo unsigned 46,2 -m /max:1 /e:PhaseRotation	// Echos the sta
 Var=PowerAvailAcRemote_status unsigned 44,2 -m /e:PowerAvail /ln:"Remote AC Avail."	// Indicates that remote AC power is connected and that voltage and frequency are within nominal ranges.
 Var=PhaseRotationRemote_status unsigned 42,2 -m /e:PhaseRotation	// Remote phase rotation order.  When L1 phase angle leads L2 phase angle, rotation is considered positive.
 Var=LineVoltageDetectedRemote_status unsigned 40,2 -m /e:LineVoltagePresent	// Flag indicating if voltage is detected on remote L1, L2 or L3.
+Var=DI1_status unsigned 54,2 -m /max:1 /e:OnOff
+Var=DI2_status unsigned 52,2 -m /max:1 /e:OnOff
+Var=DI3_status unsigned 50,2 -m /max:1 /e:OnOff
+Var=DI4_status unsigned 48,2 -m /max:1 /e:OnOff
+Var=DO1_status unsigned 62,2 -m /max:1 /e:OnOff
+Var=DO2_status unsigned 60,2 -m /max:1 /e:OnOff
+Var=DO3_status unsigned 58,2 -m /max:1 /e:OnOff
+Var=DO4_status unsigned 56,2 -m /max:1 /e:OnOff
 
 [StatusControlVoltage]
 ID=1CFFC5F7h	// Lists present voltage of each power supply on the control board (24V, 15V, 5V, and 3.3V.)
@@ -227,7 +260,6 @@ Var=OvertempPowerDevice_status unsigned 8,2 -m /e:Fault	// Set immediately upon 
 Var=OvertempInternal_status unsigned 10,2 -m /e:Fault	// Set immediately upon the software detection of an internal inverter temperature exceeding the threshold value.  
 Var=LossValidControlMessage_status unsigned 16,4 -m /e:Fault	// Set whenever a control message required for operation contains out of range data or has not been received within the required timeout period.
 Var=UndervoltageDC_status unsigned 12,2 -m /e:Fault	// Indicates loss of DC source voltage.
-Var=ControlHardwareFail_status unsigned 20,4 -m /e:Fault	// Set upon the failure of control hardware to return expected response.
 Var=OvercurrentDC_status unsigned 0,2 -m /e:Fault	// Set immediately upon the software detection of DC current exceeding the threshold value.
 Var=GeneralFault_status unsigned 6,2 -m /e:Fault	// Will be set any time a fault shutdown has occurred.  It is always accompanied by an additional fault descriptor.
 Var=LossOfAC_status unsigned 2,2 -m /e:Fault	// In grid following mode, this fault will be triggered if AC voltage or frequency goes outside of nominal bounds and EnableUPSMode is not set in the CommandModeControl message. 
@@ -240,12 +272,7 @@ Var=InvalidEESection_status unsigned 24,2 -m /max:1 /e:Fault	// Indicates that r
 Var=ThermalOverload unsigned 38,2 -m /max:1 /e:Fault	// Thermal overload digital input is active.
 Var=OverloadAC_status unsigned 36,2 -m /max:1 /e:Fault	// Timed AC overload fault status (aircooled units only)
 Var=OverloadDC_status unsigned 34,2 -m /max:1 /e:Fault	// Timed DC overload fault status (aircooled units only)
-
-[softwareRev]
-ID=1CFFABC0h
-Type=Extended
-DLC=8
-Var=rev string 0,64 -m /d:"ICUx-03i"
+Var=SystemFault_status unsigned 48,8 -m /max:1
 
 [StatusACParameters]
 ID=0CFFC2F7h	// RMS AC Voltage, current, and frequency measured by line A, B and C feedbacks.
@@ -373,6 +400,19 @@ DLC=8
 Mux=ManageNV 0,14 000Ch -m
 Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
 Var=SaveToEE_status unsigned 16,2 -m /max:1 /e:Enable
+
+[StatusNVParam]
+DLC=8
+Mux=InvertDIO 0,14 0014h -m
+Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
+Var=DI1 unsigned 16,2 -m /max:1 /e:DIOInverted
+Var=DI2 unsigned 18,2 -m /max:1 /e:DIOInverted
+Var=DI3 unsigned 20,2 -m /max:1 /e:DIOInverted
+Var=DI4 unsigned 22,2 -m /max:1 /e:DIOInverted
+Var=DO1 unsigned 24,2 -m /max:1 /e:DIOInverted
+Var=DO2 unsigned 26,2 -m /max:1 /e:DIOInverted
+Var=DO3 unsigned 28,2 -m /max:1 /e:DIOInverted
+Var=DO4 unsigned 30,2 -m /max:1 /e:DIOInverted
 
 [StatusLineCurrents]
 ID=18FFD0F7h	// Measured RMS line currents.
