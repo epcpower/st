@@ -32,17 +32,21 @@ import copy
 import epyq.busproxy
 import epyq.canneo
 import epyq.device
+import epyq.hmidialog
 import epyq.listmenuview
 import epyq.numberpad
 import epyq.nv
 import epyq.parameteredit
 from epyq.svgwidget import SvgWidget
 import epyq.txrx
+import epyq.wehmd
 import functools
 import io
 import math
 import platform
 import socket
+import subprocess
+import textwrap
 # TODO: figure out why this is negative on embedded... :[
 socket.CAN_EFF_FLAG = abs(socket.CAN_EFF_FLAG)
 
@@ -262,6 +266,30 @@ def main(args=None):
     ui.menu_button.clicked.connect(to_menu)
 
     ui.stacked.setCurrentWidget(menu)
+
+    def service_restart():
+        hmd = epyq.wehmd.Wehmd()
+        hmd.write_boot_mode(1)
+        subprocess.run('reboot')
+
+    hmi_dialog = epyq.hmidialog.HmiDialog(
+        ok_action=service_restart,
+        cancel_action=to_menu
+    )
+
+    node = epyq.listmenu.Node(
+        text='Service Reboot',
+        action=functools.partial(
+            hmi_dialog.focus,
+            label=textwrap.dedent('''\
+                Reboot into maintenance mode?
+
+                Insert configured USB stick first.''')
+        )
+    )
+
+    menu_root.append_child(node)
+    ui.stacked.addWidget(hmi_dialog)
 
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
         ui.showFullScreen()
