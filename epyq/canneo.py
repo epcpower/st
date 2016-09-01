@@ -93,7 +93,13 @@ class Signal(QObject):
         value = copy.deepcopy(value)
         try:
             # TODO: not the best for integers?
-            value = float(value)
+            try:
+                value = float(value)
+            except ValueError:
+                if len(value) == 0:
+                    value = 0
+                else:
+                    raise
         except ValueError:
             if value in self.enumeration_strings():
                 match = re.search(self.enumeration_format_re['re'], value)

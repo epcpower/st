@@ -33,7 +33,9 @@ import epyq.busproxy
 import epyq.canneo
 import epyq.device
 import epyq.listmenuview
+import epyq.numberpad
 import epyq.nv
+import epyq.parameteredit
 from epyq.svgwidget import SvgWidget
 import epyq.txrx
 import functools
@@ -92,11 +94,38 @@ def main(args=None):
 
         QPushButton {
             qproperty-flat: true;
+            width: 40px;
+            height: 40px;
+        }
+
+        QFrame {
+            qproperty-frameShadow: Plain;
+        }
+
+        QLineEdit, QPushButton {
+            border-radius: 10px;
+        }
+
+        QLineEdit {
+            border: 4px solid #2270A5;
+        }
+
+        QPushButton {
+            border: 4px solid #21A558;
         }
 
         QLineEdit {
             qproperty-frame: false;
+        }
+
+        QLineEdit[enabled=false] {
+            border: 4px solid gray;
+        }
+
+        QLineEdit[enabled=true] {
             qproperty-clearButtonEnabled: true;
+            padding: 0 8px;
+            selection-background-color: darkgray;
         }
     ''')
 
@@ -180,38 +209,43 @@ def main(args=None):
 
     nv_filters = [
         {
-            'can_id': frame.id | socket.CAN_EFF_FLAG,
+            'can_id': device.nvs.status_frames[0].id | socket.CAN_EFF_FLAG,
             'can_mask': socket.CAN_EFF_MASK |
                         socket.CAN_EFF_FLAG |
                         socket.CAN_RTR_FLAG
         }
-        for frame in [device.nvs.set_frames[0], device.nvs.status_frames[0]]
-        ]
+    ]
 
-    def focus_nv(name, nv):
+    number_pad = epyq.numberpad.NumberPad()
+    ui.stacked.addWidget(number_pad)
+
+    node = epyq.listmenu.Node(
+        text='Number Pad',
+        action=functools.partial(
+            number_pad.focus,
+            value=17,
+            action=lambda value: to_menu()
+        )
+    )
+    menu_root.append_child(node)
+
+    def focus_nv(widget):
         real_bus.setFilters(nv_filters)
 
-        nv.read_from_device()
-        # TODO: actually wait for a response
-        print('{name}: {value}'.format(name=name,
-                                       value=nv.value))
-        ui.stacked.setCurrentWidget(nv.ui)
+        widget.nv.read_from_device()
+        ui.stacked.setCurrentWidget(widget)
 
     nv_item = epyq.listmenu.Node(text='Parameters')
     menu_root.append_child(nv_item)
     for nv in device.nvs.children:
-        nv.ui = load_ui('parameter_edit.ui')
-        nv.ui.from_device.set_signal(nv.status_signal)
-        nv.ui.to_device.set_signal(nv)
-        nv.status_signal.value_changed.connect(nv.value_changed)
-        # nv.status_signal.value_changed.connect(testy)
-        ui.stacked.addWidget(nv.ui)
+        widget = epyq.parameteredit.ParameterEdit(edit=number_pad, nv=nv)
+
+        ui.stacked.addWidget(widget)
         node = epyq.listmenu.Node(
             text=nv.name,
             action=functools.partial(
                 focus_nv,
-                name=nv.name,
-                nv=nv
+                widget=widget
             )
         )
         nv_item.append_child(node)
