@@ -272,15 +272,17 @@ def main(args=None):
         hmd.write_boot_mode(1)
         subprocess.run('reboot')
 
-    hmi_dialog = epyq.hmidialog.HmiDialog(
-        ok_action=service_restart,
-        cancel_action=to_menu
-    )
+    hmi_dialog = epyq.hmidialog.HmiDialog()
+
+    display_service_node = epyq.listmenu.Node(text='Display Service')
+    menu_root.append_child(display_service_node)
 
     node = epyq.listmenu.Node(
         text='Service Reboot',
         action=functools.partial(
             hmi_dialog.focus,
+            ok_action=service_restart,
+            cancel_action=to_menu,
             label=textwrap.dedent('''\
                 Reboot into maintenance mode?
 
@@ -288,8 +290,25 @@ def main(args=None):
         )
     )
 
-    menu_root.append_child(node)
+    display_service_node.append_child(node)
     ui.stacked.addWidget(hmi_dialog)
+
+    def calibrate_touchscreen():
+        os.remove('/opt/etc/pointercal')
+        subprocess.run('reboot')
+
+    node = epyq.listmenu.Node(
+        text='Calibrate Touchscreen',
+        action=functools.partial(
+            hmi_dialog.focus,
+            ok_action=calibrate_touchscreen,
+            cancel_action=to_menu,
+            label=textwrap.dedent('''\
+                Reboot and calibrate touchscreen?''')
+        )
+    )
+
+    display_service_node.append_child(node)
 
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
         ui.showFullScreen()
