@@ -126,11 +126,11 @@ def main(args=None):
             qproperty-frame: false;
         }
 
-        QLineEdit[enabled=false] {
+        QLineEdit:!enabled {
             border: 4px solid gray;
         }
 
-        QLineEdit[enabled=true] {
+        QLineEdit:enabled {
             qproperty-clearButtonEnabled: true;
             padding: 0 8px;
             selection-background-color: darkgray;
