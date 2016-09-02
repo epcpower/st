@@ -55,8 +55,7 @@ class ParameterEdit(QWidget):
 
     def set_value(self, value):
         if value is not None:
-            for nv in self.nv.frame.signals:
-                nv.read_from_device()
+            self.nv.read_from_device()
             time.sleep(0.05)
             self.nv.set_human_value(value)
             self.nv.write_to_device()
