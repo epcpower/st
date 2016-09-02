@@ -25,9 +25,6 @@
      <property name="signal" stdset="0">
       <string>v24_Supply</string>
      </property>
-     <property name="label_visible" stdset="0">
-      <bool>true</bool>
-     </property>
      <property name="override_range" stdset="0">
       <bool>true</bool>
      </property>
@@ -36,6 +33,9 @@
      </property>
      <property name="maximum" stdset="0">
       <double>26.000000000000000</double>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
      </property>
      <property name="lower_red_breakpoint" stdset="0">
       <double>22.500000000000000</double>

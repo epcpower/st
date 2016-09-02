@@ -46,6 +46,18 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget,
 
         self.update_configuration()
 
+    @pyqtProperty(bool)
+    def label_visible(self):
+        return epyq.widgets.abstractwidget.AbstractWidget.label_visible.fget(
+            self)
+
+    @label_visible.setter
+    def label_visible(self, new_visible):
+        epyq.widgets.abstractwidget.AbstractWidget.label_visible.fset(
+            self, new_visible)
+        self.ui.units.setVisible(self.label_visible)
+        self.update_metadata()
+
     @pyqtProperty(float)
     def lower_red_breakpoint(self):
         return self._breakpoints[0]
