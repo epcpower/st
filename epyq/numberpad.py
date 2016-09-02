@@ -42,6 +42,8 @@ class NumberPad(QWidget):
         self.ui.cancel_button.clicked.connect(
             functools.partial(self.exit, value=None))
 
+        numeric_buttons = []
+
         for number in range(10):
             button = getattr(self.ui, 'button_{}'.format(number))
             button.clicked.connect(
@@ -50,6 +52,7 @@ class NumberPad(QWidget):
                     str(number)
                 )
             )
+            numeric_buttons.append(button)
 
         self.ui.button_decimal.clicked.connect(
             functools.partial(
@@ -57,13 +60,23 @@ class NumberPad(QWidget):
                 '.'
             )
         )
+        numeric_buttons.append(self.ui.button_decimal)
+
         self.ui.button_backspace.clicked.connect(self.ui.edit.backspace)
+
+        for button in numeric_buttons:
+            button.setStyleSheet('''
+                QPushButton {
+                    border: 0px;
+                }
+            ''')
 
     def focus(self, value, action, label=''):
         self.ui.label.setText(label)
         self.ui.edit.setText(str(value))
         self.action = action
         self.parent().setCurrentWidget(self)
+        self.focusWidget().clearFocus()
 
     def accept(self):
         try:
