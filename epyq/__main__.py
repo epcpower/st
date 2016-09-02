@@ -306,6 +306,22 @@ def main(args=None):
 
     traverse(dict_node=device.dash_uis, menu_node=menu_root)
 
+    def inverter_to_nv():
+        device.nvs.module_to_nv()
+        to_menu()
+
+    nv_save = epyq.listmenu.Node(
+        text='Save To NV',
+        action=functools.partial(
+            hmi_dialog.focus,
+            ok_action=inverter_to_nv,
+            cancel_action=to_menu,
+            label=textwrap.dedent('''\
+                Save all parameters to NV?''')
+        )
+    )
+    menu_root.append_child(nv_save)
+
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
         ui.showFullScreen()
     else:
