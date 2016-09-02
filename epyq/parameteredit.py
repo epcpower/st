@@ -51,7 +51,7 @@ class ParameterEdit(QWidget):
         value = self.nv.get_human_value()
         self._edit.focus(value=value,
                          action=self.set_value,
-                         label=self.nv.name)
+                         label='{} [{}]'.format(self.nv.name, self.nv.unit))
 
     def set_value(self, value):
         if value is not None:
