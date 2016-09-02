@@ -121,6 +121,7 @@ class Device:
         d = json.loads(s, object_pairs_hook=OrderedDict)
 
         path = os.path.dirname(file.name)
+        json_ui_paths = {}
         for ui_path_name in ['ui_path', 'ui_paths']:
             try:
                 json_ui_paths = d[ui_path_name]
@@ -213,20 +214,29 @@ class Device:
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio)
 
+        def traverse(dict_node):
+            for key, value in dict_node.items():
+                if isinstance(value, dict):
+                    traverse(value)
+                else:
+                    path = value
+                    # TODO: CAMPid 9549757292917394095482739548437597676742
+                    if not QFileInfo(path).isAbsolute():
+                        ui_file = os.path.join(
+                            QFileInfo.absolutePath(QFileInfo(self.config_path)),
+                            path)
+                    else:
+                        ui_file = path
+                    ui_file = QFile(ui_file)
+                    ui_file.open(QFile.ReadOnly | QFile.Text)
+                    ts = QTextStream(ui_file)
+                    sio = io.StringIO(ts.readAll())
+                    dict_node[key] = uic.loadUi(sio)
 
-        self.dash_uis = OrderedDict()
-        for name, path in uis.items():
-            # TODO: CAMPid 9549757292917394095482739548437597676742
-            if not QFileInfo(path).isAbsolute():
-                ui_file = os.path.join(
-                    QFileInfo.absolutePath(QFileInfo(self.config_path)), path)
-            else:
-                ui_file = path
-            ui_file = QFile(ui_file)
-            ui_file.open(QFile.ReadOnly | QFile.Text)
-            ts = QTextStream(ui_file)
-            sio = io.StringIO(ts.readAll())
-            self.dash_uis[name] = uic.loadUi(sio)
+        traverse(uis)
+
+        # TODO: yuck, actually tidy the code
+        self.dash_uis = uis
 
         notifiees = []
 
@@ -347,10 +357,22 @@ class Device:
         for notifiee in notifiees:
             notifier.add(notifiee)
 
+        def flatten(dict_node):
+            flat = []
+            for key, value in dict_node.items():
+                if isinstance(value, dict):
+                    flat.extend(flatten(value))
+                else:
+                    flat.append((key, value))
+
+            return flat
+
+        flat = flatten(self.dash_uis)
+
         self.dash_connected_frames = {}
         self.dash_connected_signals = set()
         self.dash_missing_signals = set()
-        for name, dash in self.dash_uis.items():
+        for name, dash in flat:
             # TODO: CAMPid 99457281212789437474299
             children = dash.findChildren(QObject)
             widgets = [c for c in children if

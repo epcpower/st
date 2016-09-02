@@ -197,20 +197,6 @@ def main(args=None):
         real_bus.setFilters(filters)
         ui.stacked.setCurrentWidget(dash)
 
-    dash_item = epyq.listmenu.Node(text='Dashboards')
-    menu_root.append_child(dash_item)
-    for name, dash in device.dash_uis.items():
-        node = epyq.listmenu.Node(
-            text=name,
-            action=functools.partial(
-                focus_dash,
-                name=name,
-                dash=dash
-            )
-        )
-        dash_item.append_child(node)
-        ui.stacked.addWidget(dash)
-
     nv_filters = [
         {
             'can_id': device.nvs.status_frames[0].id | socket.CAN_EFF_FLAG,
@@ -309,6 +295,26 @@ def main(args=None):
     )
 
     display_service_node.append_child(node)
+
+    def traverse(dict_node, menu_node):
+        for key, value in dict_node.items():
+            if isinstance(value, dict):
+                action = None
+            else:
+                ui.stacked.addWidget(value)
+
+                action = functools.partial(
+                    focus_dash,
+                    name=key,
+                    dash=value
+                )
+
+            node = epyq.listmenu.Node(text=key, action=action)
+            menu_node.append_child(node)
+            if action is None:
+                traverse(dict_node=value, menu_node=node)
+
+    traverse(dict_node=device.dash_uis, menu_node=menu_root)
 
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
         ui.showFullScreen()
