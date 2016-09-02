@@ -5,6 +5,7 @@
 import epyq.mixins
 import epyq.widgets.abstractwidget
 import os
+import sys
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtProperty, QFileInfo
 from PyQt5.QtGui import QColor
 
@@ -140,7 +141,10 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget,
         self.ui.units.setText('[{}]'.format(units))
 
     def update_configuration(self):
-        self.ui.scale.setColorRanges(self._colors, self._breakpoints)
+        try:
+            self.ui.scale.setColorRanges(self._colors, self._breakpoints)
+        except ValueError as e:
+            print(e, file=sys.stderr)
 
         self.repaint()
 

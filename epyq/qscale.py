@@ -93,11 +93,11 @@ class QScale(QtWidgets.QWidget):
 
         if not all(x < y for x, y in zip(breakpoints, breakpoints[1:])):
             # TODO: something better
-            raise Exception('monotonicity')
+            raise ValueError('Monotonicity')
 
         if len(colors) - len(breakpoints) != 1:
             # TODO: something better
-            raise Exception('bad set of color range lists')
+            raise ValueError('Bad set of color range lists')
 
         self.breakpoints = breakpoints
         self.colors = colors

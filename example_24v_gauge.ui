@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>487</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="can_file" stdset="0">
+   <string>example.sym</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="Scale" name="scale">
+     <property name="frame" stdset="0">
+      <string>StatusControlVoltage</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>v24_Supply</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="override_range" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="minimum" stdset="0">
+      <double>22.000000000000000</double>
+     </property>
+     <property name="maximum" stdset="0">
+      <double>26.000000000000000</double>
+     </property>
+     <property name="lower_red_breakpoint" stdset="0">
+      <double>22.500000000000000</double>
+     </property>
+     <property name="lower_yellow_breakpoint" stdset="0">
+      <double>23.500000000000000</double>
+     </property>
+     <property name="upper_yellow_breakpoint" stdset="0">
+      <double>24.500000000000000</double>
+     </property>
+     <property name="upper_red_breakpoint" stdset="0">
+      <double>25.500000000000000</double>
+     </property>
+     <property name="lower_red_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>47</green>
+       <blue>47</blue>
+      </color>
+     </property>
+     <property name="lower_yellow_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>192</green>
+       <blue>47</blue>
+      </color>
+     </property>
+     <property name="green_color" stdset="0">
+      <color>
+       <red>47</red>
+       <green>192</green>
+       <blue>47</blue>
+      </color>
+     </property>
+     <property name="upper_yellow_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>192</green>
+       <blue>47</blue>
+      </color>
+     </property>
+     <property name="upper_red_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>47</green>
+       <blue>47</blue>
+      </color>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" alignment="Qt::AlignHCenter">
+    <widget class="Lcd" name="lcd">
+     <property name="frame" stdset="0">
+      <string>StatusControlVoltage</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>v24_Supply</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Lcd</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.lcd</header>
+  </customwidget>
+  <customwidget>
+   <class>Scale</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.scale</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

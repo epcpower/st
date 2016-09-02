@@ -209,16 +209,6 @@ def main(args=None):
     number_pad = epyq.numberpad.NumberPad()
     ui.stacked.addWidget(number_pad)
 
-    node = epyq.listmenu.Node(
-        text='Number Pad',
-        action=functools.partial(
-            number_pad.focus,
-            value=17,
-            action=lambda value: to_menu()
-        )
-    )
-    menu_root.append_child(node)
-
     def focus_nv(widget):
         real_bus.setFilters(nv_filters)
 

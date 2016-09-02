@@ -3,11 +3,12 @@
     "name": "Example Device",
     "serial_number": "42",
     "ui_paths": {
-        "Configurable": {
+        "24v Gauge": "example_24v_gauge.ui",
+        "Some Dashes": {
             "Dash A": "example_hmi_dash.ui",
             "Dash B": "example_hmi_dash.ui",
             "Dash C": "example_hmi_dash.ui"
              },
-        "Direct Dash": "example_hmi_dash.ui"
+        "Direct Dash Link": "example_hmi_dash.ui"
     }
 }
