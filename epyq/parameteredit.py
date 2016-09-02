@@ -5,6 +5,7 @@
 import functools
 import io
 import os
+import textwrap
 import time
 
 from PyQt5 import uic
@@ -18,7 +19,8 @@ __license__ = 'GPLv2+'
 
 
 class ParameterEdit(QWidget):
-    def __init__(self, parent=None, in_designer=False, edit=None, nv=None):
+    def __init__(self, parent=None, in_designer=False, edit=None, nv=None,
+                 dialog=None):
         QWidget.__init__(self, parent=parent)
 
         self.in_designer = in_designer
@@ -39,6 +41,7 @@ class ParameterEdit(QWidget):
         self.ui = uic.loadUi(sio, self)
 
         self._edit = edit
+        self._dialog = dialog
         self.nv = nv
 
         self.ui.from_device.set_signal(self.nv.status_signal)
@@ -46,6 +49,8 @@ class ParameterEdit(QWidget):
         self.nv.status_signal.value_changed.connect(self.nv.value_changed)
 
         self.ui.edit_button.clicked.connect(self.edit)
+
+        self.ui.save_to_nv_button.clicked.connect(self.save_to_nv)
 
     def edit(self):
         value = self.nv.get_human_value()
@@ -62,6 +67,22 @@ class ParameterEdit(QWidget):
 
         self.parent().setCurrentWidget(self)
 
+    def save_to_nv(self):
+        focus_self = functools.partial(
+            self.parent().setCurrentWidget,
+            self
+        )
+
+        # TODO: CAMPid 93849811216123127753953680713426
+        def inverter_to_nv():
+            self.nv.tree_parent.module_to_nv()
+            focus_self()
+
+        self._dialog.focus(ok_action=inverter_to_nv,
+                         cancel_action=focus_self,
+                         label=textwrap.dedent('''\
+                             Save all parameters to NV?''')
+                         )
 
 if __name__ == '__main__':
     import sys

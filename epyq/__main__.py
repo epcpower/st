@@ -209,6 +209,8 @@ def main(args=None):
     number_pad = epyq.numberpad.NumberPad()
     ui.stacked.addWidget(number_pad)
 
+    hmi_dialog = epyq.hmidialog.HmiDialog()
+
     def focus_nv(widget):
         real_bus.setFilters(nv_filters)
 
@@ -218,7 +220,10 @@ def main(args=None):
     nv_item = epyq.listmenu.Node(text='Parameters')
     menu_root.append_child(nv_item)
     for nv in device.nvs.children:
-        widget = epyq.parameteredit.ParameterEdit(edit=number_pad, nv=nv)
+        widget = epyq.parameteredit.ParameterEdit(
+            edit=number_pad,
+            nv=nv,
+            dialog=hmi_dialog)
 
         ui.stacked.addWidget(widget)
         node = epyq.listmenu.Node(
@@ -247,8 +252,6 @@ def main(args=None):
         hmd = epyq.wehmd.Wehmd()
         hmd.write_boot_mode(1)
         subprocess.run('reboot')
-
-    hmi_dialog = epyq.hmidialog.HmiDialog()
 
     display_service_node = epyq.listmenu.Node(text='Display Service')
     menu_root.append_child(display_service_node)
@@ -306,6 +309,7 @@ def main(args=None):
 
     traverse(dict_node=device.dash_uis, menu_node=menu_root)
 
+    # TODO: CAMPid 93849811216123127753953680713426
     def inverter_to_nv():
         device.nvs.module_to_nv()
         to_menu()
