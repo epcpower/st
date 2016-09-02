@@ -262,7 +262,7 @@ def main(args=None):
             label=textwrap.dedent('''\
                 Reboot into maintenance mode?
 
-                Insert configured USB stick first.''')
+                Insert configured USB stick then press OK.''')
         )
     )
 
