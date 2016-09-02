@@ -114,8 +114,12 @@ def main(args=None):
             border: 4px solid #2270A5;
         }
 
-        QPushButton {
+        QPushButton:enabled {
             border: 4px solid #21A558;
+        }
+
+        QPushButton:!enabled {
+            border: 4px solid gray;
         }
 
         QLineEdit {

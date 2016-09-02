@@ -7,7 +7,7 @@ import io
 import os
 
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtProperty, QFile, QFileInfo, QTextStream
+from PyQt5.QtCore import pyqtProperty, QFile, QFileInfo, QTextStream, QTimer
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QLabel, QHBoxLayout, QWidget
 
@@ -52,7 +52,22 @@ class HmiDialog(QWidget):
             self.cancel_action = cancel_action
 
         self.ui.label.setText(label)
+
+        self.enable_buttons(False)
+
         self.parent().setCurrentWidget(self)
+
+        QTimer.singleShot(
+            1500,
+            functools.partial(
+                self.enable_buttons,
+                enable=True
+            )
+        )
+
+    def enable_buttons(self, enable):
+        self.ui.ok_button.setEnabled(enable)
+        self.ui.cancel_button.setEnabled(enable)
 
     def ok(self):
         self.ok_action()
