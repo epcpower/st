@@ -106,9 +106,8 @@ class OverlayLabel(QtWidgets.QWidget):
             (size.height() * self.height_ratio) / rect.height()
         )
 
-        font.setPixelSize(min(pixel_size_width, pixel_size_height))
-        font.setBold(True)
-        self.label.setFont(font)
+        self.label.setStyleSheet('font-size: {}px; font-weight: bold'.format(
+            round(min(pixel_size_width, pixel_size_height))))
 
 
 if __name__ == '__main__':
