@@ -186,30 +186,18 @@ def main(args=None):
     with open('menu.json') as f:
         menu = json.load(f, object_pairs_hook=OrderedDict)
 
-    menu_root = epyq.listmenu.Node(text='Main Menu')
+    def to_menu():
+        real_bus.setFilters(can_filters=[])
+        ui.stacked.setCurrentWidget(menu)
 
-    def traverse(dict_node, model_node):
-        for key, value in dict_node.items():
-            child = epyq.listmenu.Node(text=key)
-            model_node.append_child(child)
-            if isinstance(value, OrderedDict):
-                traverse(dict_node=value,
-                         model_node=child)
+    ui.menu_button.clicked.connect(to_menu)
 
-    traverse(menu, menu_root)
+    special_menu_nodes = {}
 
-    def focus_dash(name, dash):
-        filters = [
-            {
-                'can_id': frame.id | socket.CAN_EFF_FLAG,
-                'can_mask': socket.CAN_EFF_MASK |
-                            socket.CAN_EFF_FLAG |
-                            socket.CAN_RTR_FLAG
-            }
-            for frame in device.dash_connected_frames[name]
-        ]
-        real_bus.setFilters(filters)
-        ui.stacked.setCurrentWidget(dash)
+    number_pad = epyq.numberpad.NumberPad()
+    ui.stacked.addWidget(number_pad)
+
+    hmi_dialog = epyq.hmidialog.HmiDialog()
 
     nv_filters = [
         {
@@ -220,132 +208,79 @@ def main(args=None):
         }
     ]
 
-    number_pad = epyq.numberpad.NumberPad()
-    ui.stacked.addWidget(number_pad)
-
-    hmi_dialog = epyq.hmidialog.HmiDialog()
-
     def focus_nv(widget):
         real_bus.setFilters(nv_filters)
 
         widget.nv.read_from_device()
         ui.stacked.setCurrentWidget(widget)
 
-    nv_item = epyq.listmenu.Node(text='Parameters')
-    menu_root.append_child(nv_item)
-    for nv in device.nvs.children:
-        widget = epyq.parameteredit.ParameterEdit(
-            edit=number_pad,
-            nv=nv,
-            dialog=hmi_dialog)
+    def nv_action(node):
+        for nv in device.nvs.children:
+            widget = epyq.parameteredit.ParameterEdit(
+                edit=number_pad,
+                nv=nv,
+                dialog=hmi_dialog)
 
-        ui.stacked.addWidget(widget)
-        node = epyq.listmenu.Node(
-            text=nv.name,
-            action=functools.partial(
-                focus_nv,
-                widget=widget
+            ui.stacked.addWidget(widget)
+            nv_node = epyq.listmenu.Node(
+                text=nv.name,
+                action=functools.partial(
+                    focus_nv,
+                    widget=widget
+                )
             )
-        )
-        nv_item.append_child(node)
+            node.append_child(nv_node)
 
-    menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
-    menu = epyq.listmenuview.ListMenuView()
-    menu.setModel(menu_model)
-    ui.stacked.addWidget(menu)
-
-    def to_menu():
-        real_bus.setFilters(can_filters=[])
-        ui.stacked.setCurrentWidget(menu)
-
-    ui.menu_button.clicked.connect(to_menu)
-
-    ui.stacked.setCurrentWidget(menu)
+    special_menu_nodes['<nv>'] = nv_action
 
     def service_restart():
         hmd = epyq.wehmd.Wehmd()
         hmd.write_boot_mode(1)
         subprocess.run('reboot')
 
-    display_service_node = epyq.listmenu.Node(text='Display Service')
-    menu_root.append_child(display_service_node)
+    def service_reboot_action(node):
+        node.action = functools.partial(
+                hmi_dialog.focus,
+                ok_action=service_restart,
+                cancel_action=to_menu,
+                label=textwrap.dedent('''\
+                    Reboot into maintenance mode?
 
-    node = epyq.listmenu.Node(
-        text='Service Reboot',
-        action=functools.partial(
-            hmi_dialog.focus,
-            ok_action=service_restart,
-            cancel_action=to_menu,
-            label=textwrap.dedent('''\
-                Reboot into maintenance mode?
-
-                Insert configured USB stick then press OK.''')
+                    Insert configured USB stick then press OK.''')
         )
-    )
 
-    display_service_node.append_child(node)
-    ui.stacked.addWidget(hmi_dialog)
+    special_menu_nodes['<service_reboot>'] = service_reboot_action
 
     def calibrate_touchscreen():
         os.remove('/opt/etc/pointercal')
         subprocess.run('reboot')
 
-    node = epyq.listmenu.Node(
-        text='Calibrate Touchscreen',
-        action=functools.partial(
-            hmi_dialog.focus,
-            ok_action=calibrate_touchscreen,
-            cancel_action=to_menu,
-            label=textwrap.dedent('''\
-                Reboot and calibrate touchscreen?''')
+    def calibrate_touchscreen_action(node):
+        node.action = functools.partial(
+                hmi_dialog.focus,
+                ok_action=calibrate_touchscreen,
+                cancel_action=to_menu,
+                label=textwrap.dedent('''\
+                    Reboot and calibrate touchscreen?''')
         )
-    )
 
-    display_service_node.append_child(node)
-
-    def traverse(dict_node, menu_node):
-        for key, value in dict_node.items():
-            if isinstance(value, dict):
-                action = None
-            else:
-                ui.stacked.addWidget(value)
-
-                action = functools.partial(
-                    focus_dash,
-                    name=key,
-                    dash=value
-                )
-
-            node = epyq.listmenu.Node(text=key, action=action)
-            menu_node.append_child(node)
-            if action is None:
-                traverse(dict_node=value, menu_node=node)
-
-    traverse(dict_node=device.dash_uis, menu_node=menu_root)
+    special_menu_nodes['<calibrate_touchscreen>'] = calibrate_touchscreen_action
 
     # TODO: CAMPid 93849811216123127753953680713426
     def inverter_to_nv():
         device.nvs.module_to_nv()
         to_menu()
 
-    nv_save = epyq.listmenu.Node(
-        text='Save To NV',
-        action=functools.partial(
-            hmi_dialog.focus,
-            ok_action=inverter_to_nv,
-            cancel_action=to_menu,
-            label=textwrap.dedent('''\
-                Save all parameters to NV?''')
+    def inverter_to_nv_action(node):
+        node.action = functools.partial(
+                hmi_dialog.focus,
+                ok_action=inverter_to_nv,
+                cancel_action=to_menu,
+                label=textwrap.dedent('''\
+                    Save all parameters to NV?''')
         )
-    )
-    menu_root.append_child(nv_save)
 
-    if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
-        ui.showFullScreen()
-    else:
-        ui.show()
-
-    help = epyq.listmenu.Node(text='Help')
+    special_menu_nodes['<nv_save>'] = inverter_to_nv_action
 
     message = [
         'About EPyQ:',
@@ -369,18 +304,74 @@ def main(args=None):
         px=round(base_font_size_px * 2/3)
     )
 
-    about = epyq.listmenu.Node(
-        text='About',
-        action=functools.partial(
+    def about_action(node):
+        node.action = functools.partial(
             hmi_dialog.focus,
             ok_action=to_menu,
             enable_delay=0,
             label=about_text
         )
-    )
 
-    menu_root.append_child(help)
-    help.append_child(about)
+    special_menu_nodes['<about>'] = about_action
+
+    menu_root = epyq.listmenu.Node(text='Main Menu')
+
+    def focus_dash(name, dash):
+        filters = [
+            {
+                'can_id': frame.id | socket.CAN_EFF_FLAG,
+                'can_mask': socket.CAN_EFF_MASK |
+                            socket.CAN_EFF_FLAG |
+                            socket.CAN_RTR_FLAG
+            }
+            for frame in device.dash_connected_frames[name]
+        ]
+        real_bus.setFilters(filters)
+        ui.stacked.setCurrentWidget(dash)
+
+    def traverse(dict_node, model_node):
+        for key, value in dict_node.items():
+            child = epyq.listmenu.Node(text=key)
+            model_node.append_child(child)
+            if isinstance(value, OrderedDict):
+                traverse(dict_node=value,
+                         model_node=child)
+            elif value.endswith('.ui'):
+                for name, dash in device.dash_uis.items():
+                    if dash.file_name == value:
+                        ui.stacked.addWidget(dash)
+                        child.action = functools.partial(
+                            focus_dash,
+                            name=name,
+                            dash=dash
+                        )
+            else:
+                try:
+                    special_node = special_menu_nodes[value]
+                except KeyError:
+                    print("No menu action '{}' found in {}".format(
+                            value,
+                            special_menu_nodes.keys()),
+                        file=sys.stderr
+                    )
+                else:
+                    special_node(child)
+
+    traverse(menu, menu_root)
+
+    menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
+    menu = epyq.listmenuview.ListMenuView()
+    menu.setModel(menu_model)
+    ui.stacked.addWidget(menu)
+
+    ui.stacked.setCurrentWidget(menu)
+
+    ui.stacked.addWidget(hmi_dialog)
+
+    if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
+        ui.showFullScreen()
+    else:
+        ui.show()
 
     # TODO: CAMPid 98754713241621231778985432
     # ui.menu_button.setMaximumWidth(ui.menu_button.height())

@@ -232,6 +232,7 @@ class Device:
                     ts = QTextStream(ui_file)
                     sio = io.StringIO(ts.readAll())
                     dict_node[key] = uic.loadUi(sio)
+                    dict_node[key].file_name = path
 
         traverse(uis)
 
