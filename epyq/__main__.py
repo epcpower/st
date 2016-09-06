@@ -37,6 +37,12 @@ import epyq.listmenuview
 import epyq.numberpad
 import epyq.nv
 import epyq.parameteredit
+
+try:
+    import epyq.revision
+except ImportError:
+    pass
+
 from epyq.svgwidget import SvgWidget
 import epyq.txrx
 import epyq.wehmd
@@ -86,56 +92,60 @@ def main(args=None):
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
 
+    base_font_size_px = 30
+
     app.setStyleSheet('''
-        QWidget {
-            font-size: 30px;
+        QWidget {{
+            font-size: {base_font_size_px}px;
             font-family: Bitstream Vera Sans;
-        }
+        }}
 
-        QAbstractScrollArea {
+        QAbstractScrollArea {{
             qproperty-frameShape: NoFrame;
-        }
+        }}
 
-        QPushButton {
+        QPushButton {{
             qproperty-flat: true;
             width: 40px;
             height: 40px;
-        }
+        }}
 
-        QFrame {
+        QFrame {{
             qproperty-frameShadow: Plain;
-        }
+        }}
 
-        QLineEdit, QPushButton {
+        QLineEdit, QPushButton {{
             border-radius: 10px;
-        }
+        }}
 
-        QLineEdit {
+        QLineEdit {{
             border: 4px solid #2270A5;
-        }
+        }}
 
-        QPushButton:enabled {
+        QPushButton:enabled {{
             border: 4px solid #21A558;
-        }
+        }}
 
-        QPushButton:!enabled {
+        QPushButton:!enabled {{
             border: 4px solid gray;
-        }
+        }}
 
-        QLineEdit {
+        QLineEdit {{
             qproperty-frame: false;
-        }
+        }}
 
-        QLineEdit:!enabled {
+        QLineEdit:!enabled {{
             border: 4px solid gray;
-        }
+        }}
 
-        QLineEdit:enabled {
+        QLineEdit:enabled {{
             qproperty-clearButtonEnabled: true;
             padding: 0 8px;
             selection-background-color: darkgray;
-        }
-    ''')
+        }}
+    '''.format(
+        base_font_size_px=base_font_size_px
+    ))
 
     QTextCodec.setCodecForLocale(QTextCodec.codecForName('UTF-8'))
 
@@ -334,6 +344,43 @@ def main(args=None):
         ui.showFullScreen()
     else:
         ui.show()
+
+    help = epyq.listmenu.Node(text='Help')
+
+    message = [
+        'About EPyQ:',
+        __copyright__,
+        __license__
+    ]
+
+    try:
+        hash = epyq.revision.hash
+    except AttributeError:
+        pass
+    else:
+        index = round(len(hash) / 2)
+        hash = '({first}<br>{second})'.format(first=hash[:index],
+                                              second=hash[index:])
+        message.append(hash)
+
+    about_text = '<br>'.join(message)
+    about_text = "<span style='font-size:{px}px'>{text}</span>".format(
+        text=about_text,
+        px=round(base_font_size_px * 2/3)
+    )
+
+    about = epyq.listmenu.Node(
+        text='About',
+        action=functools.partial(
+            hmi_dialog.focus,
+            ok_action=to_menu,
+            enable_delay=0,
+            label=about_text
+        )
+    )
+
+    menu_root.append_child(help)
+    help.append_child(about)
 
     # TODO: CAMPid 98754713241621231778985432
     # ui.menu_button.setMaximumWidth(ui.menu_button.height())
