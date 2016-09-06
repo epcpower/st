@@ -300,7 +300,7 @@
          <string>CommandPower</string>
         </property>
         <property name="command_signal" stdset="0">
-         <string>ReactiveCurrent_command</string>
+         <string>ReactivePower_command</string>
         </property>
         <property name="echo_frame" stdset="0">
          <string>StatusCommandedPower</string>
@@ -322,7 +322,7 @@
          <string>CommandPower</string>
         </property>
         <property name="command_signal" stdset="0">
-         <string>RealCurrent_command</string>
+         <string>RealPower_command</string>
         </property>
         <property name="echo_frame" stdset="0">
          <string>StatusCommandedPower</string>
