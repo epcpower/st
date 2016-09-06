@@ -17,8 +17,7 @@ __license__ = 'GPLv2+'
 
 
 class HmiDialog(QWidget):
-    def __init__(self, parent=None, in_designer=False, ok_action=None,
-                 cancel_action=None):
+    def __init__(self, parent=None, in_designer=False):
         QWidget.__init__(self, parent=parent)
 
         self.in_designer = in_designer
@@ -38,18 +37,18 @@ class HmiDialog(QWidget):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
-        self.ok_action = ok_action
-        self.cancel_action = cancel_action
+        self.ok_action = None
+        self.cancel_action = None
         self.ui.ok_button.clicked.connect(self.ok)
         self.ui.cancel_button.clicked.connect(self.cancel)
 
         self.label.setWordWrap(True)
 
     def focus(self, label, ok_action=None, cancel_action=None):
-        if ok_action is not None:
-            self.ok_action = ok_action
-        if cancel_action is not None:
-            self.cancel_action = cancel_action
+        self.ok_action = ok_action
+        self.ui.ok_button.setVisible(ok_action is not None)
+        self.cancel_action = cancel_action
+        self.ui.cancel_button.setVisible(cancel_action is not None)
 
         self.ui.label.setText(label)
 
