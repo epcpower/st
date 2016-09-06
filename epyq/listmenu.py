@@ -51,6 +51,14 @@ class Node(TreeNode):
             if child.fields.name == value or child.fields.action == value:
                 return child
 
+    @property
+    def action(self):
+        return self.fields.action
+
+    @action.setter
+    def action(self, action):
+        self.fields.action = action
+
 class ListMenuModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
     def __init__(self, root, parent=None):
         epyq.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
