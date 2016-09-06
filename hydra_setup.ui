@@ -1,0 +1,1241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1428</width>
+    <height>1115</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="can_file" stdset="0">
+   <string>hydra.sym</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string>Mode Settings</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="2" colspan="2">
+         <widget class="Led" name="led_39">
+          <property name="frame" stdset="0">
+           <string>StatusBits</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>HardwareEnable_status</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string/>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="CompoundToggle" name="compoundtoggle_5">
+          <property name="box_title" stdset="0">
+           <string>UPS Mode</string>
+          </property>
+          <property name="command_frame" stdset="0">
+           <string>CommandModeControl</string>
+          </property>
+          <property name="command_signal" stdset="0">
+           <string>EnableUPSMode_command</string>
+          </property>
+          <property name="status_frame" stdset="0">
+           <string>StatusBits</string>
+          </property>
+          <property name="status_signal" stdset="0">
+           <string>EnableUPSMode_echo</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QGroupBox" name="groupBox_7">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>HW Enable</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <property name="leftMargin">
+            <number>13</number>
+           </property>
+           <property name="topMargin">
+            <number>13</number>
+           </property>
+           <property name="rightMargin">
+            <number>13</number>
+           </property>
+           <property name="bottomMargin">
+            <number>13</number>
+           </property>
+           <item>
+            <widget class="Toggle" name="toggle">
+             <property name="frame" stdset="0">
+              <string>CommandModeControl</string>
+             </property>
+             <property name="signal" stdset="0">
+              <string>InvertHwEnable_command</string>
+             </property>
+             <property name="label_visible" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="tx" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_4">
+       <property name="title">
+        <string>Inverter Health</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="CompactEpc" name="compactepc">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v24_Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_4">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v15_Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_5">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v3p3_Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_8">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v5p0_Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_7">
+          <property name="frame" stdset="0">
+           <string>StatusControlVolts2</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>n15V_Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_2">
+          <property name="frame" stdset="0">
+           <string>StatusTemps</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>ConverterLosses</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_3">
+          <property name="frame" stdset="0">
+           <string>StatusTemps</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>TempInlet_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string/>
+          </property>
+          <property name="tool_tip_override" stdset="0">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_11">
+          <property name="frame" stdset="0">
+           <string>StatusTemps</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>TempInternal_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_5">
+     <item>
+      <widget class="Scale" name="scale_2">
+       <property name="frame" stdset="0">
+        <string>StatusControlVolts2</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>IGBTTemperature</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Scale" name="scale">
+       <property name="frame" stdset="0">
+        <string>StatusControlVolts2</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>DiodeTemperature</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_10">
+       <property name="title">
+        <string>Pump Control</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_11">
+        <item>
+         <widget class="Button" name="button">
+          <property name="frame" stdset="0">
+           <string>CommandModeControl</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>ForceDO4</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>Pump Reset</string>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="tx" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="on_value" stdset="0">
+           <number>2</number>
+          </property>
+          <property name="off_value" stdset="0">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Led" name="led">
+          <property name="frame" stdset="0">
+           <string>StatusBits</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>DI4_status</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>Pump Running</string>
+          </property>
+          <property name="automatic_off_color" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="manual_off_color" stdset="0">
+           <color>
+            <red>192</red>
+            <green>32</green>
+            <blue>32</blue>
+           </color>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Led" name="led_2">
+          <property name="frame" stdset="0">
+           <string>StatusBits</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>DI3_status</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>Pump VFD Faulted</string>
+          </property>
+          <property name="automatic_off_color" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="on_color" stdset="0">
+           <color>
+            <red>192</red>
+            <green>32</green>
+            <blue>32</blue>
+           </color>
+          </property>
+          <property name="manual_off_color" stdset="0">
+           <color>
+            <red>96</red>
+            <green>96</green>
+            <blue>96</blue>
+           </color>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_5">
+       <property name="title">
+        <string>Measured Line Currents</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <widget class="CompactEpc" name="compactepc_14">
+          <property name="frame" stdset="0">
+           <string>StatusLineCurrents</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>L1Current_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>L1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_15">
+          <property name="frame" stdset="0">
+           <string>StatusLineCurrents</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>L2Current_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>L2</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_16">
+          <property name="frame" stdset="0">
+           <string>StatusLineCurrents</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>L3Current_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>L3</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_17">
+          <property name="frame" stdset="0">
+           <string>StatusACParameters</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>CurrentAC_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>Average</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_6">
+       <property name="title">
+        <string>Measured Line Voltages</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item>
+         <widget class="CompactEpc" name="compactepc_18">
+          <property name="frame" stdset="0">
+           <string>StatusLineVoltages</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>L1Voltage_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>L1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_19">
+          <property name="frame" stdset="0">
+           <string>StatusLineVoltages</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>L2Voltage_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>L2</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_20">
+          <property name="frame" stdset="0">
+           <string>StatusLineVoltages</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>L3Voltage_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>L3</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CompactEpc" name="compactepc_21">
+          <property name="frame" stdset="0">
+           <string>StatusACParameters</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>VoltageAC_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>Average</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="title">
+          <string>AC Relays</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="CompoundToggle" name="compoundtoggle_8">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="box_title" stdset="0">
+             <string>MX1 (Main)</string>
+            </property>
+            <property name="command_frame" stdset="0">
+             <string>CommandModeControl</string>
+            </property>
+            <property name="command_signal" stdset="0">
+             <string>ForceRelayMX1_command</string>
+            </property>
+            <property name="status_frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="status_signal" stdset="0">
+             <string>MX1Permissive_status</string>
+            </property>
+            <property name="status_on_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_on_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+            <property name="off_value" stdset="0">
+             <number>0</number>
+            </property>
+            <property name="status_off_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_off_on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+            <property name="status_off_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="CompoundToggle" name="compoundtoggle_9">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="box_title" stdset="0">
+             <string>MX2 (Remote)</string>
+            </property>
+            <property name="command_frame" stdset="0">
+             <string>CommandModeControl</string>
+            </property>
+            <property name="command_signal" stdset="0">
+             <string>ForceRelayMX2_command</string>
+            </property>
+            <property name="status_frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="status_signal" stdset="0">
+             <string>MX2Permissive_status</string>
+            </property>
+            <property name="status_on_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_on_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+            <property name="status_off_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_off_on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+            <property name="status_off_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_9">
+         <property name="title">
+          <string>DC Relays</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item>
+           <widget class="CompoundToggle" name="compoundtoggle_12">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="box_title" stdset="0">
+             <string>K1 (Precharge)</string>
+            </property>
+            <property name="command_frame" stdset="0">
+             <string>CommandModeControl</string>
+            </property>
+            <property name="command_signal" stdset="0">
+             <string>ForceRelayK1_Precharge_command</string>
+            </property>
+            <property name="status_frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="status_signal" stdset="0">
+             <string>K1PrechargePermissive_status</string>
+            </property>
+            <property name="status_on_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_on_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+            <property name="status_off_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_off_on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+            <property name="status_off_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="CompoundToggle" name="compoundtoggle_13">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="box_title" stdset="0">
+             <string>K2 (Main)</string>
+            </property>
+            <property name="command_frame" stdset="0">
+             <string>CommandModeControl</string>
+            </property>
+            <property name="command_signal" stdset="0">
+             <string>ForceRelayRelayK2_DCRun_comand</string>
+            </property>
+            <property name="status_frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="status_signal" stdset="0">
+             <string>K2DCRunPermissive_status</string>
+            </property>
+            <property name="status_on_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_on_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+            <property name="status_off_automatic_off_color" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="status_off_on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+            <property name="status_off_manual_off_color" stdset="0">
+             <color>
+              <red>96</red>
+              <green>96</green>
+              <blue>96</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Faults</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="11" column="1">
+           <widget class="Led" name="led_26">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>SystemFault_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="1">
+           <widget class="Led" name="led_23">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>InvalidEESection_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="1">
+           <widget class="Led" name="led_37">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>InvalidEEHeader_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="0">
+           <widget class="Led" name="led_41">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>CoolingSystem</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="Epc" name="epc_8">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>BridgeBFault_status</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="Led" name="led_31">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>BridgeAVoltageOk_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="Epc" name="epc_9">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>BridgeAFault_status</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="Led" name="led_24">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>UndervoltageDC_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="Led" name="led_29">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>OvertempInternal_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="Led" name="led_35">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>OvertempPowerDevice_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="Led" name="led_28">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>ThermalOverload</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="Led" name="led_21">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>LossOfAC_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="Led" name="led_20">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>LossValidControlMessage_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="Led" name="led_33">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>ControlHardwareFail_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="Led" name="led_43">
+            <property name="frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>MessageValidPowerCMD_status</string>
+            </property>
+            <property name="label_override" stdset="0">
+             <string/>
+            </property>
+            <property name="label_visible" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="Led" name="led_27">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>OvercurrentAC_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="Led" name="led_32">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>BridgeBVoltageOk_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="Led" name="led_30">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>OvervoltageDC_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="Led" name="led_38">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>IllegalTransition_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="Led" name="led_44">
+            <property name="frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>MessageValidModeControl_status</string>
+            </property>
+            <property name="label_override" stdset="0">
+             <string/>
+            </property>
+            <property name="label_visible" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="Led" name="led_42">
+            <property name="frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>MessageValidVF_status</string>
+            </property>
+            <property name="label_override" stdset="0">
+             <string/>
+            </property>
+            <property name="label_visible" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="Led" name="led_36">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>EStopShutdown_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="Led" name="led_34">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>OvercurrentDC_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="0">
+           <widget class="Led" name="led_45">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>TimedOverload</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="12" column="1">
+           <widget class="Button" name="button_2">
+            <property name="frame" stdset="0">
+             <string>CommandModeControl</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>FaultClear_command</string>
+            </property>
+            <property name="label_visible" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="tx" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="13" column="1">
+           <widget class="Led" name="led_40">
+            <property name="frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>FaultClr_echo</string>
+            </property>
+            <property name="label_override" stdset="0">
+             <string>Fault Clear Response</string>
+            </property>
+            <property name="label_visible" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="12" column="0" rowspan="2">
+           <widget class="Led" name="led_25">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>GeneralFault_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+            <property name="relative_height" stdset="0">
+             <double>2.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CompoundToggle</class>
+   <extends>QWidget</extends>
+   <header>epyq.compoundtoggle</header>
+  </customwidget>
+  <customwidget>
+   <class>Button</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.button</header>
+  </customwidget>
+  <customwidget>
+   <class>CompactEpc</class>
+   <extends>Epc</extends>
+   <header>epyq.widgets.compactepc</header>
+  </customwidget>
+  <customwidget>
+   <class>Epc</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.epc</header>
+  </customwidget>
+  <customwidget>
+   <class>Led</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.led</header>
+  </customwidget>
+  <customwidget>
+   <class>Scale</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.scale</header>
+  </customwidget>
+  <customwidget>
+   <class>Toggle</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.toggle</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
