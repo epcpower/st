@@ -91,10 +91,13 @@ class OverlayLabel(QtWidgets.QWidget):
         self.update_overlay_size(event.size())
 
     def update_overlay_size(self, size):
+        text = self.label.text()
+        if not text:
+            text = '-'
         font = self.label.font()
         font.setPixelSize(1000)
         metric = QFontMetrics(font)
-        rect = metric.boundingRect(self.label.text())
+        rect = metric.boundingRect(text)
 
         pixel_size_width = (
             font.pixelSize() *

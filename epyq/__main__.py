@@ -368,6 +368,9 @@ def main(args=None):
 
     ui.stacked.addWidget(hmi_dialog)
 
+    ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=ui)
+    ui.offline_overlay.label.setText('')
+
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
         ui.showFullScreen()
     else:
