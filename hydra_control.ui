@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1380</width>
-    <height>1298</height>
+    <height>1164</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -261,13 +261,36 @@
       </item>
       <item row="0" column="0" colspan="2">
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="1" column="0">
-         <widget class="Led" name="led_43">
+        <item row="1" column="5">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Hz</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <widget class="CompactEpc" name="compactepc_2">
+          <property name="frame" stdset="0">
+           <string>StatusAcRemoteParameters</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>FrequencyRemote_measured</string>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="Led" name="led_49">
           <property name="frame" stdset="0">
            <string>StatusBits</string>
           </property>
           <property name="signal" stdset="0">
-           <string>PowerAvailAC_status</string>
+           <string>LineVoltageDetectedRemote_status</string>
           </property>
           <property name="label_override" stdset="0">
            <string/>
@@ -293,19 +316,10 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="Led" name="led_49">
-          <property name="frame" stdset="0">
-           <string>StatusBits</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>LineVoltageDetectedRemote_status</string>
-          </property>
-          <property name="label_override" stdset="0">
-           <string/>
-          </property>
-          <property name="label_visible" stdset="0">
-           <bool>true</bool>
+        <item row="1" column="3">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Meas. remote freq</string>
           </property>
          </widget>
         </item>
@@ -325,7 +339,30 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
+        <item row="1" column="0">
+         <widget class="Led" name="led_43">
+          <property name="frame" stdset="0">
+           <string>StatusBits</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>PowerAvailAC_status</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string/>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>Meas. remote VAC</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
          <widget class="CompactEpc" name="compactepc">
           <property name="frame" stdset="0">
            <string>StatusAcRemoteParameters</string>
@@ -333,17 +370,33 @@
           <property name="signal" stdset="0">
            <string>VoltageAcRemote_measured</string>
           </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>V</string>
+          </property>
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="CompactEpc" name="compactepc_2">
-          <property name="frame" stdset="0">
-           <string>StatusAcRemoteParameters</string>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="signal" stdset="0">
-           <string>FrequencyRemote_measured</string>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
           </property>
-         </widget>
+         </spacer>
         </item>
        </layout>
       </item>
@@ -469,6 +522,25 @@
    </item>
    <item row="1" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_5">
+     <item row="0" column="5" rowspan="2">
+      <widget class="CompoundToggle" name="compoundtoggle_6">
+       <property name="box_title" stdset="0">
+        <string>Phase Mode</string>
+       </property>
+       <property name="command_frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="command_signal" stdset="0">
+        <string>EnableSplitPhase_command</string>
+       </property>
+       <property name="status_frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="status_signal" stdset="0">
+        <string>EnableSplitPhase_echo</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="2">
       <widget class="Button" name="button_2">
        <property name="frame" stdset="0">
@@ -482,6 +554,42 @@
        </property>
        <property name="tx" stdset="0">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="Led" name="led_26">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusFaults</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>GeneralFault_status</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="automatic_off_color" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="on_color" stdset="0">
+        <color>
+         <red>192</red>
+         <green>32</green>
+         <blue>32</blue>
+        </color>
+       </property>
+       <property name="manual_off_color" stdset="0">
+        <color>
+         <red>32</red>
+         <green>192</green>
+         <blue>32</blue>
+        </color>
        </property>
       </widget>
      </item>
@@ -583,61 +691,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="Led" name="led_26">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusFaults</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>GeneralFault_status</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="automatic_off_color" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="on_color" stdset="0">
-        <color>
-         <red>192</red>
-         <green>32</green>
-         <blue>32</blue>
-        </color>
-       </property>
-       <property name="manual_off_color" stdset="0">
-        <color>
-         <red>32</red>
-         <green>192</green>
-         <blue>32</blue>
-        </color>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="5" rowspan="2">
-      <widget class="CompoundToggle" name="compoundtoggle_6">
-       <property name="box_title" stdset="0">
-        <string>Phase Mode</string>
-       </property>
-       <property name="command_frame" stdset="0">
-        <string>CommandModeControl</string>
-       </property>
-       <property name="command_signal" stdset="0">
-        <string>EnableSplitPhase_command</string>
-       </property>
-       <property name="status_frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="status_signal" stdset="0">
-        <string>EnableSplitPhase_echo</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="4" rowspan="2">
       <widget class="CompoundToggle" name="compoundtoggle_4">
        <property name="box_title" stdset="0">
@@ -658,24 +711,8 @@
       </widget>
      </item>
      <item row="0" column="3" rowspan="3">
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="Lcd" name="lcd">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="frame" stdset="0">
-          <string>StatusACParameters</string>
-         </property>
-         <property name="signal" stdset="0">
-          <string>CurrentAC_measured</string>
-         </property>
-        </widget>
-       </item>
-       <item>
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="1" column="1">
         <widget class="Lcd" name="lcd_2">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -689,9 +726,15 @@
          <property name="signal" stdset="0">
           <string>VoltageAC_measured</string>
          </property>
+         <property name="label_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="units_visible" stdset="0">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
-       <item>
+       <item row="2" column="1">
         <widget class="Lcd" name="lcd_3">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -705,9 +748,44 @@
          <property name="signal" stdset="0">
           <string>BatteryVoltage_measured</string>
          </property>
+         <property name="label_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="units_visible" stdset="0">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
-       <item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Battery voltage</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="Lcd" name="lcd">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusACParameters</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>CurrentAC_measured</string>
+         </property>
+         <property name="label_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="units_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
         <widget class="Lcd" name="lcd_4">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -720,6 +798,61 @@
          </property>
          <property name="signal" stdset="0">
           <string>SolarVoltage_measured</string>
+         </property>
+         <property name="label_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="units_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Meas. AC current</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Meas. AC Voltage</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Solar voltage</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>V</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>V</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>VRMS</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>A</string>
          </property>
         </widget>
        </item>
