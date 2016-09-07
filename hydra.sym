@@ -290,7 +290,7 @@ CycleTime=100
 Var=TempHeatsink_measured signed 0,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Inlet Coolant Temp."	// Coolant inlet temperature
 Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Internal Ambient Temp."	// Internal ambient temperature
 Var=ConverterLosses unsigned 32,16 -m /u:W /ln:"Converter Losses"	// Power converter thermal loss
-Var=FanSpeed unsigned 48,16 -m	// Cooling fan speed (aircooled units only)
+Var=FanSpeed unsigned 48,16 -m /u:RPM /min:0 /max:4000	// Cooling fan speed (aircooled units only)
 
 [StatusFaults]
 ID=0CFFC8F7h	// Fault bits.

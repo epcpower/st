@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1428</width>
+    <width>1451</width>
     <height>1151</height>
    </rect>
   </property>
@@ -238,6 +238,19 @@
        </property>
        <property name="signal" stdset="0">
         <string>DiodeTemperature</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Scale" name="scale_3">
+       <property name="frame" stdset="0">
+        <string>StatusTemps</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>FanSpeed</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
