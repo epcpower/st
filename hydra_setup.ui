@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1428</width>
-    <height>1115</height>
+    <height>1151</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -269,7 +269,7 @@
            <string>ForceDO4</string>
           </property>
           <property name="label_override" stdset="0">
-           <string>Pump Reset</string>
+           <string/>
           </property>
           <property name="label_visible" stdset="0">
            <bool>false</bool>
@@ -291,10 +291,10 @@
            <string>StatusBits</string>
           </property>
           <property name="signal" stdset="0">
-           <string>DI4_status</string>
+           <string>PumpRunning</string>
           </property>
           <property name="label_override" stdset="0">
-           <string>Pump Running</string>
+           <string/>
           </property>
           <property name="automatic_off_color" stdset="0">
            <bool>false</bool>
@@ -314,10 +314,10 @@
            <string>StatusBits</string>
           </property>
           <property name="signal" stdset="0">
-           <string>DI3_status</string>
+           <string>PumpFaulted</string>
           </property>
           <property name="label_override" stdset="0">
-           <string>Pump VFD Faulted</string>
+           <string/>
           </property>
           <property name="automatic_off_color" stdset="0">
            <bool>false</bool>

@@ -585,10 +585,10 @@
           <string>StatusBits</string>
          </property>
          <property name="signal" stdset="0">
-          <string>DI4_status</string>
+          <string>PumpRunning</string>
          </property>
          <property name="label_override" stdset="0">
-          <string>Pump Running</string>
+          <string/>
          </property>
          <property name="automatic_off_color" stdset="0">
           <bool>false</bool>
