@@ -267,8 +267,8 @@ Var=PhaseRotation_status unsigned 34,2 -m /max:1 /e:PhaseRotation /ln:"Rotation"
 Var=LineVoltageDetected_status unsigned 32,2 -m /max:1 /e:LineVoltagePresent /ln:"Line Voltage Detected"	// Flag indicating if voltage is detected on L1, L2 or L3.
 Var=PhaseRotation_echo unsigned 46,2 -m /max:1 /e:PhaseRotation /ln:"Rotation"	// Echos the state of PhaseRotation_command withing the CommandModeControl message.
 Var=PowerAvailAcRemote_status unsigned 44,2 -m /e:PowerAvail /ln:"Remote AC Avail."	// Indicates that remote AC power is connected and that voltage and frequency are within nominal ranges.
-Var=PhaseRotationRemote_status unsigned 42,2 -m /e:PhaseRotation	// Remote phase rotation order.  When L1 phase angle leads L2 phase angle, rotation is considered positive.
-Var=LineVoltageDetectedRemote_status unsigned 40,2 -m /e:LineVoltagePresent	// Flag indicating if voltage is detected on remote L1, L2 or L3.
+Var=PhaseRotationRemote_status unsigned 42,2 -m /e:PhaseRotation /ln:"Remote Rotation"	// Remote phase rotation order.  When L1 phase angle leads L2 phase angle, rotation is considered positive.
+Var=LineVoltageDetectedRemote_status unsigned 40,2 -m /e:LineVoltagePresent /ln:"Remote Line Voltage Detected"	// Flag indicating if voltage is detected on remote L1, L2 or L3.
 Var=PumpRunning unsigned 54,2 -m /max:1 /e:Status /ln:"Pump Running Status"
 Var=PumpFaulted unsigned 52,2 -m /max:1 /e:Status /ln:"Pump Faulted Status"
 
