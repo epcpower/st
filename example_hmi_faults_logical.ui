@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>498</width>
+    <height>290</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">font-size: 15px</string>
+  </property>
+  <property name="can_file" stdset="0">
+   <string>example.sym</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="7" column="0">
+    <widget class="Led" name="led_33">
+     <property name="frame" stdset="0">
+      <string>StatusFaults</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>ControlHardwareFail_status</string>
+     </property>
+     <property name="on_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>32</green>
+       <blue>32</blue>
+      </color>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="Led" name="led_43">
+     <property name="frame" stdset="0">
+      <string>StatusBits</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>MessageValidPowerCMD_status</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="0">
+    <widget class="Led" name="led_25">
+     <property name="frame" stdset="0">
+      <string>StatusFaults</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>GeneralFault_status</string>
+     </property>
+     <property name="on_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>32</green>
+       <blue>32</blue>
+      </color>
+     </property>
+     <property name="relative_height" stdset="0">
+      <double>2.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="Led" name="led_36">
+     <property name="frame" stdset="0">
+      <string>StatusFaults</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>EStopShutdown_status</string>
+     </property>
+     <property name="on_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>32</green>
+       <blue>32</blue>
+      </color>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="Led" name="led_42">
+     <property name="frame" stdset="0">
+      <string>StatusBits</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>MessageValidVF_status</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="Led" name="led_20">
+     <property name="frame" stdset="0">
+      <string>StatusFaults</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>LossValidControlMessage_status</string>
+     </property>
+     <property name="on_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>32</green>
+       <blue>32</blue>
+      </color>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="Led" name="led_38">
+     <property name="frame" stdset="0">
+      <string>StatusFaults</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>IllegalTransition_status</string>
+     </property>
+     <property name="on_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>32</green>
+       <blue>32</blue>
+      </color>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="Led" name="led_44">
+     <property name="frame" stdset="0">
+      <string>StatusBits</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>MessageValidModeControl_status</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="Led" name="led_27">
+     <property name="frame" stdset="0">
+      <string>StatusFaults</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>SystemFault_status</string>
+     </property>
+     <property name="on_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>32</green>
+       <blue>32</blue>
+      </color>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="Led" name="led_23">
+     <property name="frame" stdset="0">
+      <string>StatusFaults</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>InvalidEESection_status</string>
+     </property>
+     <property name="on_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>32</green>
+       <blue>32</blue>
+      </color>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="Led" name="led_37">
+     <property name="frame" stdset="0">
+      <string>StatusFaults</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>InvalidEEHeader_status</string>
+     </property>
+     <property name="on_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>32</green>
+       <blue>32</blue>
+      </color>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <widget class="Button" name="button_2">
+     <property name="frame" stdset="0">
+      <string>CommandModeControl</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>FaultClear_command</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="tx" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Button</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.button</header>
+  </customwidget>
+  <customwidget>
+   <class>Led</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.led</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
