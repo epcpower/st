@@ -335,8 +335,8 @@ ID=1CFFC7F7h	// Measured (boosted) DC Bus voltage, DC Current, and estimated DC 
 Type=Extended
 DLC=8
 CycleTime=100
-Var=SolarCurrent_measured signed 32,16 -m /u:A /min:0 /max:500 /ln:"Meas. I sol"	// Measured solar current
-Var=BatteryCurrent_measured signed 48,16 -m /u:A /min:-700 /max:700 /ln:"Meas. I batt"	// Measured battery current.
+Var=SolarCurrent_measured signed 32,16 -m /u:A /f:0.1 /min:0 /max:500 /ln:"Meas. I sol"	// Measured solar current
+Var=BatteryCurrent_measured signed 48,16 -m /u:A /f:0.1 /min:-700 /max:700 /ln:"Meas. I batt"	// Measured battery current.
 Var=SolarVoltage_measured signed 0,16 -m /u:V /min:0 /max:900 /ln:"Solar voltage"	// Measured solar panel voltage.
 Var=BatteryVoltage_measured signed 16,16 -m /u:V /min:0 /max:900 /ln:"Battery voltage"	// Measured battery voltage.
 
