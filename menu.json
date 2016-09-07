@@ -5,9 +5,9 @@
     "Logical Faults": "example_hmi_faults_logical.ui",
     "Parameters": "<nv>",
     "Save To NV": "<nv_save>",
-    "Service Display": {
-        "Service Reboot": "<service_reboot>",
-        "Calibrate Touchscreen": "<calibrate_touchscreen>"
+    "Display Setup": {
+        "Update": "<service_reboot>",
+        "Cal. Touchscreen": "<calibrate_touchscreen>"
     },
     "24v Gauge": "example_24v_gauge.ui",
     "Help": {
