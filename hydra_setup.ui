@@ -255,6 +255,19 @@
       </widget>
      </item>
      <item>
+      <widget class="Check" name="check">
+       <property name="frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>ForceFanOn</string>
+       </property>
+       <property name="tx" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="verticalSpacer_3">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -1239,6 +1252,11 @@
    <class>Button</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.button</header>
+  </customwidget>
+  <customwidget>
+   <class>Check</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.check</header>
   </customwidget>
   <customwidget>
    <class>CompactEpc</class>
