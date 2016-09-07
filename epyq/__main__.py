@@ -161,12 +161,35 @@ def main(args=None):
     else:
         device_file = device_file
 
+    number_pad = epyq.numberpad.NumberPad()
+    ui.stacked.addWidget(number_pad)
+
+
+    def set_widget_value(dash, widget, value):
+        widget.signal_object.set_human_value(value)
+        ui.stacked.setCurrentWidget(dash)
+
+    def trigger_numberpad(dash, widget):
+        number_pad.focus(value=widget.signal_object.get_human_value(),
+                         action=functools.partial(
+                             set_widget_value, widget=widget, dash=dash),
+                         label='{} [{}]'.format(widget.signal_object.name,
+                                                widget.signal_object.unit))
+
+    def connect_to_numberpad(dash, widget, signal):
+        signal.connect(functools.partial(
+            trigger_numberpad,
+            dash=dash,
+            widget=widget
+        ))
+
     device = epyq.device.Device(file=device_file,
                                 bus=bus,
                                 tabs=[],
                                 elements=[epyq.device.Elements.dash,
                                           epyq.device.Elements.nv],
-                                rx_interval=1)
+                                rx_interval=1,
+                                edit_action=connect_to_numberpad)
     # TODO: CAMPid 9757656124812312388543272342377
 
     interface = 'socketcan'
@@ -193,9 +216,6 @@ def main(args=None):
     ui.menu_button.clicked.connect(to_menu)
 
     special_menu_nodes = {}
-
-    number_pad = epyq.numberpad.NumberPad()
-    ui.stacked.addWidget(number_pad)
 
     hmi_dialog = epyq.hmidialog.HmiDialog()
 

@@ -7,6 +7,7 @@
         "24v Gauge": "example_24v_gauge.ui",
         "Direct Dash Link": "example_hmi_dash.ui",
         "Main": "example_hmi_main.ui",
+        "Control": "example_hmi_control.ui",
         "Physical Faults": "example_hmi_faults_physical.ui",
         "Logical Faults": "example_hmi_faults_logical.ui"
     }

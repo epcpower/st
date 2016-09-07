@@ -23,6 +23,8 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         # TODO: CAMPid 398956661298765098124690765
         self.ui.value.editingFinished.connect(self.widget_value_changed)
 
+        self.ui.edit_button.hide()
+
         self._frame = None
         self._signal = None
 
