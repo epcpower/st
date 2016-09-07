@@ -316,7 +316,7 @@ def main(args=None):
 
     menu_root = epyq.listmenu.Node(text='Main Menu')
 
-    def focus_dash(name, dash):
+    def focus_dash(dash):
         filters = [
             {
                 'can_id': frame.id | socket.CAN_EFF_FLAG,
@@ -324,7 +324,7 @@ def main(args=None):
                             socket.CAN_EFF_FLAG |
                             socket.CAN_RTR_FLAG
             }
-            for frame in device.dash_connected_frames[name]
+            for frame in dash.connected_frames
         ]
         real_bus.setFilters(filters)
         ui.stacked.setCurrentWidget(dash)
@@ -337,12 +337,12 @@ def main(args=None):
                 traverse(dict_node=value,
                          model_node=child)
             elif value.endswith('.ui'):
-                for name, dash in device.dash_uis.items():
+                # TODO: CAMPid
+                for dash in device.dash_uis.values():
                     if dash.file_name == value:
                         ui.stacked.addWidget(dash)
                         child.action = functools.partial(
                             focus_dash,
-                            name=name,
                             dash=dash
                         )
             else:
@@ -363,6 +363,19 @@ def main(args=None):
     menu = epyq.listmenuview.ListMenuView()
     menu.setModel(menu_model)
     ui.stacked.addWidget(menu)
+
+    dash = [d for d in device.dash_uis.values() if
+            d.file_name == device.raw_dict['dash']][0]
+
+    ui.stacked.addWidget(dash)
+
+    ui.dash_button.clicked.connect(
+        functools.partial(
+            focus_dash,
+            dash=dash
+        )
+    )
+
 
     ui.stacked.setCurrentWidget(menu)
 

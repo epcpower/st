@@ -2,8 +2,11 @@
     "can_path": "example.sym",
     "name": "Example Device",
     "serial_number": "42",
+    "dash": "example_hmi_main.ui",
     "ui_paths": {
         "24v Gauge": "example_24v_gauge.ui",
-        "Direct Dash Link": "example_hmi_dash.ui"
+        "Direct Dash Link": "example_hmi_dash.ui",
+        "Main": "example_hmi_main.ui",
+        "Faults 1": "example_hmi_faults.ui"
     }
 }

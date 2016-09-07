@@ -17,6 +17,18 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
+      <widget class="QPushButton" name="dash_button">
+       <property name="font">
+        <font>
+         <family>FontAwesome</family>
+        </font>
+       </property>
+       <property name="text">
+        <string></string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="menu_button">
        <property name="font">
         <font>

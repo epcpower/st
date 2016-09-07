@@ -119,6 +119,7 @@ class Device:
 
         s = file.read()
         d = json.loads(s, object_pairs_hook=OrderedDict)
+        self.raw_dict = d
 
         path = os.path.dirname(file.name)
         json_ui_paths = {}
@@ -370,17 +371,16 @@ class Device:
 
         flat = flatten(self.dash_uis)
 
-        self.dash_connected_frames = {}
         self.dash_connected_signals = set()
         self.dash_missing_signals = set()
-        for name, dash in flat:
+        for _, dash in flat:
             # TODO: CAMPid 99457281212789437474299
             children = dash.findChildren(QObject)
             widgets = [c for c in children if
                        isinstance(c, AbstractWidget)]
 
-            self.dash_connected_frames[name] = set()
-            frames = self.dash_connected_frames[name]
+            dash.connected_frames = set()
+            frames = dash.connected_frames
 
             for widget in widgets:
                 frame_name = widget.property('frame')

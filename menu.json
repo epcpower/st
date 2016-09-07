@@ -1,4 +1,6 @@
 {
+    "Main": "example_hmi_main.ui",
+    "Faults 1": "example_hmi_faults.ui",
     "Parameters": "<nv>",
     "Save To NV": "<nv_save>",
     "Service Display": {
