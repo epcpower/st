@@ -191,7 +191,7 @@
            <string>StatusTemps</string>
           </property>
           <property name="signal" stdset="0">
-           <string>TempInlet_measured</string>
+           <string>TempHeatsink_measured</string>
           </property>
           <property name="label_override" stdset="0">
            <string/>
