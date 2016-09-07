@@ -6,7 +6,7 @@ import epyq.widgets.abstractwidget
 import os
 import re
 
-from PyQt5.QtCore import pyqtProperty, QFile, QFileInfo
+from PyQt5.QtCore import pyqtProperty, QFile, QFileInfo, QEvent
 from PyQt5.QtGui import QColor
 from PyQt5.QtXml import QDomDocument
 
@@ -205,6 +205,18 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
                     label = new_signal.enumeration[self.on_value]
 
         return label
+
+    def event(self, *args, **kwargs):
+        result = epyq.widgets.abstractwidget.AbstractWidget.event(
+            self, *args, **kwargs
+        )
+
+        event = args[0]
+        if event.type() == QEvent.Polish:
+            self.update_svg()
+
+        return result
+
 
 if __name__ == '__main__':
     import sys
