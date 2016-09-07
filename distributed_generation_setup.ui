@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1428</width>
+    <width>1457</width>
     <height>1115</height>
    </rect>
   </property>
@@ -120,73 +120,103 @@
       </spacer>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox_4">
+      <widget class="QGroupBox" name="groupBox_11">
        <property name="title">
         <string>Inverter Health</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="CompactEpc" name="compactepc">
-          <property name="frame" stdset="0">
-           <string>StatusControlVoltage</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>v24_Supply</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_4">
-          <property name="frame" stdset="0">
-           <string>StatusControlVoltage</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>v15_Supply</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_5">
-          <property name="frame" stdset="0">
-           <string>StatusControlVoltage</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>v3p3_Supply</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_8">
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="3" column="1">
+         <widget class="CompactEpc" name="compactepc_12">
           <property name="frame" stdset="0">
            <string>StatusControlVoltage</string>
           </property>
           <property name="signal" stdset="0">
            <string>v5p0_Supply</string>
           </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_7">
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>-15V Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="CompactEpc" name="compactepc_13">
           <property name="frame" stdset="0">
            <string>StatusControlVolts2</string>
           </property>
           <property name="signal" stdset="0">
            <string>n15V_Supply</string>
           </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_2">
+        <item row="5" column="1">
+         <widget class="CompactEpc" name="compactepc_22">
           <property name="frame" stdset="0">
            <string>StatusTemps</string>
           </property>
           <property name="signal" stdset="0">
            <string>ConverterLosses</string>
           </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_3">
+        <item row="0" column="1">
+         <widget class="CompactEpc" name="compactepc_6">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v24_Supply</string>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="CompactEpc" name="compactepc_24">
+          <property name="frame" stdset="0">
+           <string>StatusTemps</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>TempInternal_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string/>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="CompactEpc" name="compactepc_23">
           <property name="frame" stdset="0">
            <string>StatusTemps</string>
           </property>
@@ -199,18 +229,148 @@
           <property name="tool_tip_override" stdset="0">
            <string/>
           </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_11">
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>5V Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="CompactEpc" name="compactepc_10">
           <property name="frame" stdset="0">
-           <string>StatusTemps</string>
+           <string>StatusControlVoltage</string>
           </property>
           <property name="signal" stdset="0">
-           <string>TempInternal_measured</string>
+           <string>v3p3_Supply</string>
           </property>
-          <property name="label_override" stdset="0">
-           <string/>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Converter Losses</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>Internal Ambient Temp.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>3.3V Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="CompactEpc" name="compactepc_9">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v15_Supply</string>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>15V Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Inlet Coolant Temp.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>24V Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="2">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>C</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>C</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>W</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>V</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="label_13">
+          <property name="text">
+           <string>V</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>V</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_15">
+          <property name="text">
+           <string>V</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_16">
+          <property name="text">
+           <string>V</string>
           </property>
          </widget>
         </item>
@@ -342,26 +502,20 @@
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox_5">
+      <widget class="QGroupBox" name="groupBox_12">
        <property name="title">
         <string>Measured Line Currents</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_6">
-        <item>
-         <widget class="CompactEpc" name="compactepc_14">
-          <property name="frame" stdset="0">
-           <string>StatusLineCurrents</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>L1Current_measured</string>
-          </property>
-          <property name="label_override" stdset="0">
-           <string>L1</string>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>L2</string>
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_15">
+        <item row="1" column="1">
+         <widget class="CompactEpc" name="compactepc_26">
           <property name="frame" stdset="0">
            <string>StatusLineCurrents</string>
           </property>
@@ -371,10 +525,23 @@
           <property name="label_override" stdset="0">
            <string>L2</string>
           </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_16">
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_20">
+          <property name="text">
+           <string>Average</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="CompactEpc" name="compactepc_27">
           <property name="frame" stdset="0">
            <string>StatusLineCurrents</string>
           </property>
@@ -384,10 +551,35 @@
           <property name="label_override" stdset="0">
            <string>L3</string>
           </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_17">
+        <item row="0" column="1">
+         <widget class="CompactEpc" name="compactepc_25">
+          <property name="frame" stdset="0">
+           <string>StatusLineCurrents</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>L1Current_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>L1</string>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="CompactEpc" name="compactepc_28">
           <property name="frame" stdset="0">
            <string>StatusACParameters</string>
           </property>
@@ -397,19 +589,81 @@
           <property name="label_override" stdset="0">
            <string>Average</string>
           </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string>L1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_19">
+          <property name="text">
+           <string>L3</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="label_21">
+          <property name="text">
+           <string>A</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="label_22">
+          <property name="text">
+           <string>A</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_23">
+          <property name="text">
+           <string>A</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_24">
+          <property name="text">
+           <string>A</string>
+          </property>
          </widget>
         </item>
        </layout>
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox_6">
+      <widget class="QGroupBox" name="groupBox_13">
        <property name="title">
         <string>Measured Line Voltages</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_8">
-        <item>
-         <widget class="CompactEpc" name="compactepc_18">
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_28">
+          <property name="text">
+           <string>Average</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_27">
+          <property name="text">
+           <string>L3</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="CompactEpc" name="compactepc_29">
           <property name="frame" stdset="0">
            <string>StatusLineVoltages</string>
           </property>
@@ -419,10 +673,23 @@
           <property name="label_override" stdset="0">
            <string>L1</string>
           </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_19">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_25">
+          <property name="text">
+           <string>L1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="CompactEpc" name="compactepc_30">
           <property name="frame" stdset="0">
            <string>StatusLineVoltages</string>
           </property>
@@ -432,10 +699,16 @@
           <property name="label_override" stdset="0">
            <string>L2</string>
           </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_20">
+        <item row="2" column="1">
+         <widget class="CompactEpc" name="compactepc_31">
           <property name="frame" stdset="0">
            <string>StatusLineVoltages</string>
           </property>
@@ -445,10 +718,16 @@
           <property name="label_override" stdset="0">
            <string>L3</string>
           </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
-        <item>
-         <widget class="CompactEpc" name="compactepc_21">
+        <item row="3" column="1">
+         <widget class="CompactEpc" name="compactepc_32">
           <property name="frame" stdset="0">
            <string>StatusACParameters</string>
           </property>
@@ -457,6 +736,47 @@
           </property>
           <property name="label_override" stdset="0">
            <string>Average</string>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_26">
+          <property name="text">
+           <string>L2</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="label_29">
+          <property name="text">
+           <string>VRMS</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="label_30">
+          <property name="text">
+           <string>VRMS</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_31">
+          <property name="text">
+           <string>VRMS</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_32">
+          <property name="text">
+           <string>VRMS</string>
           </property>
          </widget>
         </item>

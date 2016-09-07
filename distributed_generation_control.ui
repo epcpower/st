@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1380</width>
-    <height>1225</height>
+    <height>1219</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -508,8 +508,8 @@
       </widget>
      </item>
      <item row="0" column="3" rowspan="3">
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="1">
         <widget class="Lcd" name="lcd">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -523,9 +523,58 @@
          <property name="signal" stdset="0">
           <string>CurrentAC_measured</string>
          </property>
+         <property name="label_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="units_visible" stdset="0">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
-       <item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Meas. AC current</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="Lcd" name="lcd_3">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusDCParameters</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>VoltageDCBus</string>
+         </property>
+         <property name="label_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="units_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>DC Voltage</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Meas. AC Voltage</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
         <widget class="Lcd" name="lcd_2">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -539,21 +588,32 @@
          <property name="signal" stdset="0">
           <string>VoltageAC_measured</string>
          </property>
+         <property name="label_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="units_visible" stdset="0">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
-       <item>
-        <widget class="Lcd" name="lcd_3">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item row="2" column="2">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>VDC</string>
          </property>
-         <property name="frame" stdset="0">
-          <string>StatusDCParameters</string>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>VRMS</string>
          </property>
-         <property name="signal" stdset="0">
-          <string>VoltageDCBus</string>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>A</string>
          </property>
         </widget>
        </item>
