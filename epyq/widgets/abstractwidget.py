@@ -37,6 +37,8 @@ class AbstractWidget(QtWidgets.QWidget):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
+        self.has_units_label = hasattr(self.ui, 'units')
+
         self.signal_object = None
 
         self._label_override = ''
@@ -135,6 +137,22 @@ class AbstractWidget(QtWidgets.QWidget):
     def label_visible(self, new_visible):
         self.ui.label.setVisible(new_visible)
         self.update_metadata()
+
+    def has_units_label_a(self):
+        return self.has_units_label
+
+    @pyqtProperty(bool)
+    def units_visible(self):
+        if self.has_units_label:
+            return self.ui.units.isVisible()
+
+        return False
+
+    @units_visible.setter
+    def units_visible(self, new_visible):
+        if self.has_units_label:
+            self.ui.units.setVisible(new_visible)
+            self.update_metadata()
 
     # TODO: CAMPid 943989817913241236127998452684328
     def set_label(self, new_signal=None):
