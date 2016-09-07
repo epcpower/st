@@ -166,7 +166,8 @@ def main(args=None):
 
 
     def set_widget_value(dash, widget, value):
-        widget.signal_object.set_human_value(value)
+        if value is not None:
+            widget.signal_object.set_human_value(value)
         ui.stacked.setCurrentWidget(dash)
 
     def trigger_numberpad(dash, widget):
