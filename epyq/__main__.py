@@ -298,6 +298,20 @@ def main(args=None):
     devices = [os.path.abspath(f) for f in args.devices]
 
     window = Window(ui_file=args.ui, devices=devices, bus=bus)
+    app.setStyleSheet('''
+        QSlider::groove {{
+            width: 6px;
+            border-radius: 3px;
+            background-color: gray;
+        }}
+
+        QSlider::handle {{
+            height: 15px;
+            border-radius: 5px;
+            margin: 0 -10px;
+            background-color: #2270A5;
+        }}
+    '''.format())
 
     window.show()
     return app.exec_()
