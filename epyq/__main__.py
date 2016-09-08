@@ -423,6 +423,19 @@ def main(args=None):
             padding: 0 8px;
             selection-background-color: darkgray;
         }}
+
+        QSlider::groove {{
+            width: 4px;
+            border-radius: 2px;
+            background-color: gray;
+        }}
+
+        QSlider::handle {{
+            height: 10px;
+            border-radius: 3px;
+            margin: 0 -8px;
+            background-color: #2270A5;
+        }}
     '''.format(
         base_font_size_px=base_font_size_px
     ))
