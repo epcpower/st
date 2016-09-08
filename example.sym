@@ -71,8 +71,8 @@ ID=0CFFAC41h	// Sets the desired real (P) and reactive (Q) power levels for the 
 Type=Extended
 DLC=8
 CycleTime=100
-Var=RealPower_command signed 0,32 -m /u:W /min:-90000 /max:90000	// Commanded real power (W) while in grid following mode - positive real power is defined as power being put into the ac network.
-Var=ReactivePower_command signed 32,32 -m /u:VA /min:-90000 /max:90000	// Commanded reactive power (VA) while in grid following mode - positive reactive power is defined as the converter having a leading power factor.
+Var=RealPower_command signed 0,32 -m /u:W /min:-90000 /max:90000 /ln:"Real Power"	// Commanded real power (W) while in grid following mode - positive real power is defined as power being put into the ac network.
+Var=ReactivePower_command signed 32,32 -m /u:VA /min:-90000 /max:90000 /ln:"Reactive Power"	// Commanded reactive power (VA) while in grid following mode - positive reactive power is defined as the converter having a leading power factor.
 
 [CommandVF]
 ID=0CFFAE41h	// Sets the desired voltage and frequency for the module to produce while in the GRID FORMING mode.  In addition, while in the READY and GRID FOLLOWING modes, this message is used to set the nominal voltage levels for detection of acceptable AC line voltage.

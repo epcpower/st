@@ -6,22 +6,38 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
-    <height>272</height>
+    <width>907</width>
+    <height>726</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">font-size: 15px</string>
+   <string notr="true">QWidget[fontawesome=false] {font-size: 15px}</string>
   </property>
   <property name="can_file" stdset="0">
    <string>example.sym</string>
   </property>
+  <property name="small_font" stdset="0">
+   <bool>true</bool>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="1">
+    <widget class="Epc" name="epc_2">
+     <property name="frame" stdset="0">
+      <string>CommandPower</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>ReactivePower_command</string>
+     </property>
+     <property name="tx" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
-    <widget class="CompactEpc" name="compactepc">
+    <widget class="Epc" name="epc">
      <property name="frame" stdset="0">
       <string>CommandPower</string>
      </property>
@@ -34,17 +50,194 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="CompactEpc" name="compactepc_2">
+    <widget class="Epc" name="epc_3">
      <property name="frame" stdset="0">
-      <string>CommandPower</string>
+      <string>CommandVF</string>
      </property>
      <property name="signal" stdset="0">
-      <string>ReactivePower_command</string>
+      <string>Voltage_command</string>
      </property>
      <property name="tx" stdset="0">
       <bool>true</bool>
      </property>
     </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="Epc" name="epc_4">
+     <property name="frame" stdset="0">
+      <string>CommandVF</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>Frequency_command</string>
+     </property>
+     <property name="tx" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="4">
+      <widget class="Led" name="led_26">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusFaults</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>GeneralFault_status</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="automatic_off_color" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="on_color" stdset="0">
+        <color>
+         <red>192</red>
+         <green>32</green>
+         <blue>32</blue>
+        </color>
+       </property>
+       <property name="manual_off_color" stdset="0">
+        <color>
+         <red>32</red>
+         <green>192</green>
+         <blue>32</blue>
+        </color>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" rowspan="2">
+      <widget class="Toggle" name="toggle">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>Enable_command</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="tx" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="value_labels_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="Led" name="led_28">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>Enable_echo</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="label_from_enumeration" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="on_value" stdset="0">
+        <number>0</number>
+       </property>
+       <property name="automatic_off_color" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="on_color" stdset="0">
+        <color>
+         <red>192</red>
+         <green>32</green>
+         <blue>32</blue>
+        </color>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="Led" name="led_29">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>Enable_echo</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="label_from_enumeration" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="automatic_off_color" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="Button" name="button_2">
+       <property name="frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>FaultClear_command</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="tx" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="1" column="3">
+      <widget class="CompactEpc" name="compactepc">
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>State_status</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="2" column="0">
     <spacer name="verticalSpacer">
@@ -63,6 +256,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>Button</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.button</header>
+  </customwidget>
+  <customwidget>
    <class>CompactEpc</class>
    <extends>Epc</extends>
    <header>epyq.widgets.compactepc</header>
@@ -71,6 +269,16 @@
    <class>Epc</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.epc</header>
+  </customwidget>
+  <customwidget>
+   <class>Led</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.led</header>
+  </customwidget>
+  <customwidget>
+   <class>Toggle</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.toggle</header>
   </customwidget>
  </customwidgets>
  <resources/>
