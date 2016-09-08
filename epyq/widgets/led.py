@@ -113,6 +113,10 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
             self._on_value = new_on_value
             self.update_svg()
 
+            # TODO: this is a hacky way to trigger an update
+            self.set_signal(signal=self.signal_object,
+                            force_update=True)
+
     @pyqtProperty(bool)
     def automatic_off_color(self):
         return self._automatic_off_color
