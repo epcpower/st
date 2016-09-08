@@ -138,65 +138,28 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="Led" name="led_28">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+     <item row="1" column="3">
+      <widget class="CompactEpc" name="compactepc">
        <property name="frame" stdset="0">
         <string>StatusBits</string>
        </property>
        <property name="signal" stdset="0">
-        <string>Enable_echo</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>true</bool>
-       </property>
-       <property name="label_from_enumeration" stdset="0">
-        <bool>true</bool>
-       </property>
-       <property name="on_value" stdset="0">
-        <number>0</number>
-       </property>
-       <property name="automatic_off_color" stdset="0">
-        <bool>true</bool>
-       </property>
-       <property name="on_color" stdset="0">
-        <color>
-         <red>192</red>
-         <green>32</green>
-         <blue>32</blue>
-        </color>
+        <string>State_status</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="Led" name="led_29">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="0" column="2">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
        </property>
-       <property name="signal" stdset="0">
-        <string>Enable_echo</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>true</bool>
-       </property>
-       <property name="label_from_enumeration" stdset="0">
-        <bool>true</bool>
-       </property>
-       <property name="automatic_off_color" stdset="0">
-        <bool>true</bool>
-       </property>
-      </widget>
+      </spacer>
      </item>
      <item row="0" column="3">
       <widget class="Button" name="button_2">
@@ -214,28 +177,69 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="1" column="3">
-      <widget class="CompactEpc" name="compactepc">
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>State_status</string>
-       </property>
-      </widget>
+     <item row="0" column="1" rowspan="2">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="Led" name="led_29">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Enable_echo</string>
+         </property>
+         <property name="label_visible" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="label_from_enumeration" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="automatic_off_color" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Led" name="led_28">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>Enable_echo</string>
+         </property>
+         <property name="label_visible" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="label_from_enumeration" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="on_value" stdset="0">
+          <number>0</number>
+         </property>
+         <property name="automatic_off_color" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="on_color" stdset="0">
+          <color>
+           <red>192</red>
+           <green>32</green>
+           <blue>32</blue>
+          </color>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
