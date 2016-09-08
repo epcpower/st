@@ -375,6 +375,11 @@ def main(args=None):
             min-height: 40px;
         }}
 
+        QSlider {{
+            min-height: 60px;
+            min-width: 30px;
+        }}
+
         QPushButton[fontawesome=true] {{
             min-width: 40px;
             max-width: 40px;
