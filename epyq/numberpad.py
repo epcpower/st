@@ -76,7 +76,9 @@ class NumberPad(QWidget):
         self.ui.edit.setText(str(value))
         self.action = action
         self.parent().setCurrentWidget(self)
-        self.focusWidget().clearFocus()
+        focused_widget = self.focusWidget()
+        if focused_widget is not None:
+            focused_widget.clearFocus()
 
     def accept(self):
         try:
