@@ -399,11 +399,11 @@ def main(args=None):
 
         QLineEdit {{
             qproperty-focusPolicy: NoFocus;
-            border-color: #2270A5;
+            border-color: {blue};
         }}
 
         QPushButton:enabled {{
-            border-color: #21A558;
+            border-color: {green};
         }}
 
         QPushButton:!enabled {{
@@ -434,10 +434,12 @@ def main(args=None):
             height: 10px;
             border-radius: 3px;
             margin: 0 -8px;
-            background-color: #2270A5;
+            background-color: {blue};
         }}
     '''.format(
-        base_font_size_px=base_font_size_px
+        base_font_size_px=base_font_size_px,
+        blue='#2270A5',
+        green='#21A558'
     ))
 
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
