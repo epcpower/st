@@ -61,7 +61,7 @@ from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
                           QSettings, Qt, pyqtSlot, QMarginsF, QTextCodec)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu, QFrame,
-                             QAbstractScrollArea)
+                             QAbstractScrollArea, QWidget)
 from PyQt5.QtGui import QPixmap, QPicture
 import time
 import traceback
@@ -93,59 +93,6 @@ def main(args=None):
     app.setApplicationName('EPyQ')
 
     base_font_size_px = 30
-
-    app.setStyleSheet('''
-        QWidget {{
-            font-size: {base_font_size_px}px;
-            font-family: Bitstream Vera Sans;
-        }}
-
-        QAbstractScrollArea {{
-            qproperty-frameShape: NoFrame;
-        }}
-
-        QPushButton {{
-            qproperty-flat: true;
-            width: 40px;
-            height: 40px;
-        }}
-
-        QFrame {{
-            qproperty-frameShadow: Plain;
-        }}
-
-        QLineEdit, QPushButton {{
-            border-radius: 10px;
-        }}
-
-        QLineEdit {{
-            border: 4px solid #2270A5;
-        }}
-
-        QPushButton:enabled {{
-            border: 4px solid #21A558;
-        }}
-
-        QPushButton:!enabled {{
-            border: 4px solid gray;
-        }}
-
-        QLineEdit {{
-            qproperty-frame: false;
-        }}
-
-        QLineEdit:!enabled {{
-            border: 4px solid gray;
-        }}
-
-        QLineEdit:enabled {{
-            qproperty-clearButtonEnabled: true;
-            padding: 0 8px;
-            selection-background-color: darkgray;
-        }}
-    '''.format(
-        base_font_size_px=base_font_size_px
-    ))
 
     QTextCodec.setCodecForLocale(QTextCodec.codecForName('UTF-8'))
 
@@ -404,6 +351,76 @@ def main(args=None):
 
     ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=ui)
     ui.offline_overlay.label.setText('')
+
+    for widget in ui.findChildren(QWidget):
+        widget.setProperty('fontawesome',
+                           widget.font().family() == 'FontAwesome')
+
+    app.setStyleSheet('''
+        QWidget {{
+            font-size: {base_font_size_px}px;
+        }}
+
+        QWidget[fontawesome=false] {{
+            font-family: Bitstream Vera Sans;
+        }}
+
+        QAbstractScrollArea {{
+            qproperty-frameShape: NoFrame;
+        }}
+
+        QPushButton {{
+            font-size: {base_font_size_px}px;
+            min-width: 40px;
+            min-height: 40px;
+        }}
+
+        QPushButton[fontawesome=true] {{
+            min-width: 40px;
+            max-width: 40px;
+            min-height: 40px;
+            max-height: 40px;
+        }}
+
+        QFrame {{
+            qproperty-frameShadow: Plain;
+        }}
+
+        QLineEdit, QPushButton {{
+            border-radius: 10px;
+            border-width: 4px;
+            border-style: solid;
+        }}
+
+        QLineEdit {{
+            qproperty-focusPolicy: NoFocus;
+            border-color: #2270A5;
+        }}
+
+        QPushButton:enabled {{
+            border-color: #21A558;
+        }}
+
+        QPushButton:!enabled {{
+            border-color: gray;
+        }}
+
+        QLineEdit {{
+            qproperty-frame: false;
+        }}
+
+        QLineEdit:!enabled {{
+            border-color: gray;
+        }}
+
+        QLineEdit:enabled {{
+            qproperty-clearButtonEnabled: true;
+            padding: 0 8px;
+            selection-background-color: darkgray;
+        }}
+    '''.format(
+        base_font_size_px=base_font_size_px
+    ))
 
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
         ui.showFullScreen()
