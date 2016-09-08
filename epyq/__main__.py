@@ -121,8 +121,8 @@ def main(args=None):
         number_pad.focus(value=widget.signal_object.get_human_value(),
                          action=functools.partial(
                              set_widget_value, widget=widget, dash=dash),
-                         label='{} [{}]'.format(widget.signal_object.name,
-                                                widget.signal_object.unit))
+                         label='{} [{}]'.format(widget.ui.label.text(),
+                                                widget.ui.units.text()))
 
     def connect_to_numberpad(dash, widget, signal):
         signal.connect(functools.partial(
