@@ -37,6 +37,8 @@ class AbstractWidget(QtWidgets.QWidget):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
+        self.has_units_label = hasattr(self.ui, 'units')
+
         self.signal_object = None
 
         self._label_override = ''
@@ -136,6 +138,22 @@ class AbstractWidget(QtWidgets.QWidget):
         self.ui.label.setVisible(new_visible)
         self.update_metadata()
 
+    def has_units_label_a(self):
+        return self.has_units_label
+
+    @pyqtProperty(bool)
+    def units_visible(self):
+        if self.has_units_label:
+            return self.ui.units.isVisible()
+
+        return False
+
+    @units_visible.setter
+    def units_visible(self, new_visible):
+        if self.has_units_label:
+            self.ui.units.setVisible(new_visible)
+            self.update_metadata()
+
     # TODO: CAMPid 943989817913241236127998452684328
     def set_label(self, new_signal=None):
         label = None
@@ -162,6 +180,41 @@ class AbstractWidget(QtWidgets.QWidget):
 
         self.ui.label.setText(label)
 
+        if not self.label_visible:
+            # TODO: CAMPid 938914912312674213467977981547743
+            try:
+                layout = self.parent().layout()
+            except AttributeError:
+                pass
+            else:
+                if isinstance(layout, QtWidgets.QGridLayout):
+                    index = layout.indexOf(self)
+                    if index >= 0:
+                        row, column, row_span, column_span = (
+                            layout.getItemPosition(index)
+                        )
+                        # TODO: search in case of colspan
+                        left = None
+                        for offset in range(1, column + 1):
+                            left_column = column - offset
+                            left_layout_item = layout.itemAtPosition(
+                                row, left_column)
+
+                            if left_layout_item is not None:
+                                left_temp = left_layout_item.widget()
+                                left_index = layout.indexOf(left_temp)
+                                _, _, _, column_span = layout.getItemPosition(
+                                    left_index)
+
+                                if left_temp is not None:
+                                    if column_span < offset:
+                                        break
+
+                                    left = left_temp
+
+                        if isinstance(left, QtWidgets.QLabel):
+                            left.setText(label)
+
     def set_label_custom(self, new_signal=None):
         return None
 
@@ -170,6 +223,25 @@ class AbstractWidget(QtWidgets.QWidget):
             units = '-'
 
         self.set_unit_text(units)
+
+        if not self.units_visible:
+            # TODO: CAMPid 938914912312674213467977981547743
+            try:
+                layout = self.parent().layout()
+            except AttributeError:
+                pass
+            else:
+                if isinstance(layout, QtWidgets.QGridLayout):
+                    index = layout.indexOf(self)
+                    if index >= 0:
+                        row, column, row_span, column_span = (
+                            layout.getItemPosition(index)
+                        )
+                        right = layout.itemAtPosition(row, column + column_span)
+                        if right is not None:
+                            right = right.widget()
+                            if isinstance(right, QtWidgets.QLabel):
+                                right.setText(units)
 
     def set_unit_text(self, units):
         try:

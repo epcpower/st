@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>1457</width>
-    <height>1115</height>
+    <height>1151</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <property name="can_file" stdset="0">
-   <string>distributed_generation.sym</string>
+   <string>hydra.sym</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
@@ -125,13 +125,70 @@
         <string>Inverter Health</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="3" column="1">
-         <widget class="CompactEpc" name="compactepc_12">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>24V Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="CompactEpc" name="compactepc_22">
+          <property name="frame" stdset="0">
+           <string>StatusTemps</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>ConverterLosses</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string/>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_15">
+          <property name="text">
+           <string>Inlet Coolant Temp.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>15V Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>3.3V Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>5V Supply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="CompactEpc" name="compactepc_10">
           <property name="frame" stdset="0">
            <string>StatusControlVoltage</string>
           </property>
           <property name="signal" stdset="0">
-           <string>v5p0_Supply</string>
+           <string>v3p3_Supply</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string/>
           </property>
           <property name="label_visible" stdset="0">
            <bool>false</bool>
@@ -142,7 +199,7 @@
          </widget>
         </item>
         <item row="4" column="0">
-         <widget class="QLabel" name="label_5">
+         <widget class="QLabel" name="label_6">
           <property name="text">
            <string>-15V Supply</string>
           </property>
@@ -156,21 +213,8 @@
           <property name="signal" stdset="0">
            <string>n15V_Supply</string>
           </property>
-          <property name="label_visible" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="units_visible" stdset="0">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="CompactEpc" name="compactepc_22">
-          <property name="frame" stdset="0">
-           <string>StatusTemps</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>ConverterLosses</string>
+          <property name="label_override" stdset="0">
+           <string/>
           </property>
           <property name="label_visible" stdset="0">
            <bool>false</bool>
@@ -180,19 +224,10 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="CompactEpc" name="compactepc_6">
-          <property name="frame" stdset="0">
-           <string>StatusControlVoltage</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>v24_Supply</string>
-          </property>
-          <property name="label_visible" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="units_visible" stdset="0">
-           <bool>false</bool>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>Converter Losses</string>
           </property>
          </widget>
         </item>
@@ -215,13 +250,70 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="1">
+         <widget class="CompactEpc" name="compactepc_6">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v24_Supply</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string/>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="CompactEpc" name="compactepc_9">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v15_Supply</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string/>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="CompactEpc" name="compactepc_12">
+          <property name="frame" stdset="0">
+           <string>StatusControlVoltage</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>v5p0_Supply</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string/>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item row="6" column="1">
          <widget class="CompactEpc" name="compactepc_23">
           <property name="frame" stdset="0">
            <string>StatusTemps</string>
           </property>
           <property name="signal" stdset="0">
-           <string>TempInlet_measured</string>
+           <string>TempHeatsink_measured</string>
           </property>
           <property name="label_override" stdset="0">
            <string/>
@@ -237,138 +329,64 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>5V Supply</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="CompactEpc" name="compactepc_10">
-          <property name="frame" stdset="0">
-           <string>StatusControlVoltage</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>v3p3_Supply</string>
-          </property>
-          <property name="label_visible" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="units_visible" stdset="0">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>Converter Losses</string>
-          </property>
-         </widget>
-        </item>
         <item row="7" column="0">
-         <widget class="QLabel" name="label_8">
+         <widget class="QLabel" name="label_16">
           <property name="text">
            <string>Internal Ambient Temp.</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>3.3V Supply</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="CompactEpc" name="compactepc_9">
-          <property name="frame" stdset="0">
-           <string>StatusControlVoltage</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>v15_Supply</string>
-          </property>
-          <property name="label_visible" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="units_visible" stdset="0">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>15V Supply</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Inlet Coolant Temp.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>24V Supply</string>
-          </property>
-         </widget>
-        </item>
         <item row="7" column="2">
-         <widget class="QLabel" name="label_9">
+         <widget class="QLabel" name="label_17">
           <property name="text">
            <string>C</string>
           </property>
          </widget>
         </item>
         <item row="6" column="2">
-         <widget class="QLabel" name="label_10">
+         <widget class="QLabel" name="label_18">
           <property name="text">
            <string>C</string>
           </property>
          </widget>
         </item>
         <item row="5" column="2">
-         <widget class="QLabel" name="label_11">
+         <widget class="QLabel" name="label_35">
           <property name="text">
            <string>W</string>
           </property>
          </widget>
         </item>
         <item row="4" column="2">
-         <widget class="QLabel" name="label_12">
+         <widget class="QLabel" name="label_36">
           <property name="text">
            <string>V</string>
           </property>
          </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QLabel" name="label_13">
+         <widget class="QLabel" name="label_37">
           <property name="text">
            <string>V</string>
           </property>
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QLabel" name="label_14">
+         <widget class="QLabel" name="label_38">
           <property name="text">
            <string>V</string>
           </property>
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QLabel" name="label_15">
+         <widget class="QLabel" name="label_39">
           <property name="text">
            <string>V</string>
           </property>
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QLabel" name="label_16">
+         <widget class="QLabel" name="label_40">
           <property name="text">
            <string>V</string>
           </property>
@@ -402,6 +420,32 @@
       </widget>
      </item>
      <item>
+      <widget class="Scale" name="scale_3">
+       <property name="frame" stdset="0">
+        <string>StatusTemps</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>FanSpeed</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Check" name="check">
+       <property name="frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>ForceFanOn</string>
+       </property>
+       <property name="tx" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="verticalSpacer_3">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -429,7 +473,7 @@
            <string>ForceDO4</string>
           </property>
           <property name="label_override" stdset="0">
-           <string>Pump Reset</string>
+           <string/>
           </property>
           <property name="label_visible" stdset="0">
            <bool>false</bool>
@@ -451,10 +495,10 @@
            <string>StatusBits</string>
           </property>
           <property name="signal" stdset="0">
-           <string>DI4_status</string>
+           <string>PumpRunning</string>
           </property>
           <property name="label_override" stdset="0">
-           <string>Pump Running</string>
+           <string/>
           </property>
           <property name="automatic_off_color" stdset="0">
            <bool>false</bool>
@@ -474,10 +518,10 @@
            <string>StatusBits</string>
           </property>
           <property name="signal" stdset="0">
-           <string>DI3_status</string>
+           <string>PumpFaulted</string>
           </property>
           <property name="label_override" stdset="0">
-           <string>Pump VFD Faulted</string>
+           <string/>
           </property>
           <property name="automatic_off_color" stdset="0">
            <bool>false</bool>
@@ -507,34 +551,15 @@
         <string>Measured Line Currents</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_4">
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_18">
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_21">
           <property name="text">
-           <string>L2</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="CompactEpc" name="compactepc_26">
-          <property name="frame" stdset="0">
-           <string>StatusLineCurrents</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>L2Current_measured</string>
-          </property>
-          <property name="label_override" stdset="0">
-           <string>L2</string>
-          </property>
-          <property name="label_visible" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="units_visible" stdset="0">
-           <bool>false</bool>
+           <string>L3</string>
           </property>
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="label_20">
+         <widget class="QLabel" name="label_22">
           <property name="text">
            <string>Average</string>
           </property>
@@ -559,22 +584,31 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="CompactEpc" name="compactepc_25">
-          <property name="frame" stdset="0">
-           <string>StatusLineCurrents</string>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_26">
+          <property name="text">
+           <string>A</string>
           </property>
-          <property name="signal" stdset="0">
-           <string>L1Current_measured</string>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_25">
+          <property name="text">
+           <string>A</string>
           </property>
-          <property name="label_override" stdset="0">
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_19">
+          <property name="text">
            <string>L1</string>
           </property>
-          <property name="label_visible" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="units_visible" stdset="0">
-           <bool>false</bool>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="label_23">
+          <property name="text">
+           <string>A</string>
           </property>
          </widget>
         </item>
@@ -597,42 +631,52 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_17">
+        <item row="1" column="1">
+         <widget class="CompactEpc" name="compactepc_26">
+          <property name="frame" stdset="0">
+           <string>StatusLineCurrents</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>L2Current_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>L2</string>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_20">
           <property name="text">
+           <string>L2</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="CompactEpc" name="compactepc_25">
+          <property name="frame" stdset="0">
+           <string>StatusLineCurrents</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>L1Current_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
            <string>L1</string>
           </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_19">
-          <property name="text">
-           <string>L3</string>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
           </property>
-         </widget>
-        </item>
-        <item row="3" column="2">
-         <widget class="QLabel" name="label_21">
-          <property name="text">
-           <string>A</string>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QLabel" name="label_22">
-          <property name="text">
-           <string>A</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLabel" name="label_23">
-          <property name="text">
-           <string>A</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
          <widget class="QLabel" name="label_24">
           <property name="text">
            <string>A</string>
@@ -648,56 +692,30 @@
         <string>Measured Line Voltages</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_5">
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_28">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_27">
           <property name="text">
-           <string>Average</string>
+           <string>L1</string>
           </property>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_27">
+         <widget class="QLabel" name="label_29">
           <property name="text">
            <string>L3</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="CompactEpc" name="compactepc_29">
+        <item row="3" column="1">
+         <widget class="CompactEpc" name="compactepc_32">
           <property name="frame" stdset="0">
-           <string>StatusLineVoltages</string>
+           <string>StatusACParameters</string>
           </property>
           <property name="signal" stdset="0">
-           <string>L1Voltage_measured</string>
+           <string>VoltageAC_measured</string>
           </property>
           <property name="label_override" stdset="0">
-           <string>L1</string>
-          </property>
-          <property name="label_visible" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="units_visible" stdset="0">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_25">
-          <property name="text">
-           <string>L1</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="CompactEpc" name="compactepc_30">
-          <property name="frame" stdset="0">
-           <string>StatusLineVoltages</string>
-          </property>
-          <property name="signal" stdset="0">
-           <string>L2Voltage_measured</string>
-          </property>
-          <property name="label_override" stdset="0">
-           <string>L2</string>
+           <string>Average</string>
           </property>
           <property name="label_visible" stdset="0">
            <bool>false</bool>
@@ -726,16 +744,23 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
-         <widget class="CompactEpc" name="compactepc_32">
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_30">
+          <property name="text">
+           <string>Average</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="CompactEpc" name="compactepc_30">
           <property name="frame" stdset="0">
-           <string>StatusACParameters</string>
+           <string>StatusLineVoltages</string>
           </property>
           <property name="signal" stdset="0">
-           <string>VoltageAC_measured</string>
+           <string>L2Voltage_measured</string>
           </property>
           <property name="label_override" stdset="0">
-           <string>Average</string>
+           <string>L2</string>
           </property>
           <property name="label_visible" stdset="0">
            <bool>false</bool>
@@ -746,35 +771,54 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="label_26">
+         <widget class="QLabel" name="label_28">
           <property name="text">
            <string>L2</string>
           </property>
          </widget>
         </item>
+        <item row="0" column="1">
+         <widget class="CompactEpc" name="compactepc_29">
+          <property name="frame" stdset="0">
+           <string>StatusLineVoltages</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>L1Voltage_measured</string>
+          </property>
+          <property name="label_override" stdset="0">
+           <string>L1</string>
+          </property>
+          <property name="label_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="units_visible" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item row="3" column="2">
-         <widget class="QLabel" name="label_29">
-          <property name="text">
-           <string>VRMS</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QLabel" name="label_30">
-          <property name="text">
-           <string>VRMS</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
          <widget class="QLabel" name="label_31">
           <property name="text">
            <string>VRMS</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
+        <item row="2" column="2">
          <widget class="QLabel" name="label_32">
+          <property name="text">
+           <string>VRMS</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_33">
+          <property name="text">
+           <string>VRMS</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_34">
           <property name="text">
            <string>VRMS</string>
           </property>
@@ -1067,30 +1111,13 @@
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="11" column="1">
-           <widget class="Led" name="led_26">
+          <item row="6" column="0">
+           <widget class="Led" name="led_35">
             <property name="frame" stdset="0">
              <string>StatusFaults</string>
             </property>
             <property name="signal" stdset="0">
-             <string>SystemFault_status</string>
-            </property>
-            <property name="on_color" stdset="0">
-             <color>
-              <red>192</red>
-              <green>32</green>
-              <blue>32</blue>
-             </color>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="1">
-           <widget class="Led" name="led_23">
-            <property name="frame" stdset="0">
-             <string>StatusFaults</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>InvalidEESection_status</string>
+             <string>OvertempPowerDevice_status</string>
             </property>
             <property name="on_color" stdset="0">
              <color>
@@ -1118,23 +1145,6 @@
             </property>
            </widget>
           </item>
-          <item row="10" column="0">
-           <widget class="Led" name="led_41">
-            <property name="frame" stdset="0">
-             <string>StatusFaults</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>CoolingSystem</string>
-            </property>
-            <property name="on_color" stdset="0">
-             <color>
-              <red>192</red>
-              <green>32</green>
-              <blue>32</blue>
-             </color>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="Epc" name="epc_8">
             <property name="frame" stdset="0">
@@ -1145,40 +1155,13 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="Led" name="led_31">
+          <item row="10" column="0">
+           <widget class="Led" name="led_41">
             <property name="frame" stdset="0">
              <string>StatusFaults</string>
             </property>
             <property name="signal" stdset="0">
-             <string>BridgeAVoltageOk_status</string>
-            </property>
-            <property name="on_color" stdset="0">
-             <color>
-              <red>192</red>
-              <green>32</green>
-              <blue>32</blue>
-             </color>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="Epc" name="epc_9">
-            <property name="frame" stdset="0">
-             <string>StatusFaults</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>BridgeAFault_status</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="Led" name="led_24">
-            <property name="frame" stdset="0">
-             <string>StatusFaults</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>UndervoltageDC_status</string>
+             <string>CoolingSystem</string>
             </property>
             <property name="on_color" stdset="0">
              <color>
@@ -1206,40 +1189,6 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
-           <widget class="Led" name="led_35">
-            <property name="frame" stdset="0">
-             <string>StatusFaults</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>OvertempPowerDevice_status</string>
-            </property>
-            <property name="on_color" stdset="0">
-             <color>
-              <red>192</red>
-              <green>32</green>
-              <blue>32</blue>
-             </color>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="0">
-           <widget class="Led" name="led_28">
-            <property name="frame" stdset="0">
-             <string>StatusFaults</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>ThermalOverload</string>
-            </property>
-            <property name="on_color" stdset="0">
-             <color>
-              <red>192</red>
-              <green>32</green>
-              <blue>32</blue>
-             </color>
-            </property>
-           </widget>
-          </item>
           <item row="8" column="0">
            <widget class="Led" name="led_21">
             <property name="frame" stdset="0">
@@ -1257,13 +1206,29 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="Led" name="led_20">
+          <item row="13" column="1">
+           <widget class="Button" name="button_2">
+            <property name="frame" stdset="0">
+             <string>CommandModeControl</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>FaultClear_command</string>
+            </property>
+            <property name="label_visible" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="tx" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="Led" name="led_24">
             <property name="frame" stdset="0">
              <string>StatusFaults</string>
             </property>
             <property name="signal" stdset="0">
-             <string>LossValidControlMessage_status</string>
+             <string>UndervoltageDC_status</string>
             </property>
             <property name="on_color" stdset="0">
              <color>
@@ -1291,29 +1256,13 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="Led" name="led_43">
-            <property name="frame" stdset="0">
-             <string>StatusBits</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>MessageValidPowerCMD_status</string>
-            </property>
-            <property name="label_override" stdset="0">
-             <string/>
-            </property>
-            <property name="label_visible" stdset="0">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="Led" name="led_27">
+          <item row="10" column="1">
+           <widget class="Led" name="led_23">
             <property name="frame" stdset="0">
              <string>StatusFaults</string>
             </property>
             <property name="signal" stdset="0">
-             <string>OvercurrentAC_status</string>
+             <string>InvalidEESection_status</string>
             </property>
             <property name="on_color" stdset="0">
              <color>
@@ -1321,6 +1270,67 @@
               <green>32</green>
               <blue>32</blue>
              </color>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="Led" name="led_28">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>ThermalOverload</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="Led" name="led_31">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>BridgeAVoltageOk_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="Led" name="led_20">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>LossValidControlMessage_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="Epc" name="epc_9">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>BridgeAFault_status</string>
             </property>
            </widget>
           </item>
@@ -1341,6 +1351,22 @@
             </property>
            </widget>
           </item>
+          <item row="3" column="1">
+           <widget class="Led" name="led_43">
+            <property name="frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>MessageValidPowerCMD_status</string>
+            </property>
+            <property name="label_override" stdset="0">
+             <string/>
+            </property>
+            <property name="label_visible" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="4" column="0">
            <widget class="Led" name="led_30">
             <property name="frame" stdset="0">
@@ -1358,6 +1384,59 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="0">
+           <widget class="Led" name="led_27">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>OvercurrentAC_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="14" column="1">
+           <widget class="Led" name="led_40">
+            <property name="frame" stdset="0">
+             <string>StatusBits</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>FaultClr_echo</string>
+            </property>
+            <property name="label_override" stdset="0">
+             <string>Fault Clear Response</string>
+            </property>
+            <property name="label_visible" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="13" column="0" rowspan="2">
+           <widget class="Led" name="led_25">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>GeneralFault_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+            <property name="relative_height" stdset="0">
+             <double>2.000000000000000</double>
+            </property>
+           </widget>
+          </item>
           <item row="8" column="1">
            <widget class="Led" name="led_38">
             <property name="frame" stdset="0">
@@ -1365,6 +1444,40 @@
             </property>
             <property name="signal" stdset="0">
              <string>IllegalTransition_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="0">
+           <widget class="Led" name="led_45">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>OverloadAC_status</string>
+            </property>
+            <property name="on_color" stdset="0">
+             <color>
+              <red>192</red>
+              <green>32</green>
+              <blue>32</blue>
+             </color>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="Led" name="led_36">
+            <property name="frame" stdset="0">
+             <string>StatusFaults</string>
+            </property>
+            <property name="signal" stdset="0">
+             <string>EStopShutdown_status</string>
             </property>
             <property name="on_color" stdset="0">
              <color>
@@ -1407,23 +1520,6 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="1">
-           <widget class="Led" name="led_36">
-            <property name="frame" stdset="0">
-             <string>StatusFaults</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>EStopShutdown_status</string>
-            </property>
-            <property name="on_color" stdset="0">
-             <color>
-              <red>192</red>
-              <green>32</green>
-              <blue>32</blue>
-             </color>
-            </property>
-           </widget>
-          </item>
           <item row="3" column="0">
            <widget class="Led" name="led_34">
             <property name="frame" stdset="0">
@@ -1441,13 +1537,13 @@
             </property>
            </widget>
           </item>
-          <item row="11" column="0">
-           <widget class="Led" name="led_45">
+          <item row="12" column="0">
+           <widget class="Led" name="led_46">
             <property name="frame" stdset="0">
              <string>StatusFaults</string>
             </property>
             <property name="signal" stdset="0">
-             <string>TimedOverload</string>
+             <string>OverloadDC_status</string>
             </property>
             <property name="on_color" stdset="0">
              <color>
@@ -1458,45 +1554,13 @@
             </property>
            </widget>
           </item>
-          <item row="12" column="1">
-           <widget class="Button" name="button_2">
-            <property name="frame" stdset="0">
-             <string>CommandModeControl</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>FaultClear_command</string>
-            </property>
-            <property name="label_visible" stdset="0">
-             <bool>false</bool>
-            </property>
-            <property name="tx" stdset="0">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="13" column="1">
-           <widget class="Led" name="led_40">
-            <property name="frame" stdset="0">
-             <string>StatusBits</string>
-            </property>
-            <property name="signal" stdset="0">
-             <string>FaultClr_echo</string>
-            </property>
-            <property name="label_override" stdset="0">
-             <string>Fault Clear Response</string>
-            </property>
-            <property name="label_visible" stdset="0">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="12" column="0" rowspan="2">
-           <widget class="Led" name="led_25">
+          <item row="11" column="1">
+           <widget class="Led" name="led_26">
             <property name="frame" stdset="0">
              <string>StatusFaults</string>
             </property>
             <property name="signal" stdset="0">
-             <string>GeneralFault_status</string>
+             <string>ISROverrun_status</string>
             </property>
             <property name="on_color" stdset="0">
              <color>
@@ -1504,9 +1568,6 @@
               <green>32</green>
               <blue>32</blue>
              </color>
-            </property>
-            <property name="relative_height" stdset="0">
-             <double>2.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -1529,6 +1590,11 @@
    <class>Button</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.button</header>
+  </customwidget>
+  <customwidget>
+   <class>Check</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.check</header>
   </customwidget>
   <customwidget>
    <class>CompactEpc</class>
