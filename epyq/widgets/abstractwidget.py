@@ -131,7 +131,7 @@ class AbstractWidget(QtWidgets.QWidget):
 
     @pyqtProperty(bool)
     def label_visible(self):
-        return self.ui.label.isVisible()
+        return self.ui.label.isVisibleTo(self.parent())
 
     @label_visible.setter
     def label_visible(self, new_visible):
@@ -144,7 +144,7 @@ class AbstractWidget(QtWidgets.QWidget):
     @pyqtProperty(bool)
     def units_visible(self):
         if self.has_units_label:
-            return self.ui.units.isVisible()
+            return self.ui.units.isVisibleTo(self.parent())
 
         return False
 
