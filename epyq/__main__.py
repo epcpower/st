@@ -419,7 +419,6 @@ def main(args=None):
         }}
 
         QLineEdit:enabled {{
-            qproperty-clearButtonEnabled: true;
             padding: 0 8px;
             selection-background-color: darkgray;
         }}
