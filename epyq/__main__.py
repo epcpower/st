@@ -393,21 +393,21 @@ def main(args=None):
 
         QLineEdit, QPushButton {{
             border-radius: 10px;
-            border-width: 4px;
+            border-width: 0px;
             border-style: solid;
         }}
 
         QLineEdit {{
             qproperty-focusPolicy: NoFocus;
-            border-color: {blue};
+            background-color: {blue};
         }}
 
         QPushButton:enabled {{
-            border-color: {green};
+            background-color: {green};
         }}
 
         QPushButton:!enabled {{
-            border-color: gray;
+            background-color: gray;
         }}
 
         QLineEdit {{
@@ -415,7 +415,7 @@ def main(args=None):
         }}
 
         QLineEdit:!enabled {{
-            border-color: gray;
+            background-color: gray;
         }}
 
         QLineEdit:enabled {{
