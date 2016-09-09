@@ -368,6 +368,8 @@ def main(args=None):
         QWidget {{
             font-size: {base_font_size_px}px;
             qproperty-focusPolicy: NoFocus;
+            color: black;
+            background: {background};
         }}
 
         QWidget[fontawesome=false] {{
@@ -446,8 +448,9 @@ def main(args=None):
         }}
     '''.format(
         base_font_size_px=base_font_size_px,
-        blue='#2270A5',
-        green='#21A558'
+        background='hsva(0%, 0%, 80%)',
+        blue='hsva(80%, 80%, 65%)',
+        green='hsva(57%, 80%, 65%)'
     ))
 
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
