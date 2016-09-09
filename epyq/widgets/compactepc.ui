@@ -19,6 +19,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="editable" stdset="0">
+   <bool>true</bool>
+  </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="leftMargin">
     <number>0</number>
@@ -72,6 +75,9 @@
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
+     <property name="editable_click" stdset="0">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
@@ -102,6 +108,9 @@
      </property>
      <property name="text">
       <string></string>
+     </property>
+     <property name="editable_click" stdset="0">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

@@ -387,16 +387,11 @@ class Device:
 
             for widget in widgets:
                 if edit_action is not None:
-                    try:
-                        button = widget.ui.edit_button
-                    except AttributeError:
-                        pass
-                    else:
-                        if widget.tx:
-                            button.show()
-                            edit_action(dash=dash,
-                                        widget=widget,
-                                        signal=button.clicked)
+                    # TODO: CAMPid 97453289314763416967675427
+                    if widget.property('editable'):
+                        edit_action(dash=dash,
+                                    widget=widget,
+                                    signal=widget.edit)
                 frame_name = widget.property('frame')
                 signal_name = widget.property('signal')
 

@@ -3,7 +3,10 @@
 #TODO: """DocString if there is one"""
 
 import epyq.widgets.abstractwidget
-from PyQt5.QtCore import pyqtProperty
+
+from PyQt5.QtCore import pyqtProperty, pyqtSignal, QEvent, Qt
+from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtWidgets import QWidget
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -11,11 +14,17 @@ __license__ = 'GPLv2+'
 
 
 class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
+    edit = pyqtSignal(QWidget, QWidget)
+
     def __init__(self, ui, parent=None, in_designer=False):
         epyq.widgets.abstractwidget.AbstractWidget.__init__(
             self, ui=ui, parent=parent, in_designer=in_designer)
 
         self.tx = False
+
+        for widget in self.findChildren(QWidget):
+            if widget.property('editable_click'):
+                widget.installEventFilter(self)
 
         self._period = None
 
@@ -29,6 +38,18 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
 
         self.set_signal(signal=self.signal_object)
         self.ui.value.setDisabled(not self.tx)
+
+    def eventFilter(self, qobject, qevent):
+        if (isinstance(qevent, QMouseEvent)
+                and self.tx
+                and qevent.button() == Qt.LeftButton
+                and qevent.type() == QEvent.MouseButtonRelease
+                and qobject.rect().contains(qevent.localPos().toPoint())):
+            self.edit.emit(self, self)
+
+            return True
+
+        return False
 
     def set_signal(self, signal=None, force_update=False):
         if signal is not None and self.tx:

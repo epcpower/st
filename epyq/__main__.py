@@ -108,8 +108,12 @@ def main(args=None):
     else:
         device_file = device_file
 
+    def add_stacked_widget(widget):
+        ui.stacked.addWidget(widget)
+        widget.setProperty('is_stacked_widget', True)
+
     number_pad = epyq.numberpad.NumberPad()
-    ui.stacked.addWidget(number_pad)
+    add_stacked_widget(number_pad)
 
 
     def set_widget_value(dash, widget, value):
@@ -189,7 +193,7 @@ def main(args=None):
                 nv=nv,
                 dialog=hmi_dialog)
 
-            ui.stacked.addWidget(widget)
+            add_stacked_widget(widget)
             nv_node = epyq.listmenu.Node(
                 text=nv.name,
                 action=functools.partial(
@@ -308,7 +312,7 @@ def main(args=None):
                 # TODO: CAMPid
                 for dash in device.dash_uis.values():
                     if dash.file_name == value:
-                        ui.stacked.addWidget(dash)
+                        add_stacked_widget(dash)
                         child.action = functools.partial(
                             focus_dash,
                             dash=dash
@@ -330,12 +334,12 @@ def main(args=None):
     menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
     menu = epyq.listmenuview.ListMenuView()
     menu.setModel(menu_model)
-    ui.stacked.addWidget(menu)
+    add_stacked_widget(menu)
 
     dash = [d for d in device.dash_uis.values() if
             d.file_name == device.raw_dict['dash']][0]
 
-    ui.stacked.addWidget(dash)
+    add_stacked_widget(dash)
 
     ui.dash_button.clicked.connect(
         functools.partial(
@@ -347,7 +351,7 @@ def main(args=None):
 
     ui.stacked.setCurrentWidget(menu)
 
-    ui.stacked.addWidget(hmi_dialog)
+    add_stacked_widget(hmi_dialog)
 
     ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=ui)
     ui.offline_overlay.label.setText('')
@@ -363,6 +367,18 @@ def main(args=None):
                 }}
             '''.format())
 
+        # TODO: CAMPid 97453289314763416967675427
+        if widget.property('editable'):
+            dash = widget.parent()
+            while dash is not None:
+                if dash.property('is_stacked_widget'):
+                    break
+
+                dash = dash.parent()
+
+            connect_to_numberpad(dash=dash,
+                                 widget=widget,
+                                 signal=widget.edit)
 
     app.setStyleSheet('''
         QWidget {{
