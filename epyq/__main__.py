@@ -359,6 +359,7 @@ def main(args=None):
     app.setStyleSheet('''
         QWidget {{
             font-size: {base_font_size_px}px;
+            qproperty-focusPolicy: NoFocus;
         }}
 
         QWidget[fontawesome=false] {{
