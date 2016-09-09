@@ -465,8 +465,8 @@ def main(args=None):
     '''.format(
         base_font_size_px=base_font_size_px,
         background='hsva(0%, 0%, 80%)',
-        blue='hsva(80%, 80%, 65%, 50%)',
-        green='hsva(57%, 80%, 65%, 50%)'
+        blue='hsva(80%, 40%, 75%)',
+        green='hsva(57%, 40%, 75%)'
     ))
 
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
