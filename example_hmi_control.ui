@@ -13,13 +13,10 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QWidget[fontawesome=false] {font-size: 15px}</string>
-  </property>
   <property name="can_file" stdset="0">
    <string>example.sym</string>
   </property>
-  <property name="small_font" stdset="0">
+  <property name="style_small" stdset="0">
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">

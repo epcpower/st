@@ -355,6 +355,14 @@ def main(args=None):
     for widget in ui.findChildren(QWidget):
         widget.setProperty('fontawesome',
                            widget.font().family() == 'FontAwesome')
+        if widget.property('style_small'):
+            widget.setStyleSheet('''
+                QWidget[fontawesome=false] {{
+                    border-radius: 5px;
+                    font-size: 15px;
+                }}
+            '''.format())
+
 
     app.setStyleSheet('''
         QWidget {{
