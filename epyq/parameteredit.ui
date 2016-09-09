@@ -17,31 +17,6 @@
    <item row="0" column="0">
     <widget class="Epc" name="from_device"/>
    </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="edit_button">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>FontAwesome</family>
-      </font>
-     </property>
-     <property name="text">
-      <string></string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QPushButton" name="save_to_nv_button">
-     <property name="text">
-      <string>Save All To NV</string>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="Epc" name="to_device">
      <property name="label_visible" stdset="0">
@@ -49,6 +24,13 @@
      </property>
      <property name="tx" stdset="0">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="save_to_nv_button">
+     <property name="text">
+      <string>Save All To NV</string>
      </property>
     </widget>
    </item>

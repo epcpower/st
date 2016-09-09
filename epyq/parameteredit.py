@@ -48,8 +48,6 @@ class ParameterEdit(QWidget):
         self.ui.to_device.set_signal(self.nv)
         self.nv.status_signal.value_changed.connect(self.nv.value_changed)
 
-        self.ui.edit_button.clicked.connect(self.edit)
-
         self.ui.save_to_nv_button.clicked.connect(self.save_to_nv)
 
     def edit(self):
