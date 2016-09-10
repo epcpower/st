@@ -61,8 +61,8 @@ from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
                           QSettings, Qt, pyqtSlot, QMarginsF, QTextCodec)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu, QFrame,
-                             QAbstractScrollArea, QWidget)
-from PyQt5.QtGui import QPixmap, QPicture
+                             QAbstractScrollArea, QWidget, QPushButton)
+from PyQt5.QtGui import QPixmap, QPicture, QFont
 import time
 import traceback
 
@@ -158,6 +158,9 @@ def main(args=None):
     import json
     from collections import OrderedDict
 
+    special_menu_nodes = {}
+    actions = {}
+
     with open('menu.json') as f:
         menu = json.load(f, object_pairs_hook=OrderedDict)
 
@@ -165,9 +168,7 @@ def main(args=None):
         real_bus.setFilters(can_filters=[])
         ui.stacked.setCurrentWidget(menu)
 
-    ui.menu_button.clicked.connect(to_menu)
-
-    special_menu_nodes = {}
+    actions['<menu>'] = to_menu
 
     hmi_dialog = epyq.hmidialog.HmiDialog()
 
@@ -308,6 +309,7 @@ def main(args=None):
             if isinstance(value, OrderedDict):
                 traverse(dict_node=value,
                          model_node=child)
+            # TODO: CAMPid 139001547845212167972192345189
             elif value.endswith('.ui'):
                 # TODO: CAMPid
                 for dash in device.dash_uis.values():
@@ -336,18 +338,38 @@ def main(args=None):
     menu.setModel(menu_model)
     add_stacked_widget(menu)
 
-    dash = [d for d in device.dash_uis.values() if
-            d.file_name == device.raw_dict['dash']][0]
+    for character_code, action_name in device.raw_dict['shortcuts'].items():
+        button = QPushButton()
+        base = 16 if character_code.startswith('0x') else 10
+        character = chr(int(character_code, base))
+        button.setText(character)
+        button.setFont(QFont('FontAwesome'))
+        ui.shortcut_layout.addWidget(button)
 
-    add_stacked_widget(dash)
+        # TODO: CAMPid 139001547845212167972192345189
+        if action_name.endswith('.ui'):
+            # TODO: CAMPid
+            for dash in device.dash_uis.values():
+                if dash.file_name == action_name:
+                    add_stacked_widget(dash)
+                    button.clicked.connect(functools.partial(
+                        focus_dash,
+                        dash=dash
+                    ))
+        else:
+            try:
+                action = actions[action_name]
+            except KeyError:
+                print("No action '{}' found in {}".format(
+                        action_name,
+                        actions.keys()
+                    ),
+                    file=sys.stderr
+                )
+            else:
+                button.clicked.connect(action)
 
-    ui.dash_button.clicked.connect(
-        functools.partial(
-            focus_dash,
-            dash=dash
-        )
-    )
-
+    ui.shortcut_layout.addStretch(0)
 
     ui.stacked.setCurrentWidget(menu)
 
