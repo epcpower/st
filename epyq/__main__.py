@@ -85,6 +85,22 @@ def load_ui(filename):
     return uic.loadUi(sio)
 
 
+class StackedHistory:
+    def __init__(self, stacked_widget, length=20):
+        self.stacked_widget = stacked_widget
+        self.length = length
+
+        self.stacked_widget.currentChanged.connect(self.changed)
+
+        self.history = []
+
+    def changed(self, index):
+        self.history.append(index)
+        self.history = self.history[-self.length:]
+
+    def focus_previous(self, steps=1):
+        self.stacked_widget.setCurrentIndex(self.history[-(steps+1)])
+
 def main(args=None):
     print('starting epyq')
 
@@ -97,6 +113,8 @@ def main(args=None):
     QTextCodec.setCodecForLocale(QTextCodec.codecForName('UTF-8'))
 
     ui = load_ui('main.ui')
+
+    stacked_history = StackedHistory(ui.stacked)
 
     bus = epyq.busproxy.BusProxy()
 
@@ -214,7 +232,7 @@ def main(args=None):
     service_reboot_action = functools.partial(
         hmi_dialog.focus,
         ok_action=service_restart,
-        cancel_action=to_menu,
+        cancel_action=stacked_history.focus_previous,
         label=textwrap.dedent('''\
                         Reboot into maintenance mode?
 
@@ -234,7 +252,7 @@ def main(args=None):
     calibrate_touchscreen_action = functools.partial(
         hmi_dialog.focus,
         ok_action=calibrate_touchscreen,
-        cancel_action=to_menu,
+        cancel_action=stacked_history.focus_previous,
         label=textwrap.dedent('''\
                 Reboot and calibrate touchscreen?''')
     )
@@ -249,12 +267,12 @@ def main(args=None):
     # TODO: CAMPid 93849811216123127753953680713426
     def inverter_to_nv():
         device.nvs.module_to_nv()
-        to_menu()
+        stacked_history.focus_previous()
 
     inverter_to_nv_action = functools.partial(
         hmi_dialog.focus,
         ok_action=inverter_to_nv,
-        cancel_action=to_menu,
+        cancel_action=stacked_history.focus_previous,
         label=textwrap.dedent('''\
                         Save all parameters to NV?''')
     )
@@ -289,7 +307,7 @@ def main(args=None):
 
     about_action = functools.partial(
         hmi_dialog.focus,
-        ok_action=to_menu,
+        ok_action=stacked_history.focus_previous,
         enable_delay=0,
         label=about_text
     )
