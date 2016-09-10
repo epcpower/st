@@ -362,6 +362,8 @@ def main(args=None):
     menu_view.setModel(menu_model)
     add_stacked_widget(menu_view)
 
+    ui.shortcut_layout.addStretch(0)
+
     for character_code, action_name in device.raw_dict['shortcuts'].items():
         button = QPushButton()
         base = 16 if character_code.startswith('0x') else 10
