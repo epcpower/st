@@ -469,7 +469,7 @@ def main(args=None):
         }}
 
         QSlider {{
-            min-height: 60px;
+            min-height: 40px;
             min-width: 30px;
         }}
 
