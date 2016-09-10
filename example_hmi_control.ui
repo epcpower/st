@@ -20,59 +20,33 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="1">
-    <widget class="Epc" name="epc_2">
+   <item row="2" column="5">
+    <widget class="CompactEpc" name="compactepc_9">
      <property name="frame" stdset="0">
-      <string>CommandPower</string>
+      <string>StatusMeasuredPower</string>
      </property>
      <property name="signal" stdset="0">
-      <string>ReactivePower_command</string>
+      <string>ReactivePower_measured</string>
      </property>
-     <property name="tx" stdset="0">
-      <bool>true</bool>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="Epc" name="epc">
-     <property name="frame" stdset="0">
-      <string>CommandPower</string>
+   <item row="0" column="5">
+    <widget class="QLabel" name="label_11">
+     <property name="text">
+      <string>Feedback</string>
      </property>
-     <property name="signal" stdset="0">
-      <string>RealPower_command</string>
-     </property>
-     <property name="tx" stdset="0">
-      <bool>true</bool>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="Epc" name="epc_3">
-     <property name="frame" stdset="0">
-      <string>CommandVF</string>
-     </property>
-     <property name="signal" stdset="0">
-      <string>Voltage_command</string>
-     </property>
-     <property name="tx" stdset="0">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="Epc" name="epc_4">
-     <property name="frame" stdset="0">
-      <string>CommandVF</string>
-     </property>
-     <property name="signal" stdset="0">
-      <string>Frequency_command</string>
-     </property>
-     <property name="tx" stdset="0">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
+   <item row="8" column="0" colspan="6">
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="4">
       <widget class="Led" name="led_26">
@@ -240,18 +214,295 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="7" column="1">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>20</width>
-       <height>40</height>
+       <width>0</width>
+       <height>0</height>
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="6" column="1">
+    <widget class="CompactEpc" name="compactepc_5">
+     <property name="frame" stdset="0">
+      <string>CommandVF</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>Frequency_command</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="tx" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="CompactEpc" name="compactepc_8">
+     <property name="frame" stdset="0">
+      <string>StatusCommandedPower</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>ReactivePower_echo</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>W</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_14">
+     <property name="text">
+      <string>Voltage</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="CompactEpc" name="compactepc_4">
+     <property name="frame" stdset="0">
+      <string>CommandVF</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>Voltage_command</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="tx" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="5">
+    <widget class="CompactEpc" name="compactepc_7">
+     <property name="frame" stdset="0">
+      <string>StatusMeasuredPower</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>RealPower_measured</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>Response</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="4">
+    <widget class="CompactEpc" name="compactepc_11">
+     <property name="frame" stdset="0">
+      <string>StatusCommandVF</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>Frequency_echo</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Command</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="CompactEpc" name="compactepc_3">
+     <property name="frame" stdset="0">
+      <string>CommandPower</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>ReactivePower_command</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="tx" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Vrms</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>Reactive Power</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="CompactEpc" name="compactepc_2">
+     <property name="frame" stdset="0">
+      <string>CommandPower</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>RealPower_command</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="tx" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="CompactEpc" name="compactepc_6">
+     <property name="frame" stdset="0">
+      <string>StatusCommandedPower</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>RealPower_echo</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Real Power</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="5">
+    <widget class="CompactEpc" name="compactepc_13">
+     <property name="frame" stdset="0">
+      <string>StatusACParameters</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>Frequency_measured</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="3">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="6" column="2">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Hz</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_15">
+     <property name="text">
+      <string>Frequency</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="5">
+    <widget class="CompactEpc" name="compactepc_12">
+     <property name="frame" stdset="0">
+      <string>StatusACParameters</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>VoltageAC_measured</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>VA</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="4">
+    <widget class="CompactEpc" name="compactepc_10">
+     <property name="frame" stdset="0">
+      <string>StatusCommandVF</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>Voltage_echo</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
