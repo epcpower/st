@@ -3,8 +3,10 @@
     "name": "Example Device",
     "serial_number": "42",
     "shortcuts": {
+        "0xf0c9": "<menu>",
         "0xf0e4": "example_hmi_main.ui",
-        "0xf0c9": "<menu>"
+        "0xf013": "<nv>",
+        "0xf059": "<about>"
     },
     "ui_paths": {
         "24v Gauge": "example_24v_gauge.ui",
