@@ -242,8 +242,8 @@ ID=18FFCBF7h	// Returns the inlet water temperature to the module as well as mod
 Type=Extended
 DLC=8
 CycleTime=100
-Var=TempHeatsink_measured signed 0,16 -m /u:C /f:0.1 /ln:"Heatsink Temp."	// Coolant inlet temperature
-Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /ln:"Inlet Temp."	// Internal ambient temperature
+Var=TempHeatsink_measured signed 0,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Heatsink Temp."	// Coolant inlet temperature
+Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Inlet Temp."	// Internal ambient temperature
 Var=ConverterLosses unsigned 32,16 -m /u:W /max:1	// Power converter thermal loss
 Var=FanSpeed unsigned 48,16 -m	// Cooling fan speed (aircooled units only)
 
