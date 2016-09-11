@@ -154,6 +154,24 @@ class AbstractWidget(QtWidgets.QWidget):
             self.ui.units.setVisible(new_visible)
             self.update_metadata()
 
+    def containing_layout(self):
+        parent = self.parent()
+
+        if parent is None:
+            layout = None
+        else:
+            for layout in parent.findChildren(QtWidgets.QGridLayout):
+                index = layout.indexOf(self)
+                if index != -1:
+                    break
+            else:
+                layout = None
+
+        if layout == None:
+            index = None
+
+        return layout, index
+
     # TODO: CAMPid 943989817913241236127998452684328
     def set_label(self, new_signal=None):
         label = None
@@ -181,15 +199,9 @@ class AbstractWidget(QtWidgets.QWidget):
         self.ui.label.setText(label)
 
         if not self.label_visible:
-            # TODO: CAMPid 938914912312674213467977981547743
-            for layout in self.parent().findChildren(QtWidgets.QGridLayout):
-                index = layout.indexOf(self)
-                if index != -1:
-                    break
-            else:
-                layout = None
-                index = None
+            layout, index = self.containing_layout()
 
+            # TODO: CAMPid 938914912312674213467977981547743
             if index is not None:
                 row, column, row_span, column_span = (
                     layout.getItemPosition(index)
@@ -226,15 +238,9 @@ class AbstractWidget(QtWidgets.QWidget):
         self.set_unit_text(units)
 
         if not self.units_visible:
-            # TODO: CAMPid 938914912312674213467977981547743
-            for layout in self.parent().findChildren(QtWidgets.QGridLayout):
-                index = layout.indexOf(self)
-                if index != -1:
-                    break
-            else:
-                layout = None
-                index = None
+            layout, index = self.containing_layout()
 
+            # TODO: CAMPid 938914912312674213467977981547743
             if index is not None:
                 row, column, row_span, column_span = (
                     layout.getItemPosition(index)
