@@ -182,38 +182,39 @@ class AbstractWidget(QtWidgets.QWidget):
 
         if not self.label_visible:
             # TODO: CAMPid 938914912312674213467977981547743
-            try:
-                layout = self.parent().layout()
-            except AttributeError:
-                pass
+            for layout in self.parent().findChildren(QtWidgets.QGridLayout):
+                index = layout.indexOf(self)
+                if index != -1:
+                    break
             else:
-                if isinstance(layout, QtWidgets.QGridLayout):
-                    index = layout.indexOf(self)
-                    if index >= 0:
-                        row, column, row_span, column_span = (
-                            layout.getItemPosition(index)
-                        )
-                        # TODO: search in case of colspan
-                        left = None
-                        for offset in range(1, column + 1):
-                            left_column = column - offset
-                            left_layout_item = layout.itemAtPosition(
-                                row, left_column)
+                layout = None
+                index = None
 
-                            if left_layout_item is not None:
-                                left_temp = left_layout_item.widget()
-                                left_index = layout.indexOf(left_temp)
-                                _, _, _, column_span = layout.getItemPosition(
-                                    left_index)
+            if index is not None:
+                row, column, row_span, column_span = (
+                    layout.getItemPosition(index)
+                )
+                # TODO: search in case of colspan
+                left = None
+                for offset in range(1, column + 1):
+                    left_column = column - offset
+                    left_layout_item = layout.itemAtPosition(
+                        row, left_column)
 
-                                if left_temp is not None:
-                                    if column_span < offset:
-                                        break
+                    if left_layout_item is not None:
+                        left_temp = left_layout_item.widget()
+                        left_index = layout.indexOf(left_temp)
+                        _, _, _, column_span = layout.getItemPosition(
+                            left_index)
 
-                                    left = left_temp
+                        if left_temp is not None:
+                            if column_span < offset:
+                                break
 
-                        if isinstance(left, QtWidgets.QLabel):
-                            left.setText(label)
+                            left = left_temp
+
+                if isinstance(left, QtWidgets.QLabel):
+                    left.setText(label)
 
     def set_label_custom(self, new_signal=None):
         return None
@@ -226,22 +227,23 @@ class AbstractWidget(QtWidgets.QWidget):
 
         if not self.units_visible:
             # TODO: CAMPid 938914912312674213467977981547743
-            try:
-                layout = self.parent().layout()
-            except AttributeError:
-                pass
+            for layout in self.parent().findChildren(QtWidgets.QGridLayout):
+                index = layout.indexOf(self)
+                if index != -1:
+                    break
             else:
-                if isinstance(layout, QtWidgets.QGridLayout):
-                    index = layout.indexOf(self)
-                    if index >= 0:
-                        row, column, row_span, column_span = (
-                            layout.getItemPosition(index)
-                        )
-                        right = layout.itemAtPosition(row, column + column_span)
-                        if right is not None:
-                            right = right.widget()
-                            if isinstance(right, QtWidgets.QLabel):
-                                right.setText(units)
+                layout = None
+                index = None
+
+            if index is not None:
+                row, column, row_span, column_span = (
+                    layout.getItemPosition(index)
+                )
+                right = layout.itemAtPosition(row, column + column_span)
+                if right is not None:
+                    right = right.widget()
+                    if isinstance(right, QtWidgets.QLabel):
+                        right.setText(units)
 
     def set_unit_text(self, units):
         try:
