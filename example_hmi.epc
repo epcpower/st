@@ -14,6 +14,7 @@
         "Main": "example_hmi_main.ui",
         "Control": "example_hmi_control.ui",
         "Physical Faults": "example_hmi_faults_physical.ui",
-        "Logical Faults": "example_hmi_faults_logical.ui"
+        "Logical Faults": "example_hmi_faults_logical.ui",
+        "Temperature": "example_hmi_temperature.ui"
     }
 }
