@@ -295,7 +295,7 @@ class QScale(QtWidgets.QWidget):
 
             painter.translate(center)
 
-            painter.rotate(self.m_minimum%(float(majorStep)/float(minorSteps))/float(valueSpan)*angleSpan-angleStart)
+            painter.rotate(self.m_minimum%ceil(float(majorStep)/float(minorSteps))/float(valueSpan)*angleSpan-angleStart)
 
             offsetCount = (minorSteps-ceil(self.m_minimum%majorStep)/float(majorStep)*minorSteps)%minorSteps
 
