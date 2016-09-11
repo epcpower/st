@@ -300,13 +300,13 @@ class QScale(QtWidgets.QWidget):
             offsetCount = (minorSteps-ceil(self.m_minimum%majorStep)/float(majorStep)*minorSteps)%minorSteps
 
             for i in range(0, floor(minorSteps*valueSpan/majorStep)+1):
-                painter.rotate(majorStep*angleSpan/(-valueSpan*minorSteps))
-
                 if i%minorSteps == offsetCount:
                     painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,radius,0))
                 else:
                     painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,
                                                    radius-minorScaleWidth,0))
+
+                painter.rotate(majorStep*angleSpan/(-valueSpan*minorSteps))
 
             painter.resetTransform()
 
