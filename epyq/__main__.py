@@ -342,21 +342,21 @@ def main(args=None):
 
     def traverse(dict_node, model_node):
         for key, value in dict_node.items():
+            if key == '<shortcuts>':
+                continue
+
             child = epyq.listmenu.Node(text=key)
             model_node.append_child(child)
             if isinstance(value, OrderedDict):
                 traverse(dict_node=value,
                          model_node=child)
             # TODO: CAMPid 139001547845212167972192345189
-            elif value.endswith('.ui'):
-                # TODO: CAMPid
-                for dash in device.dash_uis.values():
-                    if dash.file_name == value:
-                        add_stacked_widget(dash)
-                        child.action = functools.partial(
-                            focus_dash,
-                            dash=dash
-                        )
+            elif isinstance(value, QWidget):
+                add_stacked_widget(value)
+                child.action = functools.partial(
+                    focus_dash,
+                    dash=value
+                )
             else:
                 try:
                     modify_node = special_menu_nodes[value]
@@ -375,14 +375,14 @@ def main(args=None):
                             node=child
                         )
 
-    traverse(device.raw_dict['menu'], menu_root)
+    traverse(device.ui_paths, menu_root)
 
     menu_view.setModel(menu_model)
     add_stacked_widget(menu_view)
 
     ui.shortcut_layout.addStretch(0)
 
-    for character_code, action_name in device.raw_dict['shortcuts'].items():
+    for character_code, action_name in device.ui_paths['<shortcuts>'].items():
         button = QPushButton()
         base = 16 if character_code.startswith('0x') else 10
         character = chr(int(character_code, base))
@@ -391,15 +391,12 @@ def main(args=None):
         ui.shortcut_layout.addWidget(button)
 
         # TODO: CAMPid 139001547845212167972192345189
-        if action_name.endswith('.ui'):
-            # TODO: CAMPid
-            for dash in device.dash_uis.values():
-                if dash.file_name == action_name:
-                    add_stacked_widget(dash)
-                    button.clicked.connect(functools.partial(
-                        focus_dash,
-                        dash=dash
-                    ))
+        if isinstance(action_name, QWidget):
+            add_stacked_widget(action_name)
+            button.clicked.connect(functools.partial(
+                focus_dash,
+                dash=action_name
+            ))
         else:
             try:
                 action = actions[action_name]

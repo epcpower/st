@@ -24,6 +24,7 @@ from epyq.busproxy import BusProxy
 from epyq.widgets.abstractwidget import AbstractWidget
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSlot, Qt, QFile, QFileInfo, QTextStream, QObject
+from PyQt5.QtWidgets import QWidget
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -125,7 +126,7 @@ class Device:
 
         path = os.path.dirname(file.name)
         json_ui_paths = {}
-        for ui_path_name in ['ui_path', 'ui_paths']:
+        for ui_path_name in ['ui_path', 'ui_paths', 'menu']:
             try:
                 json_ui_paths = d[ui_path_name]
                 break
@@ -222,7 +223,7 @@ class Device:
             for key, value in dict_node.items():
                 if isinstance(value, dict):
                     traverse(value)
-                else:
+                elif value.endswith('.ui'):
                     path = value
                     # TODO: CAMPid 9549757292917394095482739548437597676742
                     if not QFileInfo(path).isAbsolute():
@@ -373,6 +374,7 @@ class Device:
             return flat
 
         flat = flatten(self.dash_uis)
+        flat = [(k, v) for k, v in flat if isinstance(v, QWidget)]
 
         self.dash_connected_signals = set()
         self.dash_missing_signals = set()
