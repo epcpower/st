@@ -5,6 +5,7 @@
     "shortcuts": {
         "0xf0c9": "<menu>",
         "0xf0e4": "example_hmi_main.ui",
+        "0xf14b": "example_hmi_control.ui",
         "0xf013": "<nv>",
         "0xf059": "<about>"
     },
@@ -15,6 +16,9 @@
         "Control": "example_hmi_control.ui",
         "Physical Faults": "example_hmi_faults_physical.ui",
         "Logical Faults": "example_hmi_faults_logical.ui",
-        "Temperature": "example_hmi_temperature.ui"
+        "Temperature": "example_hmi_temperature.ui",
+        "Relays": "example_hmi_relays.ui",
+        "Inverter Health": "example_hmi_health.ui",
+        "AC Lines": "example_hmi_ac_lines.ui"
     }
 }

@@ -184,7 +184,10 @@ def main(args=None):
 
     def to_menu():
         real_bus.setFilters(can_filters=[])
-        ui.stacked.setCurrentWidget(menu_view)
+        if menu_view == ui.stacked.currentWidget():
+            menu_view.ui.esc_button.clicked.emit()
+        else:
+            ui.stacked.setCurrentWidget(menu_view)
 
     actions['<menu>'] = to_menu
 
@@ -428,8 +431,11 @@ def main(args=None):
         if widget.property('style_small'):
             widget.setStyleSheet('''
                 QWidget[fontawesome=false] {{
-                    border-radius: 5px;
                     font-size: 15px;
+                }}
+
+                QLineEdit, QPushButton {{
+                    border-radius: 5px;
                 }}
             '''.format())
 
