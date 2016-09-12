@@ -110,7 +110,7 @@
      <item row="6" column="0">
       <widget class="QLabel" name="label_7">
        <property name="text">
-        <string>Inlet Coolant Temp.</string>
+        <string>Heatsink Temp.</string>
        </property>
       </widget>
      </item>
@@ -252,7 +252,7 @@
         <string>StatusTemps</string>
        </property>
        <property name="signal" stdset="0">
-        <string>TempInlet_measured</string>
+        <string>TempHeatsink_measured</string>
        </property>
        <property name="label_override" stdset="0">
         <string/>
