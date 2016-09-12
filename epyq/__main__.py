@@ -464,6 +464,10 @@ def main(args=None):
             font-family: Bitstream Vera Sans;
         }}
 
+        Epc {{
+            qproperty-show_enumeration_value: false;
+        }}
+
         QAbstractScrollArea {{
             qproperty-frameShape: NoFrame;
         }}
