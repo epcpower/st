@@ -68,6 +68,7 @@ class Signal(QObject):
         self.value = None
         self.scaled_value = None
         self.full_string = None
+        self.enumeration_text = None
 
         self.frame = frame
         # TODO: put this into the frame!
@@ -150,9 +151,11 @@ class Signal(QObject):
             self.value = None
             self.full_string = '-'
             self.value_changed.emit(float('nan'))
+            self.enumeration_text = None
         elif type(value) is float and math.isnan(value):
             pass
         elif self.value != value:
+            self.enumeration_text = None
             # TODO: be careful here, should all be int which is immutable
             #       and therefore safe but...  otherwise a copy would be
             #       needed
@@ -163,6 +166,7 @@ class Signal(QObject):
                 enum_string = self.enumeration[value]
                 self.full_string = self.enumeration_format_re['format'].format(
                         s=enum_string, v=value)
+                self.enumeration_text = enum_string
             except KeyError:
                 # TODO: this should be a subclass or something
                 if self.name == '__padding__':

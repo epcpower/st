@@ -28,6 +28,16 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         self._frame = None
         self._signal = None
 
+        self._show_enumeration_value = True
+
+    @pyqtProperty(bool)
+    def show_enumeration_value(self):
+        return self._show_enumeration_value
+
+    @show_enumeration_value.setter
+    def show_enumeration_value(self, show):
+        self._show_enumeration_value = bool(show)
+
     def widget_value_changed(self):
         epyq.widgets.abstracttxwidget.AbstractTxWidget.widget_value_changed(
             self, self.ui.value.text())
@@ -35,7 +45,9 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
     def set_value(self, value):
         if self.signal_object is not None:
             if len(self.signal_object.enumeration) > 0:
-                value = self.signal_object.full_string
+                value = (self.signal_object.full_string
+                         if self.show_enumeration_value
+                         else self.signal_object.enumeration_text)
             else:
                 value = self.signal_object.format_float()
         elif value is None:
