@@ -179,9 +179,6 @@ def main(args=None):
     special_menu_nodes = {}
     actions = {}
 
-    with open('menu.json') as f:
-        menu = json.load(f, object_pairs_hook=OrderedDict)
-
     def to_menu():
         real_bus.setFilters(can_filters=[])
         if menu_view == ui.stacked.currentWidget():
@@ -378,7 +375,7 @@ def main(args=None):
                             node=child
                         )
 
-    traverse(menu, menu_root)
+    traverse(device.raw_dict['menu'], menu_root)
 
     menu_view.setModel(menu_model)
     add_stacked_widget(menu_view)
