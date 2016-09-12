@@ -1,5 +1,5 @@
 {
-    "can_path": "example.sym",
+    "can_path": "example_hmi.sym",
     "name": "Example Device",
     "serial_number": "42",
     "shortcuts": {
