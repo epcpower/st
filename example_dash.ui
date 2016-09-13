@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Form</class>
- <widget class="QWidget" name="Form">
+ <widget class="EpcForm" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -425,10 +425,10 @@
           <bool>false</bool>
          </property>
          <property name="minimum" stdset="0">
-          <double>50.000000000000000</double>
+          <double>45.000000000000000</double>
          </property>
          <property name="maximum" stdset="0">
-          <double>60.000000000000000</double>
+          <double>65.000000000000000</double>
          </property>
         </widget>
        </item>
@@ -455,6 +455,12 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>EpcForm</class>
+   <extends>QWidget</extends>
+   <header>epyq.form</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>Button</class>
    <extends>QWidget</extends>

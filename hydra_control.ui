@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Form</class>
- <widget class="QWidget" name="Form">
+ <widget class="EpcForm" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>1380</width>
-    <height>1164</height>
+    <height>1298</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -924,6 +924,12 @@
    <class>CompoundToggle</class>
    <extends>QWidget</extends>
    <header>epyq.compoundtoggle</header>
+  </customwidget>
+  <customwidget>
+   <class>EpcForm</class>
+   <extends>QWidget</extends>
+   <header>epyq.form</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>Button</class>

@@ -62,34 +62,18 @@ class AbstractWidget(QtWidgets.QWidget):
 
         self.set_signal(force_update=True)
 
+        expected_type = epyq.form.EpcForm
         while parent is not None:
-            name = 'can_file'
-            if name in parent.dynamicPropertyNames():
-                can_file = parent.property(name)
+            if isinstance(parent, expected_type):
+                parent.update_widget(self)
                 break
             else:
                 parent = parent.parent()
         else:
-            return
-
-        try:
-            matrix = list(importany.importany(can_file).values())[0]
-            neo = epyq.canneo.Neo(matrix=matrix)
-
-            frame_name = self.property('frame')
-            signal_name = self.property('signal')
-
-            self.set_range(min=0, max=100)
-            self.set_value(42)
-
-            # TODO: add some notifications
-            frame = neo.frame_by_name(frame_name)
-            if frame is not None:
-                signal = frame.signal_by_name(signal_name)
-                if signal is not None:
-                    self.set_signal(signal)
-        except:
-            pass
+            raise Exception(
+                'No valid {} widget found while searching parents'.format(
+                    expected_type.__class__.__name__
+                ))
 
     @pyqtProperty('QString')
     def frame(self):
