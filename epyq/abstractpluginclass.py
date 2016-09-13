@@ -15,7 +15,7 @@ class AbstractPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     # https://wiki.python.org/moin/PyQt/Using_Python_Custom_Widgets_in_Qt_Designer
 
     def __init__(self, parent=None, in_designer=True):
-        QtDesigner.QPyDesignerCustomWidgetPlugin.__init__(self)
+        QtDesigner.QPyDesignerCustomWidgetPlugin.__init__(self, parent=parent)
 
         self.in_designer = in_designer
 

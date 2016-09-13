@@ -9,7 +9,7 @@ __license__ = 'GPLv2+'
 
 class SvgWidgetPlugin(epyq.abstractpluginclass.AbstractPlugin):
     def __init__(self, parent=None):
-        epyq.abstractpluginclass.AbstractPlugin.__init__(self)
+        epyq.abstractpluginclass.AbstractPlugin.__init__(self, parent=parent)
 
         self._group = 'EPC - General'
         self._init = epyq.svgwidget.SvgWidget
