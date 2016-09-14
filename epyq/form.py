@@ -6,8 +6,6 @@ import canmatrix.importany as importany
 import epyq.canneo
 import epyq.widgets.abstractwidget
 import os
-import tempfile
-import xml.etree.ElementTree as ET
 
 from PyQt5.QtCore import pyqtProperty, QTimer
 from PyQt5.QtDesigner import QDesignerFormWindowInterface
@@ -76,53 +74,6 @@ class EpcForm(QWidget):
             if self.form_window is not None:
                 self.form_window.fileNameChanged.connect(
                     self.form_window_file_name_changed)
-
-                # `self.in_designer` is the form editor passed to:
-                #   QDesignerCustomWidgetInterface::initialize()
-                editor = self.in_designer
-                widget_box = editor.widgetBox()
-
-                with tempfile.NamedTemporaryFile(mode='r') as temp_original:
-                    # Designer will write to the file so we don't need mode='w'
-                    widget_box.setFileName(temp_original.name)
-                    widget_box.save()
-
-                    tree = ET.parse(temp_original.name)
-                    root = tree.getroot()
-
-                    # http://stackoverflow.com/a/2170994/228539
-                    parent_map = dict(
-                        (c, p) for p in tree.getiterator() for c in p)
-
-                    skip_category_names = ['EPC - General']
-                    skip_categories = []
-                    for category in root.iter('category'):
-                        if category.attrib['name'] in skip_category_names:
-                            skip_categories.append(category)
-
-                    for category in skip_categories:
-                        parent_map[category].remove(category)
-
-                    skip_entry_names = ['OpenGL Widget']
-                    skip_entries = []
-                    for entry in root.iter('categoryentry'):
-                        if entry.attrib['name'] in skip_entry_names:
-                            skip_entries.append(entry)
-
-                    for entry in skip_entries:
-                        parent_map[entry].remove(entry)
-
-                    with tempfile.NamedTemporaryFile() as temp_modified:
-                        tree.write(temp_modified)
-                        with open(temp_modified.name, 'r') as t:
-                            for line in t.readlines():
-                                print(line, end='')
-
-                            print()
-
-                        widget_box.setFileName(temp_modified.name)
-                        loaded = widget_box.load()
-                        print('loaded: {}'.format(loaded))
 
         if self.form_window is not None:
             if not os.path.isabs(can_file):
