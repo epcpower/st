@@ -72,7 +72,7 @@ class AbstractWidget(QtWidgets.QWidget):
         else:
             raise Exception(
                 'No valid {} widget found while searching parents'.format(
-                    expected_type.__class__.__name__
+                    'epyq.form.EpcForm' #expected_type.__class__.__name__
                 ))
 
     @pyqtProperty('QString')
