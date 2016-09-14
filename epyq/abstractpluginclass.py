@@ -29,18 +29,20 @@ class AbstractPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
         self._whats_this = None
 
         self.initialized = False
+        self.core = None
 
     def initialize(self, core):
         if self.initialized:
             return
 
+        self.core = core
         self.initialized = True
 
     def isInitialized(self):
         return self.initialized
 
     def createWidget(self, parent):
-        return self._init(parent, in_designer=True)
+        return self._init(parent, in_designer=self.core)
 
     def name(self):
         return self._name
