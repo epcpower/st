@@ -5,8 +5,10 @@
 import canmatrix.importany as importany
 import epyq.canneo
 import epyq.widgets.abstractwidget
+import os
 
 from PyQt5.QtCore import pyqtProperty, QTimer
+from PyQt5.QtDesigner import QDesignerFormWindowInterface
 from PyQt5.QtWidgets import QWidget
 
 # See file COPYING in this source tree
@@ -20,6 +22,7 @@ class EpcForm(QWidget):
         QWidget.__init__(self, parent=parent)
 
         self._can_file = ''
+        self.form_window = None
 
         self.neo = None
 
@@ -50,11 +53,36 @@ class EpcForm(QWidget):
 
         self.update()
 
+    def form_window_file_name_changed(self, _):
+        self.update()
+
     def update(self):
         if not self.in_designer:
             return
 
-        imported = list(importany.importany(self.can_file).values())
+        can_file = self.can_file
+
+        new_form_window = (
+            QDesignerFormWindowInterface.findFormWindow(self))
+        if new_form_window != self.form_window:
+            if self.form_window is not None:
+                self.form_window.fileNameChanged.disconnect(
+                    self.form_window_file_name_changed)
+
+            self.form_window = new_form_window
+
+            if self.form_window is not None:
+                self.form_window.fileNameChanged.connect(
+                    self.form_window_file_name_changed)
+
+        if self.form_window is not None:
+            if not os.path.isabs(can_file):
+                can_file = os.path.join(
+                    os.path.dirname(self.form_window.fileName()),
+                    can_file
+                )
+
+        imported = list(importany.importany(can_file).values())
 
         widgets = self.findChildren(
                 epyq.widgets.abstractwidget.AbstractWidget)
