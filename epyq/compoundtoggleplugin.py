@@ -8,7 +8,7 @@ __license__ = 'GPLv2+'
 
 class CompoundTogglePlugin(epyq.abstractpluginclass.AbstractPlugin):
     def __init__(self, parent=None):
-        epyq.abstractpluginclass.AbstractPlugin.__init__(self, parent=None)
+        epyq.abstractpluginclass.AbstractPlugin.__init__(self, parent=parent)
 
         self._group = 'EPC - Compound'
         self._init = epyq.compoundtoggle.CompoundToggle
