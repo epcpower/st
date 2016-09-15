@@ -269,6 +269,9 @@ class Frame(QtCanListener):
 
         self.signals = []
         for signal in frame._signals:
+            if signal._comment is not None and '<summary>' in signal._comment:
+                continue
+
             if (multiplex_value is None or
                         str(signal._multiplex) == multiplex_value):
                 neo_signal = signal_class(signal=signal, frame=self)
