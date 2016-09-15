@@ -18,9 +18,6 @@ __license__ = 'GPLv2+'
 class EpcForm(QWidget):
     def __init__(self, parent=None, in_designer=False):
         self.in_designer = in_designer
-        if self.in_designer:
-            from PyQt5.QtDesigner import QDesignerFormWindowInterface
-
         QWidget.__init__(self, parent=parent)
 
         self._can_file = ''
@@ -61,6 +58,8 @@ class EpcForm(QWidget):
     def update(self):
         if not self.in_designer:
             return
+
+        from PyQt5.QtDesigner import QDesignerFormWindowInterface
 
         can_file = self.can_file
 
