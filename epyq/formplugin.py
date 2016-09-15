@@ -66,7 +66,7 @@ class FormPlugin(epyq.abstractpluginclass.AbstractPlugin):
                 with open(temp_modified.name, 'r') as t:
                     for line in t.readlines():
                         print(line, end='')
-                        print()
+                    print()
 
                     widget_box.setFileName(temp_modified.name)
                     loaded = widget_box.load()
