@@ -8,7 +8,6 @@ import epyq.widgets.abstractwidget
 import os
 
 from PyQt5.QtCore import pyqtProperty, QTimer
-from PyQt5.QtDesigner import QDesignerFormWindowInterface
 from PyQt5.QtWidgets import QWidget
 
 # See file COPYING in this source tree
@@ -19,6 +18,9 @@ __license__ = 'GPLv2+'
 class EpcForm(QWidget):
     def __init__(self, parent=None, in_designer=False):
         self.in_designer = in_designer
+        if self.in_designer:
+            from PyQt5.QtDesigner import QDesignerFormWindowInterface
+
         QWidget.__init__(self, parent=parent)
 
         self._can_file = ''
