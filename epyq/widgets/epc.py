@@ -84,6 +84,10 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         strings = signal.enumeration_strings()
         strings.append(string)
 
+        # TODO: really figure out the spacing needed but for now
+        #       just add a space on each side for buffer space
+        strings = [s + '   ' for s in strings]
+
         return max([metric.width(s) for s in strings])
 
 
