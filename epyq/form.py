@@ -82,7 +82,10 @@ class EpcForm(QWidget):
                     can_file
                 )
 
-        imported = list(importany.importany(can_file).values())
+        try:
+            imported = list(importany.importany(can_file).values())
+        except FileNotFoundError:
+            imported = []
 
         widgets = self.findChildren(
                 epyq.widgets.abstractwidget.AbstractWidget)
