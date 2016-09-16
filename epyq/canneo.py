@@ -75,7 +75,8 @@ class Signal(QObject):
         self.frame.signals.append(self)
 
         self.enumeration_format_re = {'re': '^\[(\d+)\]',
-                                      'format': '[{v}] {s}'}
+                                      'format': '[{v}] {s}',
+                                      'no_value_format': '{s}'}
 
         if connect is not None:
             self.connect(connect)
@@ -113,14 +114,18 @@ class Signal(QObject):
         value = round(value)
         self.set_value(value)
 
-    def enumeration_string(self, value):
-        return self.enumeration_format_re['format'].format(
-                v=value, s=self.enumeration[value])
+    def enumeration_string(self, value, include_value=False):
+        format = (self.enumeration_format_re['format']
+                  if include_value
+                  else self.enumeration_format_re['no_value_format'])
 
-    def enumeration_strings(self):
+        return format.format(v=value, s=self.enumeration[value])
+
+    def enumeration_strings(self, include_values=False):
         items = list(self.enumeration)
         items.sort()
-        items = [self.enumeration_string(i) for i in items]
+        items = [self.enumeration_string(i, include_value=include_values)
+                 for i in items]
 
         return items
 
