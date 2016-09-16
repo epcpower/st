@@ -189,6 +189,16 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
 
         self.ui.value.load(svg)
 
+        # TODO: figure out if this should be needed.  seems not but
+        #       without it the font metric can return invalid values
+        #       at least when the label_visible property is not
+        #       explicitly set in the .ui file and the font size
+        #       has been set via a second stylesheet.
+        #
+        #       Possibly:
+        #           https://bugreports.qt.io/browse/QTBUG-42720
+
+        self.ui.label.setVisible(self.ui.label.isVisibleTo(self))
         height = self.relative_height * self.ui.label.fontMetrics().height()
 
         width = height / self.ui.value.ratio()
