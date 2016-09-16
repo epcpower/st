@@ -133,6 +133,12 @@
      <property name="signal" stdset="0">
       <string>BridgeAFault_status</string>
      </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="show_enumeration_value" stdset="0">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
    <item row="1" column="0">
@@ -159,6 +165,12 @@
      </property>
      <property name="signal" stdset="0">
       <string>BridgeBFault_status</string>
+     </property>
+     <property name="units_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="show_enumeration_value" stdset="0">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -284,6 +296,12 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>EpcForm</class>
+   <extends>QWidget</extends>
+   <header>epyq.form</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>Button</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.button</header>
@@ -297,12 +315,6 @@
    <class>Epc</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.epc</header>
-  </customwidget>
-  <customwidget>
-   <class>EpcForm</class>
-   <extends>QWidget</extends>
-   <header>epyq.form</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>Led</class>

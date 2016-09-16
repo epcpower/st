@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>774</width>
+    <width>545</width>
     <height>420</height>
    </rect>
   </property>
@@ -74,6 +74,9 @@
         <string>Rotation</string>
        </property>
        <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="show_enumeration_value" stdset="0">
         <bool>false</bool>
        </property>
       </widget>
@@ -148,6 +151,9 @@
         <string>State_status</string>
        </property>
        <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="show_enumeration_value" stdset="0">
         <bool>false</bool>
        </property>
       </widget>
@@ -749,6 +755,12 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>EpcForm</class>
+   <extends>QWidget</extends>
+   <header>epyq.form</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>Button</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.button</header>
@@ -762,12 +774,6 @@
    <class>Epc</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.epc</header>
-  </customwidget>
-  <customwidget>
-   <class>EpcForm</class>
-   <extends>QWidget</extends>
-   <header>epyq.form</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>Led</class>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>905</width>
-    <height>642</height>
+    <width>529</width>
+    <height>405</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -359,7 +359,7 @@
      <item row="3" column="2">
       <widget class="CompactEpc" name="compactepc_16">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -412,31 +412,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="CompactEpc" name="compactepc_10">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusMeasuredPower</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>ReactivePower_measured</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string>React.</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="units_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
      <item row="5" column="4">
       <widget class="QLabel" name="label_22">
        <property name="text">
@@ -450,7 +425,7 @@
      <item row="2" column="2">
       <widget class="CompactEpc" name="compactepc_14">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -482,7 +457,7 @@
      <item row="1" column="5">
       <widget class="CompactEpc" name="compactepc">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -496,6 +471,12 @@
        <property name="label_visible" stdset="0">
         <bool>false</bool>
        </property>
+       <property name="units_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="show_enumeration_value" stdset="0">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item row="4" column="3">
@@ -505,35 +486,10 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="CompactEpc" name="compactepc_8">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusMeasuredPower</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>RealPower_measured</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string>Real</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="units_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
      <item row="5" column="5">
       <widget class="CompactEpc" name="compactepc_24">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -558,7 +514,7 @@
      <item row="2" column="5">
       <widget class="CompactEpc" name="compactepc_15">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -573,6 +529,12 @@
         <string>Rot.</string>
        </property>
        <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="units_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="show_enumeration_value" stdset="0">
         <bool>false</bool>
        </property>
       </widget>
@@ -601,7 +563,7 @@
      <item row="5" column="2">
       <widget class="CompactEpc" name="compactepc_30">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -643,7 +605,7 @@
      <item row="4" column="2">
       <widget class="CompactEpc" name="compactepc_17">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -678,7 +640,7 @@
      <item row="3" column="5">
       <widget class="CompactEpc" name="compactepc_23">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -706,7 +668,7 @@
      <item row="6" column="2">
       <widget class="CompactEpc" name="compactepc_29">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -831,11 +793,67 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="2">
+      <widget class="CompactEpc" name="compactepc_10">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusMeasuredPower</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>ReactivePower_measured</string>
+       </property>
+       <property name="label_override" stdset="0">
+        <string>React.</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="units_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="CompactEpc" name="compactepc_8">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusMeasuredPower</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>RealPower_measured</string>
+       </property>
+       <property name="label_override" stdset="0">
+        <string>Real</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="units_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>EpcForm</class>
+   <extends>QWidget</extends>
+   <header>epyq.form</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>CompactEpc</class>
    <extends>Epc</extends>
@@ -845,12 +863,6 @@
    <class>Epc</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.epc</header>
-  </customwidget>
-  <customwidget>
-   <class>EpcForm</class>
-   <extends>QWidget</extends>
-   <header>epyq.form</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>Led</class>

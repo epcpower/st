@@ -30,6 +30,8 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
         self._show_enumeration_value = True
 
+        self.update()
+
     @pyqtProperty(bool)
     def show_enumeration_value(self):
         return self._show_enumeration_value
@@ -37,6 +39,53 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
     @show_enumeration_value.setter
     def show_enumeration_value(self, show):
         self._show_enumeration_value = bool(show)
+
+        self.update()
+
+    def set_signal(self, *args, **kwargs):
+        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
+            self, *args, **kwargs)
+
+        self.update()
+
+    def update(self):
+        width = self.calculate_max_value_width()
+        if width is not None:
+            value = self.ui.value
+            value.setMinimumWidth(width)
+
+    # TODO: CAMPid 989849193479134917954791341
+    def calculate_max_value_width(self):
+        if self.signal_object is None:
+            return None
+
+        signal = self.signal_object
+
+        longer = max(
+            [signal.format_float(v) for v in [signal.min, signal.max]],
+            key=len)
+
+        digits = len(longer)
+
+        if '.' in longer:
+            decimal = '.'
+            digits -= 1
+        else:
+            decimal = ''
+
+        self.ui.value.setVisible(self.ui.value.isVisibleTo(self))
+        metric = self.ui.value.fontMetrics()
+        chars = ['{:}'.format(i) for i in range(10)]
+        widths = [metric.width(c) for c in chars]
+        widest_width = max(widths)
+        widest_char = chars[widths.index(widest_width)]
+        string = '{}'.format((widest_char * digits) + decimal)
+
+        strings = signal.enumeration_strings()
+        strings.append(string)
+
+        return max([metric.width(s) for s in strings])
+
 
     def widget_value_changed(self):
         epyq.widgets.abstracttxwidget.AbstractTxWidget.widget_value_changed(
@@ -68,6 +117,8 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         self.ui.value.setMouseTracking(self.tx)
         self.ui.value.setReadOnly(not self.tx)
         self.ui.value.setFocusPolicy(Qt.StrongFocus if self.tx else Qt.NoFocus)
+
+        self.update()
 
 
 if __name__ == '__main__':

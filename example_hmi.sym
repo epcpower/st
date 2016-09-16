@@ -71,8 +71,8 @@ ID=0CFFAC41h	// Sets the desired real (P) and reactive (Q) power levels for the 
 Type=Extended
 DLC=8
 CycleTime=100
-Var=RealPower_command signed 0,32 -m /u:W /min:-90000 /max:90000	// Commanded real power (W) while in grid following mode - positive real power is defined as power being put into the ac network.
-Var=ReactivePower_command signed 32,32 -m /u:VA /min:-90000 /max:90000	// Commanded reactive power (VA) while in grid following mode - positive reactive power is defined as the converter having a leading power factor.
+Var=RealPower_command signed 0,32 -m /u:W /min:-90000 /max:90000 /ln:"Real Power"	// Commanded real power (W) while in grid following mode - positive real power is defined as power being put into the ac network.
+Var=ReactivePower_command signed 32,32 -m /u:VA /min:-90000 /max:90000 /ln:"Reactive Power"	// Commanded reactive power (VA) while in grid following mode - positive reactive power is defined as the converter having a leading power factor.
 
 [CommandVF]
 ID=0CFFAE41h	// Sets the desired voltage and frequency for the module to produce while in the GRID FORMING mode.  In addition, while in the READY and GRID FOLLOWING modes, this message is used to set the nominal voltage levels for detection of acceptable AC line voltage.
@@ -182,16 +182,16 @@ ID=0CFFCAF7h	// Returns the actual measured power.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=RealPower_measured signed 0,32 -m /u:W /ln:"Meas. real power"	// Measured real power.
-Var=ReactivePower_measured signed 32,32 -m /u:VA /ln:"Meas. reactive power"	// Measured reactive power.
+Var=RealPower_measured signed 0,32 -m /u:W /min:-200000 /max:200000 /ln:"Meas. real power"	// Measured real power.
+Var=ReactivePower_measured signed 32,32 -m /u:VA /min:-200000 /max:200000 /ln:"Meas. reactive power"	// Measured reactive power.
 
 [StatusCommandedPower]
 ID=18FFC4F7h	// Echoes the commanded power (P&Q) as received in CommandPQ.
 Type=Extended
 DLC=8
 CycleTime=100
-Var=RealPower_echo signed 0,32 -m /u:W	// Echoed real power command.
-Var=ReactivePower_echo signed 32,32 -m /u:VA	// Echoed reactive power command.
+Var=RealPower_echo signed 0,32 -m /u:W /min:-200000 /max:200000	// Echoed real power command.
+Var=ReactivePower_echo signed 32,32 -m /u:VA /min:-200000 /max:200000	// Echoed reactive power command.
 
 [StatusBits]
 ID=0CFFC3F7h	// Bits representing the status of the power module.
@@ -242,8 +242,8 @@ ID=18FFCBF7h	// Returns the inlet water temperature to the module as well as mod
 Type=Extended
 DLC=8
 CycleTime=100
-Var=TempHeatsink_measured signed 0,16 -m /u:C /f:0.1 /ln:"Heatsink Temp."	// Coolant inlet temperature
-Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /ln:"Inlet Temp."	// Internal ambient temperature
+Var=TempHeatsink_measured signed 0,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Heatsink Temp."	// Coolant inlet temperature
+Var=TempInternal_measured signed 16,16 -m /u:C /f:0.1 /min:0 /max:100 /ln:"Inlet Temp."	// Internal ambient temperature
 Var=ConverterLosses unsigned 32,16 -m /u:W /max:1	// Power converter thermal loss
 Var=FanSpeed unsigned 48,16 -m	// Cooling fan speed (aircooled units only)
 
