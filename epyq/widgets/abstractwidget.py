@@ -58,6 +58,8 @@ class AbstractWidget(QtWidgets.QWidget):
         if not self.in_designer:
             return
 
+        from PyQt5.QtDesigner import QDesignerFormWindowInterface
+
         parent = self
 
         self.set_signal(force_update=True)
@@ -66,6 +68,9 @@ class AbstractWidget(QtWidgets.QWidget):
         while parent is not None:
             if isinstance(parent, expected_type):
                 parent.update_widget(self)
+                break
+            elif isinstance(parent, QDesignerFormWindowInterface):
+                # Probably getting deleted so we can ignore
                 break
             else:
                 parent = parent.parent()
