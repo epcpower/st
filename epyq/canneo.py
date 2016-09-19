@@ -68,6 +68,7 @@ class Signal(QObject):
         self.value = None
         self.scaled_value = None
         self.full_string = None
+        self.short_string = None
         self.enumeration_text = None
 
         self.frame = frame
@@ -155,6 +156,7 @@ class Signal(QObject):
         if value is None:
             self.value = None
             self.full_string = '-'
+            self.short_string = '-'
             self.value_changed.emit(float('nan'))
             self.enumeration_text = None
         elif type(value) is float and math.isnan(value):
@@ -172,13 +174,16 @@ class Signal(QObject):
                 self.full_string = self.enumeration_format_re['format'].format(
                         s=enum_string, v=value)
                 self.enumeration_text = enum_string
+                self.short_string = enum_string
             except KeyError:
                 # TODO: this should be a subclass or something
                 if self.name == '__padding__':
                     self.full_string = '__padding__'
+                    self.short_string = self.full_string
                 elif self.hexadecimal_output:
                     format = '{{:0{}X}}'.format(math.ceil(self.signal_size/math.log2(16)))
                     self.full_string = format.format(int(self.value))
+                    self.short_string = self.full_string
                 else:
                     # TODO: CAMPid 9395616283654658598648263423685
                     # TODO: and _offset...
@@ -188,6 +193,7 @@ class Signal(QObject):
                     )
 
                     self.full_string = self.format_float(self.scaled_value)
+                    self.short_string = self.full_string
 
                     if self.unit is not None:
                         if len(self.unit) > 0:

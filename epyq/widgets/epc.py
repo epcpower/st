@@ -102,7 +102,7 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
                          if self.show_enumeration_value
                          else self.signal_object.enumeration_text)
             else:
-                value = self.signal_object.format_float()
+                value = self.signal_object.short_string
         elif value is None:
             # TODO: quit hardcoding this and it's better implemented elsewhere
             value = '{0:.2f}'.format(0)
