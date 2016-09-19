@@ -50,20 +50,14 @@ class ParameterEdit(QWidget):
 
         self.ui.save_to_nv_button.clicked.connect(self.save_to_nv)
 
-    def edit(self):
-        value = self.nv.get_human_value()
-        self._edit.focus(value=value,
-                         action=self.set_value,
-                         label='{} [{}]'.format(self.nv.name, self.nv.unit))
+        self.ui.to_device.edited.connect(self.edited)
 
-    def set_value(self, value):
-        if value is not None:
-            self.nv.read_from_device()
-            time.sleep(0.05)
-            self.nv.set_human_value(value)
-            self.nv.write_to_device()
-
-        self.parent().setCurrentWidget(self)
+    def edited(self, value):
+        print('-----')
+        self.nv.read_from_device()
+        time.sleep(0.05)
+        self.nv.set_human_value(value)
+        self.nv.write_to_device()
 
     def save_to_nv(self):
         focus_self = functools.partial(

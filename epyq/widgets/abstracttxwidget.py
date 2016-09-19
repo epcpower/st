@@ -15,6 +15,7 @@ __license__ = 'GPLv2+'
 
 class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
     edit = pyqtSignal(QWidget, QWidget)
+    edited = pyqtSignal(float)
 
     def __init__(self, ui, parent=None, in_designer=False):
         epyq.widgets.abstractwidget.AbstractWidget.__init__(
@@ -38,6 +39,10 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
 
         self.set_signal(signal=self.signal_object)
         self.ui.value.setDisabled(not self.tx)
+
+    def user_set_value(self, value):
+        self.signal_object.set_human_value(value)
+        self.edited.emit(value)
 
     def eventFilter(self, qobject, qevent):
         if (isinstance(qevent, QMouseEvent)
