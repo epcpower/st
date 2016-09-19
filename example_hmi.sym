@@ -365,7 +365,7 @@ Var=V110to120pct unsigned 48,16 -m /u:ms /min:1 /max:30000 /d:1000
 DLC=8
 Mux=ActLVM_ClearingTimes2 0,14 2  -m
 Var=ReadParam_status unsigned 14,2 -m /e:ReadNV
-Var=VOver120 unsigned 16,16 -m /min:1 /max:30000 /d:160
+Var=VOver120 unsigned 16,16 -m /u:ms /min:1 /max:30000 /d:160
 
 [StatusNVParam]
 DLC=8
