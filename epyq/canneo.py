@@ -207,7 +207,13 @@ class Signal(QObject):
         # TODO: ack fix this since it's getting called with an actual None value...
         if value is None:
             value = self.scaled_value
-        return '{{:.{}f}}'.format(self.get_decimal_places()).format(value)
+
+        if value is None:
+            formatted = '-'
+        else:
+            formatted = '{{:.{}f}}'.format(self.get_decimal_places()).format(value)
+
+        return formatted
 
     def format(self):
         if self.float:
