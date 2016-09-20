@@ -200,6 +200,6 @@ proc.wait()
 import epyq.revision
 
 shutil.copy(
-    os.path.join('build', 'EPyQ.exe'),
-    os.path.join('..', 'EPyQ-{}.exe'.format(epyq.revision.hash))
+    os.path.join('build', 'EPyQ_HMI.exe'),
+    os.path.join('..', 'EPyQ_HMI-{}.exe'.format(epyq.revision.hash))
 )

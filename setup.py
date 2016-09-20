@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="EPyQ",
+    name="EPyQ_HMI",
     version="0.1",
     author="EPC Power Corp.",
     classifiers=[

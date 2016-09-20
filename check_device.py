@@ -15,7 +15,7 @@ def main(args=None):
     # TODO: CAMPid 9757656124812312388543272342377
     app = QApplication(sys.argv)
     app.setOrganizationName('EPC Power Corp.')
-    app.setApplicationName('EPyQ')
+    app.setApplicationName('EPyQ HMI')
 
     if args is None:
         import argparse
