@@ -67,7 +67,7 @@ from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu, QFrame,
                              QAbstractScrollArea, QWidget, QPushButton)
-from PyQt5.QtGui import QPixmap, QPicture, QFont
+from PyQt5.QtGui import QPixmap, QPicture, QFont, QFontDatabase
 import time
 import traceback
 
@@ -115,6 +115,16 @@ def main(args=None):
 
     base_font_size_px = 30
 
+    fontawesome_path = os.path.join(
+        QFileInfo.absolutePath(QFileInfo(__file__)),
+        '..',
+        'venv',
+        'src',
+        'fontawesome',
+        'fonts',
+        'FontAwesome.otf'
+    )
+    QFontDatabase.addApplicationFont(fontawesome_path)
     QTextCodec.setCodecForLocale(QTextCodec.codecForName('UTF-8'))
 
     ui = load_ui('main.ui')
