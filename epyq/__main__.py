@@ -53,8 +53,13 @@ import platform
 import socket
 import subprocess
 import textwrap
-# TODO: figure out why this is negative on embedded... :[
-socket.CAN_EFF_FLAG = abs(socket.CAN_EFF_FLAG)
+# TODO: This is negative on the embedded side
+#       http://bugs.python.org/issue28215
+try:
+    socket.CAN_EFF_FLAG = abs(socket.CAN_EFF_FLAG)
+except AttributeError:
+    # If it's not there, then it doesn't need to be corrected.
+    pass
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
@@ -162,12 +167,14 @@ def main(args=None):
                                 edit_action=connect_to_numberpad)
     # TODO: CAMPid 9757656124812312388543272342377
 
-    interface = 'socketcan'
-    channel = 'can0'
+    default = {
+        'Linux': {'bustype': 'socketcan', 'channel': 'can0'},
+        'Windows': {'bustype': 'pcan', 'channel': 'PCAN_USBBUS1'}
+    }[platform.system()]
 
     # TODO: CAMPid 9756652312918432656896822
     if interface != 'offline':
-        real_bus = can.interface.Bus(bustype=interface, channel=channel,
+        real_bus = can.interface.Bus(**default,
                                      can_filters=[])
     else:
         real_bus = None
@@ -180,7 +187,8 @@ def main(args=None):
     actions = {}
 
     def to_menu():
-        real_bus.setFilters(can_filters=[])
+        if real_bus is not None:
+            real_bus.setFilters(can_filters=[])
         if menu_view == ui.stacked.currentWidget():
             menu_view.ui.esc_button.clicked.emit()
         else:
@@ -190,17 +198,20 @@ def main(args=None):
 
     hmi_dialog = epyq.hmidialog.HmiDialog()
 
-    nv_filters = [
-        {
-            'can_id': device.nvs.status_frames[0].id | socket.CAN_EFF_FLAG,
-            'can_mask': socket.CAN_EFF_MASK |
-                        socket.CAN_EFF_FLAG |
-                        socket.CAN_RTR_FLAG
-        }
-    ]
+    nv_filters = []
+    if platform.system() != 'Windows':
+        nv_filters.append(
+            {
+                'can_id': device.nvs.status_frames[0].id | socket.CAN_EFF_FLAG,
+                'can_mask': socket.CAN_EFF_MASK |
+                            socket.CAN_EFF_FLAG |
+                            socket.CAN_RTR_FLAG
+            }
+        )
 
     def focus_nv(widget):
-        real_bus.setFilters(nv_filters)
+        if real_bus is not None:
+            real_bus.setFilters(nv_filters)
 
         widget.nv.read_from_device()
         ui.stacked.setCurrentWidget(widget)
@@ -321,16 +332,19 @@ def main(args=None):
     menu_root = epyq.listmenu.Node(text='Main Menu')
 
     def focus_dash(dash):
-        filters = [
-            {
-                'can_id': frame.id | socket.CAN_EFF_FLAG,
-                'can_mask': socket.CAN_EFF_MASK |
-                            socket.CAN_EFF_FLAG |
-                            socket.CAN_RTR_FLAG
-            }
-            for frame in dash.connected_frames
-        ]
-        real_bus.setFilters(filters)
+        filters = []
+        if platform.system() != 'Windows':
+            filters.extend([
+                {
+                    'can_id': frame.id | socket.CAN_EFF_FLAG,
+                    'can_mask': socket.CAN_EFF_MASK |
+                                socket.CAN_EFF_FLAG |
+                                socket.CAN_RTR_FLAG
+                }
+                for frame in dash.connected_frames
+            ])
+        if real_bus is not None:
+            real_bus.setFilters(filters)
         ui.stacked.setCurrentWidget(dash)
 
     menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
