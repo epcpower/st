@@ -182,12 +182,14 @@ def main(args=None):
         'Windows': {'bustype': 'pcan', 'channel': 'PCAN_USBBUS1'}
     }[platform.system()]
 
-    # TODO: CAMPid 9756652312918432656896822
-    if interface != 'offline':
+    try:
         real_bus = can.interface.Bus(**default,
                                      can_filters=[])
-    else:
-        real_bus = None
+    except Exception:
+        if platform.system() == 'Windows':
+            real_bus = None
+        else:
+            raise
     bus.set_bus(bus=real_bus)
 
     import json
