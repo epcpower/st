@@ -99,7 +99,9 @@ class AbstractWidget(QtWidgets.QWidget):
 
     @label_override.setter
     def label_override(self, new_label_override):
-        self._label_override = str(new_label_override)
+        expanded = str(new_label_override)
+        expanded = expanded.encode('utf8').decode('unicode_escape')
+        self._label_override = expanded
         self.ui.label.setText(self.label_override)
         self.update_metadata()
 

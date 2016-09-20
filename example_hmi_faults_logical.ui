@@ -17,39 +17,9 @@
    <string notr="true">font-size: 15px</string>
   </property>
   <property name="can_file" stdset="0">
-   <string>example.sym</string>
+   <string>example_hmi.sym</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="7" column="0">
-    <widget class="Led" name="led_33">
-     <property name="frame" stdset="0">
-      <string>StatusFaults</string>
-     </property>
-     <property name="signal" stdset="0">
-      <string>ControlHardwareFail_status</string>
-     </property>
-     <property name="on_color" stdset="0">
-      <color>
-       <red>192</red>
-       <green>32</green>
-       <blue>32</blue>
-      </color>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="Led" name="led_43">
-     <property name="frame" stdset="0">
-      <string>StatusBits</string>
-     </property>
-     <property name="signal" stdset="0">
-      <string>MessageValidPowerCMD_status</string>
-     </property>
-     <property name="label_visible" stdset="0">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="13" column="0">
     <widget class="Led" name="led_25">
      <property name="frame" stdset="0">
@@ -70,7 +40,7 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="7" column="0">
     <widget class="Led" name="led_36">
      <property name="frame" stdset="0">
       <string>StatusFaults</string>
@@ -117,7 +87,7 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
+   <item row="8" column="0">
     <widget class="Led" name="led_38">
      <property name="frame" stdset="0">
       <string>StatusFaults</string>
@@ -131,6 +101,22 @@
        <green>32</green>
        <blue>32</blue>
       </color>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <widget class="Button" name="button_2">
+     <property name="frame" stdset="0">
+      <string>CommandModeControl</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>FaultClear_command</string>
+     </property>
+     <property name="label_visible" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="tx" stdset="0">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -164,23 +150,6 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="Led" name="led_23">
-     <property name="frame" stdset="0">
-      <string>StatusFaults</string>
-     </property>
-     <property name="signal" stdset="0">
-      <string>InvalidEESection_status</string>
-     </property>
-     <property name="on_color" stdset="0">
-      <color>
-       <red>192</red>
-       <green>32</green>
-       <blue>32</blue>
-      </color>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="1">
     <widget class="Led" name="led_37">
      <property name="frame" stdset="0">
@@ -198,35 +167,62 @@
      </property>
     </widget>
    </item>
-   <item row="13" column="1">
-    <widget class="Button" name="button_2">
+   <item row="1" column="1">
+    <widget class="Led" name="led_23">
      <property name="frame" stdset="0">
-      <string>CommandModeControl</string>
+      <string>StatusFaults</string>
      </property>
      <property name="signal" stdset="0">
-      <string>FaultClear_command</string>
+      <string>InvalidEESection_status</string>
+     </property>
+     <property name="on_color" stdset="0">
+      <color>
+       <red>192</red>
+       <green>32</green>
+       <blue>32</blue>
+      </color>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="Led" name="led_43">
+     <property name="frame" stdset="0">
+      <string>StatusBits</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>MessageValidPowerCMD_status</string>
      </property>
      <property name="label_visible" stdset="0">
-      <bool>false</bool>
-     </property>
-     <property name="tx" stdset="0">
       <bool>true</bool>
      </property>
     </widget>
+   </item>
+   <item row="9" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Button</class>
-   <extends>QWidget</extends>
-   <header>epyq.widgets.button</header>
-  </customwidget>
-  <customwidget>
    <class>EpcForm</class>
    <extends>QWidget</extends>
    <header>epyq.form</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Button</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.button</header>
   </customwidget>
   <customwidget>
    <class>Led</class>

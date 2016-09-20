@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <property name="can_file" stdset="0">
-   <string>example.sym</string>
+   <string>example_hmi.sym</string>
   </property>
   <property name="style_small" stdset="0">
    <bool>true</bool>

@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>545</width>
-    <height>420</height>
+    <width>773</width>
+    <height>557</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <property name="can_file" stdset="0">
-   <string>example.sym</string>
+   <string>example_hmi.sym</string>
   </property>
   <property name="style_small" stdset="0">
    <bool>true</bool>
@@ -32,8 +32,142 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
+   <item row="1" column="1">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="6" column="1">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
    <item row="2" column="1">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="4" column="1">
     <layout class="QGridLayout" name="gridLayout_4">
+     <item row="1" column="4" alignment="Qt::AlignRight">
+      <widget class="Led" name="led_26">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusFaults</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>GeneralFault_status</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="automatic_off_color" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="on_color" stdset="0">
+        <color>
+         <red>192</red>
+         <green>32</green>
+         <blue>32</blue>
+        </color>
+       </property>
+       <property name="manual_off_color" stdset="0">
+        <color>
+         <red>32</red>
+         <green>192</green>
+         <blue>32</blue>
+        </color>
+       </property>
+       <property name="relative_height" stdset="0">
+        <double>1.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2" rowspan="2">
+      <widget class="Line" name="line_4">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5">
+      <widget class="CompactEpc" name="compactepc">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>State_status</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="show_enumeration_value" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item row="0" column="0">
       <widget class="Led" name="led_47">
        <property name="sizePolicy">
@@ -53,41 +187,6 @@
        </property>
        <property name="label_visible" stdset="0">
         <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="5">
-      <widget class="CompactEpc" name="compactepc_14">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>PhaseRotation_status</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string>Rotation</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="show_enumeration_value" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="4">
-      <widget class="QLabel" name="label_13">
-       <property name="text">
-        <string>Rotation</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
@@ -123,38 +222,25 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="5">
-      <widget class="CompactEpc" name="compactepc">
+     <item row="1" column="5">
+      <widget class="Button" name="button_2">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="frame" stdset="0">
-        <string>StatusBits</string>
+        <string>CommandModeControl</string>
        </property>
        <property name="signal" stdset="0">
-        <string>State_status</string>
+        <string>FaultClear_command</string>
        </property>
        <property name="label_visible" stdset="0">
         <bool>false</bool>
        </property>
-       <property name="show_enumeration_value" stdset="0">
-        <bool>false</bool>
+       <property name="tx" stdset="0">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -171,27 +257,7 @@
        </property>
       </spacer>
      </item>
-     <item row="0" column="2" rowspan="2">
-      <widget class="Line" name="line_4">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
     </layout>
-   </item>
-   <item row="4" column="1">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item row="0" column="1">
     <layout class="QGridLayout" name="gridLayout_2">
@@ -399,7 +465,7 @@
      <item row="3" column="2">
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Vrms</string>
+        <string>VRMS</string>
        </property>
       </widget>
      </item>
@@ -518,8 +584,93 @@
      </item>
     </layout>
    </item>
-   <item row="5" column="1">
+   <item row="8" column="1">
     <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="6" rowspan="2">
+      <widget class="Toggle" name="toggle_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>SyncToRemoteSource_command</string>
+       </property>
+       <property name="label_override" stdset="0">
+        <string>Sync to\nremote</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="tx" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="value_labels_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2" rowspan="2">
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" rowspan="2">
+      <widget class="Toggle" name="toggle">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>CommandModeControl</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>Enable_command</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="tx" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="value_labels_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5" rowspan="2">
+      <widget class="QLabel" name="label_7">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Sync to\nremote</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::PlainText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="wordWrap">
+        <bool>false</bool>
+       </property>
+       <property name="yeppers" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1" rowspan="2">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -584,114 +735,6 @@
        </item>
       </layout>
      </item>
-     <item row="0" column="6" rowspan="2">
-      <widget class="Led" name="led_26">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusFaults</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>GeneralFault_status</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="automatic_off_color" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="on_color" stdset="0">
-        <color>
-         <red>192</red>
-         <green>32</green>
-         <blue>32</blue>
-        </color>
-       </property>
-       <property name="manual_off_color" stdset="0">
-        <color>
-         <red>32</red>
-         <green>192</green>
-         <blue>32</blue>
-        </color>
-       </property>
-       <property name="relative_height" stdset="0">
-        <double>1.500000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="Led" name="led_48">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>PowerCircuitEnabled_status</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string>Power Enabled</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" rowspan="2">
-      <widget class="Toggle" name="toggle">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>CommandModeControl</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>Enable_command</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="tx" stdset="0">
-        <bool>true</bool>
-       </property>
-       <property name="value_labels_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="5" rowspan="2">
-      <widget class="Button" name="button_2">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>CommandModeControl</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>FaultClear_command</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="tx" stdset="0">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="3">
       <widget class="Led" name="led">
        <property name="sizePolicy">
@@ -721,13 +764,6 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2" rowspan="2">
-      <widget class="Line" name="line_3">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="4" rowspan="2">
       <widget class="Line" name="line_5">
        <property name="orientation">
@@ -735,21 +771,42 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="3">
+      <widget class="Led" name="led_48">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>PowerCircuitEnabled_status</string>
+       </property>
+       <property name="label_override" stdset="0">
+        <string>Power Enabled</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
-   <item row="1" column="1">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="1">
-    <widget class="Line" name="line_2">
+    <spacer name="verticalSpacer_4">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Vertical</enum>
      </property>
-    </widget>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

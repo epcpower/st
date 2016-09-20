@@ -428,6 +428,10 @@ def main(args=None):
                     font-size: 15px;
                 }}
 
+                QPushButton[fontawesome=false] {{
+                    min-height: 25px;
+                }}
+
                 QLineEdit, QPushButton {{
                     border-radius: 5px;
                 }}
@@ -472,11 +476,6 @@ def main(args=None):
             min-height: 40px;
         }}
 
-        QSlider {{
-            min-height: 40px;
-            min-width: 30px;
-        }}
-
         QPushButton[fontawesome=true] {{
             min-width: 40px;
             max-width: 40px;
@@ -518,6 +517,11 @@ def main(args=None):
         QLineEdit:enabled {{
             padding: 0 8px;
             selection-background-color: darkgray;
+        }}
+
+        QSlider {{
+            min-height: 40px;
+            min-width: 30px;
         }}
 
         QSlider::groove {{

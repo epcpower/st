@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <property name="can_file" stdset="0">
-   <string>example.sym</string>
+   <string>example_hmi.sym</string>
   </property>
   <property name="style_small" stdset="0">
    <bool>true</bool>
@@ -25,54 +25,47 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>24V Supply</string>
+        <string>v24_Supply</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
-      <widget class="QLabel" name="label_13">
-       <property name="text">
-        <string>V</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>15V Supply</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
+     <item row="1" column="2">
       <widget class="QLabel" name="label_11">
        <property name="text">
         <string>W</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>-15V Supply</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="label_15">
-       <property name="text">
-        <string>V</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="2">
-      <widget class="QLabel" name="label_9">
+     <item row="2" column="2">
+      <widget class="QLabel" name="label_10">
        <property name="text">
         <string>C</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="CompactEpc" name="compactepc_10">
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_16">
+       <property name="text">
+        <string>V</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Heatsink Temp.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Inlet Temp.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="CompactEpc" name="compactepc_24">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -80,37 +73,19 @@
         </sizepolicy>
        </property>
        <property name="frame" stdset="0">
-        <string>StatusControlVoltage</string>
+        <string>StatusTemps</string>
        </property>
        <property name="signal" stdset="0">
-        <string>v3p3_Supply</string>
+        <string>TempInternal_measured</string>
+       </property>
+       <property name="label_override" stdset="0">
+        <string/>
        </property>
        <property name="label_visible" stdset="0">
         <bool>false</bool>
        </property>
        <property name="units_visible" stdset="0">
         <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="label_14">
-       <property name="text">
-        <string>V</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>Converter Losses</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Heatsink Temp.</string>
        </property>
       </widget>
      </item>
@@ -136,111 +111,27 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="2">
-      <widget class="QLabel" name="label_10">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>C</string>
+        <string>ConverterLosses</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="CompactEpc" name="compactepc_9">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="0" column="3">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-       <property name="frame" stdset="0">
-        <string>StatusControlVoltage</string>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
        </property>
-       <property name="signal" stdset="0">
-        <string>v15_Supply</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="units_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
+      </spacer>
      </item>
-     <item row="4" column="2">
-      <widget class="QLabel" name="label_12">
-       <property name="text">
-        <string>V</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_16">
-       <property name="text">
-        <string>V</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="CompactEpc" name="compactepc_24">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusTemps</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>TempInternal_measured</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string/>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="units_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Internal Ambient Temp.</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>3.3V Supply</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="CompactEpc" name="compactepc_13">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusControlVolts2</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>n15V_Supply</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="units_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
+     <item row="2" column="1">
       <widget class="CompactEpc" name="compactepc_23">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -268,29 +159,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="CompactEpc" name="compactepc_12">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusControlVoltage</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>v5p0_Supply</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="units_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
+     <item row="1" column="1">
       <widget class="CompactEpc" name="compactepc_22">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -312,25 +181,12 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
+     <item row="3" column="2">
+      <widget class="QLabel" name="label_9">
        <property name="text">
-        <string>5V Supply</string>
+        <string>C</string>
        </property>
       </widget>
-     </item>
-     <item row="0" column="3">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>
@@ -351,6 +207,12 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>EpcForm</class>
+   <extends>QWidget</extends>
+   <header>epyq.form</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>CompactEpc</class>
    <extends>Epc</extends>
    <header>epyq.widgets.compactepc</header>
@@ -359,12 +221,6 @@
    <class>Epc</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.epc</header>
-  </customwidget>
-  <customwidget>
-   <class>EpcForm</class>
-   <extends>QWidget</extends>
-   <header>epyq.form</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

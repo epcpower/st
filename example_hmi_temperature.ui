@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>736</width>
-    <height>720</height>
+    <width>512</width>
+    <height>321</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <property name="can_file" stdset="0">
-   <string>example.sym</string>
+   <string>example_hmi.sym</string>
   </property>
   <property name="style_small" stdset="0">
    <bool>true</bool>
@@ -34,43 +34,7 @@
    </property>
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="Scale" name="scale_6">
-       <property name="frame" stdset="0">
-        <string>StatusDeviceTemps</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>TempDeviceBrdgA_measured</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="Epc" name="epc_5">
-       <property name="frame" stdset="0">
-        <string>StatusDeviceTemps</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>TempDeviceBrdgB_measured</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="Epc" name="epc_7">
-       <property name="frame" stdset="0">
-        <string>StatusTemps</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>TempInternal_measured</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
+     <item row="2" column="3">
       <widget class="Epc" name="epc_8">
        <property name="frame" stdset="0">
         <string>StatusTemps</string>
@@ -83,30 +47,37 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="Scale" name="scale_7">
+     <item row="1" column="3">
+      <widget class="Scale" name="scale_10">
        <property name="frame" stdset="0">
-        <string>StatusDeviceTemps</string>
+        <string>StatusTemps</string>
        </property>
        <property name="signal" stdset="0">
-        <string>TempDeviceBrdgB_measured</string>
+        <string>TempHeatsink_measured</string>
+       </property>
+       <property name="upper_yellow_breakpoint" stdset="0">
+        <double>75.000000000000000</double>
+       </property>
+       <property name="upper_red_breakpoint" stdset="0">
+        <double>90.000000000000000</double>
+       </property>
+       <property name="upper_yellow_color" stdset="0">
+        <color>
+         <red>128</red>
+         <green>128</green>
+         <blue>0</blue>
+        </color>
+       </property>
+       <property name="upper_red_color" stdset="0">
+        <color>
+         <red>128</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="Epc" name="epc_4">
-       <property name="frame" stdset="0">
-        <string>StatusDeviceTemps</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>TempDeviceBrdgA_measured</string>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
+     <item row="1" column="1">
       <widget class="Scale" name="scale_9">
        <property name="frame" stdset="0">
         <string>StatusTemps</string>
@@ -137,34 +108,69 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="Scale" name="scale_10">
+      <widget class="Epc" name="epc_7">
        <property name="frame" stdset="0">
         <string>StatusTemps</string>
        </property>
        <property name="signal" stdset="0">
-        <string>TempHeatsink_measured</string>
+        <string>TempInternal_measured</string>
        </property>
-       <property name="upper_yellow_breakpoint" stdset="0">
-        <double>75.000000000000000</double>
-       </property>
-       <property name="upper_red_breakpoint" stdset="0">
-        <double>90.000000000000000</double>
-       </property>
-       <property name="upper_yellow_color" stdset="0">
-        <color>
-         <red>128</red>
-         <green>128</green>
-         <blue>0</blue>
-        </color>
-       </property>
-       <property name="upper_red_color" stdset="0">
-        <color>
-         <red>128</red>
-         <green>0</green>
-         <blue>0</blue>
-        </color>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
        </property>
       </widget>
+     </item>
+     <item row="0" column="1" colspan="3">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="Toggle" name="toggle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" stdset="0">
+          <string>CommandModeControl</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>ForceFanOn</string>
+         </property>
+         <property name="label_visible" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="tx" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="value_labels_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Epc" name="epc">
+         <property name="frame" stdset="0">
+          <string>StatusTemps</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>FanSpeed</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -172,20 +178,25 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Epc</class>
-   <extends>QWidget</extends>
-   <header>epyq.widgets.epc</header>
-  </customwidget>
-  <customwidget>
    <class>EpcForm</class>
    <extends>QWidget</extends>
    <header>epyq.form</header>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>Epc</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.epc</header>
+  </customwidget>
+  <customwidget>
    <class>Scale</class>
    <extends>QWidget</extends>
    <header>epyq.widgets.scale</header>
+  </customwidget>
+  <customwidget>
+   <class>Toggle</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.toggle</header>
   </customwidget>
  </customwidgets>
  <resources/>
