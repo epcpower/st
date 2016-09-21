@@ -443,13 +443,16 @@ def main(args=None):
             QObject.__init__(self, parent)
             self.trigger_widget = trigger_widget
 
+        def deactivate(self):
+            app.removeEventFilter(self)
+            self.trigger_widget.setProperty('active', False)
+            repolish(self.trigger_widget)
+
         def eventFilter(self, object, event):
             if (isinstance(event, QMouseEvent)
                     and event.button() == Qt.LeftButton
                     and event.type() == QEvent.MouseButtonRelease):
-                app.removeEventFilter(self)
-                self.trigger_widget.setProperty('active', False)
-                repolish(self.trigger_widget)
+                self.deactivate()
 
                 widget = app.widgetAt(event.globalPos())
                 while not isinstance(
@@ -464,17 +467,20 @@ def main(args=None):
                         enable_delay=0
                     )
 
-                    return True
+                return True
 
             return False
 
     tooltip_event_filter = TooltipEventFilter()
 
     def tooltip(node):
-        tooltip_event_filter.trigger_widget = node
-        node.setProperty('active', True)
-        repolish(node)
-        app.installEventFilter(tooltip_event_filter)
+        if node.property('active'):
+            tooltip_event_filter.deactivate()
+        else:
+            tooltip_event_filter.trigger_widget = node
+            node.setProperty('active', True)
+            repolish(node)
+            app.installEventFilter(tooltip_event_filter)
 
     actions['<tooltip>'] = tooltip
 
