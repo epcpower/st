@@ -6,6 +6,8 @@ import canmatrix.importany as importany
 import epyq.canneo
 import io
 import os
+import textwrap
+
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, QEvent)
@@ -280,14 +282,25 @@ class AbstractWidget(QtWidgets.QWidget):
                 signal.force_value_changed()
 
     def update_tool_tip(self, new_signal=None):
+        signal = (self.signal_object
+                  if new_signal is None
+                  else new_signal)
+
         if len(self.tool_tip_override) > 0:
             tip = self.tool_tip_override
-        elif new_signal is not None:
-            tip = new_signal.comment
+        elif signal is not None:
+            tip = signal.comment
         else:
             tip = ''
 
-        self.setToolTip(tip)
+        elements = []
+        if signal is not None:
+            elements.append('Name: {}'.format(signal.long_name))
+        elements.append('Description: {}'.format(tip))
+
+        contents = '<br><br>'.join(elements)
+        complete = '<div align="left">{}</div>'.format(contents)
+        self.setToolTip(complete)
 
 
 if __name__ == '__main__':
