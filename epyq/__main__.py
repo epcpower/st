@@ -205,7 +205,11 @@ def main(args=None):
 
     def to_menu():
         if real_bus is not None:
-            real_bus.setFilters(can_filters=[])
+            try:
+                real_bus.setFilters(can_filters=[])
+            except AttributeError:
+                # Just an optimization so can be skipped
+                pass
         if menu_view == ui.stacked.currentWidget():
             menu_view.ui.esc_button.clicked.emit()
         else:
@@ -228,7 +232,11 @@ def main(args=None):
 
     def focus_nv(widget):
         if real_bus is not None:
-            real_bus.setFilters(nv_filters)
+            try:
+                real_bus.setFilters(nv_filters)
+            except AttributeError:
+                # Just an optimization so can be skipped
+                pass
 
         widget.nv.read_from_device()
         ui.stacked.setCurrentWidget(widget)
@@ -361,7 +369,11 @@ def main(args=None):
                 for frame in dash.connected_frames
             ])
         if real_bus is not None:
-            real_bus.setFilters(filters)
+            try:
+                real_bus.setFilters(filters)
+            except AttributeError:
+                # Just an optimization so can be skipped
+                pass
         ui.stacked.setCurrentWidget(dash)
 
     menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
