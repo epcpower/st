@@ -488,9 +488,9 @@ def main(args=None):
     menu_view = epyq.listmenuview.ListMenuView()
 
     def focus_menu_node(node=None, triggering_button=None):
+        to_menu()
         if node is not None:
             menu_model.node_clicked(node)
-        to_menu()
 
     def traverse(dict_node, model_node):
         for key, value in dict_node.items():
