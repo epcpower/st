@@ -224,38 +224,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="Led" name="led">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>DI4_status</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string>Pump</string>
-       </property>
-       <property name="tool_tip_override" stdset="0">
-        <string>Pump</string>
-       </property>
-       <property name="automatic_off_color" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="manual_off_color" stdset="0">
-        <color>
-         <red>192</red>
-         <green>32</green>
-         <blue>32</blue>
-        </color>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="3">
       <widget class="Led" name="led_44">
        <property name="sizePolicy">
@@ -735,7 +703,7 @@
         <string>GeneralFault_status</string>
        </property>
        <property name="label_override" stdset="0">
-        <string>Fault</string>
+        <string>Fault Status</string>
        </property>
        <property name="label_visible" stdset="0">
         <bool>true</bool>
@@ -877,7 +845,7 @@
      <item row="5" column="6">
       <widget class="QLabel" name="label_26">
        <property name="text">
-        <string>VDC</string>
+        <string>V</string>
        </property>
       </widget>
      </item>

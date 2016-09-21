@@ -86,10 +86,10 @@
         <string>TempInternal_measured</string>
        </property>
        <property name="upper_yellow_breakpoint" stdset="0">
-        <double>75.000000000000000</double>
+        <double>40.000000000000000</double>
        </property>
        <property name="upper_red_breakpoint" stdset="0">
-        <double>90.000000000000000</double>
+        <double>70.000000000000000</double>
        </property>
        <property name="upper_yellow_color" stdset="0">
         <color>

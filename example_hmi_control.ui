@@ -150,6 +150,9 @@
        <property name="label_visible" stdset="0">
         <bool>false</bool>
        </property>
+       <property name="units_visible" stdset="0">
+        <bool>false</bool>
+       </property>
        <property name="show_enumeration_value" stdset="0">
         <bool>false</bool>
        </property>
@@ -378,7 +381,7 @@
      <item row="0" column="5">
       <widget class="QLabel" name="label_12">
        <property name="text">
-        <string>Feedback</string>
+        <string>Measured</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -601,7 +604,8 @@
         <string>SyncToRemoteSource_command</string>
        </property>
        <property name="label_override" stdset="0">
-        <string>Sync to\nremote</string>
+        <string>Sync to
+remote</string>
        </property>
        <property name="label_visible" stdset="0">
         <bool>false</bool>
@@ -655,7 +659,8 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Sync to\nremote</string>
+        <string>Sync to
+remote</string>
        </property>
        <property name="textFormat">
         <enum>Qt::PlainText</enum>

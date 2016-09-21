@@ -43,8 +43,11 @@
        <property name="signal" stdset="0">
         <string>ForceRelayMX1_command</string>
        </property>
+       <property name="label_override" stdset="0">
+        <string>Force</string>
+       </property>
        <property name="label_visible" stdset="0">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="tx" stdset="0">
         <bool>true</bool>
@@ -75,8 +78,11 @@
        <property name="signal" stdset="0">
         <string>ForceRelayRelayK2_DCRun_comand</string>
        </property>
+       <property name="label_override" stdset="0">
+        <string>Force</string>
+       </property>
        <property name="label_visible" stdset="0">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="tx" stdset="0">
         <bool>true</bool>
@@ -155,8 +161,11 @@
        <property name="signal" stdset="0">
         <string>ForceRelayMX2_command</string>
        </property>
+       <property name="label_override" stdset="0">
+        <string>Force</string>
+       </property>
        <property name="label_visible" stdset="0">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="tx" stdset="0">
         <bool>true</bool>
@@ -315,8 +324,11 @@
        <property name="signal" stdset="0">
         <string>ForceRelayK1_Precharge_command</string>
        </property>
+       <property name="label_override" stdset="0">
+        <string>Force</string>
+       </property>
        <property name="label_visible" stdset="0">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="tx" stdset="0">
         <bool>true</bool>
