@@ -269,7 +269,7 @@ def main(args=None):
     special_menu_nodes = {}
     actions = {}
 
-    def to_menu():
+    def to_menu(node):
         if real_bus is not None:
             try:
                 real_bus.setFilters(can_filters=[])
@@ -331,15 +331,13 @@ def main(args=None):
         hmd.write_boot_mode(1)
         subprocess.run('reboot')
 
-    service_reboot_action = functools.partial(
-        hmi_dialog.focus,
-        ok_action=service_restart,
-        cancel_action=stacked_history.focus_previous,
-        label=textwrap.dedent('''\
-                        Reboot into maintenance mode?
+    def service_reboot_action(node):
+        hmi_dialog.focus(ok_action=service_restart,
+                         cancel_action=stacked_history.focus_previous,
+                         label=textwrap.dedent('''\
+                             Reboot into maintenance mode?
 
-                        Insert configured USB stick then press OK.''')
-    )
+                             Insert configured USB stick then press OK.'''))
 
     def modify_node_service_reboot(node):
         node.action = service_reboot_action
@@ -351,13 +349,11 @@ def main(args=None):
         os.remove('/opt/etc/pointercal')
         subprocess.run('reboot')
 
-    calibrate_touchscreen_action = functools.partial(
-        hmi_dialog.focus,
-        ok_action=calibrate_touchscreen,
-        cancel_action=stacked_history.focus_previous,
-        label=textwrap.dedent('''\
-                Reboot and calibrate touchscreen?''')
-    )
+    def calibrate_touchscreen_action(node):
+        hmi_dialog.focus(ok_action=calibrate_touchscreen,
+                         cancel_action=stacked_history.focus_previous,
+                         label=textwrap.dedent('''\
+                             Reboot and calibrate touchscreen?'''))
 
     def modify_node_calibrate_touchscreen(node):
         node.action = calibrate_touchscreen_action
@@ -371,13 +367,11 @@ def main(args=None):
         device.nvs.module_to_nv()
         stacked_history.focus_previous()
 
-    inverter_to_nv_action = functools.partial(
-        hmi_dialog.focus,
-        ok_action=inverter_to_nv,
-        cancel_action=stacked_history.focus_previous,
-        label=textwrap.dedent('''\
-                        Save all parameters to NV?''')
-    )
+    def inverter_to_nv_action(node):
+        hmi_dialog.focus(ok_action=inverter_to_nv,
+                         cancel_action=stacked_history.focus_previous,
+                         label=textwrap.dedent('''\
+                             Save all parameters to NV?'''))
 
     def modify_node_inverter_to_nv(node):
         node.action = inverter_to_nv_action
@@ -407,12 +401,10 @@ def main(args=None):
         px=round(base_font_size_px * 2/3)
     )
 
-    about_action = functools.partial(
-        hmi_dialog.focus,
-        ok_action=stacked_history.focus_previous,
-        enable_delay=0,
-        label=about_text
-    )
+    def about_action(node):
+        hmi_dialog.focus(ok_action=stacked_history.focus_previous,
+                         enable_delay=0,
+                         label=about_text)
 
     def modify_node_about(node):
         node.action = about_action
@@ -442,15 +434,26 @@ def main(args=None):
                 pass
         ui.stacked.setCurrentWidget(dash)
 
+    def repolish(widget):
+        widget.style().unpolish(widget)
+        widget.style().polish(widget)
+
     class TooltipEventFilter(QObject):
+        def __init__(self, parent=None, trigger_widget=None):
+            QObject.__init__(self, parent)
+            self.trigger_widget = trigger_widget
+
         def eventFilter(self, object, event):
             if (isinstance(event, QMouseEvent)
                     and event.button() == Qt.LeftButton
                     and event.type() == QEvent.MouseButtonRelease):
                 app.removeEventFilter(self)
+                self.trigger_widget.setProperty('active', False)
+                repolish(self.trigger_widget)
+
                 widget = app.widgetAt(event.globalPos())
-                while not isinstance(widget,
-                                     epyq.widgets.abstractwidget.AbstractWidget):
+                while not isinstance(
+                        widget, epyq.widgets.abstractwidget.AbstractWidget):
                     if widget is None:
                         break
                     widget = widget.parent()
@@ -468,6 +471,9 @@ def main(args=None):
     tooltip_event_filter = TooltipEventFilter()
 
     def tooltip(node):
+        tooltip_event_filter.trigger_widget = node
+        node.setProperty('active', True)
+        repolish(node)
         app.installEventFilter(tooltip_event_filter)
 
     actions['<tooltip>'] = tooltip
@@ -547,7 +553,13 @@ def main(args=None):
                     file=sys.stderr
                 )
             else:
-                button.clicked.connect(action)
+                # button.clicked.connect(action)
+                button.clicked.connect(
+                    functools.partial(
+                        action,
+                        node=button
+                    )
+                )
 
     ui.shortcut_layout.addStretch(0)
 
@@ -643,6 +655,10 @@ def main(args=None):
 
         QPushButton:!enabled {{
             background-color: gray;
+        }}
+
+        QPushButton[active=true] {{
+            background: {blue};
         }}
 
         QLineEdit {{
