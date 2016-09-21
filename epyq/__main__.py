@@ -269,7 +269,7 @@ def main(args=None):
     special_menu_nodes = {}
     actions = {}
 
-    def to_menu(node):
+    def to_menu(triggering_button=None):
         if real_bus is not None:
             try:
                 real_bus.setFilters(can_filters=[])
@@ -331,7 +331,7 @@ def main(args=None):
         hmd.write_boot_mode(1)
         subprocess.run('reboot')
 
-    def service_reboot_action(node):
+    def service_reboot_action(triggering_button=None):
         hmi_dialog.focus(ok_action=service_restart,
                          cancel_action=stacked_history.focus_previous,
                          label=textwrap.dedent('''\
@@ -349,7 +349,7 @@ def main(args=None):
         os.remove('/opt/etc/pointercal')
         subprocess.run('reboot')
 
-    def calibrate_touchscreen_action(node):
+    def calibrate_touchscreen_action(triggering_button=None):
         hmi_dialog.focus(ok_action=calibrate_touchscreen,
                          cancel_action=stacked_history.focus_previous,
                          label=textwrap.dedent('''\
@@ -367,7 +367,7 @@ def main(args=None):
         device.nvs.module_to_nv()
         stacked_history.focus_previous()
 
-    def inverter_to_nv_action(node):
+    def inverter_to_nv_action(triggering_button=None):
         hmi_dialog.focus(ok_action=inverter_to_nv,
                          cancel_action=stacked_history.focus_previous,
                          label=textwrap.dedent('''\
@@ -401,7 +401,7 @@ def main(args=None):
         px=round(base_font_size_px * 2/3)
     )
 
-    def about_action(node):
+    def about_action(triggering_button=None):
         hmi_dialog.focus(ok_action=stacked_history.focus_previous,
                          enable_delay=0,
                          label=about_text)
@@ -473,13 +473,13 @@ def main(args=None):
 
     tooltip_event_filter = TooltipEventFilter()
 
-    def tooltip(node):
-        if node.property('active'):
+    def tooltip(triggering_button):
+        if triggering_button.property('active'):
             tooltip_event_filter.deactivate()
         else:
-            tooltip_event_filter.trigger_widget = node
-            node.setProperty('active', True)
-            repolish(node)
+            tooltip_event_filter.trigger_widget = triggering_button
+            triggering_button.setProperty('active', True)
+            repolish(triggering_button)
             app.installEventFilter(tooltip_event_filter)
 
     actions['<tooltip>'] = tooltip
@@ -487,8 +487,9 @@ def main(args=None):
     menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
     menu_view = epyq.listmenuview.ListMenuView()
 
-    def focus_menu_node(node):
-        menu_model.node_clicked(node)
+    def focus_menu_node(node=None, triggering_button=None):
+        if node is not None:
+            menu_model.node_clicked(node)
         to_menu()
 
     def traverse(dict_node, model_node):
@@ -563,7 +564,7 @@ def main(args=None):
                 button.clicked.connect(
                     functools.partial(
                         action,
-                        node=button
+                        triggering_button=button
                     )
                 )
 
