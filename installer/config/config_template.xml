@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
-    <Name>EPyQ</Name>
+    <Name>EPyQ HMI</Name>
     <Version>0.1.**VERSION_EPOCH**</Version>
-    <Title>EPyQ Installer</Title>
+    <Title>EPyQ HMI Installer</Title>
     <Publisher>EPC Power Corp.</Publisher>
     <StartMenuDir>EPC Power Service Tool</StartMenuDir>
-    <TargetDir>@HomeDir@/EPyQ</TargetDir>
+    <TargetDir>@HomeDir@/EPyQ_HMI</TargetDir>
     <ProductUrl>http://www.epcpower.com</ProductUrl>
     <InstallerWindowIcon>wicon.png</InstallerWindowIcon>
     <InstallerApplicationIcon>aicon</InstallerApplicationIcon>

@@ -111,7 +111,7 @@ def main(args=None):
 
     app = QApplication(sys.argv)
     app.setOrganizationName('EPC Power Corp.')
-    app.setApplicationName('EPyQ')
+    app.setApplicationName('EPyQ HMI')
 
     base_font_size_px = 30
 
@@ -124,6 +124,11 @@ def main(args=None):
         'fonts',
         'FontAwesome.otf'
     )
+    # TODO: CAMPid 9549757292917394095482739548437597676742
+    if not QFileInfo(fontawesome_path).isAbsolute():
+        fontawesome_path = os.path.join(
+            QFileInfo.absolutePath(QFileInfo(__file__)), fontawesome_path)
+
     QFontDatabase.addApplicationFont(fontawesome_path)
     QTextCodec.setCodecForLocale(QTextCodec.codecForName('UTF-8'))
 
@@ -307,7 +312,7 @@ def main(args=None):
     special_menu_nodes['<nv_save>'] = modify_node_inverter_to_nv
 
     message = [
-        'About EPyQ:',
+        'About EPyQ HMI:',
         __copyright__,
         __license__
     ]

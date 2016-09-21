@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Package>
     <DisplayName>EPC Power Service Tool</DisplayName>
-    <Description>The EPC Power Service Tool.  Also known as EPyQ.</Description>
+    <Description>The EPC Power Service Tool.  Also known, in this case, as EPyQ HMI.</Description>
     <Version>0.0.1-1</Version>
     <ReleaseDate>2016-02-08</ReleaseDate>
     <Licenses>
-        <License name="EPyQ" file="epyq-COPYING.txt" />
+        <License name="EPyQ HMI" file="epyq-COPYING.txt" />
         <License name="Third Party Code Licenses" file="third_party-LICENSE.txt" />
     </Licenses>
     <Default>true</Default>
