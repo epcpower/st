@@ -29,6 +29,7 @@ else:
 import can
 import canmatrix.importany as importany
 import copy
+import epyq.widgets.abstractwidget
 import epyq.busproxy
 import epyq.canneo
 import epyq.device
@@ -63,11 +64,12 @@ except AttributeError:
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
-                          QSettings, Qt, pyqtSlot, QMarginsF, QTextCodec)
+                          QSettings, Qt, pyqtSlot, QMarginsF, QTextCodec,
+                          QObject, QEvent)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu, QFrame,
                              QAbstractScrollArea, QWidget, QPushButton)
-from PyQt5.QtGui import QPixmap, QPicture, QFont, QFontDatabase
+from PyQt5.QtGui import QPixmap, QPicture, QFont, QFontDatabase, QMouseEvent
 import time
 import traceback
 
@@ -439,6 +441,36 @@ def main(args=None):
                 # Just an optimization so can be skipped
                 pass
         ui.stacked.setCurrentWidget(dash)
+
+    class TooltipEventFilter(QObject):
+        def eventFilter(self, object, event):
+            if (isinstance(event, QMouseEvent)
+                    and event.button() == Qt.LeftButton
+                    and event.type() == QEvent.MouseButtonRelease):
+                app.removeEventFilter(self)
+                widget = app.widgetAt(event.globalPos())
+                while not isinstance(widget,
+                                     epyq.widgets.abstractwidget.AbstractWidget):
+                    if widget is None:
+                        break
+                    widget = widget.parent()
+                else:
+                    hmi_dialog.focus(
+                        ok_action=stacked_history.focus_previous,
+                        label=widget.toolTip(),
+                        enable_delay=0
+                    )
+
+                    return True
+
+            return False
+
+    tooltip_event_filter = TooltipEventFilter()
+
+    def tooltip(node):
+        app.installEventFilter(tooltip_event_filter)
+
+    actions['<tooltip>'] = tooltip
 
     menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
     menu_view = epyq.listmenuview.ListMenuView()
