@@ -54,6 +54,14 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
             value = self.ui.value
             value.setMinimumWidth(width)
 
+        if self.signal_object is not None:
+            alignment = (Qt.AlignRight
+                         if len(self.signal_object.enumeration) == 0
+                         else Qt.AlignCenter)
+            alignment |= Qt.AlignVCenter
+            self.ui.value.setAlignment(alignment)
+
+
     # TODO: CAMPid 989849193479134917954791341
     def calculate_max_value_width(self):
         if self.signal_object is None:
