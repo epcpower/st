@@ -7,7 +7,7 @@ import epyq.tee
 import os
 import sys
 
-log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8')
+log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', buffering=1)
 
 if sys.stdout is None:
     sys.stdout = log
