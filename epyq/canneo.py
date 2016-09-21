@@ -3,6 +3,7 @@ import can
 from canmatrix import canmatrix
 import copy
 import functools
+import locale
 import math
 from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QTimer)
 import re
@@ -217,7 +218,8 @@ class Signal(QObject):
         if value is None:
             formatted = '-'
         else:
-            formatted = '{{:.{}f}}'.format(self.get_decimal_places()).format(value)
+            format = '%.{}f'.format(self.get_decimal_places())
+            formatted = locale.format(format, value, grouping=True)
 
         return formatted
 
