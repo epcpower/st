@@ -41,6 +41,8 @@ class NumberPad(QWidget):
         self.ui.accept_button.clicked.connect(self.accept)
         self.ui.cancel_button.clicked.connect(
             functools.partial(self.exit, value=None))
+        self.ui.up_button.clicked.connect(
+            self.ui.cancel_button.clicked)
 
         numeric_buttons = []
 
