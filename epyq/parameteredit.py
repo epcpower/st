@@ -44,13 +44,14 @@ class ParameterEdit(QWidget):
         self._dialog = dialog
         self.nv = nv
 
-        self.ui.from_device.set_signal(self.nv.status_signal)
         self.ui.to_device.set_signal(self.nv)
         self.nv.status_signal.value_changed.connect(self.nv.value_changed)
 
         self.ui.save_to_nv_button.clicked.connect(self.save_to_nv)
 
         self.ui.to_device.edited.connect(self.edited)
+
+        self.ui.description.setText(self.ui.to_device.toolTip())
 
     def edited(self, value):
         print('-----')
