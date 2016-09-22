@@ -208,7 +208,9 @@ def main(args=None):
     # TODO: CAMPid 9549757292917394095482739548437597676742
     if not QFileInfo(device_file).isAbsolute():
         device_file = os.path.join(
-            os.getcwd(), device_file)
+            QFileInfo.absolutePath(QFileInfo(__file__)),
+            '..',
+            device_file)
     else:
         device_file = device_file
 
