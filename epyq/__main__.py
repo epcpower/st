@@ -271,14 +271,14 @@ def main(args=None):
     special_menu_nodes = {}
     actions = {}
 
-    def to_menu(triggering_button=None):
+    def to_menu(triggering_button=None, auto_level_up=True):
         if real_bus is not None:
             try:
                 real_bus.setFilters(can_filters=[])
             except AttributeError:
                 # Just an optimization so can be skipped
                 pass
-        if menu_view == ui.stacked.currentWidget():
+        if menu_view == ui.stacked.currentWidget() and auto_level_up:
             menu_view.ui.esc_button.clicked.emit()
         else:
             ui.stacked.setCurrentWidget(menu_view)
@@ -509,8 +509,8 @@ def main(args=None):
     menu_view = epyq.listmenuview.ListMenuView()
 
     def focus_menu_node(node=None, triggering_button=None):
-        to_menu()
-        if node is not None:
+        to_menu(auto_level_up=False)
+        if node not in [None, menu_model.root]:
             menu_model.node_clicked(node)
 
     def traverse(dict_node, model_node):
