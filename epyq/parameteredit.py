@@ -54,9 +54,9 @@ class ParameterEdit(QWidget):
         self.ui.description.setText(self.ui.to_device.toolTip())
 
     def edited(self, value):
-        print('-----')
         self.nv.read_from_device()
         time.sleep(0.05)
+        # TODO: processEvents()?
         self.nv.set_human_value(value)
         self.nv.write_to_device()
 
