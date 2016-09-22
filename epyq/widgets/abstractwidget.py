@@ -294,8 +294,14 @@ class AbstractWidget(QtWidgets.QWidget):
             tip = ''
 
         elements = []
+
         if signal is not None:
-            elements.append('Name: {}'.format(signal.long_name))
+            name = signal.long_name
+            if name is None:
+                name = signal.name
+            if name is not None:
+                elements.append('Name: {}'.format(name))
+
         elements.append('Description: {}'.format(tip))
 
         contents = '<br><br>'.join(elements)
