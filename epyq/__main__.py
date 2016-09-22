@@ -271,7 +271,7 @@ def main(args=None):
     special_menu_nodes = {}
     actions = {}
 
-    def to_menu(triggering_button=None, auto_level_up=True):
+    def to_menu(auto_level_up=True):
         if real_bus is not None:
             try:
                 real_bus.setFilters(can_filters=[])
@@ -315,7 +315,7 @@ def main(args=None):
             if signal.name in inverter_info_nvs.keys():
                 inverter_info_nvs[signal.name] = signal
 
-    def inverter_info(triggering_button=None):
+    def inverter_info():
         if real_bus is not None:
             try:
                 real_bus.setFilters(nv_filters)
@@ -390,7 +390,7 @@ def main(args=None):
         hmd.write_boot_mode(1)
         subprocess.run('reboot')
 
-    def service_reboot_action(triggering_button=None):
+    def service_reboot_action():
         hmi_dialog.focus(ok_action=service_restart,
                          cancel_action=stacked_history.focus_previous,
                          label=textwrap.dedent('''\
@@ -408,7 +408,7 @@ def main(args=None):
         os.remove('/opt/etc/pointercal')
         subprocess.run('reboot')
 
-    def calibrate_touchscreen_action(triggering_button=None):
+    def calibrate_touchscreen_action():
         hmi_dialog.focus(ok_action=calibrate_touchscreen,
                          cancel_action=stacked_history.focus_previous,
                          label=textwrap.dedent('''\
@@ -426,7 +426,7 @@ def main(args=None):
         device.nvs.module_to_nv()
         stacked_history.focus_previous()
 
-    def inverter_to_nv_action(triggering_button=None):
+    def inverter_to_nv_action():
         hmi_dialog.focus(ok_action=inverter_to_nv,
                          cancel_action=stacked_history.focus_previous,
                          label=textwrap.dedent('''\
@@ -456,7 +456,7 @@ def main(args=None):
 
     about_text = '<br>'.join(message)
 
-    def about_action(triggering_button=None):
+    def about_action():
         hmi_dialog.focus(ok_action=stacked_history.focus_previous,
                          enable_delay=0,
                          label=about_text)
@@ -526,6 +526,14 @@ def main(args=None):
             self.trigger_widget.setProperty('active', False)
             repolish(self.trigger_widget)
 
+        def action(self):
+            if self.trigger_widget.property('active'):
+                tooltip_event_filter.deactivate()
+            else:
+                self.trigger_widget.setProperty('active', True)
+                repolish(self.trigger_widget)
+                app.installEventFilter(tooltip_event_filter)
+
         def eventFilter(self, object, event):
             if (isinstance(event, QMouseEvent)
                     and event.button() == Qt.LeftButton
@@ -551,21 +559,12 @@ def main(args=None):
 
     tooltip_event_filter = TooltipEventFilter()
 
-    def tooltip(triggering_button):
-        if triggering_button.property('active'):
-            tooltip_event_filter.deactivate()
-        else:
-            tooltip_event_filter.trigger_widget = triggering_button
-            triggering_button.setProperty('active', True)
-            repolish(triggering_button)
-            app.installEventFilter(tooltip_event_filter)
-
-    actions['<tooltip>'] = tooltip
+    actions['<tooltip>'] = tooltip_event_filter.action
 
     menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
     menu_view = epyq.listmenuview.ListMenuView()
 
-    def focus_menu_node(node=None, triggering_button=None):
+    def focus_menu_node(node=None):
         to_menu(auto_level_up=False)
         if node not in [None, menu_model.root]:
             menu_model.node_clicked(node)
@@ -645,13 +644,10 @@ def main(args=None):
                     file=sys.stderr
                 )
             else:
-                # button.clicked.connect(action)
-                button.clicked.connect(
-                    functools.partial(
-                        action,
-                        triggering_button=button
-                    )
-                )
+                if action_name == '<tooltip>':
+                    tooltip_event_filter.trigger_widget = button
+
+                button.clicked.connect(action)
 
     ui.shortcut_layout.addStretch(0)
 
