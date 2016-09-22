@@ -398,10 +398,6 @@ def main(args=None):
         message.append(hash)
 
     about_text = '<br>'.join(message)
-    about_text = "<span style='font-size:{px}px'>{text}</span>".format(
-        text=about_text,
-        px=round(base_font_size_px * 2/3)
-    )
 
     def about_action(triggering_button=None):
         hmi_dialog.focus(ok_action=stacked_history.focus_previous,
