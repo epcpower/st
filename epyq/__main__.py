@@ -298,6 +298,63 @@ def main(args=None):
             }
         )
 
+    names = [
+        'SerialNumber',
+        'NodeID',
+        'Baudrate',
+        'ControlSwRev',
+        'InterfaceRev',
+        'SoftwareHash',
+        'BuildTime'
+    ]
+
+    inverter_info_nvs = OrderedDict([(name, None) for name in names])
+
+    for frame in device.nvs.set_frames.values():
+        for signal in frame.signals:
+            if signal.name in inverter_info_nvs.keys():
+                inverter_info_nvs[signal.name] = signal
+
+    def inverter_info(triggering_button=None):
+        if real_bus is not None:
+            try:
+                real_bus.setFilters(nv_filters)
+            except AttributeError:
+                # Just an optimization so can be skipped
+                pass
+
+        for nv in inverter_info_nvs.values():
+            nv.read_from_device()
+
+        time.sleep(.02)
+        app.processEvents()
+        rows = []
+        for nv in inverter_info_nvs.values():
+            name = nv.long_name
+            if name is None:
+                name = nv.name
+            short_string = nv.status_signal.short_string
+            rows.append('<td align="right">{} :</td>'
+                        '<td align="left" '
+                        'style="padding-left:5px;">{}</td>'.format(
+                            name, short_string
+            ))
+
+        contents = ''.join(['<tr>{}</tr>'.format(row) for row in rows])
+        complete = textwrap.dedent('''\
+            <table style="width:100%">
+                {}
+            </table>'''.format(contents))
+        hmi_dialog.focus(ok_action=stacked_history.focus_previous,
+                         label=complete,
+                         enable_delay=0)
+
+    def modify_node_inverter_info(node):
+        node.action = inverter_info
+
+    actions['<inverter_info>'] = inverter_info
+    special_menu_nodes['<inverter_info>'] = modify_node_inverter_info
+
     def focus_nv(widget):
         if real_bus is not None:
             try:

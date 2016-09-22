@@ -25,7 +25,8 @@
             "Cal. Touchscreen": "<calibrate_touchscreen>"
         },
         "Help": {
-            "About": "<about>"
+            "Display Info": "<about>",
+            "Inverter Info": "<inverter_info>"
         }
     }
 }
