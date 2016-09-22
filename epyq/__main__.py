@@ -664,6 +664,7 @@ def main(args=None):
             font-size: {base_font_size_px}px;
             min-width: 40px;
             min-height: 40px;
+            max-height: 40px;
         }}
 
         QPushButton[fontawesome=true] {{
