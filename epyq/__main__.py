@@ -65,7 +65,7 @@ except AttributeError:
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
                           QSettings, Qt, pyqtSlot, QMarginsF, QTextCodec,
-                          QObject, QEvent)
+                          QObject, QEvent, pyqtProperty)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu, QFrame,
                              QAbstractScrollArea, QWidget, QPushButton)
@@ -440,6 +440,29 @@ def main(args=None):
         widget.style().unpolish(widget)
         widget.style().polish(widget)
 
+    class ShortcutButton(QPushButton):
+        def __init__(self, *args, **kwargs):
+            QPushButton.__init__(self, *args, **kwargs)
+            self.target_widget = None
+            self._active = False
+            self.active = False
+
+        @pyqtProperty(bool)
+        def active(self):
+            return self._active
+
+        @active.setter
+        def active(self, active):
+            active = bool(active)
+
+            if self._active != active:
+                self._active = active
+                self.setProperty('active', self.active)
+                repolish(self)
+
+        def stacked_widget_changed(self, index):
+            self.active = self.target_widget == ui.stacked.widget(index)
+
     class TooltipEventFilter(QObject):
         def __init__(self, parent=None, trigger_widget=None):
             QObject.__init__(self, parent)
@@ -536,16 +559,23 @@ def main(args=None):
 
     ui.shortcut_layout.addStretch(0)
 
+    shortcut_buttons = []
+
     for character_code, action_name in device.ui_paths['<shortcuts>'].items():
-        button = QPushButton()
+        button = ShortcutButton()
         base = 16 if character_code.startswith('0x') else 10
         character = chr(int(character_code, base))
         button.setText(character)
         button.setFont(QFont('FontAwesome'))
         ui.shortcut_layout.addWidget(button)
 
+        button.target_widget = None
+        ui.stacked.currentChanged.connect(button.stacked_widget_changed)
+        shortcut_buttons.append(button)
+
         # TODO: CAMPid 139001547845212167972192345189
         if isinstance(action_name, QWidget):
+            button.target_widget = action_name
             add_stacked_widget(action_name)
             button.clicked.connect(functools.partial(
                 focus_dash,
