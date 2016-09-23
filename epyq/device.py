@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from epyq.__main__ import update
+
 # TODO: get some docstrings in here!
 
 import can
@@ -72,6 +74,7 @@ def load(file):
 
 class Device:
     def __init__(self, *args, **kwargs):
+        update('Device.__init()')
         if kwargs.get('file', None) is not None:
             constructor = self._init_from_file
         else:
@@ -108,6 +111,7 @@ class Device:
 
     def _load_config(self, file, bus=None, elements=None,
                      tabs=None, rx_interval=0, edit_actions=None):
+        update('Device._load_config()')
         if tabs is None:
             tabs = set(Tabs)
 
@@ -217,6 +221,7 @@ class Device:
         ui_file.open(QFile.ReadOnly | QFile.Text)
         ts = QTextStream(ui_file)
         sio = io.StringIO(ts.readAll())
+        update('before loading uis')
         self.ui = uic.loadUi(sio)
         loaded_uis = {}
 
@@ -245,6 +250,7 @@ class Device:
                         loaded_uis[path] = dict_node[key]
 
         traverse(uis)
+        update('after loading uis')
 
         # TODO: yuck, actually tidy the code
         self.dash_uis = uis

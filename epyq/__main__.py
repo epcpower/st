@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
 
+import time
+class myobject(object): pass
+t = myobject()
+t.last_time = time.monotonic()
+t.start = t.last_time
+
+def update(comment):
+    t.time = time.monotonic()
+    t.delta = t.time - t.last_time
+    print('timing: {:.3f}: {:.3f} {}'.format(t.time-t.start, t.delta, comment))
+    t.last_time = t.time
+
 # TODO: get some docstrings in here!
 
 # TODO: CAMPid 98852142341263132467998754961432
@@ -73,6 +85,8 @@ from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
 from PyQt5.QtGui import QPixmap, QPicture, QFont, QFontDatabase, QMouseEvent
 import time
 import traceback
+
+update('after import')
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -171,6 +185,7 @@ def excepthook(excType, excValue, tracebackobj):
 
 
 def main(args=None):
+    update('entered main')
     print('starting epyq')
 
     app = QApplication(sys.argv)
@@ -271,6 +286,7 @@ def main(args=None):
         (connect_to_numberpad, lambda widget: True)
     )
 
+    update('before device')
     device = epyq.device.Device(file=device_file,
                                 bus=bus,
                                 tabs=[],
@@ -278,6 +294,7 @@ def main(args=None):
                                           epyq.device.Elements.nv],
                                 rx_interval=1,
                                 edit_actions=edit_actions)
+    update('after device')
 
     # TODO: CAMPid 9757656124812312388543272342377
 
@@ -893,6 +910,7 @@ def main(args=None):
     list_select.ui.menu_view.update_calculated_layout()
     to_menu()
 
+    update('before app.exec_()')
     return app.exec_()
 
 if __name__ == '__main__':
