@@ -80,6 +80,9 @@
      <property name="tx" stdset="0">
       <bool>true</bool>
      </property>
+     <property name="show_enumeration_value" stdset="0">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
    <item row="2" column="0">

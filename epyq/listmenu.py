@@ -59,6 +59,9 @@ class Node(TreeNode):
     def action(self, action):
         self.fields.action = action
 
+    def unique(self):
+        return self
+
 class ListMenuModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
     def __init__(self, root, parent=None):
         epyq.pyqabstractitemmodel.PyQAbstractItemModel.__init__(

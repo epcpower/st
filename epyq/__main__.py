@@ -35,6 +35,7 @@ import epyq.canneo
 import epyq.device
 import epyq.hmidialog
 import epyq.listmenuview
+import epyq.listselect
 import epyq.numberpad
 import epyq.nv
 import epyq.parameteredit
@@ -241,13 +242,49 @@ def main(args=None):
             widget=widget
         ))
 
+
+    list_select = epyq.listselect.ListSelect()
+    add_stacked_widget(list_select)
+
+    def set_widget_value_from_list(dash, widget, value):
+        if value is not None:
+            widget.user_set_value(value)
+        ui.stacked.setCurrentWidget(dash)
+
+    def trigger_list_menu(dash, widget):
+        signal = widget.signal_object
+        items = {key: value
+                 for key, value in signal.enumeration.items()
+                 if signal.min <= key <= signal.max}
+
+        list_select.focus(value=widget.signal_object.get_human_value(),
+                          action=functools.partial(
+                              set_widget_value_from_list,
+                              widget=widget,
+                              dash=dash),
+                          items=items,
+                          label='{}'.format(widget.ui.label.text()))
+
+    def connect_to_list_menu(dash, widget, signal):
+        signal.connect(functools.partial(
+            trigger_list_menu,
+            dash=dash,
+            widget=widget
+        ))
+
+    edit_actions = (
+        (connect_to_list_menu, lambda widget: len(widget.signal_object.enumeration) > 0),
+        (connect_to_numberpad, lambda widget: True)
+    )
+
     device = epyq.device.Device(file=device_file,
                                 bus=bus,
                                 tabs=[],
                                 elements=[epyq.device.Elements.dash,
                                           epyq.device.Elements.nv],
                                 rx_interval=1,
-                                edit_action=connect_to_numberpad)
+                                edit_actions=edit_actions)
+
     # TODO: CAMPid 9757656124812312388543272342377
 
     default = {
@@ -743,9 +780,12 @@ def main(args=None):
 
                 dash = dash.parent()
 
-            connect_to_numberpad(dash=dash,
-                                 widget=widget,
-                                 signal=widget.edit)
+            for action in edit_actions:
+                if action[1](widget):
+                    action[0](dash=dash,
+                              widget=widget,
+                              signal=widget.edit)
+                    break
 
     app.setStyleSheet('''
         QWidget {{
@@ -853,7 +893,11 @@ def main(args=None):
     # TODO: CAMPid 98754713241621231778985432
     # ui.menu_button.setMaximumWidth(ui.menu_button.height())
 
+    # TODO: this is a total hack to get these updated...
     menu_view.update_calculated_layout()
+    list_select.focus(value=0, action=None, items={})
+    list_select.ui.menu_view.update_calculated_layout()
+    to_menu()
 
     return app.exec_()
 

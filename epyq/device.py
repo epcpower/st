@@ -83,7 +83,7 @@ class Device:
         self.bus.set_bus()
 
     def _init_from_file(self, file, bus=None, elements=None,
-                        tabs=None, rx_interval=0, edit_action=None):
+                        tabs=None, rx_interval=0, edit_actions=None):
         if elements is None:
             elements = set(Elements)
         if tabs is None:
@@ -100,14 +100,14 @@ class Device:
             else:
                 self._load_config(file=file, bus=bus, elements=elements,
                                   tabs=tabs, rx_interval=rx_interval,
-                                  edit_action=edit_action)
+                                  edit_actions=edit_actions)
         else:
             self._init_from_zip(zip_file, bus=bus, elements=elements,
                                 tabs=tabs, rx_interval=rx_interval,
-                                edit_action=edit_action)
+                                edit_actions=edit_actions)
 
     def _load_config(self, file, bus=None, elements=None,
-                     tabs=None, rx_interval=0, edit_action=None):
+                     tabs=None, rx_interval=0, edit_actions=None):
         if tabs is None:
             tabs = set(Tabs)
 
@@ -169,10 +169,10 @@ class Device:
             elements=elements,
             tabs=tabs,
             rx_interval=rx_interval,
-            edit_action=edit_action)
+            edit_actions=edit_actions)
 
     def _init_from_zip(self, zip_file, bus=None, elements=None,
-                       tabs=None, rx_interval=0, edit_action=None):
+                       tabs=None, rx_interval=0, edit_actions=None):
         if elements is None:
             elements = set(Elements)
         if tabs is None:
@@ -187,13 +187,13 @@ class Device:
         self.config_path = os.path.abspath(file)
         with open(file, 'r') as file:
             self._load_config(file, bus=bus, elements=elements, tabs=tabs,
-                              rx_interval=rx_interval, edit_action=edit_action)
+                              rx_interval=rx_interval, edit_actions=edit_actions)
 
         shutil.rmtree(path)
 
     def _init_from_parameters(self, uis, serial_number, name, bus=None,
                               elements=None, tabs=None,
-                              rx_interval=0, edit_action=None):
+                              rx_interval=0, edit_actions=None):
         self.elements = set(Elements) if elements == None else set(elements)
         if tabs is None:
             tabs = set(Tabs)
@@ -393,12 +393,6 @@ class Device:
             frames = dash.connected_frames
 
             for widget in widgets:
-                if edit_action is not None:
-                    # TODO: CAMPid 97453289314763416967675427
-                    if widget.property('editable'):
-                        edit_action(dash=dash,
-                                    widget=widget,
-                                    signal=widget.edit)
                 frame_name = widget.property('frame')
                 signal_name = widget.property('signal')
 
@@ -417,6 +411,15 @@ class Device:
                         widget.set_signal(signal)
                         frame.user_send_control = False
 
+                if edit_actions is not None:
+                    # TODO: CAMPid 97453289314763416967675427
+                    if widget.property('editable'):
+                        for action in edit_actions:
+                            if action[1](widget):
+                                action[0](dash=dash,
+                                          widget=widget,
+                                          signal=widget.edit)
+                                break
                 if not found:
                     self.dash_missing_signals.add(
                         '{} : {}'.format(frame_name, signal_name))
