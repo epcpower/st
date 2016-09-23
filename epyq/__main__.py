@@ -271,7 +271,10 @@ def main(args=None):
     special_menu_nodes = {}
     actions = {}
 
-    def to_menu(auto_level_up=True):
+    def to_menu(auto_level_up=True, check=False):
+        if check:
+            return menu_view == ui.stacked.currentWidget()
+
         if real_bus is not None:
             try:
                 real_bus.setFilters(can_filters=[])
@@ -315,7 +318,14 @@ def main(args=None):
             if signal.name in inverter_info_nvs.keys():
                 inverter_info_nvs[signal.name] = signal
 
-    def inverter_info():
+    def inverter_info(check=False):
+        if check:
+            try:
+                raise Exception('`check` not supported')
+            except:
+                traceback.print_exc()
+            return False
+
         if real_bus is not None:
             try:
                 real_bus.setFilters(nv_filters)
@@ -390,7 +400,14 @@ def main(args=None):
         hmd.write_boot_mode(1)
         subprocess.run('reboot')
 
-    def service_reboot_action():
+    def service_reboot_action(check=False):
+        if check:
+            try:
+                raise Exception('`check` not supported')
+            except:
+                traceback.print_exc()
+            return False
+
         hmi_dialog.focus(ok_action=service_restart,
                          cancel_action=stacked_history.focus_previous,
                          label=textwrap.dedent('''\
@@ -408,7 +425,14 @@ def main(args=None):
         os.remove('/opt/etc/pointercal')
         subprocess.run('reboot')
 
-    def calibrate_touchscreen_action():
+    def calibrate_touchscreen_action(check=False):
+        if check:
+            try:
+                raise Exception('`check` not supported')
+            except:
+                traceback.print_exc()
+            return False
+
         hmi_dialog.focus(ok_action=calibrate_touchscreen,
                          cancel_action=stacked_history.focus_previous,
                          label=textwrap.dedent('''\
@@ -426,7 +450,14 @@ def main(args=None):
         device.nvs.module_to_nv()
         stacked_history.focus_previous()
 
-    def inverter_to_nv_action():
+    def inverter_to_nv_action(check=False):
+        if check:
+            try:
+                raise Exception('`check` not supported')
+            except:
+                traceback.print_exc()
+            return False
+
         hmi_dialog.focus(ok_action=inverter_to_nv,
                          cancel_action=stacked_history.focus_previous,
                          label=textwrap.dedent('''\
@@ -456,7 +487,14 @@ def main(args=None):
 
     about_text = '<br>'.join(message)
 
-    def about_action():
+    def about_action(check=False):
+        if check:
+            try:
+                raise Exception('`check` not supported')
+            except:
+                traceback.print_exc()
+            return False
+
         hmi_dialog.focus(ok_action=stacked_history.focus_previous,
                          enable_delay=0,
                          label=about_text)
@@ -469,7 +507,10 @@ def main(args=None):
 
     menu_root = epyq.listmenu.Node(text='Main Menu')
 
-    def focus_dash(dash):
+    def focus_dash(dash, check=False):
+        if check:
+            return ui.stacked.currentWidget() == dash
+
         filters = []
         if platform.system() != 'Windows':
             filters.extend([
@@ -517,8 +558,8 @@ def main(args=None):
                 self.setProperty('active', self.active)
                 repolish(self)
 
-        def stacked_widget_changed(self, index):
-            self.active = self.target_widget == ui.stacked.widget(index)
+        def active_widget_changed(self, index):
+            self.active = self.action(check=True)
 
     class TooltipEventFilter(QObject):
         def __init__(self, parent=None, trigger_widget=None):
@@ -530,7 +571,14 @@ def main(args=None):
             self.trigger_widget.setProperty('active', False)
             repolish(self.trigger_widget)
 
-        def action(self):
+        def action(self, check=False):
+            if check:
+                try:
+                    raise Exception('`check` not supported')
+                except:
+                    traceback.print_exc()
+                return False
+
             if self.trigger_widget.property('active'):
                 tooltip_event_filter.deactivate()
             else:
@@ -568,7 +616,11 @@ def main(args=None):
     menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
     menu_view = epyq.listmenuview.ListMenuView()
 
-    def focus_menu_node(node=None):
+    def focus_menu_node(node=None, check=False):
+        if check:
+            return (ui.stacked.currentWidget() == menu_view
+                    and node == menu_model.root)
+
         to_menu(auto_level_up=False)
         if node not in [None, menu_model.root]:
             menu_model.node_clicked(node)
@@ -626,7 +678,8 @@ def main(args=None):
         ui.shortcut_layout.addWidget(button)
 
         button.target_widget = None
-        ui.stacked.currentChanged.connect(button.stacked_widget_changed)
+        ui.stacked.currentChanged.connect(button.active_widget_changed)
+        menu_model.root_changed.connect(button.active_widget_changed)
         button.clicked.connect(button.trigger_action)
         shortcut_buttons.append(button)
 
