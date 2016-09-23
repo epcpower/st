@@ -499,6 +499,10 @@ def main(args=None):
             self.target_widget = None
             self._active = False
             self.active = False
+            self.action = None
+
+        def trigger_action(self):
+            self.action()
 
         @pyqtProperty(bool)
         def active(self):
@@ -623,16 +627,17 @@ def main(args=None):
 
         button.target_widget = None
         ui.stacked.currentChanged.connect(button.stacked_widget_changed)
+        button.clicked.connect(button.trigger_action)
         shortcut_buttons.append(button)
 
         # TODO: CAMPid 139001547845212167972192345189
         if isinstance(action_name, QWidget):
             button.target_widget = action_name
             add_stacked_widget(action_name)
-            button.clicked.connect(functools.partial(
+            button.action = functools.partial(
                 focus_dash,
                 dash=action_name
-            ))
+            )
         else:
             try:
                 action = actions[action_name]
@@ -647,7 +652,7 @@ def main(args=None):
                 if action_name == '<tooltip>':
                     tooltip_event_filter.trigger_widget = button
 
-                button.clicked.connect(action)
+                button.action = action
 
     ui.shortcut_layout.addStretch(0)
 
