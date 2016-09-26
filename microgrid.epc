@@ -1,6 +1,8 @@
 {
     "can_path": "AFE_CAN_ID247.sym",
-    "name": "My Inverter",
-    "serial_number": "42",
-    "ui_path": "microgrid_dash.ui"
+    "name": "LC 12/6 Microgrid",
+    "ui_paths": {
+        "Control": "microgrid_control_factory.ui",
+        "Setup and Status": "microgrid_setup.ui"
+    }
 }
