@@ -23,21 +23,24 @@ event_type_to_name = {
 }
 
 class AbstractWidget(QtWidgets.QWidget):
-    def __init__(self, ui, parent=None, in_designer=False):
+    def __init__(self, ui=None, parent=None, in_designer=False):
         self.in_designer = in_designer
         QtWidgets.QWidget.__init__(self, parent=parent)
 
-        # TODO: CAMPid 9549757292917394095482739548437597676742
-        if not QFileInfo(ui).isAbsolute():
-            ui_file = os.path.join(
-                QFileInfo.absolutePath(QFileInfo(__file__)), ui)
+        if ui is None:
+            self.ui = None
         else:
-            ui_file = ui
-        ui_file = QFile(ui_file)
-        ui_file.open(QFile.ReadOnly | QFile.Text)
-        ts = QTextStream(ui_file)
-        sio = io.StringIO(ts.readAll())
-        self.ui = uic.loadUi(sio, self)
+            # TODO: CAMPid 9549757292917394095482739548437597676742
+            if not QFileInfo(ui).isAbsolute():
+                ui_file = os.path.join(
+                    QFileInfo.absolutePath(QFileInfo(__file__)), ui)
+            else:
+                ui_file = ui
+            ui_file = QFile(ui_file)
+            ui_file.open(QFile.ReadOnly | QFile.Text)
+            ts = QTextStream(ui_file)
+            sio = io.StringIO(ts.readAll())
+            self.ui = uic.loadUi(sio, self)
 
         self.has_units_label = hasattr(self.ui, 'units')
 
@@ -104,7 +107,8 @@ class AbstractWidget(QtWidgets.QWidget):
         expanded = str(new_label_override)
         expanded = expanded.encode('utf8').decode('unicode_escape')
         self._label_override = expanded
-        self.ui.label.setText(self.label_override)
+        if self.ui is not None:
+            self.ui.label.setText(self.label_override)
         self.update_metadata()
 
     @pyqtProperty('QString')
@@ -119,28 +123,34 @@ class AbstractWidget(QtWidgets.QWidget):
 
     @pyqtProperty(bool)
     def label_visible(self):
-        return self.ui.label.isVisibleTo(self.parent())
+        if self.ui is not None:
+            return self.ui.label.isVisibleTo(self.parent())
+
+        return False
 
     @label_visible.setter
     def label_visible(self, new_visible):
-        self.ui.label.setVisible(new_visible)
-        self.update_metadata()
+        if self.ui is not None:
+            self.ui.label.setVisible(new_visible)
+            self.update_metadata()
 
     def has_units_label_a(self):
         return self.has_units_label
 
     @pyqtProperty(bool)
     def units_visible(self):
-        if self.has_units_label:
-            return self.ui.units.isVisibleTo(self.parent())
+        if self.ui is not None:
+            if self.has_units_label:
+                return self.ui.units.isVisibleTo(self.parent())
 
         return False
 
     @units_visible.setter
     def units_visible(self, new_visible):
-        if self.has_units_label:
-            self.ui.units.setVisible(new_visible)
-            self.update_metadata()
+        if self.ui is not None:
+            if self.has_units_label:
+                self.ui.units.setVisible(new_visible)
+                self.update_metadata()
 
     def containing_layout(self):
         parent = self.parent()
@@ -184,37 +194,38 @@ class AbstractWidget(QtWidgets.QWidget):
         if label is None:
             label = '-'
 
-        self.ui.label.setText(label)
+        if self.ui is not None:
+            self.ui.label.setText(label)
 
-        if not self.label_visible:
-            layout, index = self.containing_layout()
+            if not self.label_visible:
+                layout, index = self.containing_layout()
 
-            # TODO: CAMPid 938914912312674213467977981547743
-            if index is not None:
-                row, column, row_span, column_span = (
-                    layout.getItemPosition(index)
-                )
-                # TODO: search in case of colspan
-                left = None
-                for offset in range(1, column + 1):
-                    left_column = column - offset
-                    left_layout_item = layout.itemAtPosition(
-                        row, left_column)
+                # TODO: CAMPid 938914912312674213467977981547743
+                if index is not None:
+                    row, column, row_span, column_span = (
+                        layout.getItemPosition(index)
+                    )
+                    # TODO: search in case of colspan
+                    left = None
+                    for offset in range(1, column + 1):
+                        left_column = column - offset
+                        left_layout_item = layout.itemAtPosition(
+                            row, left_column)
 
-                    if left_layout_item is not None:
-                        left_temp = left_layout_item.widget()
-                        left_index = layout.indexOf(left_temp)
-                        _, _, _, column_span = layout.getItemPosition(
-                            left_index)
+                        if left_layout_item is not None:
+                            left_temp = left_layout_item.widget()
+                            left_index = layout.indexOf(left_temp)
+                            _, _, _, column_span = layout.getItemPosition(
+                                left_index)
 
-                        if left_temp is not None:
-                            if column_span < offset:
-                                break
+                            if left_temp is not None:
+                                if column_span < offset:
+                                    break
 
-                            left = left_temp
+                                left = left_temp
 
-                if isinstance(left, QtWidgets.QLabel):
-                    left.setText(label)
+                    if isinstance(left, QtWidgets.QLabel):
+                        left.setText(label)
 
     def set_label_custom(self, new_signal=None):
         return None
@@ -225,19 +236,20 @@ class AbstractWidget(QtWidgets.QWidget):
 
         self.set_unit_text(units)
 
-        if not self.units_visible:
-            layout, index = self.containing_layout()
+        if self.ui is not None:
+            if not self.units_visible:
+                layout, index = self.containing_layout()
 
-            # TODO: CAMPid 938914912312674213467977981547743
-            if index is not None:
-                row, column, row_span, column_span = (
-                    layout.getItemPosition(index)
-                )
-                right = layout.itemAtPosition(row, column + column_span)
-                if right is not None:
-                    right = right.widget()
-                    if isinstance(right, QtWidgets.QLabel):
-                        right.setText(units)
+                # TODO: CAMPid 938914912312674213467977981547743
+                if index is not None:
+                    row, column, row_span, column_span = (
+                        layout.getItemPosition(index)
+                    )
+                    right = layout.itemAtPosition(row, column + column_span)
+                    if right is not None:
+                        right = right.widget()
+                        if isinstance(right, QtWidgets.QLabel):
+                            right.setText(units)
 
     def set_unit_text(self, units):
         try:
