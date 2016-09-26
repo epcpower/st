@@ -25,6 +25,9 @@ class Text(epyq.widgets.abstractwidget.AbstractWidget):
 
     def set_value(self, value):
         # TODO: quit hardcoding this and it's better implemented elsewhere
+        if value is not None:
+            value *= self._conversion_multiplier
+
         if value is None:
             value = '-'
         else:

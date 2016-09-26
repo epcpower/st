@@ -8,6 +8,7 @@ import io
 import os
 import textwrap
 
+from collections import OrderedDict
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, QEvent)
@@ -15,6 +16,37 @@ from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
+
+
+factors = OrderedDict([
+    ('M', 6),
+    ('k', 3),
+    ('h', 2),
+    ('da', 1),
+    ('d', -1),
+    ('c', -2),
+    ('m', -3),
+    ('', 0)
+])
+
+
+def conversion_multiplier(old, new):
+    old_factor = None
+    new_factor = None
+
+    for factor in factors:
+        if old_factor is None and old.startswith(factor):
+            old_factor = factor
+        if new_factor is None and new.startswith(factor):
+            new_factor = factor
+
+    old_unit = old[len(old_factor):]
+    new_unit = new[len(new_factor):]
+
+    if old_unit != new_unit:
+        raise Exception('Units do not match: old {}, new {}'.format(old, new))
+
+    return 10**(factors[old_factor] - factors[new_factor])
 
 
 event_type_to_name = {
@@ -48,11 +80,24 @@ class AbstractWidget(QtWidgets.QWidget):
 
         self._label_override = ''
         self._tool_tip_override = ''
+        self._override_units = ''
+
+        self._conversion_multiplier = 1
 
         self.set_signal(force_update=True)
 
         self._frame = ''
         self._signal = ''
+        self._display_units = ''
+
+    @pyqtProperty(str)
+    def display_units(self):
+        return self._display_units
+
+    @display_units.setter
+    def display_units(self, units):
+        self._display_units = units
+        self.update_metadata()
 
     def changeEvent(self, event):
         QtWidgets.QWidget.changeEvent(self, event)
@@ -230,9 +275,26 @@ class AbstractWidget(QtWidgets.QWidget):
     def set_label_custom(self, new_signal=None):
         return None
 
+    @pyqtProperty(str)
+    def override_units(self):
+        return self._override_units
+
+    @override_units.setter
+    def override_units(self, units):
+        self._override_units = units
+
+        # TODO: CAMPid 0932498324014012080143014320
+        if self.signal_object is not None:
+            self._conversion_multiplier = conversion_multiplier(
+                    old=self.signal_object.unit,
+                    new=self.override_units
+                )
+
     def set_units(self, units):
         if units is None:
             units = '-'
+        if len(self.override_units) > 0:
+            units = self.override_units
 
         self.set_unit_text(units)
 
@@ -272,6 +334,15 @@ class AbstractWidget(QtWidgets.QWidget):
 
             if signal is not None:
                 signal.value_changed.connect(self.set_value)
+
+            # TODO: CAMPid 0932498324014012080143014320
+            if signal is not None and len(self.override_units) > 0:
+                self._conversion_multiplier = conversion_multiplier(
+                    old=signal.unit,
+                    new=self.override_units
+                )
+            else:
+                self._conversion_multiplier = 1
 
     def set_signal(self, signal=None, force_update=False):
         if signal is not self.signal_object or force_update:
