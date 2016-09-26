@@ -182,21 +182,27 @@ def main(args=None):
 
     base_font_size_px = 30
 
-    fontawesome_path = os.path.join(
-        QFileInfo.absolutePath(QFileInfo(__file__)),
-        '..',
-        'venv',
-        'src',
-        'fontawesome',
-        'fonts',
-        'FontAwesome.otf'
-    )
-    # TODO: CAMPid 9549757292917394095482739548437597676742
-    if not QFileInfo(fontawesome_path).isAbsolute():
-        fontawesome_path = os.path.join(
-            QFileInfo.absolutePath(QFileInfo(__file__)), fontawesome_path)
 
-    QFontDatabase.addApplicationFont(fontawesome_path)
+    font_paths = [
+        os.path.join(
+            QFileInfo.absolutePath(QFileInfo(__file__)),
+            '..', 'venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'),
+        os.path.join(
+            QFileInfo.absolutePath(QFileInfo(__file__)),
+            '..', 'venv', 'src', 'metropolis', 'Metropolis-Regular.otf'),
+        os.path.join(
+            QFileInfo.absolutePath(QFileInfo(__file__)),
+            '..', 'venv', 'src', 'metropolis', 'Metropolis-Bold.otf')
+    ]
+
+    for font_path in font_paths:
+        # TODO: CAMPid 9549757292917394095482739548437597676742
+        if not QFileInfo(font_path).isAbsolute():
+            font_path = os.path.join(
+                QFileInfo.absolutePath(QFileInfo(__file__)), font_path)
+
+        QFontDatabase.addApplicationFont(font_path)
+
     QTextCodec.setCodecForLocale(QTextCodec.codecForName('UTF-8'))
 
     ui = load_ui('main.ui')
@@ -789,7 +795,7 @@ def main(args=None):
         }}
 
         QWidget[fontawesome=false] {{
-            font-family: Bitstream Vera Sans;
+            font-family: Metropolis;
         }}
 
         Epc {{
