@@ -49,6 +49,7 @@ class HorizontalSlider(epyq.widgets.abstracttxwidget.AbstractTxWidget,
 
         self.ui.value.setValue(int(round(counts)))
 
+    # TODO: CAMPid 2397847962541678243196352195498
     def set_range(self, min=None, max=None):
         if self.override_range:
             min = self.minimum
