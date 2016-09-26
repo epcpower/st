@@ -790,7 +790,7 @@ def main(args=None):
         QWidget {{
             font-size: {base_font_size_px}px;
             qproperty-focusPolicy: NoFocus;
-            color: black;
+            color: {foreground};
             background: {background};
         }}
 
@@ -811,6 +811,7 @@ def main(args=None):
             min-width: 40px;
             min-height: 40px;
             max-height: 40px;
+            color: black;
         }}
 
         QPushButton[fontawesome=true] {{
@@ -832,7 +833,7 @@ def main(args=None):
 
         QLineEdit {{
             qproperty-focusPolicy: NoFocus;
-            background-color: {blue};
+            background-color: {background_blue};
         }}
 
         QPushButton:enabled {{
@@ -840,7 +841,7 @@ def main(args=None):
         }}
 
         QPushButton:!enabled {{
-            background-color: gray;
+            background-color: {gray};
         }}
 
         QPushButton[active=true] {{
@@ -852,7 +853,7 @@ def main(args=None):
         }}
 
         QLineEdit:!enabled {{
-            background-color: gray;
+            background-color: {gray};
         }}
 
         QLineEdit:enabled {{
@@ -868,7 +869,7 @@ def main(args=None):
         QSlider::groove {{
             width: 4px;
             border-radius: 2px;
-            background-color: gray;
+            background-color: {gray};
         }}
 
         QSlider::handle {{
@@ -879,9 +880,13 @@ def main(args=None):
         }}
     '''.format(
         base_font_size_px=base_font_size_px,
-        background='hsva(0%, 0%, 80%)',
+        background='black',
+        foreground='hsva(0%, 0%, 80%)',
         blue='hsva(80%, 40%, 75%)',
-        green='hsva(57%, 40%, 75%)'
+        background_blue='hsva(80%, 40%, 25%)',
+        green='hsva(57%, 40%, 75%)',
+        background_green='hsva(57%, 40%, 25%)',
+        gray='hsva(0%, 0%, 20%)'
     ))
 
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
