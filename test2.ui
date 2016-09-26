@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="EpcForm" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="can_file" stdset="0">
+   <string>example_hmi.sym</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="CircularProgressBar" name="circularprogressbar">
+     <property name="frame" stdset="0">
+      <string>StatusMeasuredPower</string>
+     </property>
+     <property name="signal" stdset="0">
+      <string>RealPower_measured</string>
+     </property>
+     <property name="clockwise" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="minimum_angle" stdset="0">
+      <double>90.000000000000000</double>
+     </property>
+     <property name="value" stdset="0">
+      <double>0.000000000000000</double>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="CircularProgressBar" name="circularprogressbar_2">
+        <property name="frame" stdset="0">
+         <string>StatusMeasuredPower</string>
+        </property>
+        <property name="signal" stdset="0">
+         <string>ReactivePower_measured</string>
+        </property>
+        <property name="clockwise" stdset="0">
+         <bool>true</bool>
+        </property>
+        <property name="minimum_angle" stdset="0">
+         <double>90.000000000000000</double>
+        </property>
+        <property name="color" stdset="0">
+         <color>
+          <red>254</red>
+          <green>194</green>
+          <blue>78</blue>
+         </color>
+        </property>
+        <property name="value" stdset="0">
+         <double>42.000000000000000</double>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <layout class="QGridLayout" name="gridLayout_3" rowstretch="1,1" columnstretch="1">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetFixedSize</enum>
+           </property>
+           <item row="0" column="0" alignment="Qt::AlignHCenter|Qt::AlignBottom">
+            <widget class="Text" name="text">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">font-weight: bold; color: #39c550;</string>
+             </property>
+             <property name="frame" stdset="0">
+              <string>StatusMeasuredPower</string>
+             </property>
+             <property name="signal" stdset="0">
+              <string>RealPower_measured</string>
+             </property>
+             <property name="label_visible" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="units_visible" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" alignment="Qt::AlignHCenter|Qt::AlignTop">
+            <widget class="Text" name="text_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #fec24e;</string>
+             </property>
+             <property name="frame" stdset="0">
+              <string>StatusMeasuredPower</string>
+             </property>
+             <property name="signal" stdset="0">
+              <string>ReactivePower_measured</string>
+             </property>
+             <property name="label_visible" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="units_visible" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>EpcForm</class>
+   <extends>QWidget</extends>
+   <header>epyq.form</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CircularProgressBar</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.circularprogressbar</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Text</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.text</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
