@@ -294,7 +294,7 @@ class AbstractWidget(QtWidgets.QWidget):
         self._override_units = units
 
         # TODO: CAMPid 0932498324014012080143014320
-        if self.signal_object is not None:
+        if self.signal_object is not None and len(self.override_units) > 0:
             self._conversion_multiplier = conversion_multiplier(
                     old=self.signal_object.unit,
                     new=self.override_units
