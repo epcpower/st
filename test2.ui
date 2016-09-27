@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>603</width>
-    <height>303</height>
+    <height>306</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,31 +40,6 @@
      <property name="spacing">
       <number>0</number>
      </property>
-     <item row="0" column="2" alignment="Qt::AlignRight">
-      <widget class="Text" name="text_14">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusACParameters</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>VoltageAC_measured</string>
-       </property>
-       <property name="decimal_places" stdset="0">
-        <number>0</number>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="RingBar" name="ringbar">
        <property name="sizePolicy">
@@ -399,30 +374,138 @@
        </item>
       </layout>
      </item>
-     <item row="1" column="2" alignment="Qt::AlignRight">
-      <widget class="Text" name="text_15">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusACParameters</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>CurrentAC_measured</string>
-       </property>
-       <property name="decimal_places" stdset="0">
-        <number>0</number>
-       </property>
-       <property name="label_visible" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
+     <item row="0" column="2" rowspan="2">
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="1" column="1">
+        <widget class="LineBar" name="linebar_5">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusACParameters</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>VoltageAC_measured</string>
+         </property>
+         <property name="override_range" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="reference_value" stdset="0">
+          <double>208.000000000000000</double>
+         </property>
+         <property name="thickness" stdset="0">
+          <double>12.000000000000000</double>
+         </property>
+         <property name="value" stdset="0">
+          <double>215.000000000000000</double>
+         </property>
+         <property name="maximum" stdset="0">
+          <double>228.000000000000000</double>
+         </property>
+         <property name="minimum" stdset="0">
+          <double>188.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="3" alignment="Qt::AlignRight">
+        <widget class="Text" name="text_14">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusACParameters</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>VoltageAC_measured</string>
+         </property>
+         <property name="decimal_places" stdset="0">
+          <number>0</number>
+         </property>
+         <property name="label_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>208</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="0" colspan="3" alignment="Qt::AlignRight">
+        <widget class="Text" name="text_15">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusACParameters</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>CurrentAC_measured</string>
+         </property>
+         <property name="decimal_places" stdset="0">
+          <number>0</number>
+         </property>
+         <property name="label_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -434,6 +517,11 @@
    <extends>QWidget</extends>
    <header>epyq.form</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LineBar</class>
+   <extends>QWidget</extends>
+   <header>epyq.widgets.linebar</header>
   </customwidget>
   <customwidget>
    <class>RingBar</class>
