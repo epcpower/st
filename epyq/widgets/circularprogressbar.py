@@ -32,7 +32,7 @@ class CircularProgressBar(epyq.widgets.abstractwidget.AbstractWidget):
         self._thickness = 10
         self._value = 75
 
-        self._minimum_angle = 0
+        self._zero_angle = 0
         self._angle_span = 360
 
         self._override_range = False
@@ -57,12 +57,12 @@ class CircularProgressBar(epyq.widgets.abstractwidget.AbstractWidget):
         self.update()
 
     @pyqtProperty(float)
-    def minimum_angle(self):
-        return self._minimum_angle
+    def zero_angle(self):
+        return self._zero_angle
 
-    @minimum_angle.setter
-    def minimum_angle(self, angle):
-        self._minimum_angle = angle
+    @zero_angle.setter
+    def zero_angle(self, angle):
+        self._zero_angle = angle
 
         self.update()
 
@@ -130,9 +130,10 @@ class CircularProgressBar(epyq.widgets.abstractwidget.AbstractWidget):
         rectangle = QRectF(-radius, -radius,
                            diameter, diameter)
 
-        span_angle = (self.angle_span
-                      * ((self.value - self.minimum)
-                         / (self.maximum - self.minimum)))
+        maximum = max(abs(self.maximum), abs(self.minimum))
+
+        span_angle = self.angle_span * (self.value / maximum)
+
         if self.clockwise:
             span_angle = -span_angle
 
@@ -147,7 +148,7 @@ class CircularProgressBar(epyq.widgets.abstractwidget.AbstractWidget):
         pen.setColor(self.color)
         painter.setPen(pen)
         painter.drawArc(rectangle,
-                        arc_angle(self.minimum_angle),
+                        arc_angle(self.zero_angle),
                         arc_angle(span_angle))
 
     def update_layout(self):
