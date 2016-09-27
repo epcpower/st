@@ -102,7 +102,6 @@ class EpcForm(QWidget):
         if not self.in_designer:
             return
 
-        print(widget)
         if self.neo is None:
             widget.set_signal(force_update=True)
         else:
