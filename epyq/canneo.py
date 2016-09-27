@@ -210,7 +210,7 @@ class Signal(QObject):
             value = 0
         self.value_changed.emit(value)
 
-    def format_float(self, value=None):
+    def format_float(self, value=None, decimal_places=None):
         # TODO: ack fix this since it's getting called with an actual None value...
         if value is None:
             value = self.scaled_value
@@ -218,7 +218,10 @@ class Signal(QObject):
         if value is None:
             formatted = '-'
         else:
-            format = '%.{}f'.format(self.get_decimal_places())
+            if decimal_places is None:
+                decimal_places = self.get_decimal_places()
+
+            format = '%.{}f'.format(decimal_places)
             formatted = locale.format(format, value, grouping=True)
 
         return formatted

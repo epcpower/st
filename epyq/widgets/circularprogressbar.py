@@ -6,7 +6,6 @@ import epyq.widgets.abstractwidget
 
 from PyQt5.QtCore import pyqtProperty, pyqtSlot, QRectF, Qt
 from PyQt5.QtGui import QPainter, QPen, QColor
-from PyQt5.QtWidgets import QWidget
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -111,14 +110,15 @@ class CircularProgressBar(epyq.widgets.abstractwidget.AbstractWidget):
         return min(self.width(), self.height())
 
     def resizeEvent(self, event):
-        QWidget.resizeEvent(self, event)
-        self.update()
+        epyq.widgets.abstractwidget.AbstractWidget.resizeEvent(self, event)
+
+        self.update_layout()
 
     def tweaked_thickness(self):
         return self.thickness + 1
 
     def paintEvent(self, event):
-        QWidget.paintEvent(self, event)
+        epyq.widgets.abstractwidget.AbstractWidget.paintEvent(self, event)
 
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -150,7 +150,7 @@ class CircularProgressBar(epyq.widgets.abstractwidget.AbstractWidget):
                         arc_angle(self.minimum_angle),
                         arc_angle(span_angle))
 
-    def update(self):
+    def update_layout(self):
         horizontal_margin = (self.width() - self.dimension()) / 2
         vertical_margin = (self.height() - self.dimension()) / 2
 
@@ -162,7 +162,10 @@ class CircularProgressBar(epyq.widgets.abstractwidget.AbstractWidget):
                                 horizontal_margin,
                                 vertical_margin)
 
-        QWidget.update(self)
+    def update(self):
+        self.update_layout()
+
+        epyq.widgets.abstractwidget.AbstractWidget.update(self)
 
     @pyqtSlot(float)
     def set_value(self, value):

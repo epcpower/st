@@ -83,6 +83,7 @@ class AbstractWidget(QtWidgets.QWidget):
         self._override_units = ''
 
         self._conversion_multiplier = 1
+        self._decimal_places = -1
 
         self.set_signal(force_update=True)
 
@@ -141,6 +142,15 @@ class AbstractWidget(QtWidgets.QWidget):
     @signal.setter
     def signal(self, signal):
         self._signal = signal
+        self.update_metadata()
+
+    @pyqtProperty(int)
+    def decimal_places(self):
+        return self._decimal_places
+
+    @decimal_places.setter
+    def decimal_places(self, decimal_places):
+        self._decimal_places = decimal_places
         self.update_metadata()
 
     @pyqtProperty('QString')

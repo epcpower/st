@@ -31,9 +31,22 @@ class Text(epyq.widgets.abstractwidget.AbstractWidget):
         if value is None:
             value = '-'
         else:
-            value = '{0:.2f}'.format(value)
+            if self.signal_object is None:
+                value = '{0:.2f}'.format(value)
+            elif len(self.signal_object.enumeration) > 0:
+                value = self.signal_object.short_string
+            else:
+                decimal_places = (None
+                                  if self.decimal_places < 0
+                                  else self.decimal_places)
+                value = self.signal_object.format_float(
+                    value=value,
+                    decimal_places=decimal_places)
 
         self.ui.value.setText(value)
+
+    def update_layout(self):
+        pass
 
 
 if __name__ == '__main__':

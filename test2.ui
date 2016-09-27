@@ -6,146 +6,431 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>480</height>
+    <width>603</width>
+    <height>303</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">font-size: 19px;</string>
+  </property>
   <property name="can_file" stdset="0">
    <string>example_hmi.sym</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="CircularProgressBar" name="circularprogressbar">
-     <property name="frame" stdset="0">
-      <string>StatusMeasuredPower</string>
+  <property name="update_from_can_file" stdset="0">
+   <bool>false</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0" columnminimumwidth="120,240,120">
+     <property name="spacing">
+      <number>4</number>
      </property>
-     <property name="signal" stdset="0">
-      <string>RealPower_measured</string>
-     </property>
-     <property name="clockwise" stdset="0">
-      <bool>true</bool>
-     </property>
-     <property name="minimum_angle" stdset="0">
-      <double>90.000000000000000</double>
-     </property>
-     <property name="value" stdset="0">
-      <double>0.000000000000000</double>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="CircularProgressBar" name="circularprogressbar_2">
-        <property name="frame" stdset="0">
-         <string>StatusMeasuredPower</string>
+     <item row="0" column="2" alignment="Qt::AlignRight">
+      <widget class="Text" name="text_14">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusACParameters</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>VoltageAC_measured</string>
+       </property>
+       <property name="decimal_places" stdset="0">
+        <number>0</number>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="override_units" stdset="0">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="CircularProgressBar" name="circularprogressbar">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusMeasuredPower</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>RealPower_measured</string>
+       </property>
+       <property name="clockwise" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="minimum_angle" stdset="0">
+        <double>90.000000000000000</double>
+       </property>
+       <property name="thickness" stdset="0">
+        <double>5.000000000000000</double>
+       </property>
+       <property name="value" stdset="0">
+        <double>0.000000000000000</double>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <property name="leftMargin">
+         <number>0</number>
         </property>
-        <property name="signal" stdset="0">
-         <string>ReactivePower_measured</string>
+        <property name="topMargin">
+         <number>0</number>
         </property>
-        <property name="clockwise" stdset="0">
-         <bool>true</bool>
+        <property name="rightMargin">
+         <number>0</number>
         </property>
-        <property name="minimum_angle" stdset="0">
-         <double>90.000000000000000</double>
+        <property name="bottomMargin">
+         <number>0</number>
         </property>
-        <property name="color" stdset="0">
-         <color>
-          <red>254</red>
-          <green>194</green>
-          <blue>78</blue>
-         </color>
-        </property>
-        <property name="value" stdset="0">
-         <double>42.000000000000000</double>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_3" rowstretch="1,1" columnstretch="1">
-           <property name="sizeConstraint">
-            <enum>QLayout::SetFixedSize</enum>
+        <item row="0" column="0">
+         <widget class="CircularProgressBar" name="circularprogressbar_2">
+          <property name="frame" stdset="0">
+           <string>StatusMeasuredPower</string>
+          </property>
+          <property name="signal" stdset="0">
+           <string>ReactivePower_measured</string>
+          </property>
+          <property name="clockwise" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="minimum_angle" stdset="0">
+           <double>90.000000000000000</double>
+          </property>
+          <property name="thickness" stdset="0">
+           <double>5.000000000000000</double>
+          </property>
+          <property name="color" stdset="0">
+           <color>
+            <red>254</red>
+            <green>194</green>
+            <blue>78</blue>
+           </color>
+          </property>
+          <property name="value" stdset="0">
+           <double>0.000000000000000</double>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <property name="leftMargin">
+            <number>0</number>
            </property>
-           <item row="0" column="0" alignment="Qt::AlignHCenter|Qt::AlignBottom">
-            <widget class="Text" name="text">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="gridLayout_3" rowstretch="1,1" columnstretch="1">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetFixedSize</enum>
              </property>
-             <property name="styleSheet">
-              <string notr="true">font-weight: bold; color: #39c550;</string>
+             <property name="verticalSpacing">
+              <number>4</number>
              </property>
-             <property name="frame" stdset="0">
-              <string>StatusMeasuredPower</string>
-             </property>
-             <property name="signal" stdset="0">
-              <string>RealPower_measured</string>
-             </property>
-             <property name="label_visible" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="units_visible" stdset="0">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" alignment="Qt::AlignHCenter|Qt::AlignTop">
-            <widget class="Text" name="text_2">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">color: #fec24e;</string>
-             </property>
-             <property name="frame" stdset="0">
-              <string>StatusMeasuredPower</string>
-             </property>
-             <property name="signal" stdset="0">
-              <string>ReactivePower_measured</string>
-             </property>
-             <property name="label_visible" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="units_visible" stdset="0">
-              <bool>true</bool>
-             </property>
-            </widget>
+             <item row="0" column="0" alignment="Qt::AlignHCenter|Qt::AlignBottom">
+              <widget class="Text" name="text">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font-size: 25px; font-weight: bold; color: #39c550;</string>
+               </property>
+               <property name="frame" stdset="0">
+                <string>StatusMeasuredPower</string>
+               </property>
+               <property name="signal" stdset="0">
+                <string>RealPower_measured</string>
+               </property>
+               <property name="decimal_places" stdset="0">
+                <number>0</number>
+               </property>
+               <property name="label_visible" stdset="0">
+                <bool>false</bool>
+               </property>
+               <property name="units_visible" stdset="0">
+                <bool>true</bool>
+               </property>
+               <property name="override_units" stdset="0">
+                <string>kW</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" alignment="Qt::AlignHCenter|Qt::AlignTop">
+              <widget class="Text" name="text_2">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font-size: 25px; color: #fec24e;</string>
+               </property>
+               <property name="frame" stdset="0">
+                <string>StatusMeasuredPower</string>
+               </property>
+               <property name="signal" stdset="0">
+                <string>ReactivePower_measured</string>
+               </property>
+               <property name="decimal_places" stdset="0">
+                <number>0</number>
+               </property>
+               <property name="label_visible" stdset="0">
+                <bool>false</bool>
+               </property>
+               <property name="units_visible" stdset="0">
+                <bool>true</bool>
+               </property>
+               <property name="override_units" stdset="0">
+                <string>kVAr</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="Text" name="text_12">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusTemps</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>TempHeatsink_measured</string>
+       </property>
+       <property name="decimal_places" stdset="0">
+        <number>0</number>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="override_units" stdset="0">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2" alignment="Qt::AlignRight">
+      <widget class="Text" name="text_13">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusDCParameters</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>VoltageDCBus</string>
+       </property>
+       <property name="decimal_places" stdset="0">
+        <number>0</number>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="override_units" stdset="0">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" alignment="Qt::AlignHCenter">
+      <widget class="Text" name="text_8">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">text-transform: uppercase;</string>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>PowerAvailAC_status</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="units_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" alignment="Qt::AlignHCenter">
+      <widget class="Text" name="text_5">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">text-transform: uppercase;</string>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>State_status</string>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="units_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2" alignment="Qt::AlignRight">
+      <widget class="Text" name="text_11">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusDCParameters</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>CurrentDC_measured</string>
+       </property>
+       <property name="decimal_places" stdset="0">
+        <number>0</number>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="override_units" stdset="0">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="2">
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>UPS MODE:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Text" name="text_16">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">text-transform: uppercase;</string>
+         </property>
+         <property name="frame" stdset="0">
+          <string>StatusBits</string>
+         </property>
+         <property name="signal" stdset="0">
+          <string>EnableUPSMode_echo</string>
+         </property>
+         <property name="label_visible" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="override_units" stdset="0">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="2" alignment="Qt::AlignRight">
+      <widget class="Text" name="text_15">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusACParameters</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>CurrentAC_measured</string>
+       </property>
+       <property name="decimal_places" stdset="0">
+        <number>0</number>
+       </property>
+       <property name="label_visible" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="override_units" stdset="0">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

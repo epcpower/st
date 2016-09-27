@@ -2,11 +2,11 @@ FormatVersion=5.0 // Do not edit this line!
 Title="AFE_CAN_ID247"
 
 {ENUMS}
-enum State(0="Power On Reset", 1="Ready", 2="Following", 3="Fault", 
-  4="Forming", 5="N/A", 6="N/A", 7="N/A", 8="N/A", 9="N/A", 10="N/A", 11="N/A", 
+enum State(0="Power On Reset", 1="Ready", 2="Following Mode", 3="Fault",
+  4="Forming Mode", 5="N/A", 6="N/A", 7="N/A", 8="N/A", 9="N/A", 10="N/A", 11="N/A",
   12="N/A", 13="N/A", 14="N/A", 15="N/A")
 enum Relay(0="Open", 1="Closed", 2="Error", 3="N/A")
-enum PowerAvail(0="None", 1="Available", 2="Error", 3="N/A")
+enum PowerAvail(0="Grid Not Detected", 1="Grid Detected", 2="Error", 3="N/A")
 enum IGBTsEnabled(0="Disabled", 1="Enabled", 2="Error", 3="N/A")
 enum WakeUpSignal(0="Not Active", 1="Active", 2="Error", 3="N/A")
 enum Enable(0="Disable", 1="Enable", 2="Error", 3="N/A")
@@ -17,7 +17,7 @@ enum BridgeFlt(0="Normal", 1="FLT_A", 2="N/A", 3="FLT_C", 4="OverVoltage",
 enum Fault(0="Normal", 1="Fault Active", 2="Error", 3="N/A")
 enum CANStatus(0="Normal", 1="Warning", 3="ErrorPassive", 4="N/A")
 enum InvertHwEnable(0="No invert", 1="Invert", 2="Error", 3="N/A")
-enum EnableUPSMode(0="Disable", 1="Enable", 2="Error", 3="N/A")
+enum EnableUPSMode(0="Off", 1="On", 2="Error", 3="N/A")
 enum EnableSplitPhase(0="Normal - Three Phase Mode", 
   1="Enable Split Phase Mode", 2="Error", 3="N/A")
 enum RelayCommand(0="Normal", 1="Force On", 2="Error", 3="N/A")
@@ -305,7 +305,7 @@ Type=Extended
 DLC=8
 CycleTime=100
 Var=VoltageAC_measured signed 0,16 -m /u:VRMS /f:0.1 /min:0 /max:500 /ln:"Meas. VAC"	// Measured RMS AC voltage.
-Var=CurrentAC_measured signed 16,16 -m /u:A /min:-900 /max:900 /ln:"Meas. AC current"	// Measured RMS AC current.
+Var=CurrentAC_measured signed 16,16 -m /u:ARMS /min:-900 /max:900 /ln:"Meas. AC current"	// Measured RMS AC current.
 Var=Frequency_measured signed 32,16 -m /u:Hz /f:0.1 /min:45 /max:65 /ln:"Meas. AC freq."	// Measured frequency.
 
 [StatusDCParameters]
