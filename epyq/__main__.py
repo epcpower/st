@@ -791,7 +791,10 @@ def main(args=None):
             font-size: {base_font_size_px}px;
             qproperty-focusPolicy: NoFocus;
             color: {foreground};
-            background: {background};
+        }}
+
+        QWidget#MainForm {{
+            background-color: {background};
         }}
 
         QWidget[fontawesome=false] {{
