@@ -19,7 +19,7 @@ def arc_angle(angle):
     return 16 * angle
 
 
-class CircularProgressBar(epyq.widgets.abstractwidget.AbstractWidget):
+class RingBar(epyq.widgets.abstractwidget.AbstractWidget):
     def __init__(self, parent=None, in_designer=False):
         self.in_designer = in_designer
         epyq.widgets.abstractwidget.AbstractWidget.__init__(self, parent=parent)

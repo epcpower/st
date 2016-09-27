@@ -66,7 +66,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="CircularProgressBar" name="circularprogressbar">
+      <widget class="RingBar" name="ringbar">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -111,7 +111,7 @@
          <number>0</number>
         </property>
         <item row="0" column="0">
-         <widget class="CircularProgressBar" name="circularprogressbar_2">
+         <widget class="RingBar" name="ringbar_2">
           <property name="frame" stdset="0">
            <string>StatusMeasuredPower</string>
           </property>
@@ -436,9 +436,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>CircularProgressBar</class>
+   <class>RingBar</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.circularprogressbar</header>
+   <header>epyq.widgets.ringbar</header>
    <container>1</container>
   </customwidget>
   <customwidget>
