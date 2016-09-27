@@ -38,7 +38,7 @@
    <item>
     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0" columnminimumwidth="120,240,120">
      <property name="spacing">
-      <number>4</number>
+      <number>0</number>
      </property>
      <item row="0" column="2" alignment="Qt::AlignRight">
       <widget class="Text" name="text_14">
@@ -92,7 +92,7 @@
         <double>5.000000000000000</double>
        </property>
        <property name="value" stdset="0">
-        <double>-100000.000000000000000</double>
+        <double>0.000000000000000</double>
        </property>
        <property name="minimum_angle" stdset="0">
         <double>90.000000000000000</double>
@@ -135,7 +135,7 @@
            </color>
           </property>
           <property name="value" stdset="0">
-           <double>75000.000000000000000</double>
+           <double>0.000000000000000</double>
           </property>
           <property name="minimum_angle" stdset="0">
            <double>90.000000000000000</double>
@@ -284,7 +284,7 @@
         </sizepolicy>
        </property>
        <property name="styleSheet">
-        <string notr="true">text-transform: uppercase;</string>
+        <string notr="true">text-transform: uppercase; font-size: 15px;</string>
        </property>
        <property name="frame" stdset="0">
         <string>StatusBits</string>
