@@ -67,7 +67,7 @@
         <double>5.000000000000000</double>
        </property>
        <property name="value" stdset="0">
-        <double>0.000000000000000</double>
+        <double>75000.000000000000000</double>
        </property>
        <property name="minimum_angle" stdset="0">
         <double>90.000000000000000</double>
@@ -110,7 +110,7 @@
            </color>
           </property>
           <property name="value" stdset="0">
-           <double>0.000000000000000</double>
+           <double>15000.000000000000000</double>
           </property>
           <property name="minimum_angle" stdset="0">
            <double>90.000000000000000</double>
@@ -426,7 +426,7 @@
           <double>12.000000000000000</double>
          </property>
          <property name="value" stdset="0">
-          <double>0.000000000000000</double>
+          <double>217.000000000000000</double>
          </property>
          <property name="maximum" stdset="0">
           <double>228.000000000000000</double>

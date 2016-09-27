@@ -369,21 +369,21 @@ class Device:
             notifier.add(notifiee)
 
         def flatten(dict_node):
-            flat = []
+            flat = set()
             for key, value in dict_node.items():
                 if isinstance(value, dict):
-                    flat.extend(flatten(value))
+                    flat |= flatten(value)
                 else:
-                    flat.append((key, value))
+                    flat.add(value)
 
             return flat
 
         flat = flatten(self.dash_uis)
-        flat = [(k, v) for k, v in flat if isinstance(v, QWidget)]
+        flat = [v for v in flat if isinstance(v, QWidget)]
 
         self.dash_connected_signals = set()
         self.dash_missing_signals = set()
-        for _, dash in flat:
+        for dash in flat:
             # TODO: CAMPid 99457281212789437474299
             children = dash.findChildren(QObject)
             widgets = [c for c in children if

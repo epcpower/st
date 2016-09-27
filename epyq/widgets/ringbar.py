@@ -220,9 +220,9 @@ class RingBar(epyq.widgets.abstractwidget.AbstractWidget):
             raise Exception('Min must be less than max')
 
         if minimum is not None:
-            self._minimum = minimum
+            self.minimum = minimum
         if maximum is not None:
-            self._maximum = maximum
+            self.maximum = maximum
 
 
 if __name__ == '__main__':
