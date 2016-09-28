@@ -11,6 +11,7 @@ import epyq.overlaylabel
 import epyq.txrx
 import epyq.txrxview
 import functools
+import importlib.util
 import io
 import json
 import os
@@ -123,6 +124,20 @@ class Device:
         s = file.read()
         d = json.loads(s, object_pairs_hook=OrderedDict)
         self.raw_dict = d
+
+        module = d.get('module', None)
+        self.plugin = None
+        if module is None:
+            extension_class = epyq.deviceextension.DeviceExtension
+        else:
+            spec = importlib.util.spec_from_file_location(
+                'extension', self.absolute_path(module))
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            extension_class = module.DeviceExtension
+
+        self.extension = extension_class(device=self)
 
         path = os.path.dirname(file.name)
         json_ui_paths = {}
@@ -455,6 +470,8 @@ class Device:
             print('\n === Signals referenced by a widget but not defined')
             for frame_signal in sorted(self.dash_missing_signals):
                 print(frame_signal)
+
+        self.extension.post()
 
     def absolute_path(self, path):
         # TODO: CAMPid 9549757292917394095482739548437597676742

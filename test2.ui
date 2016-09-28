@@ -429,7 +429,7 @@
      <item row="0" column="2" rowspan="3">
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="1" column="1">
-        <widget class="LineBar" name="linebar_5">
+        <widget class="LineBar" name="vac_line_bar">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -535,7 +535,7 @@
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="Text" name="text_23">
+        <widget class="Text" name="vac_reference">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
