@@ -16,7 +16,7 @@ def arc_angle(angle):
     # Qt expects 1/16 of a degree
     # http://doc.qt.io/qt-5/qpainter.html#drawArc
 
-    return 16 * angle
+    return round(16 * angle)
 
 
 class RingBar(epyq.widgets.abstractwidget.AbstractWidget):
@@ -147,9 +147,14 @@ class RingBar(epyq.widgets.abstractwidget.AbstractWidget):
 
         pen.setColor(self.color)
         painter.setPen(pen)
+
+        qt_span = arc_angle(span_angle)
+        if qt_span == 0:
+            qt_span = 1
+
         painter.drawArc(rectangle,
                         arc_angle(self.zero_angle),
-                        arc_angle(span_angle))
+                        qt_span)
 
     def update_layout(self):
         horizontal_margin = (self.width() - self.dimension()) / 2
