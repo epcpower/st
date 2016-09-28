@@ -70,7 +70,8 @@ from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu, QFrame,
                              QAbstractScrollArea, QWidget, QPushButton)
-from PyQt5.QtGui import QPixmap, QPicture, QFont, QFontDatabase, QMouseEvent
+from PyQt5.QtGui import (QPixmap, QPicture, QFont, QFontDatabase, QMouseEvent,
+                         QIcon)
 import time
 import traceback
 
@@ -705,12 +706,18 @@ def main(args=None):
 
     shortcut_buttons = []
 
-    for character_code, action_name in device.ui_paths['<shortcuts>'].items():
+    for icon, action_name in device.ui_paths['<shortcuts>'].items():
         button = ShortcutButton()
-        base = 16 if character_code.startswith('0x') else 10
-        character = chr(int(character_code, base))
-        button.setText(character)
+
+        if os.path.splitext(icon)[1] in ['.svg', '.png']:
+            button.setIcon(QIcon(device.absolute_path(icon)))
+        else:
+            base = 16 if icon.startswith('0x') else 10
+            character = chr(int(icon, base))
+            button.setText(character)
+
         button.setFont(QFont('FontAwesome'))
+
         ui.shortcut_layout.addWidget(button)
 
         button.target_widget = None
@@ -803,6 +810,7 @@ def main(args=None):
 
         QWidget[fontawesome=true] {{
             font-size: 36px;
+            icon-size: 36px
         }}
 
         Epc {{

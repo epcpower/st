@@ -4,7 +4,7 @@
     "serial_number": "42",
     "menu": {
         "<shortcuts>": {
-            "0xf0c9": "<menu>",
+            "logo_icon.svg": "<menu>",
             "0xf0e4": "test2.ui",
             "0xf14b": "example_hmi_control.ui",
             "0xf013": "<nv>",

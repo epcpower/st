@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="74.264999"
+   height="41.228992"
+   viewBox="0 0 74.265 41.228993"
+   id="svg6713"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="logo_icon.svg">
+  <defs
+     id="defs6715" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="11.2"
+     inkscape:cx="43.359662"
+     inkscape:cy="51.988576"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="2880"
+     inkscape:window-height="1523"
+     inkscape:window-x="1280"
+     inkscape:window-y="250"
+     inkscape:window-maximized="1"
+     units="px"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata6718">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-0.3675,-1010.7477)">
+    <g
+       id="g5850"
+       transform="translate(-88.214661,671.95784)">
+      <g
+         style="fill:#000000"
+         transform="matrix(1.25,0,0,-1.25,134.11086,350.90322)"
+         id="g4162-7-3">
+        <path
+           inkscape:connector-curvature="0"
+           id="path4164-5-1"
+           style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           d="m 0,0 0,4.835 0,3.473 c -9.696,-4.493 -19.393,4.648 -29.09,0.05 l 0,-3.523 0,-4.784 C -19.393,4.648 -9.696,-4.492 0,0" />
+      </g>
+      <g
+         style="fill:#000000"
+         transform="matrix(1.25,0,0,-1.25,97.748861,354.14232)"
+         id="g4166-3-4">
+        <path
+           inkscape:connector-curvature="0"
+           id="path4168-5-9"
+           style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           d="m 0,0 0,-2.308 0,-2.685 0,-3.315 c 9.697,4.598 19.393,-4.542 29.09,-0.05 l 0,3.365 0,2.685 0,2.257 C 19.393,-4.543 9.697,4.598 0,0" />
+      </g>
+      <g
+         style="fill:#000000"
+         transform="matrix(1.25,0,0,-1.25,97.608661,367.96932)"
+         id="g4170-6-2">
+        <path
+           inkscape:connector-curvature="0"
+           id="path4172-2-0"
+           style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           d="m 0,0 0,-3.665 0,-4.642 c 9.734,4.615 19.469,-4.616 29.202,0 l 0,4.642 0,3.665 C 19.469,-4.615 9.734,4.615 0,0" />
+      </g>
+      <path
+         inkscape:connector-curvature="0"
+         id="path4146-9-7"
+         style="fill:#140e0c;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 88.582161,372.55122 7.3137,0 0,-12.1675 -7.3137,0 0,12.1675 z" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path4148-2-2"
+         style="fill:#140e0c;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 162.84716,360.38372 -27.0863,0 0,12.1675 27.0863,0 0,-12.1675 z" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path4150-0-7"
+         style="fill:#140e0c;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 88.582161,357.02752 7.3137,0 0,-12.1675 -7.3137,0 0,12.1675 z" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path4152-2-2"
+         style="fill:#140e0c;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 162.84716,344.86002 -27.0863,0 0,12.1675 27.0863,0 0,-12.1675 z" />
+    </g>
+  </g>
+</svg>
