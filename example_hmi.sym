@@ -2,8 +2,8 @@ FormatVersion=5.0 // Do not edit this line!
 Title="AFE_CAN_ID247"
 
 {ENUMS}
-enum State(0="Power On Reset", 1="Ready", 2="Following Mode", 3="Fault",
-  4="Forming Mode", 5="N/A", 6="N/A", 7="N/A", 8="N/A", 9="N/A", 10="N/A", 11="N/A",
+enum State(0="Startup", 1="Idle", 2="Grid Connected", 3="Fault",
+  4="Grid Forming", 5="N/A", 6="N/A", 7="N/A", 8="N/A", 9="N/A", 10="N/A", 11="N/A",
   12="N/A", 13="N/A", 14="N/A", 15="N/A")
 enum Relay(0="Open", 1="Closed", 2="Error", 3="N/A")
 enum PowerAvail(0="Grid Not Detected", 1="Grid Detected", 2="Error", 3="N/A")
