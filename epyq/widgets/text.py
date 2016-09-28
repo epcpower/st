@@ -4,8 +4,8 @@
 
 import epyq.widgets.abstractwidget
 import os
-from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
-                          QFile, QFileInfo, QTextStream)
+from PyQt5.QtCore import (pyqtSignal, pyqtProperty, QEvent,
+                          QFile, QFileInfo, Qt, QTextStream)
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -45,8 +45,77 @@ class Text(epyq.widgets.abstractwidget.AbstractWidget):
 
         self.ui.value.setText(value)
 
+    def set_signal(self, *args, **kwargs):
+        epyq.widgets.abstractwidget.AbstractWidget.set_signal(
+            self, *args, **kwargs)
+
+        self.update_layout()
+
+    # TODO: CAMPid 097327143264214321432453216453762354
     def update_layout(self):
-        pass
+        width = self.calculate_max_value_width()
+        if width is not None:
+            self.ui.value.setMinimumWidth(width)
+
+        if self.signal_object is not None:
+            alignment = (Qt.AlignRight
+                         if len(self.signal_object.enumeration) == 0
+                         else Qt.AlignCenter)
+            alignment |= Qt.AlignVCenter
+            self.ui.value.setAlignment(alignment)
+
+    def event(self, *args, **kwargs):
+        result = epyq.widgets.abstractwidget.AbstractWidget.event(
+            self, *args, **kwargs
+        )
+
+        event = args[0]
+        if event.type() == QEvent.Polish:
+            self.update_layout()
+
+        return result
+
+    # TODO: CAMPid 989849193479134917954791341
+    def calculate_max_value_width(self):
+        if self.signal_object is None:
+            return None
+
+        signal = self.signal_object
+
+        decimal_places = (self.decimal_places
+                          if self.decimal_places >= 0
+                          else None)
+
+        longer = max(
+            [signal.format_float(value=v * self._conversion_multiplier,
+                                 decimal_places=decimal_places)
+             for v in [signal.min, signal.max]],
+            key=len)
+
+        digits = len(longer)
+
+        if '.' in longer:
+            decimal = '.'
+            digits -= 1
+        else:
+            decimal = ''
+
+        self.ui.value.setVisible(self.ui.value.isVisibleTo(self))
+        metric = self.ui.value.fontMetrics()
+        chars = ['{:}'.format(i) for i in range(10)]
+        widths = [metric.width(c) for c in chars]
+        widest_width = max(widths)
+        widest_char = chars[widths.index(widest_width)]
+        string = '{}'.format((widest_char * digits) + decimal)
+
+        strings = signal.enumeration_strings()
+        strings.append(string)
+
+        # TODO: really figure out the spacing needed but for now
+        #       just add a space on each side for buffer space
+        strings = [s for s in strings]
+
+        return max([metric.width(s) for s in strings])
 
 
 if __name__ == '__main__':

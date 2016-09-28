@@ -48,6 +48,7 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
         self.update()
 
+    # TODO: CAMPid 097327143264214321432453216453762354
     def update(self):
         width = self.calculate_max_value_width()
         if width is not None:
