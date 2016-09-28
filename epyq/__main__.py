@@ -899,8 +899,8 @@ def main(args=None):
         foreground='hsva(0%, 0%, 80%)',
         blue='hsva(80%, 40%, 75%)',
         background_blue='hsva(80%, 40%, 25%)',
-        green='hsva(57%, 40%, 75%)',
-        background_green='hsva(57%, 40%, 25%)',
+        green='hsva(130, 71%, 77%)',
+        background_green='hsva(130, 71%, 23%)',
         gray='hsva(0%, 0%, 20%)'
     ))
 
