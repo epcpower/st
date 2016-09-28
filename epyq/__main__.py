@@ -801,6 +801,10 @@ def main(args=None):
             font-family: Metropolis;
         }}
 
+        QWidget[fontawesome=true] {{
+            font-size: 36px;
+        }}
+
         Epc {{
             qproperty-show_enumeration_value: false;
         }}
@@ -818,10 +822,10 @@ def main(args=None):
         }}
 
         QPushButton[fontawesome=true] {{
-            min-width: 40px;
-            max-width: 40px;
-            min-height: 40px;
-            max-height: 40px;
+            min-width: 46px;
+            max-width: 46px;
+            min-height: 46px;
+            max-height: 46px;
         }}
 
         QFrame {{
