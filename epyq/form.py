@@ -30,7 +30,8 @@ class EpcForm(QWidget):
         self.update()
         # Total hack, but it 'works'.  Should be in response to widgets
         # being added, or done being added, or...
-        QTimer.singleShot(1000, self.update)
+        if self.in_designer:
+            QTimer.singleShot(1000, self.update)
 
     @pyqtProperty(str)
     def can_file(self):
