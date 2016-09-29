@@ -5,7 +5,7 @@
     "module": "example_hmi.py",
     "menu": {
         "<shortcuts>": {
-            "logo_icon.svg": "<menu>",
+            "logo_icon_white.svg": "<menu>",
             "0xf0e4": "example_hmi_power_ring.ui",
             "0xf14b": "example_hmi_control.ui",
             "0xf013": "<nv>",
