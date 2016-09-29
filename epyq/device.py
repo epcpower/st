@@ -233,7 +233,7 @@ class Device:
         ts = QTextStream(ui_file)
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio)
-        loaded_uis = {}
+        self.loaded_uis = {}
 
         def traverse(dict_node):
             for key, value in dict_node.items():
@@ -242,7 +242,7 @@ class Device:
                 elif value.endswith('.ui'):
                     path = value
                     try:
-                        dict_node[key] = loaded_uis[path]
+                        dict_node[key] = self.loaded_uis[path]
                     except KeyError:
                         # TODO: CAMPid 9549757292917394095482739548437597676742
                         if not QFileInfo(path).isAbsolute():
@@ -257,7 +257,7 @@ class Device:
                         sio = io.StringIO(ts.readAll())
                         dict_node[key] = uic.loadUi(sio)
                         dict_node[key].file_name = path
-                        loaded_uis[path] = dict_node[key]
+                        self.loaded_uis[path] = dict_node[key]
 
         traverse(uis)
 
