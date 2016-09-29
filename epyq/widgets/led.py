@@ -15,6 +15,9 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+darker_factor = 400
+
+
 def set_attribute_recursive(element, tag_name, attribute,
                             new_color):
     if element.tagName() == tag_name:
@@ -86,7 +89,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self._manual_off_color = QColor()
         self._automatic_off_color = True
         self.on_color = QColor("#20C020")
-        self.manual_off_color = self.on_color.darker(factor=200)
+        self.manual_off_color = self.on_color.darker(factor=darker_factor)
 
         self.update_svg()
 
@@ -141,7 +144,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         if self.automatic_off_color:
             self.svg['automatic_off'] = make_color(
                 self.svg_string,
-                rgb_string(self._on_color.darker(factor=200))
+                rgb_string(self._on_color.darker(factor=darker_factor))
             )
 
         self.update_svg()
