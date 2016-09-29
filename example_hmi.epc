@@ -6,13 +6,13 @@
     "menu": {
         "<shortcuts>": {
             "logo_icon.svg": "<menu>",
-            "0xf0e4": "test2.ui",
+            "0xf0e4": "example_hmi_power_ring.ui",
             "0xf14b": "example_hmi_control.ui",
             "0xf013": "<nv>",
             "0xf059": "<tooltip>"
         },
         "Toggle Playback": "<playback>",
-        "Power Ring": "test2.ui",
+        "Power Ring": "example_hmi_power_ring.ui",
         "Dash": "example_hmi_main.ui",
         "Control": "example_hmi_control.ui",
         "Physical Faults": "example_hmi_faults_physical.ui",
