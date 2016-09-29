@@ -48,6 +48,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="action" stdset="0">
+        <string>example_hmi_control.ui</string>
+       </property>
        <property name="frame" stdset="0">
         <string>StatusMeasuredPower</string>
        </property>
@@ -234,6 +237,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="action" stdset="0">
+        <string>example_hmi_main.ui</string>
+       </property>
        <property name="frame" stdset="0">
         <string>StatusDCParameters</string>
        </property>
@@ -255,6 +261,9 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="action" stdset="0">
+        <string>example_hmi_health.ui</string>
        </property>
        <property name="frame" stdset="0">
         <string>StatusTemps</string>
@@ -305,6 +314,9 @@
        </property>
        <property name="styleSheet">
         <string notr="true"/>
+       </property>
+       <property name="action" stdset="0">
+        <string>example_hmi_main.ui</string>
        </property>
        <property name="frame" stdset="0">
         <string>StatusDCParameters</string>
@@ -364,6 +376,9 @@
          </property>
          <property name="styleSheet">
           <string notr="true">text-transform: uppercase;</string>
+         </property>
+         <property name="action" stdset="0">
+          <string>example_hmi_control.ui</string>
          </property>
          <property name="frame" stdset="0">
           <string>StatusBits</string>
@@ -442,6 +457,9 @@
            <height>80</height>
           </size>
          </property>
+         <property name="action" stdset="0">
+          <string>example_hmi_main.ui</string>
+         </property>
          <property name="frame" stdset="0">
           <string>StatusACParameters</string>
          </property>
@@ -478,6 +496,9 @@
          </property>
          <property name="styleSheet">
           <string notr="true"/>
+         </property>
+         <property name="action" stdset="0">
+          <string>example_hmi_main.ui</string>
          </property>
          <property name="frame" stdset="0">
           <string>StatusACParameters</string>
@@ -520,6 +541,9 @@
          <property name="styleSheet">
           <string notr="true"/>
          </property>
+         <property name="action" stdset="0">
+          <string>example_hmi_main.ui</string>
+         </property>
          <property name="frame" stdset="0">
           <string>StatusACParameters</string>
          </property>
@@ -544,6 +568,9 @@
          </property>
          <property name="styleSheet">
           <string notr="true"/>
+         </property>
+         <property name="action" stdset="0">
+          <string>example_hmi_main.ui</string>
          </property>
          <property name="frame" stdset="0">
           <string>CommandVF</string>
