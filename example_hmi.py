@@ -12,9 +12,9 @@ __license__ = 'GPLv2+'
 
 class DeviceExtension(epyq.deviceextension.DeviceExtension):
     def post(self):
-        print(self.device)
-        self.vac_line_bar = self.device.uis['Power Ring'].vac_line_bar
-        self.vac_reference = self.device.uis['Power Ring'].vac_reference
+        power_ring = self.device.loaded_uis['example_hmi_power_ring.ui']
+        self.vac_line_bar = power_ring.vac_line_bar
+        self.vac_reference = power_ring.vac_reference
         self.vac_reference.signal_object.value_changed.connect(
             self.update_line_bar)
 
