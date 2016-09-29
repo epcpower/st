@@ -11,6 +11,7 @@
             "0xf013": "<nv>",
             "0xf059": "<tooltip>"
         },
+        "Toggle Playback": "<playback>",
         "Power Ring": "test2.ui",
         "Dash": "example_hmi_main.ui",
         "Control": "example_hmi_control.ui",

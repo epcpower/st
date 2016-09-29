@@ -402,6 +402,43 @@ def main(args=None):
     actions['<inverter_info>'] = inverter_info
     special_menu_nodes['<inverter_info>'] = modify_node_inverter_info
 
+    class Playback:
+        def __init__(self):
+            self.process = None
+
+        def toggle(self, check=False):
+            if check:
+                try:
+                    raise Exception('`check` not supported')
+                except:
+                    traceback.print_exc()
+                return False
+
+            if self.process is None:
+                dump = '/opt/st.hmi/demo.candump'
+                self.process = subprocess.Popen(
+                    ['/usr/bin/canplayer', '-I', dump, '-l', 'i'],
+                )
+            else:
+                self.process.terminate()
+                self.process = None
+
+    playback = Playback()
+
+    def modify_node_playback(node):
+        if platform.system() == 'Windows':
+            node.action = functools.partial(
+                hmi_dialog.focus,
+                ok_action=stacked_history.focus_previous,
+                label=textwrap.dedent('''\
+                    Playback mode is not supported in Windows.''')
+            )
+        else:
+            node.action = playback.toggle
+
+    actions['<playback>'] = playback
+    special_menu_nodes['<playback>'] = modify_node_playback
+
     def focus_nv(widget):
         if real_bus is not None:
             try:
