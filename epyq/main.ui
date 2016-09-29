@@ -36,13 +36,6 @@
     <layout class="QVBoxLayout" name="shortcut_layout"/>
    </item>
    <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QStackedWidget" name="stacked"/>
    </item>
   </layout>
