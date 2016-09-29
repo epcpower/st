@@ -312,9 +312,9 @@ def main(args=None):
         if check:
             return menu_view == ui.stacked.currentWidget()
 
-        if real_bus is not None:
+        if bus.bus is not None:
             try:
-                real_bus.setFilters(can_filters=[])
+                bus.bus.setFilters(can_filters=[])
             except AttributeError:
                 # Just an optimization so can be skipped
                 pass
@@ -363,9 +363,9 @@ def main(args=None):
                 traceback.print_exc()
             return False
 
-        if real_bus is not None:
+        if bus.bus is not None:
             try:
-                real_bus.setFilters(nv_filters)
+                bus.bus.setFilters(nv_filters)
             except AttributeError:
                 # Just an optimization so can be skipped
                 pass
@@ -403,7 +403,8 @@ def main(args=None):
     special_menu_nodes['<inverter_info>'] = modify_node_inverter_info
 
     class Playback:
-        def __init__(self):
+        def __init__(self, bus):
+            self.bus = bus
             self.process = None
 
         def toggle(self, check=False):
@@ -415,15 +416,25 @@ def main(args=None):
                 return False
 
             if self.process is None:
+                real_bus = can.interface.Bus(bustype='socketcan',
+                                             channel='vcan0',
+                                             can_filters=[])
+                self.bus.set_bus(bus=real_bus)
+
                 dump = '/opt/st.hmi/demo.candump'
                 self.process = subprocess.Popen(
-                    ['/usr/bin/canplayer', '-I', dump, '-l', 'i'],
+                    ['/usr/bin/canplayer', '-I', dump, '-l', 'i', 'vcan0=can0'],
                 )
             else:
                 self.process.terminate()
                 self.process = None
 
-    playback = Playback()
+                real_bus = can.interface.Bus(bustype='socketcan',
+                                             channel='can0',
+                                             can_filters=[])
+                self.bus.set_bus(bus=real_bus)
+
+    playback = Playback(bus=bus)
 
     def modify_node_playback(node):
         if platform.system() == 'Windows':
@@ -440,9 +451,9 @@ def main(args=None):
     special_menu_nodes['<playback>'] = modify_node_playback
 
     def focus_nv(widget):
-        if real_bus is not None:
+        if bus.bus is not None:
             try:
-                real_bus.setFilters(nv_filters)
+                bus.bus.setFilters(nv_filters)
             except AttributeError:
                 # Just an optimization so can be skipped
                 pass
@@ -596,9 +607,9 @@ def main(args=None):
                 }
                 for frame in dash.connected_frames
             ])
-        if real_bus is not None:
+        if bus.bus is not None:
             try:
-                real_bus.setFilters(filters)
+                bus.bus.setFilters(filters)
             except AttributeError:
                 # Just an optimization so can be skipped
                 pass
