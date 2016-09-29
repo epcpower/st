@@ -55,6 +55,8 @@ event_type_to_name = {
 }
 
 class AbstractWidget(QtWidgets.QWidget):
+    trigger_action = pyqtSignal()
+
     def __init__(self, ui=None, parent=None, in_designer=False):
         self.in_designer = in_designer
         QtWidgets.QWidget.__init__(self, parent=parent)
@@ -90,6 +92,15 @@ class AbstractWidget(QtWidgets.QWidget):
         self._frame = ''
         self._signal = ''
         self._display_units = ''
+        self._action = ''
+
+    @pyqtProperty(str)
+    def action(self):
+        return self._action
+
+    @action.setter
+    def action(self, action):
+        self._action = action
 
     @pyqtProperty(str)
     def display_units(self):

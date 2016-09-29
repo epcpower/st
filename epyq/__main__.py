@@ -807,6 +807,25 @@ def main(args=None):
     ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=ui)
     ui.offline_overlay.label.setText('')
 
+    class ActionClickHandler(QObject):
+        def __init__(self, action, parent=None):
+            QObject.__init__(self, parent)
+
+            self.action = action
+
+        def eventFilter(self, qobject, qevent):
+            if isinstance(qevent, QMouseEvent):
+                if (qevent.button() == Qt.LeftButton
+                    and qevent.type() == QEvent.MouseButtonRelease
+                    and qobject.rect().contains(qevent.localPos().toPoint())):
+                    self.action()
+
+                return True
+
+            return False
+
+    action_click_handlers = []
+
     for widget in ui.findChildren(QWidget):
         widget.setProperty('fontawesome',
                            widget.font().family() == 'FontAwesome')
@@ -840,6 +859,23 @@ def main(args=None):
                               widget=widget,
                               signal=widget.edit)
                     break
+        else:
+            action_name = widget.property('action')
+
+            if action_name is not None and len(action_name) > 0:
+                try:
+                    dash = device.loaded_uis[action_name]
+                except KeyError:
+                    action = actions[action_name]
+                else:
+                    action = functools.partial(
+                        focus_dash,
+                        dash=dash
+                    )
+
+                handler = ActionClickHandler(action=action)
+                action_click_handlers.append(handler)
+                widget.installEventFilter(handler)
 
     app.setStyleSheet('''
         QWidget {{
