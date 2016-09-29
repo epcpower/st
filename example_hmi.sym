@@ -317,6 +317,14 @@ Var=VoltageDCBus signed 16,16 -m /u:VDC /min:0 /max:900 /ln:"DC Voltage"	// Meas
 Var=CurrentDC_measured signed 32,16 -m /u:ADC /min:-500 /max:500 /ln:"Meas. IDC"	// Measured DC current.
 Var=VoltageDCInput_measured signed 0,16 -m /u:V /min:0 /max:900 /ln:"Input"	// Estimated DC input voltage.
 
+[StatusControlVolts2]
+ID=1CFFC6F7h  // Present voltage of the -15V power supply on the control board.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=DiodeTemperature unsigned 32,16 -m /u:C /max:175 /ln:"Hottest diode"  // Hottest diode
+Var=IGBTTemperature unsigned 48,16 -m /u:C /max:175 /ln:"Hottest IGBT"  // Hottest IGBT
+
 [softwareRev]
 ID=1CFFC1F7h	// Software revision.
 Type=Extended
