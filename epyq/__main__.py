@@ -283,7 +283,7 @@ def main(args=None):
                                 tabs=[],
                                 elements=[epyq.device.Elements.dash,
                                           epyq.device.Elements.nv],
-                                rx_interval=0.5,
+                                rx_interval=0.2,
                                 edit_actions=edit_actions)
 
     # TODO: CAMPid 9757656124812312388543272342377
