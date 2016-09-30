@@ -74,7 +74,7 @@ class OverlayLabel(QtWidgets.QWidget):
         return self._width_ratio
 
     @width_ratio.setter
-    def width_percent(self, value):
+    def width_ratio(self, value):
         self._width_ratio = value
 
     @pyqtProperty(float)
