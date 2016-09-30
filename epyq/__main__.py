@@ -66,7 +66,7 @@ except AttributeError:
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
                           QSettings, Qt, pyqtSlot, QMarginsF, QTextCodec,
-                          QObject, QEvent, pyqtProperty)
+                          QObject, QEvent, pyqtProperty, QTimer)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu, QFrame,
                              QAbstractScrollArea, QWidget, QPushButton)
@@ -807,6 +807,54 @@ def main(args=None):
 
     ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=ui)
     ui.offline_overlay.label.setText('')
+
+    class Screensaver(QObject):
+        def __init__(self, application, parent, pixmap, timeout=60):
+            QObject.__init__(self, parent)
+
+            application.installEventFilter(self)
+
+            self.shown = False
+
+            self.overlay = epyq.overlaylabel.OverlayLabel(parent=parent)
+            self.overlay.label.setText('')
+            self.overlay.setVisible(False)
+
+            self.overlay.label.setPixmap(pixmap)
+
+            self.timer = QTimer()
+            self.timer.setInterval(timeout * 1000)
+            self.timer.timeout.connect(self.show)
+            self.timer.start()
+
+        def eventFilter(self, object, event):
+            if (isinstance(event, QMouseEvent)
+                    and event.button() == Qt.LeftButton
+                    and event.type() == QEvent.MouseButtonRelease):
+                self.timer.stop()
+                self.timer.start()
+
+                if self.shown:
+                    self.shown = False
+                    self.overlay.setVisible(False)
+
+                    return True
+
+
+            return False
+
+        def show(self):
+            self.shown = True
+            self.overlay.setVisible(True)
+
+    screensaver_image = 'logo_color_inverted.480x272.png'
+    if not os.path.isfile(screensaver_image):
+        screensaver_image = '/epc/logo.png'
+
+    screensaver_image = QPixmap(screensaver_image)
+
+    screensaver = Screensaver(application=app, parent=ui,
+                              pixmap=screensaver_image)
 
     class ActionClickHandler(QObject):
         def __init__(self, action, parent=None):
