@@ -66,7 +66,7 @@ except AttributeError:
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
                           QSettings, Qt, pyqtSlot, QMarginsF, QTextCodec,
-                          QObject, QEvent, pyqtProperty)
+                          QObject, QEvent, pyqtProperty, QTimer)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu, QFrame,
                              QAbstractScrollArea, QWidget, QPushButton)
@@ -805,8 +805,32 @@ def main(args=None):
 
     add_stacked_widget(hmi_dialog)
 
-    ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=ui)
-    ui.offline_overlay.label.setText('')
+    if platform.system() == 'Linux':
+        styles = {
+            'red': "background-color: rgba(255, 255, 255, 0);"
+                                   "color: rgba(255, 85, 85, 255);"
+                                    "font-size: 20px;",
+            'blue': "background-color: rgba(255, 255, 255, 0);"
+                                   "color: rgba(85, 85, 255, 255);"
+        }
+
+        ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=ui)
+        ui.offline_overlay.label.setText('bbbbbbbbbbb')
+        ui.offline_overlay.label.setAlignment(Qt.AlignRight | Qt.AlignTop)
+        ui.offline_overlay.setStyleSheet(styles['red'])
+        ui.offline_overlay.label.setStyleSheet('font-size: 10px;')
+
+        def update_cpu_usage():
+            with open('/proc/loadavg') as file:
+                load = file.read()
+
+            ui.offline_overlay.label.setText(load)
+
+        timer = QTimer()
+        timer.timeout.connect(update_cpu_usage)
+        timer.setInterval(1000)
+        timer.start()
+        update_cpu_usage()
 
     class ActionClickHandler(QObject):
         def __init__(self, action, parent=None):

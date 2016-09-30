@@ -49,15 +49,15 @@ class OverlayLabel(QtWidgets.QWidget):
 
         parent_widget = self.parentWidget()
 
-        if parent_widget is not None:
-            old_resizeEvent = parent_widget.resizeEvent
-            new_resizeEvent = functools.partial(
-                parent_resizeEvent,
-                child=self,
-                parent_resizeEvent=old_resizeEvent
-            )
-
-            parent_widget.resizeEvent = new_resizeEvent
+        # if parent_widget is not None:
+        #     old_resizeEvent = parent_widget.resizeEvent
+        #     new_resizeEvent = functools.partial(
+        #         parent_resizeEvent,
+        #         child=self,
+        #         parent_resizeEvent=old_resizeEvent
+        #     )
+        #
+        #     parent_widget.resizeEvent = new_resizeEvent
 
         self.setStyleSheet(styles['red'])
 
@@ -85,10 +85,10 @@ class OverlayLabel(QtWidgets.QWidget):
     def height_ratio(self, value):
         self._height_ratio = value
 
-    def resizeEvent(self, event):
-        QtWidgets.QWidget.resizeEvent(self, event)
-
-        self.update_overlay_size(event.size())
+    # def resizeEvent(self, event):
+    #     QtWidgets.QWidget.resizeEvent(self, event)
+    #
+    #     self.update_overlay_size(event.size())
 
     def update_overlay_size(self, size):
         text = self.label.text()
