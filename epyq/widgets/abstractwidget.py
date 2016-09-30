@@ -61,6 +61,9 @@ class AbstractWidget(QtWidgets.QWidget):
         self.in_designer = in_designer
         QtWidgets.QWidget.__init__(self, parent=parent)
 
+        self.left = None
+        self.right = None
+
         if ui is None:
             self.ui = None
         else:
@@ -292,6 +295,7 @@ class AbstractWidget(QtWidgets.QWidget):
 
                     if isinstance(left, QtWidgets.QLabel):
                         left.setText(label)
+                        self.left = left
 
     def set_label_custom(self, new_signal=None):
         return None
@@ -333,6 +337,7 @@ class AbstractWidget(QtWidgets.QWidget):
                         right = right.widget()
                         if isinstance(right, QtWidgets.QLabel):
                             right.setText(units)
+                            self.right = right
 
     def set_unit_text(self, units):
         try:
@@ -411,6 +416,9 @@ class AbstractWidget(QtWidgets.QWidget):
         contents = '<br><br>'.join(elements)
         complete = '<div align="left">{}</div>'.format(contents)
         self.setToolTip(complete)
+        for widget in [self.left, self.right]:
+            if widget is not None:
+                widget.setToolTip(complete)
 
 
 if __name__ == '__main__':
