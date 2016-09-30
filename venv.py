@@ -133,6 +133,8 @@ else:
                      'c64004b785febe4613677ab0107f1bc63b01e339.zip'),
         ('bitstruct', 'https://github.com/altendky/bitstruct/archive/'
                      '129a72e290c533654a91bd556b1d4b0822df423f.zip'),
+        ('linux-metrics', 'https://github.com/cgoldberg/linux-metrics/archive/'
+                          '5b847afd8b7273b39d16c9b78e7b9d87962eeea8.zip'),
         ('fontawesome', 'http://fontawesome.io/assets/font-awesome-4.6.3.zip'),
         ('metropolis', 'https://github.com/chrismsimpson/Metropolis/archive/16882c2c2cb58405fd6a7d6a932a1dfc573b6813.zip')
     ])

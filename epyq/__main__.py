@@ -820,21 +820,63 @@ def main(args=None):
         ui.offline_overlay.setStyleSheet(styles['red'])
         ui.offline_overlay.label.setStyleSheet('font-size: 10px;')
 
+        # top_process = subprocess.Popen(
+        #     ['top', '-b'],
+        #     shell=True,
+        #     stdin=subprocess.PIPE,
+        #     stdout=subprocess.PIPE,
+        #     bufsize=1
+        # )
+
+        # grep_process = subprocess.Popen(
+        #     # ['grep', '-Ei', "'^%?cpu'"],
+        #     ['grep', '-i', 'cpu'],
+        #     shell=True,
+        #     stdin=top_process.stdout,
+        #     stdout=subprocess.PIPE,
+        #     bufsize=1
+        # )
+
+
+        #
+        # cpu_usage_process = subprocess.Popen(
+        #     # ["top -b | grep -Ei '^%?cpu'"],
+        #     ["echo red'"],
+        #     shell=True,
+        #     stdin=subprocess.PIPE,
+        #     stdout=subprocess.PIPE,
+        #     bufsize=1
+        # )
+
+        # import select
+        # p = select.poll()
+        # p.register(top_process.stdout)
+
+        # while True:
+        #     if len(p.poll(1)) > 0:
+        #         print(top_process.stdout.readline())
+        #     time.sleep(0.1)
+
+        from linux_metrics import cpu_stat
+
+        print(linux_metrics.cpu_stat.cpu_percent())
+
+
         def update_cpu_usage():
             with open('/proc/loadavg') as file:
                 load = file.read()
 
-            top = subprocess.getoutput('top -b -n1')
-            idle_index = top.find('id') # idle
-            idle = top[idle_index - 5:idle_index - 1]
-
-            # Mem: 86444K used, 40208K free, 0K shrd, 3628K buff, 52104K cached
-            # CPU:  68% usr   8% sys   0% nic  22% idle   0% io   0% irq   0% sirq
-            # Load average: 0.87 0.67 0.54 2/47 416
-            #   PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND
-            #  2761  2759 root     R    50972  40%   0  70% /opt/epc/bin/python3 -m epyq
-
-            ui.offline_overlay.label.setText('\n'.join([load, idle]))
+            # print(cpu_usage_process.communicate()[0])
+            # with open('/proc/stat', 'r') as procfile:
+            #     cputimes = procfile.readline()
+            #     cputotal = 0
+            #     # count from /proc/stat: user, nice, system, idle, iowait, irc, softirq, steal, guest
+            #     for i in cputimes.split(' ')[2:]:
+            #         i = int(i)
+            #         cputotal = (cputotal + i)
+            #     cpu = float(cputotal)
+            #
+            # ui.offline_overlay.label.setText('\n'.join([load, str(cpu)]))
 
         timer = QTimer()
         timer.timeout.connect(update_cpu_usage)
