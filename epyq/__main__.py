@@ -711,6 +711,11 @@ def main(args=None):
         if node not in [None, menu_model.root]:
             menu_model.node_clicked(node)
 
+    actions['<menu_root>'] = functools.partial(
+        focus_menu_node,
+        node=menu_root
+    )
+
     def traverse(dict_node, model_node):
         for key, value in dict_node.items():
             if key == '<shortcuts>':
