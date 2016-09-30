@@ -824,7 +824,17 @@ def main(args=None):
             with open('/proc/loadavg') as file:
                 load = file.read()
 
-            ui.offline_overlay.label.setText(load)
+            top = subprocess.getoutput('top -b -n1')
+            idle_index = top.find('id') # idle
+            idle = top[idle_index - 5:idle_index - 1]
+
+            # Mem: 86444K used, 40208K free, 0K shrd, 3628K buff, 52104K cached
+            # CPU:  68% usr   8% sys   0% nic  22% idle   0% io   0% irq   0% sirq
+            # Load average: 0.87 0.67 0.54 2/47 416
+            #   PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND
+            #  2761  2759 root     R    50972  40%   0  70% /opt/epc/bin/python3 -m epyq
+
+            ui.offline_overlay.label.setText('\n'.join([load, idle]))
 
         timer = QTimer()
         timer.timeout.connect(update_cpu_usage)
