@@ -1042,6 +1042,10 @@ def main(args=None):
         gray='hsva(0%, 0%, 20%)'
     ))
 
+    f = app.font()
+    f.setStyleStrategy(QFont.NoAntialias)
+    app.setFont(f)
+
     if os.environ.get('QT_QPA_PLATFORM', None) == 'linuxfb':
         ui.showFullScreen()
     else:

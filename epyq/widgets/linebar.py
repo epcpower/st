@@ -96,7 +96,7 @@ class LineBar(epyq.widgets.abstractwidget.AbstractWidget):
         epyq.widgets.abstractwidget.AbstractWidget.paintEvent(self, event)
 
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
+        # painter.setRenderHint(QPainter.Antialiasing, True)
         painter.translate(self.width() / 2, self.height() / 2)
 
         painter.fillRect(centered_rectangle(self.thickness, self.height()),

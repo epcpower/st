@@ -181,7 +181,7 @@ class QScale(QtWidgets.QWidget):
         wWidget = self.width()
         hWidget = self.height()
 
-        painter.setRenderHint(QtGui.QPainter.Antialiasing,True)
+        # painter.setRenderHint(QtGui.QPainter.Antialiasing,True)
 
         boundingRect = painter.boundingRect(QtCore.QRectF(0,0,self.width(),self.height()),
                                                  QtCore.Qt.AlignBottom | QtCore.Qt.AlignHCenter,self.labelSample)
