@@ -423,6 +423,10 @@ def main(args=None):
                 self.bus.set_bus(bus=real_bus)
 
                 dump = '/opt/st.hmi/demo.candump'
+                if not os.path.isfile(dump):
+                    dump = os.path.join(os.path.dirname(__file__),
+                                        '..', 'demo.candump')
+
                 self.process = subprocess.Popen(
                     ['/usr/bin/canplayer', '-I', dump, '-l', 'i', 'vcan0=can0'],
                 )
