@@ -862,8 +862,9 @@ def main(args=None):
 
     screensaver_image = QPixmap(screensaver_image)
 
-    screensaver = Screensaver(application=app, parent=ui,
-                              pixmap=screensaver_image)
+    # TODO: make this .epc configurable
+    # screensaver = Screensaver(application=app, parent=ui,
+    #                           pixmap=screensaver_image)
 
     class ActionClickHandler(QObject):
         def __init__(self, action, parent=None):
