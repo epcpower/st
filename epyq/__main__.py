@@ -100,7 +100,8 @@ def repolish(widget):
 
 
 class StackedManager:
-    def __init__(self, stacked, number_pad, length=20):
+    def __init__(self, stacked, number_pad, list_select, length=20):
+        self.list_select = list_select
         self.number_pad = number_pad
         self.stacked_widget = stacked
         self.length = length
@@ -142,6 +143,32 @@ class StackedManager:
                 self.set_widget_value, widget=widget, dash=dash),
             label='{} [{}]'.format(widget.ui.label.text(),
                                    widget.ui.units.text())
+        ))
+
+    def set_widget_value_from_list(self, dash, widget, value):
+        if value is not None:
+            widget.user_set_value(value)
+        self.stacked_widget.setCurrentWidget(dash)
+
+    def trigger_list_menu(self, dash, widget):
+        signal = widget.signal_object
+        items = {key: value
+                 for key, value in signal.enumeration.items()
+                 if signal.min <= key <= signal.max}
+
+        self.list_select.focus(value=widget.signal_object.get_human_value(),
+                               action=functools.partial(
+                                   self.set_widget_value_from_list,
+                                   widget=widget,
+                                   dash=dash),
+                               items=items,
+                               label='{}'.format(widget.ui.label.text()))
+
+    def connect_to_list_menu(self, dash, widget, signal):
+        signal.connect(functools.partial(
+            self.trigger_list_menu,
+            dash=dash,
+            widget=widget
         ))
 
 
@@ -415,9 +442,11 @@ def main(args=None):
 
     ui = load_ui('main.ui')
 
+    list_select = epyq.listselect.ListSelect()
     number_pad = epyq.numberpad.NumberPad()
 
     stacked_manager = StackedManager(stacked=ui.stacked,
+                                     list_select=list_select,
                                      number_pad=number_pad)
 
     bus = epyq.busproxy.BusProxy()
@@ -426,37 +455,10 @@ def main(args=None):
     if not QFileInfo(device_file).isFile():
         device_file = os.path.join('..', device_file)
 
-    list_select = epyq.listselect.ListSelect()
     stacked_manager.add(list_select)
 
-    def set_widget_value_from_list(dash, widget, value):
-        if value is not None:
-            widget.user_set_value(value)
-        ui.stacked.setCurrentWidget(dash)
-
-    def trigger_list_menu(dash, widget):
-        signal = widget.signal_object
-        items = {key: value
-                 for key, value in signal.enumeration.items()
-                 if signal.min <= key <= signal.max}
-
-        list_select.focus(value=widget.signal_object.get_human_value(),
-                          action=functools.partial(
-                              set_widget_value_from_list,
-                              widget=widget,
-                              dash=dash),
-                          items=items,
-                          label='{}'.format(widget.ui.label.text()))
-
-    def connect_to_list_menu(dash, widget, signal):
-        signal.connect(functools.partial(
-            trigger_list_menu,
-            dash=dash,
-            widget=widget
-        ))
-
     edit_actions = (
-        (connect_to_list_menu, lambda widget: len(widget.signal_object.enumeration) > 0),
+        (stacked_manager.connect_to_list_menu, lambda widget: len(widget.signal_object.enumeration) > 0),
         (stacked_manager.connect_to_numberpad, lambda widget: True)
     )
 
