@@ -100,13 +100,16 @@ def repolish(widget):
 
 
 class StackedManager:
-    def __init__(self, stacked_widget, length=20):
-        self.stacked_widget = stacked_widget
+    def __init__(self, stacked, number_pad, length=20):
+        self.number_pad = number_pad
+        self.stacked_widget = stacked
         self.length = length
 
         self.stacked_widget.currentChanged.connect(self.changed)
 
         self.history = []
+
+        self.add(self.number_pad)
 
     def changed(self, index):
         self.history.append(index)
@@ -118,6 +121,28 @@ class StackedManager:
     def add(self, widget):
         self.stacked_widget.addWidget(widget)
         widget.setProperty('is_stacked_widget', True)
+
+    def set_widget_value(self, dash, widget, value):
+        if value is not None:
+            widget.user_set_value(value)
+        self.stacked_widget.setCurrentWidget(dash)
+
+    def trigger_numberpad(self, dash, widget):
+        number_pad.focus(value=widget.signal_object.get_human_value(),
+                         action=functools.partial(
+                             self.set_widget_value, widget=widget, dash=dash),
+                         label='{} [{}]'.format(widget.ui.label.text(),
+                                                widget.ui.units.text()))
+
+    def connect_to_numberpad(self, dash, widget, signal):
+        signal.connect(functools.partial(
+            self.number_pad.focus,
+            value=widget.signal_object.get_human_value(),
+            action=functools.partial(
+                self.set_widget_value, widget=widget, dash=dash),
+            label='{} [{}]'.format(widget.ui.label.text(),
+                                   widget.ui.units.text())
+        ))
 
 
 class Playback:
@@ -390,37 +415,16 @@ def main(args=None):
 
     ui = load_ui('main.ui')
 
-    stacked_manager = StackedManager(ui.stacked)
+    number_pad = epyq.numberpad.NumberPad()
+
+    stacked_manager = StackedManager(stacked=ui.stacked,
+                                     number_pad=number_pad)
 
     bus = epyq.busproxy.BusProxy()
 
     device_file = 'example_hmi.epc'
     if not QFileInfo(device_file).isFile():
         device_file = os.path.join('..', device_file)
-
-    number_pad = epyq.numberpad.NumberPad()
-    stacked_manager.add(number_pad)
-
-
-    def set_widget_value(dash, widget, value):
-        if value is not None:
-            widget.user_set_value(value)
-        ui.stacked.setCurrentWidget(dash)
-
-    def trigger_numberpad(dash, widget):
-        number_pad.focus(value=widget.signal_object.get_human_value(),
-                         action=functools.partial(
-                             set_widget_value, widget=widget, dash=dash),
-                         label='{} [{}]'.format(widget.ui.label.text(),
-                                                widget.ui.units.text()))
-
-    def connect_to_numberpad(dash, widget, signal):
-        signal.connect(functools.partial(
-            trigger_numberpad,
-            dash=dash,
-            widget=widget
-        ))
-
 
     list_select = epyq.listselect.ListSelect()
     stacked_manager.add(list_select)
@@ -453,7 +457,7 @@ def main(args=None):
 
     edit_actions = (
         (connect_to_list_menu, lambda widget: len(widget.signal_object.enumeration) > 0),
-        (connect_to_numberpad, lambda widget: True)
+        (stacked_manager.connect_to_numberpad, lambda widget: True)
     )
 
     device = epyq.device.Device(file=device_file,
