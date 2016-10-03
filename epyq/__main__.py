@@ -181,12 +181,8 @@ class StackedManager:
         if check:
             return self.menu_view == self.stacked_widget.currentWidget()
 
-        if self.bus.bus is not None:
-            try:
-                self.bus.bus.setFilters(can_filters=[])
-            except AttributeError:
-                # Just an optimization so can be skipped
-                pass
+        self.bus.set_filters([])
+
         if (self.menu_view == self.stacked_widget.currentWidget()
                 and auto_level_up):
             self.menu_view.ui.esc_button.clicked.emit()
@@ -208,12 +204,9 @@ class StackedManager:
                                }
                                for frame in dash.connected_frames
                                ])
-        if self.bus.bus is not None:
-            try:
-                self.bus.bus.setFilters(filters)
-            except AttributeError:
-                # Just an optimization so can be skipped
-                pass
+
+            self.bus.set_filters(filters)
+
         self.stacked_widget.setCurrentWidget(dash)
 
     def focus_menu_node(self, node=None, check=False):
@@ -605,12 +598,7 @@ def main(args=None):
                 traceback.print_exc()
             return False
 
-        if bus.bus is not None:
-            try:
-                bus.bus.setFilters(nv_filters)
-            except AttributeError:
-                # Just an optimization so can be skipped
-                pass
+        self.bus.set_filters(nv_filters)
 
         for nv in inverter_info_nvs.values():
             nv.read_from_device()
@@ -661,12 +649,7 @@ def main(args=None):
     special_menu_nodes['<playback>'] = modify_node_playback
 
     def focus_nv(widget):
-        if bus.bus is not None:
-            try:
-                bus.bus.setFilters(nv_filters)
-            except AttributeError:
-                # Just an optimization so can be skipped
-                pass
+        bus.set_filters(nv_filters)
 
         widget.nv.read_from_device()
         ui.stacked.setCurrentWidget(widget)

@@ -164,6 +164,13 @@ class BusProxy(QObject):
                     # TODO: support socketcan
                     pass
 
+    def set_filters(self, filters):
+        real_bus = self.bus
+        if real_bus is not None:
+            if hasattr(real_bus, 'setFilters'):
+                real_bus.setFilters(can_filters=filters)
+
+
 class NotifierProxy(QtCanListener):
     def __init__(self, bus, listeners=[], filtered_ids=None, parent=None):
         QtCanListener.__init__(self, receiver=self.message_received, parent=parent)
