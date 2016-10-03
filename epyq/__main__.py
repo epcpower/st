@@ -189,6 +189,29 @@ class StackedManager:
         else:
             self.stacked_widget.setCurrentWidget(self.menu_view)
 
+    def focus_dash(self, dash, check=False):
+        if check:
+            return self.stacked_widget.currentWidget() == dash
+
+        filters = []
+        if platform.system() != 'Windows':
+            filters.extend([
+                               {
+                                   'can_id': frame.id | socket.CAN_EFF_FLAG,
+                                   'can_mask': socket.CAN_EFF_MASK |
+                                               socket.CAN_EFF_FLAG |
+                                               socket.CAN_RTR_FLAG
+                               }
+                               for frame in dash.connected_frames
+                               ])
+        if self.bus.bus is not None:
+            try:
+                self.bus.bus.setFilters(filters)
+            except AttributeError:
+                # Just an optimization so can be skipped
+                pass
+        self.stacked_widget.setCurrentWidget(dash)
+
 
 class Playback:
     def __init__(self, bus):
@@ -753,29 +776,6 @@ def main(args=None):
     actions['<about>'] = about_action
     special_menu_nodes['<about>'] = modify_node_about
 
-    def focus_dash(dash, check=False):
-        if check:
-            return ui.stacked.currentWidget() == dash
-
-        filters = []
-        if platform.system() != 'Windows':
-            filters.extend([
-                {
-                    'can_id': frame.id | socket.CAN_EFF_FLAG,
-                    'can_mask': socket.CAN_EFF_MASK |
-                                socket.CAN_EFF_FLAG |
-                                socket.CAN_RTR_FLAG
-                }
-                for frame in dash.connected_frames
-            ])
-        if bus.bus is not None:
-            try:
-                bus.bus.setFilters(filters)
-            except AttributeError:
-                # Just an optimization so can be skipped
-                pass
-        ui.stacked.setCurrentWidget(dash)
-
     tooltip_event_filter = TooltipEventFilter(dialog=hmi_dialog,
                                               history=stacked_manager,
                                               parent=app)
@@ -810,7 +810,7 @@ def main(args=None):
             elif isinstance(value, QWidget):
                 stacked_manager.add(value)
                 child.action = functools.partial(
-                    focus_dash,
+                    stacked_manager.focus_dash,
                     dash=value
                 )
             else:
@@ -865,7 +865,7 @@ def main(args=None):
             button.target_widget = action_name
             stacked_manager.add(action_name)
             button.action = functools.partial(
-                focus_dash,
+                stacked_manager.focus_dash,
                 dash=action_name
             )
         else:
@@ -951,7 +951,7 @@ def main(args=None):
                     action = actions[action_name]
                 else:
                     action = functools.partial(
-                        focus_dash,
+                        stacked_manager.focus_dash,
                         dash=dash
                     )
 
