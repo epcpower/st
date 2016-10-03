@@ -94,6 +94,11 @@ def load_ui(filename):
     return uic.loadUi(sio)
 
 
+def repolish(widget):
+    widget.style().unpolish(widget)
+    widget.style().polish(widget)
+
+
 class StackedHistory:
     def __init__(self, stacked_widget, length=20):
         self.stacked_widget = stacked_widget
@@ -109,6 +114,179 @@ class StackedHistory:
 
     def focus_previous(self, steps=1):
         self.stacked_widget.setCurrentIndex(self.history[-(steps+1)])
+
+
+class Playback:
+    def __init__(self, bus):
+        self.bus = bus
+        self.process = None
+
+    def toggle(self, check=False):
+        if check:
+            try:
+                raise Exception('`check` not supported')
+            except:
+                traceback.print_exc()
+            return False
+
+        if self.process is None:
+            real_bus = can.interface.Bus(bustype='socketcan',
+                                         channel='vcan0',
+                                         can_filters=[])
+            self.bus.set_bus(bus=real_bus)
+
+            dump = '/opt/st.hmi/demo.candump'
+            if not os.path.isfile(dump):
+                dump = os.path.join(os.path.dirname(__file__),
+                                    '..', 'demo.candump')
+
+            self.process = subprocess.Popen(
+                ['/usr/bin/canplayer', '-I', dump, '-l', 'i', 'vcan0=can0'],
+            )
+        else:
+            self.process.terminate()
+            self.process = None
+
+            real_bus = can.interface.Bus(bustype='socketcan',
+                                         channel='can0',
+                                         can_filters=[])
+            self.bus.set_bus(bus=real_bus)
+
+
+class ShortcutButton(QPushButton):
+    def __init__(self, *args, **kwargs):
+        QPushButton.__init__(self, *args, **kwargs)
+        self.target_widget = None
+        self._active = False
+        self.active = False
+        self.action = None
+
+    def trigger_action(self):
+        self.action()
+
+    @pyqtProperty(bool)
+    def active(self):
+        return self._active
+
+    @active.setter
+    def active(self, active):
+        active = bool(active)
+
+        if self._active != active:
+            self._active = active
+            self.setProperty('active', self.active)
+            repolish(self)
+
+    def active_widget_changed(self, index):
+        self.active = self.action(check=True)
+
+
+class TooltipEventFilter(QObject):
+    def __init__(self, dialog, history, parent=None, trigger_widget=None):
+        QObject.__init__(self, parent)
+        self.dialog = dialog
+        self.history = history
+        self.trigger_widget = trigger_widget
+
+    def deactivate(self):
+        self.parent().removeEventFilter(self)
+        self.trigger_widget.setProperty('active', False)
+        repolish(self.trigger_widget)
+
+    def action(self, check=False):
+        if check:
+            try:
+                raise Exception('`check` not supported')
+            except:
+                traceback.print_exc()
+            return False
+
+        if self.trigger_widget.property('active'):
+            self.deactivate()
+        else:
+            self.trigger_widget.setProperty('active', True)
+            repolish(self.trigger_widget)
+            self.parent().installEventFilter(self)
+
+    def eventFilter(self, object, event):
+        if (isinstance(event, QMouseEvent)
+            and event.button() == Qt.LeftButton
+            and event.type() == QEvent.MouseButtonRelease):
+            self.deactivate()
+
+            widget = self.parent().widgetAt(event.globalPos())
+            while not isinstance(
+                    widget, epyq.widgets.abstractwidget.AbstractWidget):
+                if widget is None:
+                    break
+                widget = widget.parent()
+            else:
+                self.dialog.focus(
+                    ok_action=self.history.focus_previous,
+                    label=widget.toolTip(),
+                    enable_delay=0
+                )
+
+            return True
+
+        return False
+
+
+class Screensaver(QObject):
+    def __init__(self, application, parent, pixmap, timeout=60):
+        QObject.__init__(self, parent)
+
+        application.installEventFilter(self)
+
+        self.shown = False
+
+        self.overlay = epyq.overlaylabel.OverlayLabel(parent=parent)
+        self.overlay.label.setText('')
+        self.overlay.setVisible(False)
+
+        self.overlay.label.setPixmap(pixmap)
+
+        self.timer = QTimer()
+        self.timer.setInterval(timeout * 1000)
+        self.timer.timeout.connect(self.show)
+        self.timer.start()
+
+    def eventFilter(self, object, event):
+        if (isinstance(event, QMouseEvent)
+            and event.button() == Qt.LeftButton
+            and event.type() == QEvent.MouseButtonRelease):
+            self.timer.stop()
+            self.timer.start()
+
+            if self.shown:
+                self.shown = False
+                self.overlay.setVisible(False)
+
+                return True
+
+        return False
+
+    def show(self):
+        self.shown = True
+        self.overlay.setVisible(True)
+
+
+class ActionClickHandler(QObject):
+    def __init__(self, action, parent=None):
+        QObject.__init__(self, parent)
+
+        self.action = action
+
+    def eventFilter(self, qobject, qevent):
+        if isinstance(qevent, QMouseEvent):
+            if (qevent.button() == Qt.LeftButton
+                and qevent.type() == QEvent.MouseButtonRelease
+                and qobject.rect().contains(qevent.localPos().toPoint())):
+                self.action()
+
+            return True
+
+        return False
 
 
 embedded = os.environ.get('QT_QPA_PLATFORM') == 'linuxfb'
@@ -403,42 +581,6 @@ def main(args=None):
     actions['<inverter_info>'] = inverter_info
     special_menu_nodes['<inverter_info>'] = modify_node_inverter_info
 
-    class Playback:
-        def __init__(self, bus):
-            self.bus = bus
-            self.process = None
-
-        def toggle(self, check=False):
-            if check:
-                try:
-                    raise Exception('`check` not supported')
-                except:
-                    traceback.print_exc()
-                return False
-
-            if self.process is None:
-                real_bus = can.interface.Bus(bustype='socketcan',
-                                             channel='vcan0',
-                                             can_filters=[])
-                self.bus.set_bus(bus=real_bus)
-
-                dump = '/opt/st.hmi/demo.candump'
-                if not os.path.isfile(dump):
-                    dump = os.path.join(os.path.dirname(__file__),
-                                        '..', 'demo.candump')
-
-                self.process = subprocess.Popen(
-                    ['/usr/bin/canplayer', '-I', dump, '-l', 'i', 'vcan0=can0'],
-                )
-            else:
-                self.process.terminate()
-                self.process = None
-
-                real_bus = can.interface.Bus(bustype='socketcan',
-                                             channel='can0',
-                                             can_filters=[])
-                self.bus.set_bus(bus=real_bus)
-
     playback = Playback(bus=bus)
 
     def modify_node_playback(node):
@@ -621,86 +763,9 @@ def main(args=None):
                 pass
         ui.stacked.setCurrentWidget(dash)
 
-    def repolish(widget):
-        widget.style().unpolish(widget)
-        widget.style().polish(widget)
-
-    class ShortcutButton(QPushButton):
-        def __init__(self, *args, **kwargs):
-            QPushButton.__init__(self, *args, **kwargs)
-            self.target_widget = None
-            self._active = False
-            self.active = False
-            self.action = None
-
-        def trigger_action(self):
-            self.action()
-
-        @pyqtProperty(bool)
-        def active(self):
-            return self._active
-
-        @active.setter
-        def active(self, active):
-            active = bool(active)
-
-            if self._active != active:
-                self._active = active
-                self.setProperty('active', self.active)
-                repolish(self)
-
-        def active_widget_changed(self, index):
-            self.active = self.action(check=True)
-
-    class TooltipEventFilter(QObject):
-        def __init__(self, parent=None, trigger_widget=None):
-            QObject.__init__(self, parent)
-            self.trigger_widget = trigger_widget
-
-        def deactivate(self):
-            app.removeEventFilter(self)
-            self.trigger_widget.setProperty('active', False)
-            repolish(self.trigger_widget)
-
-        def action(self, check=False):
-            if check:
-                try:
-                    raise Exception('`check` not supported')
-                except:
-                    traceback.print_exc()
-                return False
-
-            if self.trigger_widget.property('active'):
-                tooltip_event_filter.deactivate()
-            else:
-                self.trigger_widget.setProperty('active', True)
-                repolish(self.trigger_widget)
-                app.installEventFilter(tooltip_event_filter)
-
-        def eventFilter(self, object, event):
-            if (isinstance(event, QMouseEvent)
-                    and event.button() == Qt.LeftButton
-                    and event.type() == QEvent.MouseButtonRelease):
-                self.deactivate()
-
-                widget = app.widgetAt(event.globalPos())
-                while not isinstance(
-                        widget, epyq.widgets.abstractwidget.AbstractWidget):
-                    if widget is None:
-                        break
-                    widget = widget.parent()
-                else:
-                    hmi_dialog.focus(
-                        ok_action=stacked_history.focus_previous,
-                        label=widget.toolTip(),
-                        enable_delay=0
-                    )
-
-                return True
-
-            return False
-
-    tooltip_event_filter = TooltipEventFilter()
+    tooltip_event_filter = TooltipEventFilter(dialog=hmi_dialog,
+                                              history=stacked_history,
+                                              parent=app)
 
     actions['<tooltip>'] = tooltip_event_filter.action
 
@@ -818,45 +883,6 @@ def main(args=None):
     ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=ui)
     ui.offline_overlay.label.setText('')
 
-    class Screensaver(QObject):
-        def __init__(self, application, parent, pixmap, timeout=60):
-            QObject.__init__(self, parent)
-
-            application.installEventFilter(self)
-
-            self.shown = False
-
-            self.overlay = epyq.overlaylabel.OverlayLabel(parent=parent)
-            self.overlay.label.setText('')
-            self.overlay.setVisible(False)
-
-            self.overlay.label.setPixmap(pixmap)
-
-            self.timer = QTimer()
-            self.timer.setInterval(timeout * 1000)
-            self.timer.timeout.connect(self.show)
-            self.timer.start()
-
-        def eventFilter(self, object, event):
-            if (isinstance(event, QMouseEvent)
-                    and event.button() == Qt.LeftButton
-                    and event.type() == QEvent.MouseButtonRelease):
-                self.timer.stop()
-                self.timer.start()
-
-                if self.shown:
-                    self.shown = False
-                    self.overlay.setVisible(False)
-
-                    return True
-
-
-            return False
-
-        def show(self):
-            self.shown = True
-            self.overlay.setVisible(True)
-
     screensaver_image = 'logo_color_inverted.480x272.png'
     if not os.path.isfile(screensaver_image):
         screensaver_image = '/epc/logo.png'
@@ -869,23 +895,6 @@ def main(args=None):
                                   parent=ui,
                                   pixmap=screensaver_image,
                                   timeout=timeout)
-
-    class ActionClickHandler(QObject):
-        def __init__(self, action, parent=None):
-            QObject.__init__(self, parent)
-
-            self.action = action
-
-        def eventFilter(self, qobject, qevent):
-            if isinstance(qevent, QMouseEvent):
-                if (qevent.button() == Qt.LeftButton
-                    and qevent.type() == QEvent.MouseButtonRelease
-                    and qobject.rect().contains(qevent.localPos().toPoint())):
-                    self.action()
-
-                return True
-
-            return False
 
     action_click_handlers = []
 
