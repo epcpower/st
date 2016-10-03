@@ -99,7 +99,7 @@ def repolish(widget):
     widget.style().polish(widget)
 
 
-class StackedHistory:
+class StackedManager:
     def __init__(self, stacked_widget, length=20):
         self.stacked_widget = stacked_widget
         self.length = length
@@ -114,6 +114,10 @@ class StackedHistory:
 
     def focus_previous(self, steps=1):
         self.stacked_widget.setCurrentIndex(self.history[-(steps+1)])
+
+    def add(self, widget):
+        self.stacked_widget.addWidget(widget)
+        widget.setProperty('is_stacked_widget', True)
 
 
 class Playback:
@@ -386,7 +390,7 @@ def main(args=None):
 
     ui = load_ui('main.ui')
 
-    stacked_history = StackedHistory(ui.stacked)
+    stacked_manager = StackedManager(ui.stacked)
 
     bus = epyq.busproxy.BusProxy()
 
@@ -394,12 +398,8 @@ def main(args=None):
     if not QFileInfo(device_file).isFile():
         device_file = os.path.join('..', device_file)
 
-    def add_stacked_widget(widget):
-        ui.stacked.addWidget(widget)
-        widget.setProperty('is_stacked_widget', True)
-
     number_pad = epyq.numberpad.NumberPad()
-    add_stacked_widget(number_pad)
+    stacked_manager.add(number_pad)
 
 
     def set_widget_value(dash, widget, value):
@@ -423,7 +423,7 @@ def main(args=None):
 
 
     list_select = epyq.listselect.ListSelect()
-    add_stacked_widget(list_select)
+    stacked_manager.add(list_select)
 
     def set_widget_value_from_list(dash, widget, value):
         if value is not None:
@@ -571,7 +571,7 @@ def main(args=None):
             <table style="width:100%">
                 {}
             </table>'''.format(contents))
-        hmi_dialog.focus(ok_action=stacked_history.focus_previous,
+        hmi_dialog.focus(ok_action=stacked_manager.focus_previous,
                          label=complete,
                          enable_delay=0)
 
@@ -587,7 +587,7 @@ def main(args=None):
         if platform.system() == 'Windows':
             node.action = functools.partial(
                 hmi_dialog.focus,
-                ok_action=stacked_history.focus_previous,
+                ok_action=stacked_manager.focus_previous,
                 label=textwrap.dedent('''\
                     Playback mode is not supported in Windows.''')
             )
@@ -611,12 +611,12 @@ def main(args=None):
     def modify_node_nv(node):
         for nv in device.nvs.children:
             widget = epyq.parameteredit.ParameterEdit(
-                esc_action=stacked_history.focus_previous,
+                esc_action=stacked_manager.focus_previous,
                 edit=number_pad,
                 nv=nv,
                 dialog=hmi_dialog)
 
-            add_stacked_widget(widget)
+            stacked_manager.add(widget)
             child = epyq.listmenu.Node(
                 text=nv.name,
                 action=functools.partial(
@@ -642,7 +642,7 @@ def main(args=None):
             return False
 
         hmi_dialog.focus(ok_action=service_restart,
-                         cancel_action=stacked_history.focus_previous,
+                         cancel_action=stacked_manager.focus_previous,
                          label=textwrap.dedent('''\
                              Reboot into maintenance mode?
 
@@ -667,7 +667,7 @@ def main(args=None):
             return False
 
         hmi_dialog.focus(ok_action=calibrate_touchscreen,
-                         cancel_action=stacked_history.focus_previous,
+                         cancel_action=stacked_manager.focus_previous,
                          label=textwrap.dedent('''\
                              Reboot and calibrate touchscreen?'''))
 
@@ -681,7 +681,7 @@ def main(args=None):
     # TODO: CAMPid 93849811216123127753953680713426
     def inverter_to_nv():
         device.nvs.module_to_nv()
-        stacked_history.focus_previous()
+        stacked_manager.focus_previous()
 
     def inverter_to_nv_action(check=False):
         if check:
@@ -692,7 +692,7 @@ def main(args=None):
             return False
 
         hmi_dialog.focus(ok_action=inverter_to_nv,
-                         cancel_action=stacked_history.focus_previous,
+                         cancel_action=stacked_manager.focus_previous,
                          label=textwrap.dedent('''\
                              Save all parameters to NV?'''))
 
@@ -728,7 +728,7 @@ def main(args=None):
                 traceback.print_exc()
             return False
 
-        hmi_dialog.focus(ok_action=stacked_history.focus_previous,
+        hmi_dialog.focus(ok_action=stacked_manager.focus_previous,
                          enable_delay=0,
                          label=about_text)
 
@@ -764,7 +764,7 @@ def main(args=None):
         ui.stacked.setCurrentWidget(dash)
 
     tooltip_event_filter = TooltipEventFilter(dialog=hmi_dialog,
-                                              history=stacked_history,
+                                              history=stacked_manager,
                                               parent=app)
 
     actions['<tooltip>'] = tooltip_event_filter.action
@@ -798,7 +798,7 @@ def main(args=None):
                          model_node=child)
             # TODO: CAMPid 139001547845212167972192345189
             elif isinstance(value, QWidget):
-                add_stacked_widget(value)
+                stacked_manager.add(value)
                 child.action = functools.partial(
                     focus_dash,
                     dash=value
@@ -824,7 +824,7 @@ def main(args=None):
     traverse(device.ui_paths, menu_root)
 
     menu_view.setModel(menu_model)
-    add_stacked_widget(menu_view)
+    stacked_manager.add(menu_view)
 
     ui.shortcut_layout.addStretch(0)
 
@@ -853,7 +853,7 @@ def main(args=None):
         # TODO: CAMPid 139001547845212167972192345189
         if isinstance(action_name, QWidget):
             button.target_widget = action_name
-            add_stacked_widget(action_name)
+            stacked_manager.add(action_name)
             button.action = functools.partial(
                 focus_dash,
                 dash=action_name
@@ -878,7 +878,7 @@ def main(args=None):
 
     ui.stacked.setCurrentWidget(menu_view)
 
-    add_stacked_widget(hmi_dialog)
+    stacked_manager.add(hmi_dialog)
 
     ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=ui)
     ui.offline_overlay.label.setText('')
