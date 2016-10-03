@@ -3,6 +3,7 @@
     "name": "Example Device",
     "serial_number": "42",
     "module": "example_hmi.py",
+    "screensaver_timeout": "0",
     "menu": {
         "<shortcuts>": {
             "logo_icon_white.svg": "<menu_root>",

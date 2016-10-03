@@ -862,9 +862,12 @@ def main(args=None):
 
     screensaver_image = QPixmap(screensaver_image)
 
-    # TODO: make this .epc configurable
-    # screensaver = Screensaver(application=app, parent=ui,
-    #                           pixmap=screensaver_image)
+    timeout = float(device.raw_dict.get('screensaver_timeout', 0))
+    if timeout > 0:
+        screensaver = Screensaver(application=app,
+                                  parent=ui,
+                                  pixmap=screensaver_image,
+                                  timeout=timeout)
 
     class ActionClickHandler(QObject):
         def __init__(self, action, parent=None):
