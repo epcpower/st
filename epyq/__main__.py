@@ -264,12 +264,23 @@ class Playback:
 
 
 class ShortcutButton(QPushButton):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, icon, reference_directory, *args, **kwargs):
         QPushButton.__init__(self, *args, **kwargs)
         self.target_widget = None
         self._active = False
         self.active = False
         self.action = None
+
+        if os.path.splitext(icon)[1] in ['.svg', '.png']:
+            self.setIcon(QIcon(os.path.join(reference_directory, icon)))
+        else:
+            base = 16 if icon.startswith('0x') else 10
+            character = chr(int(icon, base))
+            self.setText(character)
+
+        self.setFont(QFont('FontAwesome'))
+
+        self.clicked.connect(self.trigger_action)
 
     def trigger_action(self):
         self.action()
@@ -846,23 +857,13 @@ def main(args=None):
     shortcut_buttons = []
 
     for icon, action_name in device.ui_paths['<shortcuts>'].items():
-        button = ShortcutButton()
-
-        if os.path.splitext(icon)[1] in ['.svg', '.png']:
-            button.setIcon(QIcon(device.absolute_path(icon)))
-        else:
-            base = 16 if icon.startswith('0x') else 10
-            character = chr(int(icon, base))
-            button.setText(character)
-
-        button.setFont(QFont('FontAwesome'))
+        button = ShortcutButton(icon=icon,
+                                reference_directory=device.absolute_path())
 
         ui.shortcut_layout.addWidget(button)
 
-        button.target_widget = None
         ui.stacked.currentChanged.connect(button.active_widget_changed)
         menu_model.root_changed.connect(button.active_widget_changed)
-        button.clicked.connect(button.trigger_action)
         shortcut_buttons.append(button)
 
         # TODO: CAMPid 139001547845212167972192345189

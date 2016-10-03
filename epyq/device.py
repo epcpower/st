@@ -473,7 +473,7 @@ class Device:
 
         self.extension.post()
 
-    def absolute_path(self, path):
+    def absolute_path(self, path=''):
         # TODO: CAMPid 9549757292917394095482739548437597676742
         if not QFileInfo(path).isAbsolute():
             path = os.path.join(
