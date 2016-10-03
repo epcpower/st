@@ -100,9 +100,12 @@ def repolish(widget):
 
 
 class StackedManager:
-    def __init__(self, stacked, menu_view, number_pad, list_select, bus, length=20):
+    def __init__(self, stacked, menu_model, menu_view, number_pad,
+                 list_select, bus, length=20):
         self.bus = bus
         self.list_select = list_select
+        # TODO: probably ought to only have either the view or the model...
+        self.menu_model = menu_model
         self.menu_view = menu_view
         self.number_pad = number_pad
         self.stacked_widget = stacked
@@ -211,6 +214,15 @@ class StackedManager:
                 # Just an optimization so can be skipped
                 pass
         self.stacked_widget.setCurrentWidget(dash)
+
+    def focus_menu_node(self, node=None, check=False):
+        if check:
+            return (self.stacked_widget.currentWidget() == self.menu_view
+                    and node == self.menu_model.root)
+
+        self.to_menu(auto_level_up=False)
+        if node not in [None, self.menu_model.root]:
+            self.menu_model.node_clicked(node)
 
 
 class Playback:
@@ -494,6 +506,7 @@ def main(args=None):
 
     stacked_manager = StackedManager(stacked=ui.stacked,
                                      list_select=list_select,
+                                     menu_model=menu_model,
                                      menu_view=menu_view,
                                      number_pad=number_pad,
                                      bus=bus)
@@ -782,17 +795,8 @@ def main(args=None):
 
     actions['<tooltip>'] = tooltip_event_filter.action
 
-    def focus_menu_node(node=None, check=False):
-        if check:
-            return (ui.stacked.currentWidget() == menu_view
-                    and node == menu_model.root)
-
-        stacked_manager.to_menu(auto_level_up=False)
-        if node not in [None, menu_model.root]:
-            menu_model.node_clicked(node)
-
     actions['<menu_root>'] = functools.partial(
-        focus_menu_node,
+        stacked_manager.focus_menu_node,
         node=menu_root
     )
 
@@ -827,7 +831,7 @@ def main(args=None):
 
                     if value in ['<nv>']:
                         actions[value] = functools.partial(
-                            focus_menu_node,
+                            stacked_manager.focus_menu_node,
                             node=child
                         )
 
