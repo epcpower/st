@@ -39,6 +39,7 @@ import epyq.listselect
 import epyq.numberpad
 import epyq.nv
 import epyq.parameteredit
+import epyq.stylesheets
 
 try:
     import epyq.revision
@@ -916,19 +917,7 @@ def main(args=None):
         widget.setProperty('fontawesome',
                            widget.font().family() == 'FontAwesome')
         if widget.property('style_small'):
-            widget.setStyleSheet('''
-                QWidget[fontawesome=false] {{
-                    font-size: 15px;
-                }}
-
-                QPushButton[fontawesome=false] {{
-                    min-height: 25px;
-                }}
-
-                QLineEdit, QPushButton {{
-                    border-radius: 5px;
-                }}
-            '''.format())
+            widget.setStyleSheet(epyq.stylesheets.small.format())
 
         # TODO: CAMPid 97453289314763416967675427
         if widget.property('editable'):
@@ -963,109 +952,7 @@ def main(args=None):
                 action_click_handlers.append(handler)
                 widget.installEventFilter(handler)
 
-    app.setStyleSheet('''
-        QWidget {{
-            font-size: {base_font_size_px}px;
-            qproperty-focusPolicy: NoFocus;
-            color: {foreground};
-        }}
-
-        QWidget#MainForm {{
-            background-color: {background};
-        }}
-
-        QWidget[fontawesome=false] {{
-            font-family: Metropolis;
-        }}
-
-        QWidget[fontawesome=true] {{
-            font-size: 36px;
-            icon-size: 36px
-        }}
-
-        Epc {{
-            qproperty-show_enumeration_value: false;
-        }}
-
-        QAbstractScrollArea {{
-            qproperty-frameShape: NoFrame;
-        }}
-
-        QPushButton {{
-            font-size: {base_font_size_px}px;
-            min-width: 40px;
-            min-height: 40px;
-            height: 40px;
-            color: black;
-        }}
-
-        QPushButton[fontawesome=true] {{
-            min-width: 46px;
-            width: 46px;
-            max-width: 46px;
-            min-height: 46px;
-            height: 46px;
-            max-height: 46px;
-        }}
-
-        QFrame {{
-            qproperty-frameShadow: Plain;
-        }}
-
-        QLineEdit, QPushButton {{
-            border-radius: 10px;
-            border-width: 0px;
-            border-style: solid;
-        }}
-
-        QLineEdit {{
-            qproperty-focusPolicy: NoFocus;
-            background-color: {background_blue};
-        }}
-
-        QPushButton:enabled {{
-            background-color: {green};
-        }}
-
-        QPushButton:!enabled {{
-            background-color: {gray};
-        }}
-
-        QPushButton[active=true] {{
-            background: {blue};
-        }}
-
-        QLineEdit {{
-            qproperty-frame: false;
-        }}
-
-        QLineEdit:!enabled {{
-            background-color: {gray};
-        }}
-
-        QLineEdit:enabled {{
-            padding: 0 8px;
-            selection-background-color: darkgray;
-        }}
-
-        QSlider {{
-            min-height: 40px;
-            min-width: 30px;
-        }}
-
-        QSlider::groove {{
-            width: 4px;
-            border-radius: 2px;
-            background-color: {gray};
-        }}
-
-        QSlider::handle {{
-            height: 10px;
-            border-radius: 3px;
-            margin: 0 -8px;
-            background-color: {blue};
-        }}
-    '''.format(
+    app.setStyleSheet(epyq.stylesheets.application.format(
         base_font_size_px=base_font_size_px,
         background='black',
         foreground='hsva(0%, 0%, 80%)',
