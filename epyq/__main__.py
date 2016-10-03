@@ -469,6 +469,7 @@ def main(args=None):
     def modify_node_nv(node):
         for nv in device.nvs.children:
             widget = epyq.parameteredit.ParameterEdit(
+                esc_action=stacked_history.focus_previous,
                 edit=number_pad,
                 nv=nv,
                 dialog=hmi_dialog)

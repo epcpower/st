@@ -20,7 +20,7 @@ __license__ = 'GPLv2+'
 
 class ParameterEdit(QWidget):
     def __init__(self, parent=None, in_designer=False, edit=None, nv=None,
-                 dialog=None):
+                 dialog=None, esc_action=None):
         QWidget.__init__(self, parent=parent)
 
         self.in_designer = in_designer
@@ -52,6 +52,13 @@ class ParameterEdit(QWidget):
         self.ui.to_device.edited.connect(self.edited)
 
         self.ui.description.setText(self.ui.to_device.toolTip())
+
+        self.esc_action = esc_action
+        self.ui.esc_button.clicked.connect(self.esc)
+
+    def esc(self, checked):
+        if self.esc_action is not None:
+            self.esc_action()
 
     def edited(self, value):
         self.nv.read_from_device()
