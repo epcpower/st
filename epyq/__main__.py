@@ -100,8 +100,10 @@ def repolish(widget):
 
 
 class StackedManager:
-    def __init__(self, stacked, number_pad, list_select, length=20):
+    def __init__(self, stacked, menu_view, number_pad, list_select, bus, length=20):
+        self.bus = bus
         self.list_select = list_select
+        self.menu_view = menu_view
         self.number_pad = number_pad
         self.stacked_widget = stacked
         self.length = length
@@ -170,6 +172,22 @@ class StackedManager:
             dash=dash,
             widget=widget
         ))
+
+    def to_menu(self, auto_level_up=True, check=False):
+        if check:
+            return self.menu_view == self.stacked_widget.currentWidget()
+
+        if self.bus.bus is not None:
+            try:
+                self.bus.bus.setFilters(can_filters=[])
+            except AttributeError:
+                # Just an optimization so can be skipped
+                pass
+        if (self.menu_view == self.stacked_widget.currentWidget()
+                and auto_level_up):
+            self.menu_view.ui.esc_button.clicked.emit()
+        else:
+            self.stacked_widget.setCurrentWidget(self.menu_view)
 
 
 class Playback:
@@ -442,14 +460,20 @@ def main(args=None):
 
     ui = load_ui('main.ui')
 
+    bus = epyq.busproxy.BusProxy()
+
     list_select = epyq.listselect.ListSelect()
     number_pad = epyq.numberpad.NumberPad()
 
+    menu_root = epyq.listmenu.Node(text='Main Menu')
+    menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
+    menu_view = epyq.listmenuview.ListMenuView()
+
     stacked_manager = StackedManager(stacked=ui.stacked,
                                      list_select=list_select,
-                                     number_pad=number_pad)
-
-    bus = epyq.busproxy.BusProxy()
+                                     menu_view=menu_view,
+                                     number_pad=number_pad,
+                                     bus=bus)
 
     device_file = 'example_hmi.epc'
     if not QFileInfo(device_file).isFile():
@@ -493,22 +517,7 @@ def main(args=None):
     special_menu_nodes = {}
     actions = {}
 
-    def to_menu(auto_level_up=True, check=False):
-        if check:
-            return menu_view == ui.stacked.currentWidget()
-
-        if bus.bus is not None:
-            try:
-                bus.bus.setFilters(can_filters=[])
-            except AttributeError:
-                # Just an optimization so can be skipped
-                pass
-        if menu_view == ui.stacked.currentWidget() and auto_level_up:
-            menu_view.ui.esc_button.clicked.emit()
-        else:
-            ui.stacked.setCurrentWidget(menu_view)
-
-    actions['<menu>'] = to_menu
+    actions['<menu>'] = stacked_manager.to_menu
 
     hmi_dialog = epyq.hmidialog.HmiDialog()
 
@@ -744,8 +753,6 @@ def main(args=None):
     actions['<about>'] = about_action
     special_menu_nodes['<about>'] = modify_node_about
 
-    menu_root = epyq.listmenu.Node(text='Main Menu')
-
     def focus_dash(dash, check=False):
         if check:
             return ui.stacked.currentWidget() == dash
@@ -775,15 +782,12 @@ def main(args=None):
 
     actions['<tooltip>'] = tooltip_event_filter.action
 
-    menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
-    menu_view = epyq.listmenuview.ListMenuView()
-
     def focus_menu_node(node=None, check=False):
         if check:
             return (ui.stacked.currentWidget() == menu_view
                     and node == menu_model.root)
 
-        to_menu(auto_level_up=False)
+        stacked_manager.to_menu(auto_level_up=False)
         if node not in [None, menu_model.root]:
             menu_model.node_clicked(node)
 
@@ -1080,7 +1084,7 @@ def main(args=None):
     menu_view.update_calculated_layout()
     list_select.focus(value=0, action=None, items={})
     list_select.ui.menu_view.update_calculated_layout()
-    to_menu()
+    stacked_manager.to_menu()
 
     return app.exec_()
 
