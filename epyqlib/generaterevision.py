@@ -8,7 +8,7 @@ try:
 except FileNotFoundError:
     hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
 
-out_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'revision.py')
+out_file = 'revision.py'
 
 with open(out_file, 'w') as file:
     file.write("hash = '{}'\n".format(hash.decode('utf-8').rstrip()))
