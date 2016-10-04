@@ -153,7 +153,7 @@ proc = Popen(
         os.path.expandvars(os.path.join(
             '%APPDATA%', 'Python', 'Python35', 'Scripts', 'pyqtdeploycli.exe'
         )),
-        '--project', 'epyqlib.pdy',
+        '--project', 'epyq.pdy',
         'build'
     ],
     env=env,
@@ -198,9 +198,9 @@ for line in proc.stdout:
 
 proc.wait()
 
-import epyqlib.revision
+import epyq.revision
 
 shutil.copy(
     os.path.join('build', 'EPyQ_HMI.exe'),
-    os.path.join('..', 'EPyQ_HMI-{}.exe'.format(epyqlib.revision.hash))
+    os.path.join('..', 'EPyQ_HMI-{}.exe'.format(epyq.revision.hash))
 )

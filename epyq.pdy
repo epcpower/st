@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
-<Project version="6"><Python hostinterpreter="$INTERPRETER" major="3" minor="5" patch="1" platformpython="win32" sourcedir="$SYSROOT/src/Python-$PDY_PY_MAJOR.$PDY_PY_MINOR.$PDY_PY_MICRO" ssl="1" targetincludedir="$SYSROOT/include/python$PDY_PY_MAJOR.$PDY_PY_MINOR" targetlibrary="$SYSROOT/lib/libpython$PDY_PY_MAJOR.$PDY_PY_MINOR.a" targetstdlibdir="$SYSROOT/lib/python$PDY_PY_MAJOR.$PDY_PY_MINOR" /><Application entrypoint="epyqlib.__main__:main" isbundle="1" isconsole="0" ispyqt5="1" name="" script="" syspath=""><QMakeConfiguration># http://stackoverflow.com/a/3984180/228539
+<Project version="6"><Python hostinterpreter="$INTERPRETER" major="3" minor="5" patch="1" platformpython="win32" sourcedir="$SYSROOT/src/Python-$PDY_PY_MAJOR.$PDY_PY_MINOR.$PDY_PY_MICRO" ssl="1" targetincludedir="$SYSROOT/include/python$PDY_PY_MAJOR.$PDY_PY_MINOR" targetlibrary="$SYSROOT/lib/libpython$PDY_PY_MAJOR.$PDY_PY_MINOR.a" targetstdlibdir="$SYSROOT/lib/python$PDY_PY_MAJOR.$PDY_PY_MINOR" /><Application entrypoint="epyq.__main__:main" isbundle="1" isconsole="0" ispyqt5="1" name="" script="" syspath=""><QMakeConfiguration># http://stackoverflow.com/a/3984180/228539
 
 RC_ICONS = ../epyq/icon.ico
 
 win32 {
-    QMAKE_POST_LINK += $$quote(c:/Qt/Qt5.7.0/5.7/msvc2015/bin/windeployqt.exe "$${OUT_PWD}\release\epyqlib.exe" ) &amp;
+    QMAKE_POST_LINK += $$quote(c:/Qt/Qt5.7.0/5.7/msvc2015/bin/windeployqt.exe "$${OUT_PWD}\release\epyq.exe" ) &amp;
 
     QT_BIN = $$(SYSROOT)\qt-5.7.0\bin
     PYQT5 = $$(APPDATA)\Python\Python35\site-packages\PyQt5

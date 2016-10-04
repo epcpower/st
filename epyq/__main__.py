@@ -20,11 +20,11 @@ else:
     sys.stderr = epyqlib.tee.Tee([sys.stderr, log])
 
 try:
-    import epyqlib.revision
+    import epyq.revision
 except ImportError:
     pass
 else:
-    print(epyqlib.revision.hash)
+    print(epyq.revision.hash)
 
 import can
 import canmatrix.importany as importany
@@ -42,7 +42,7 @@ import epyqlib.parameteredit
 import epyqlib.stylesheets
 
 try:
-    import epyqlib.revision
+    import epyq.revision
 except ImportError:
     pass
 
@@ -424,7 +424,7 @@ def excepthook(excType, excValue, tracebackobj):
     email = "kyle.altendorf@epcpower.com"
 
     try:
-        hash = 'Revision Hash: {}\n\n'.format(epyqlib.revision.hash)
+        hash = 'Revision Hash: {}\n\n'.format(epyq.revision.hash)
     except:
         hash = ''
 

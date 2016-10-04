@@ -9,5 +9,5 @@ setup(
          "GNU General Public License v2 or later (GPLv2+)")
     ],
     packages=find_packages(),
-    entry_points={'gui_scripts': ['epyq = epyqlib.__main__:main']}
+    entry_points={'gui_scripts': ['epyq = epyq.__main__:main']}
 )
