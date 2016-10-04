@@ -463,6 +463,29 @@ def excepthook(excType, excValue, tracebackobj):
         errorbox.exec_()
 
 
+class Action:
+    all = {}
+
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self, function=None):
+        if function is not None:
+            self.add(self.name, function)
+        return function
+
+    @classmethod
+    def add(cls, name, function):
+        name = '<' + name.lstrip('<').rstrip('>') + '>'
+
+        if name in cls.all.keys():
+            raise Exception('{} already registered'.format(name))
+
+        print('adding {}'.format(name))
+
+        cls.all[name] = function
+
+
 def main(args=None):
     print('starting epyq')
 
@@ -556,9 +579,8 @@ def main(args=None):
     from collections import OrderedDict
 
     special_menu_nodes = {}
-    actions = {}
 
-    actions['<menu>'] = stacked_manager.to_menu
+    Action.add('menu', stacked_manager.to_menu)
 
     hmi_dialog = epyq.hmidialog.HmiDialog()
 
@@ -590,6 +612,7 @@ def main(args=None):
             if signal.name in inverter_info_nvs.keys():
                 inverter_info_nvs[signal.name] = signal
 
+    @Action('inverter_info')
     def inverter_info(check=False):
         if check:
             try:
@@ -629,7 +652,6 @@ def main(args=None):
     def modify_node_inverter_info(node):
         node.action = inverter_info
 
-    actions['<inverter_info>'] = inverter_info
     special_menu_nodes['<inverter_info>'] = modify_node_inverter_info
 
     playback = Playback(bus=bus)
@@ -645,7 +667,8 @@ def main(args=None):
         else:
             node.action = playback.toggle
 
-    actions['<playback>'] = playback.toggle
+    Action.add('playback', playback.toggle)
+
     special_menu_nodes['<playback>'] = modify_node_playback
 
     def focus_nv(widget):
@@ -679,6 +702,7 @@ def main(args=None):
         hmd.write_boot_mode(1)
         subprocess.run('reboot')
 
+    @Action('service_reboot')
     def service_reboot_action(check=False):
         if check:
             try:
@@ -697,13 +721,13 @@ def main(args=None):
     def modify_node_service_reboot(node):
         node.action = service_reboot_action
 
-    actions['<service_reboot>'] = service_reboot_action
     special_menu_nodes['<service_reboot>'] = modify_node_service_reboot
 
     def calibrate_touchscreen():
         os.remove('/opt/etc/pointercal')
         subprocess.run('reboot')
 
+    @Action('calibrate_touchscreen')
     def calibrate_touchscreen_action(check=False):
         if check:
             try:
@@ -720,7 +744,6 @@ def main(args=None):
     def modify_node_calibrate_touchscreen(node):
         node.action = calibrate_touchscreen_action
 
-    actions['<calibrate_touchscreen>'] = calibrate_touchscreen_action
     special_menu_nodes['<calibrate_touchscreen>'] = (
         modify_node_calibrate_touchscreen)
 
@@ -729,6 +752,7 @@ def main(args=None):
         device.nvs.module_to_nv()
         stacked_manager.focus_previous()
 
+    @Action('nv_save')
     def inverter_to_nv_action(check=False):
         if check:
             try:
@@ -745,7 +769,6 @@ def main(args=None):
     def modify_node_inverter_to_nv(node):
         node.action = inverter_to_nv_action
 
-    actions['<nv_save>'] = inverter_to_nv_action
     special_menu_nodes['<nv_save>'] = modify_node_inverter_to_nv
 
     message = [
@@ -766,6 +789,7 @@ def main(args=None):
 
     about_text = '<br>'.join(message)
 
+    @Action('about')
     def about_action(check=False):
         if check:
             try:
@@ -781,19 +805,18 @@ def main(args=None):
     def modify_node_about(node):
         node.action = about_action
 
-    actions['<about>'] = about_action
     special_menu_nodes['<about>'] = modify_node_about
 
     tooltip_event_filter = TooltipEventFilter(dialog=hmi_dialog,
                                               history=stacked_manager,
                                               parent=app)
 
-    actions['<tooltip>'] = tooltip_event_filter.action
+    Action.add('tooltip', tooltip_event_filter.action)
 
-    actions['<menu_root>'] = functools.partial(
+    Action.add('menu_root', functools.partial(
         stacked_manager.focus_menu_node,
         node=menu_root
-    )
+    ))
 
     def traverse(dict_node, model_node):
         for key, value in dict_node.items():
@@ -818,13 +841,13 @@ def main(args=None):
                     modify_node(child)
 
                     if value in ['<nv>']:
-                        actions[value] = functools.partial(
+                        Action.add(value, functools.partial(
                             stacked_manager.focus_menu_node,
                             node=child
-                        )
+                        ))
                 else:
                     print("No menu action '{}' found in {}".format(
-                              value, special_menu_nodes.keys()),
+                             value, special_menu_nodes.keys()),
                           file=sys.stderr)
 
     traverse(device.ui_paths, menu_root)
@@ -856,11 +879,11 @@ def main(args=None):
             )
         else:
             try:
-                action = actions[action_name]
+                action = Action.all[action_name]
             except KeyError:
                 print("No action '{}' found in {}".format(
                         action_name,
-                        actions.keys()
+                        Action.all.keys()
                     ),
                     file=sys.stderr
                 )
@@ -927,7 +950,7 @@ def main(args=None):
                         dash=dash
                     )
                 else:
-                    action = actions[action_name]
+                    action = Action.all[action_name]
 
                 handler = ActionClickHandler(action=action)
                 action_click_handlers.append(handler)
