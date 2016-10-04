@@ -4,13 +4,13 @@
 
 import can
 import canmatrix.importany as importany
-import epyq.canneo
-import epyq.deviceextension
-import epyq.nv
-import epyq.nvview
-import epyq.overlaylabel
-import epyq.txrx
-import epyq.txrxview
+import epyqlib.canneo
+import epyqlib.deviceextension
+import epyqlib.nv
+import epyqlib.nvview
+import epyqlib.overlaylabel
+import epyqlib.txrx
+import epyqlib.txrxview
 import functools
 import importlib.util
 import io
@@ -22,8 +22,8 @@ import zipfile
 
 from collections import OrderedDict
 from enum import Enum, unique
-from epyq.busproxy import BusProxy
-from epyq.widgets.abstractwidget import AbstractWidget
+from epyqlib.busproxy import BusProxy
+from epyqlib.widgets.abstractwidget import AbstractWidget
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSlot, Qt, QFile, QFileInfo, QTextStream, QObject
 from PyQt5.QtWidgets import QWidget
@@ -129,7 +129,7 @@ class Device:
         module = d.get('module', None)
         self.plugin = None
         if module is None:
-            extension_class = epyq.deviceextension.DeviceExtension
+            extension_class = epyqlib.deviceextension.DeviceExtension
         else:
             spec = importlib.util.spec_from_file_location(
                 'extension', self.absolute_path(module))
@@ -273,7 +273,7 @@ class Device:
             matrix = list(importany.importany(self.can_path).values())[0]
             # TODO: this is icky
             if Elements.tx not in self.elements:
-                self.neo_frames = epyq.canneo.Neo(matrix=matrix,
+                self.neo_frames = epyqlib.canneo.Neo(matrix=matrix,
                                                   bus=self.bus,
                                                   rx_interval=self.rx_interval)
 
@@ -282,14 +282,14 @@ class Device:
         if Elements.rx in self.elements:
             # TODO: the repetition here is not so pretty
             matrix_rx = list(importany.importany(self.can_path).values())[0]
-            neo_rx = epyq.canneo.Neo(matrix=matrix_rx,
-                                     frame_class=epyq.txrx.MessageNode,
-                                     signal_class=epyq.txrx.SignalNode,
+            neo_rx = epyqlib.canneo.Neo(matrix=matrix_rx,
+                                     frame_class=epyqlib.txrx.MessageNode,
+                                     signal_class=epyqlib.txrx.SignalNode,
                                      node_id_adjust=self.node_id_adjust)
 
-            rx = epyq.txrx.TxRx(tx=False, neo=neo_rx)
+            rx = epyqlib.txrx.TxRx(tx=False, neo=neo_rx)
             notifiees.append(rx)
-            rx_model = epyq.txrx.TxRxModel(rx)
+            rx_model = epyqlib.txrx.TxRxModel(rx)
 
             # TODO: put this all in the model...
             rx.changed.connect(rx_model.changed)
@@ -298,11 +298,11 @@ class Device:
 
         if Elements.tx in self.elements:
             matrix_tx = list(importany.importany(self.can_path).values())[0]
-            message_node_tx_partial = functools.partial(epyq.txrx.MessageNode,
+            message_node_tx_partial = functools.partial(epyqlib.txrx.MessageNode,
                                                         tx=True)
-            signal_node_tx_partial = functools.partial(epyq.txrx.SignalNode,
+            signal_node_tx_partial = functools.partial(epyqlib.txrx.SignalNode,
                                                        tx=True)
-            neo_tx = epyq.canneo.Neo(matrix=matrix_tx,
+            neo_tx = epyqlib.canneo.Neo(matrix=matrix_tx,
                                      frame_class=message_node_tx_partial,
                                      signal_class=signal_node_tx_partial,
                                      node_id_adjust=self.node_id_adjust)
@@ -310,14 +310,14 @@ class Device:
 
             self.neo_frames = neo_tx
 
-            tx = epyq.txrx.TxRx(tx=True, neo=neo_tx, bus=self.bus)
-            tx_model = epyq.txrx.TxRxModel(tx)
+            tx = epyqlib.txrx.TxRx(tx=True, neo=neo_tx, bus=self.bus)
+            tx_model = epyqlib.txrx.TxRxModel(tx)
             tx.changed.connect(tx_model.changed)
 
         # TODO: something with sets instead?
         if (Elements.rx in self.elements or
             Elements.tx in self.elements):
-            txrx_views = self.ui.findChildren(epyq.txrxview.TxRxView)
+            txrx_views = self.ui.findChildren(epyqlib.txrxview.TxRxView)
             if len(txrx_views) > 0:
                 # TODO: actually find them and actually support multiple
                 self.ui.rx.setModel(rx_model)
@@ -325,20 +325,20 @@ class Device:
 
         if Elements.nv in self.elements:
             matrix_nv = list(importany.importany(self.can_path).values())[0]
-            self.frames_nv = epyq.canneo.Neo(
+            self.frames_nv = epyqlib.canneo.Neo(
                 matrix=matrix_nv,
-                frame_class=epyq.nv.Frame,
-                signal_class=epyq.nv.Nv,
+                frame_class=epyqlib.nv.Frame,
+                signal_class=epyqlib.nv.Nv,
                 node_id_adjust=self.node_id_adjust
             )
 
-            self.nvs = epyq.nv.Nvs(self.frames_nv, self.bus)
+            self.nvs = epyqlib.nv.Nvs(self.frames_nv, self.bus)
             notifiees.append(self.nvs)
 
 
-            nv_views = self.ui.findChildren(epyq.nvview.NvView)
+            nv_views = self.ui.findChildren(epyqlib.nvview.NvView)
             if len(nv_views) > 0:
-                nv_model = epyq.nv.NvModel(self.nvs)
+                nv_model = epyqlib.nv.NvModel(self.nvs)
                 self.nvs.changed.connect(nv_model.changed)
 
                 for view in nv_views:
@@ -354,7 +354,7 @@ class Device:
         if Tabs.nv not in tabs:
             self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.nv))
         if tabs:
-            self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
+            self.ui.offline_overlay = epyqlib.overlaylabel.OverlayLabel(parent=self.ui)
             self.ui.offline_overlay.label.setText('offline')
 
             self.ui.name.setText(name)
@@ -372,7 +372,7 @@ class Device:
         if Tabs.nv not in tabs:
             self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.nv))
         if tabs:
-            self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
+            self.ui.offline_overlay = epyqlib.overlaylabel.OverlayLabel(parent=self.ui)
             self.ui.offline_overlay.label.setText('offline')
 
             self.ui.name.setText(self.name)
@@ -488,12 +488,12 @@ class Device:
 
     @pyqtSlot(bool)
     def bus_status_changed(self, online, transmit):
-        style = epyq.overlaylabel.styles['red']
+        style = epyqlib.overlaylabel.styles['red']
         text = ''
         if online:
             if not transmit:
                 text = 'passive'
-                style = epyq.overlaylabel.styles['blue']
+                style = epyqlib.overlaylabel.styles['blue']
         else:
             text = 'offline'
 

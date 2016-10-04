@@ -102,12 +102,12 @@
   <customwidget>
    <class>NvView</class>
    <extends>QWidget</extends>
-   <header>epyq.nvview</header>
+   <header>epyqlib.nvview</header>
   </customwidget>
   <customwidget>
    <class>TxRxView</class>
    <extends>QWidget</extends>
-   <header>epyq.txrxview</header>
+   <header>epyqlib.txrxview</header>
   </customwidget>
  </customwidgets>
  <resources/>

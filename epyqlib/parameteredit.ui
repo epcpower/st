@@ -126,7 +126,7 @@
   <customwidget>
    <class>Epc</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.epc</header>
+   <header>epyqlib.widgets.epc</header>
   </customwidget>
  </customwidgets>
  <resources/>

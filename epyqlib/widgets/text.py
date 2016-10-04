@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractwidget
+import epyqlib.widgets.abstractwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty, QEvent,
                           QFile, QFileInfo, Qt, QTextStream)
@@ -12,12 +12,12 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Text(epyq.widgets.abstractwidget.AbstractWidget):
+class Text(epyqlib.widgets.abstractwidget.AbstractWidget):
     def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'text.ui')
 
-        epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
+        epyqlib.widgets.abstractwidget.AbstractWidget.__init__(self,
                 ui=ui_file, parent=parent, in_designer=in_designer)
 
         self._frame = None
@@ -46,7 +46,7 @@ class Text(epyq.widgets.abstractwidget.AbstractWidget):
         self.ui.value.setText(value)
 
     def set_signal(self, *args, **kwargs):
-        epyq.widgets.abstractwidget.AbstractWidget.set_signal(
+        epyqlib.widgets.abstractwidget.AbstractWidget.set_signal(
             self, *args, **kwargs)
 
         self.update_layout()
@@ -65,7 +65,7 @@ class Text(epyq.widgets.abstractwidget.AbstractWidget):
             self.ui.value.setAlignment(alignment)
 
     def event(self, *args, **kwargs):
-        result = epyq.widgets.abstractwidget.AbstractWidget.event(
+        result = epyqlib.widgets.abstractwidget.AbstractWidget.event(
             self, *args, **kwargs
         )
 

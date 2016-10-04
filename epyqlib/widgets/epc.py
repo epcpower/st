@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstracttxwidget
+import epyqlib.widgets.abstracttxwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, Qt)
@@ -12,12 +12,12 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
+class Epc(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
     def __init__(self, parent=None, ui_file='epc.ui', in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                ui_file)
 
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
                 ui=ui_file, parent=parent, in_designer=in_designer)
 
         # TODO: CAMPid 398956661298765098124690765
@@ -43,7 +43,7 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         self.update()
 
     def set_signal(self, *args, **kwargs):
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
             self, *args, **kwargs)
 
         self.update()
@@ -101,7 +101,7 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
 
     def widget_value_changed(self):
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.widget_value_changed(
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.widget_value_changed(
             self, self.ui.value.text())
 
     def set_value(self, value):
@@ -121,9 +121,9 @@ class Epc(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
         self.ui.value.setText(value)
 
-    @epyq.widgets.abstracttxwidget.AbstractTxWidget.tx.setter
+    @epyqlib.widgets.abstracttxwidget.AbstractTxWidget.tx.setter
     def tx(self, tx):
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.tx.fset(self, tx)
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.tx.fset(self, tx)
 
         self.ui.value.acceptsDrops = self.tx
 

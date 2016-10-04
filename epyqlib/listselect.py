@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.listmenu
+import epyqlib.listmenu
 import functools
 import io
 import os
@@ -46,14 +46,14 @@ class ListSelect(QWidget):
 
     def focus(self, value, action, items, label=''):
         self.items = items
-        root = epyq.listmenu.Node(text=label)
-        model = epyq.listmenu.ListMenuModel(root=root)
+        root = epyqlib.listmenu.Node(text=label)
+        model = epyqlib.listmenu.ListMenuModel(root=root)
         self.ui.menu_view.setModel(model)
 
         selected = None
 
         for key, item_value in sorted(self.items.items()):
-            node = epyq.listmenu.Node(text=item_value, action=lambda: None)
+            node = epyqlib.listmenu.Node(text=item_value, action=lambda: None)
             root.append_child(node)
 
             if key == int(value):

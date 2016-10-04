@@ -71,7 +71,7 @@
   <customwidget>
    <class>ListMenuView</class>
    <extends>QWidget</extends>
-   <header>epyq.listmenuview</header>
+   <header>epyqlib.listmenuview</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.nv
+import epyqlib.nv
 import io
 import os
 from PyQt5 import QtWidgets, uic
@@ -45,7 +45,7 @@ class NvView(QtWidgets.QWidget):
         self.ui.write_to_file_button.clicked.connect(self.write_to_file)
         self.ui.read_from_file_button.clicked.connect(self.read_from_file)
 
-        self.resize_columns = epyq.nv.Columns(
+        self.resize_columns = epyqlib.nv.Columns(
             name=True,
             value=True)
 
@@ -62,17 +62,17 @@ class NvView(QtWidgets.QWidget):
 
         self.ui.tree_view.header().setStretchLastSection(False)
 
-        for i in epyq.nv.Columns.indexes:
+        for i in epyqlib.nv.Columns.indexes:
             if self.resize_columns[i]:
                 self.ui.tree_view.header().setSectionResizeMode(
                     i, QtWidgets.QHeaderView.ResizeToContents)
         # TODO: would be nice to share between message and signal perhaps?
         self.ui.tree_view.header().setSectionResizeMode(
-            epyq.nv.Columns.indexes.value, QtWidgets.QHeaderView.Stretch)
+            epyqlib.nv.Columns.indexes.value, QtWidgets.QHeaderView.Stretch)
 
         self.ui.tree_view.setItemDelegateForColumn(
-            epyq.nv.Columns.indexes.value,
-            epyq.delegates.Combo(model=model, parent=self))
+            epyqlib.nv.Columns.indexes.value,
+            epyqlib.delegates.Combo(model=model, parent=self))
 
     @pyqtSlot(str)
     def set_status_string(self, string):

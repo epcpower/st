@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.abstractpluginclass
+import epyqlib.abstractpluginclass
 import os
 from PyQt5.QtCore import QFileInfo
 
@@ -11,9 +11,9 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class AbstractSignalPlugin(epyq.abstractpluginclass.AbstractPlugin):
+class AbstractSignalPlugin(epyqlib.abstractpluginclass.AbstractPlugin):
     def __init__(self, parent=None, in_designer=True):
-        epyq.abstractpluginclass.AbstractPlugin.__init__(
+        epyqlib.abstractpluginclass.AbstractPlugin.__init__(
             self,
             parent=parent,
             in_designer=in_designer

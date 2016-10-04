@@ -77,7 +77,7 @@
   <customwidget>
    <class>SvgWidget</class>
    <extends>QWidget</extends>
-   <header>epyq.svgwidget</header>
+   <header>epyqlib.svgwidget</header>
   </customwidget>
  </customwidgets>
  <resources/>

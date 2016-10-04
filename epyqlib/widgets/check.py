@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstracttxwidget
+import epyqlib.widgets.abstracttxwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, Qt, QEvent,
@@ -14,12 +14,12 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Check(epyq.widgets.abstracttxwidget.AbstractTxWidget):
+class Check(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
     def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'check.ui')
 
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
                 ui=ui_file, parent=parent, in_designer=in_designer)
 
         # TODO: CAMPid 398956661298765098124690765

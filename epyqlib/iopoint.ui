@@ -97,12 +97,12 @@
   <customwidget>
    <class>Check</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.check</header>
+   <header>epyqlib.widgets.check</header>
   </customwidget>
   <customwidget>
    <class>Led</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.led</header>
+   <header>epyqlib.widgets.led</header>
   </customwidget>
  </customwidgets>
  <resources/>

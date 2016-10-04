@@ -1,5 +1,5 @@
-import epyq.delegates
-import epyq.txrx
+import epyqlib.delegates
+import epyqlib.txrx
 import io
 import os
 from PyQt5 import QtWidgets, uic
@@ -30,14 +30,14 @@ class TxRxView(QtWidgets.QWidget):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
-        self.resize_columns = epyq.txrx.Columns.fill(False)
+        self.resize_columns = epyqlib.txrx.Columns.fill(False)
 
     def setModel(self, model):
         self.ui.tree_view.setModel(model)
 
         self.ui.tree_view.header().setStretchLastSection(False)
 
-        for i in epyq.txrx.Columns.indexes:
+        for i in epyqlib.txrx.Columns.indexes:
             if self.resize_columns[i]:
                 self.ui.tree_view.header().setSectionResizeMode(
                     i, QtWidgets.QHeaderView.ResizeToContents)
@@ -46,15 +46,15 @@ class TxRxView(QtWidgets.QWidget):
                 self.ui.tree_view.resizeColumnToContents(i)
 
         self.ui.tree_view.header().setSectionResizeMode(
-            epyq.txrx.Columns.indexes.name, QtWidgets.QHeaderView.Stretch)
+            epyqlib.txrx.Columns.indexes.name, QtWidgets.QHeaderView.Stretch)
 
         self.ui.tree_view.setItemDelegateForColumn(
-            epyq.txrx.Columns.indexes.value,
-            epyq.delegates.Combo(model=model, parent=self))
+            epyqlib.txrx.Columns.indexes.value,
+            epyqlib.delegates.Combo(model=model, parent=self))
 
-        self.ui.tree_view.setColumnWidth(epyq.txrx.Columns.indexes.value,
+        self.ui.tree_view.setColumnWidth(epyqlib.txrx.Columns.indexes.value,
                                          self.calculate_max_value_width())
-        self.ui.tree_view.setColumnWidth(epyq.txrx.Columns.indexes.id,
+        self.ui.tree_view.setColumnWidth(epyqlib.txrx.Columns.indexes.id,
                                          self.calculate_max_id_width() +
                                          self.ui.tree_view.indentation())
 

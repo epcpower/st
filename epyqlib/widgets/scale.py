@@ -2,8 +2,8 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.mixins
-import epyq.widgets.abstractwidget
+import epyqlib.mixins
+import epyqlib.widgets.abstractwidget
 import os
 import sys
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtProperty, QFileInfo
@@ -14,16 +14,16 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Scale(epyq.widgets.abstractwidget.AbstractWidget,
-            epyq.mixins.OverrideRange):
+class Scale(epyqlib.widgets.abstractwidget.AbstractWidget,
+            epyqlib.mixins.OverrideRange):
     def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'scale.ui')
 
-        epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
+        epyqlib.widgets.abstractwidget.AbstractWidget.__init__(self,
                 ui=ui_file, parent=parent, in_designer=in_designer)
 
-        epyq.mixins.OverrideRange.__init__(self)
+        epyqlib.mixins.OverrideRange.__init__(self)
 
         self._breakpoints = [self._min + (self._max - self._min) * n
                              for n in [0.10, 0.25, 0.75, 0.90]]
@@ -48,12 +48,12 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget,
 
     @pyqtProperty(bool)
     def label_visible(self):
-        return epyq.widgets.abstractwidget.AbstractWidget.label_visible.fget(
+        return epyqlib.widgets.abstractwidget.AbstractWidget.label_visible.fget(
             self)
 
     @label_visible.setter
     def label_visible(self, new_visible):
-        epyq.widgets.abstractwidget.AbstractWidget.label_visible.fset(
+        epyqlib.widgets.abstractwidget.AbstractWidget.label_visible.fset(
             self, new_visible)
         self.ui.units.setVisible(self.label_visible)
         self.update_metadata()

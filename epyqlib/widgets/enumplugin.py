@@ -2,21 +2,21 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractsignalpluginclass
-import epyq.widgets.enum
+import epyqlib.widgets.abstractsignalpluginclass
+import epyqlib.widgets.enum
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class EnumPlugin(epyq.widgets.abstractsignalpluginclass.AbstractSignalPlugin):
+class EnumPlugin(epyqlib.widgets.abstractsignalpluginclass.AbstractSignalPlugin):
     def __init__(self, parent=None):
-        epyq.widgets.abstractsignalpluginclass.AbstractSignalPlugin.__init__(
+        epyqlib.widgets.abstractsignalpluginclass.AbstractSignalPlugin.__init__(
             self, parent=parent)
 
-        self._init = epyq.widgets.enum.Enum
-        self._module_path = 'epyq.widgets.enum'
+        self._init = epyqlib.widgets.enum.Enum
+        self._module_path = 'epyqlib.widgets.enum'
         self._name = 'Enum'
 
 

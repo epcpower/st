@@ -3,14 +3,14 @@
 #TODO: """DocString if there is one"""
 
 import can
-import epyq.pyqabstractitemmodel
+import epyqlib.pyqabstractitemmodel
 import functools
 import sys
 import time
 
 from collections import OrderedDict
-from epyq.abstractcolumns import AbstractColumns
-from epyq.treenode import TreeNode
+from epyqlib.abstractcolumns import AbstractColumns
+from epyqlib.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
                           QPersistentModelIndex)
 from PyQt5.QtWidgets import QFileDialog
@@ -100,7 +100,7 @@ class Bus(TreeNode):
 
         self._checked = Columns.fill(Qt.Unchecked)
 
-        self.bus = epyq.busproxy.BusProxy(
+        self.bus = epyqlib.busproxy.BusProxy(
             transmit=self.checked(Columns.indexes.transmit))
 
     def set_data(self, data):
@@ -225,8 +225,8 @@ class Tree(TreeNode):
         TreeNode.__init__(self)
 
 
-class Model(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
-    device_removed = pyqtSignal(epyq.device.Device)
+class Model(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
+    device_removed = pyqtSignal(epyqlib.device.Device)
 
     def __init__(self, root, parent=None):
         buses = [{'interface': None, 'channel': None}] + available_buses()
@@ -244,7 +244,7 @@ class Model(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
         checkbox_columns.name = True
         checkbox_columns.transmit = True
 
-        epyq.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
+        epyqlib.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
                 self, root=root, editable_columns=editable_columns,
                 checkbox_columns=checkbox_columns, parent=parent)
 

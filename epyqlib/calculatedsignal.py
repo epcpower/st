@@ -1,13 +1,13 @@
-import epyq.canneo
+import epyqlib.canneo
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Signal(epyq.canneo.Signal):
+class Signal(epyqlib.canneo.Signal):
     def __init__(self, *args, **kwargs):
-        epyq.canneo.Signal.__init__(self, *args, **kwargs)
+        epyqlib.canneo.Signal.__init__(self, *args, **kwargs)
 
         self.sources = {}
 
@@ -20,17 +20,17 @@ class Signal(epyq.canneo.Signal):
         self.calculate()
 
 
-class MyCalcedSignal(epyq.calculatedsignal.CalculatedSignal)
+class MyCalcedSignal(epyqlib.calculatedsignal.CalculatedSignal)
 
 import math
 def calcIt(sources):
     return math.round(sources['existing.Signal'] / 1000)
 
-calcedSig = epyq.calculatedsignals.Signal(f=calcIt)
+calcedSig = epyqlib.calculatedsignals.Signal(f=calcIt)
 
-class Frame(epyq.canneo.Frame):
+class Frame(epyqlib.canneo.Frame):
     def __init__(self, *args, **kwargs):
-        epyq.canneo.Frame.__init__(self, *args, **kwargs)
+        epyqlib.canneo.Frame.__init__(self, *args, **kwargs)
 
 
 if __name__ == '__main__':

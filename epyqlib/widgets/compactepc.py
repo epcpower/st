@@ -2,16 +2,16 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.epc
+import epyqlib.widgets.epc
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class CompactEpc(epyq.widgets.epc.Epc):
+class CompactEpc(epyqlib.widgets.epc.Epc):
     def __init__(self, parent=None, in_designer=False):
-        epyq.widgets.epc.Epc.__init__(self,
+        epyqlib.widgets.epc.Epc.__init__(self,
                                       parent=parent,
                                       ui_file='compactepc.ui',
                                       in_designer=in_designer)

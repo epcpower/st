@@ -2,7 +2,7 @@
 
 # TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractwidget
+import epyqlib.widgets.abstractwidget
 
 from PyQt5.QtCore import pyqtProperty, pyqtSlot, QRectF, Qt
 from PyQt5.QtGui import QPainter, QPen, QColor
@@ -19,10 +19,10 @@ def arc_angle(angle):
     return round(16 * angle)
 
 
-class RingBar(epyq.widgets.abstractwidget.AbstractWidget):
+class RingBar(epyqlib.widgets.abstractwidget.AbstractWidget):
     def __init__(self, parent=None, in_designer=False):
         self.in_designer = in_designer
-        epyq.widgets.abstractwidget.AbstractWidget.__init__(self, parent=parent)
+        epyqlib.widgets.abstractwidget.AbstractWidget.__init__(self, parent=parent)
 
         self._background_color = QColor('#474747')
         self._clockwise = False
@@ -110,7 +110,7 @@ class RingBar(epyq.widgets.abstractwidget.AbstractWidget):
         return min(self.width(), self.height())
 
     def resizeEvent(self, event):
-        epyq.widgets.abstractwidget.AbstractWidget.resizeEvent(self, event)
+        epyqlib.widgets.abstractwidget.AbstractWidget.resizeEvent(self, event)
 
         self.update_layout()
 
@@ -118,7 +118,7 @@ class RingBar(epyq.widgets.abstractwidget.AbstractWidget):
         return self.thickness + 1
 
     def paintEvent(self, event):
-        epyq.widgets.abstractwidget.AbstractWidget.paintEvent(self, event)
+        epyqlib.widgets.abstractwidget.AbstractWidget.paintEvent(self, event)
 
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -171,7 +171,7 @@ class RingBar(epyq.widgets.abstractwidget.AbstractWidget):
     def update(self):
         self.update_layout()
 
-        epyq.widgets.abstractwidget.AbstractWidget.update(self)
+        epyqlib.widgets.abstractwidget.AbstractWidget.update(self)
 
     @pyqtSlot(float)
     def set_value(self, value):

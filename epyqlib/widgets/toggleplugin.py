@@ -2,21 +2,21 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractsignalpluginclass
-import epyq.widgets.toggle
+import epyqlib.widgets.abstractsignalpluginclass
+import epyqlib.widgets.toggle
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class TogglePlugin(epyq.widgets.abstractsignalpluginclass.AbstractSignalPlugin):
+class TogglePlugin(epyqlib.widgets.abstractsignalpluginclass.AbstractSignalPlugin):
     def __init__(self, parent=None):
-        epyq.widgets.abstractsignalpluginclass.AbstractSignalPlugin.__init__(
+        epyqlib.widgets.abstractsignalpluginclass.AbstractSignalPlugin.__init__(
             self, parent=parent)
 
-        self._init = epyq.widgets.toggle.Toggle
-        self._module_path = 'epyq.widgets.toggle'
+        self._init = epyqlib.widgets.toggle.Toggle
+        self._module_path = 'epyqlib.widgets.toggle'
         self._name = 'Toggle'
 
 

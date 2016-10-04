@@ -3,7 +3,7 @@
 #TODO: """DocString if there is one"""
 
 import canmatrix.importany as importany
-import epyq.canneo
+import epyqlib.canneo
 import io
 import os
 import textwrap
@@ -129,7 +129,7 @@ class AbstractWidget(QtWidgets.QWidget):
 
         self.set_signal(force_update=True)
 
-        expected_type = epyq.form.EpcForm
+        expected_type = epyqlib.form.EpcForm
         while parent is not None:
             if isinstance(parent, expected_type):
                 parent.update_widget(self)
@@ -142,7 +142,7 @@ class AbstractWidget(QtWidgets.QWidget):
         else:
             raise Exception(
                 'No valid {} widget found while searching parents'.format(
-                    'epyq.form.EpcForm' #expected_type.__class__.__name__
+                    'epyqlib.form.EpcForm' #expected_type.__class__.__name__
                 ))
 
     @pyqtProperty('QString')

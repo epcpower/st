@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstracttxwidget
+import epyqlib.widgets.abstracttxwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, QTimer)
@@ -12,12 +12,12 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Enum(epyq.widgets.abstracttxwidget.AbstractTxWidget):
+class Enum(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
     def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'enum.ui')
 
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
                 ui=ui_file, parent=parent, in_designer=in_designer)
 
         # TODO: CAMPid 398956661298765098124690765
@@ -56,7 +56,7 @@ class Enum(epyq.widgets.abstracttxwidget.AbstractTxWidget):
 
                 self.ui.value.addItems(full_strings)
 
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
             self, signal, force_update=force_update)
 
 

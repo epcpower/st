@@ -3,8 +3,8 @@
 #TODO: """DocString if there is one"""
 
 import canmatrix.importany as importany
-import epyq.canneo
-import epyq.widgets.abstractwidget
+import epyqlib.canneo
+import epyqlib.widgets.abstractwidget
 import os
 
 from PyQt5.QtCore import pyqtProperty, QTimer
@@ -90,14 +90,14 @@ class EpcForm(QWidget):
             imported = []
 
         widgets = self.findChildren(
-                epyq.widgets.abstractwidget.AbstractWidget)
+                epyqlib.widgets.abstractwidget.AbstractWidget)
 
         try:
             matrix = imported[0]
         except IndexError:
             self.neo = None
         else:
-            self.neo = epyq.canneo.Neo(matrix=matrix)
+            self.neo = epyqlib.canneo.Neo(matrix=matrix)
 
         for widget in widgets:
             self.update_widget(widget=widget)

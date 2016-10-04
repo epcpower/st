@@ -1,8 +1,8 @@
 import can
 import canmatrix.canmatrix
-from epyq.abstractcolumns import AbstractColumns
-import epyq.canneo
-from epyq.treenode import TreeNode
+from epyqlib.abstractcolumns import AbstractColumns
+import epyqlib.canneo
+from epyqlib.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
                           QTimer)
 
@@ -11,9 +11,9 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class SignalNode(epyq.canneo.Signal, TreeNode):
+class SignalNode(epyqlib.canneo.Signal, TreeNode):
     def __init__(self, signal, frame, tx=False, connect=None, tree_parent=None, parent=None):
-        epyq.canneo.Signal.__init__(self, signal=signal, frame=frame, connect=connect, parent=parent)
+        epyqlib.canneo.Signal.__init__(self, signal=signal, frame=frame, connect=connect, parent=parent)
         TreeNode.__init__(self, tx=tx, parent=tree_parent)
 
         self.fields = Columns(id=self.start_bit,
@@ -29,7 +29,7 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
         return str(self.fields.id) + '__'
 
     def set_value(self, value):
-        epyq.canneo.Signal.set_value(self, value)
+        epyqlib.canneo.Signal.set_value(self, value)
         self.fields.value = self.full_string
 
     def set_data(self, data):
@@ -41,11 +41,11 @@ class SignalNode(epyq.canneo.Signal, TreeNode):
             self.frame.update_from_signals()
 
 
-class MessageNode(epyq.canneo.Frame, TreeNode):
+class MessageNode(epyqlib.canneo.Frame, TreeNode):
     def __init__(self, message=None, tx=False, frame=None,
                  multiplex_value=None, signal_class=SignalNode,
                  parent=None):
-        epyq.canneo.Frame.__init__(self, frame=frame,
+        epyqlib.canneo.Frame.__init__(self, frame=frame,
                                    multiplex_value=multiplex_value,
                                    signal_class=signal_class,
                                    parent=parent)
@@ -66,7 +66,7 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
             signal.tx = self.tx
             self.append_child(signal)
 
-        identifier = epyq.canneo.format_identifier(frame._Id, frame._extended)
+        identifier = epyqlib.canneo.format_identifier(frame._Id, frame._extended)
 
         name = self.name
         try:
@@ -147,13 +147,13 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         # TODO: I think this is not needed
         # self.message = message
 
-        self.fields.id = epyq.canneo.format_identifier(
+        self.fields.id = epyqlib.canneo.format_identifier(
                 message.arbitration_id, message.id_type)
 
         self.fields.name = self.name
 
         self.fields.length = '{} B'.format(message.dlc)
-        self.fields.value = epyq.canneo.format_data(message.data)
+        self.fields.value = epyqlib.canneo.format_data(message.data)
         if self.last_time == message.timestamp:
             raise Exception('message already received {message}'
                             .format(**locals()))
@@ -168,7 +168,7 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         if not self.tx:
             self.fields.count = str(self.count['rx'])
 
-        epyq.canneo.Frame.message_received(self, message)
+        epyqlib.canneo.Frame.message_received(self, message)
 
     def _sent(self):
         self.count['tx'] += 1
@@ -190,13 +190,13 @@ class MessageNode(epyq.canneo.Frame, TreeNode):
         self.frame.update_from_signals()
 
     def update_from_signals(self):
-        epyq.canneo.Frame.update_from_signals(self)
-        self.fields.value = epyq.canneo.format_data(self.data)
+        epyqlib.canneo.Frame.update_from_signals(self)
+        self.fields.value = epyqlib.canneo.format_data(self.data)
         # TODO: send should update, not the other way around like it is
         self._send()
 
 
-class TxRx(TreeNode, epyq.canneo.QtCanListener):
+class TxRx(TreeNode, epyqlib.canneo.QtCanListener):
     # TODO: just Rx?
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
     begin_insert_rows = pyqtSignal(TreeNode, int, int)
@@ -204,7 +204,7 @@ class TxRx(TreeNode, epyq.canneo.QtCanListener):
 
     def __init__(self, tx, neo=None, bus=None, parent=None):
         TreeNode.__init__(self)
-        epyq.canneo.QtCanListener.__init__(self, parent=parent)
+        epyqlib.canneo.QtCanListener.__init__(self, parent=parent)
 
         self.bus = bus
 
@@ -314,13 +314,13 @@ class Columns(AbstractColumns):
 Columns.indexes = Columns.indexes()
 
 
-class TxRxModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
+class TxRxModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     def __init__(self, root, parent=None):
         checkbox_columns = Columns.fill(False)
         if root.tx:
             checkbox_columns.dt = True
 
-        epyq.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
+        epyqlib.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
                 self, root=root, checkbox_columns=checkbox_columns,
                 parent=parent)
 
@@ -332,7 +332,7 @@ class TxRxModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
                                count='Count')
 
     def flags(self, index):
-        flags = epyq.pyqabstractitemmodel.PyQAbstractItemModel.flags(self, index)
+        flags = epyqlib.pyqabstractitemmodel.PyQAbstractItemModel.flags(self, index)
 
         node = self.node_from_index(index)
         if node.tx:

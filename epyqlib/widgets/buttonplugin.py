@@ -2,21 +2,21 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractsignalpluginclass
-import epyq.widgets.button
+import epyqlib.widgets.abstractsignalpluginclass
+import epyqlib.widgets.button
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class ButtonPlugin(epyq.widgets.abstractsignalpluginclass.AbstractSignalPlugin):
+class ButtonPlugin(epyqlib.widgets.abstractsignalpluginclass.AbstractSignalPlugin):
     def __init__(self, parent=None):
-        epyq.widgets.abstractsignalpluginclass.AbstractSignalPlugin.__init__(
+        epyqlib.widgets.abstractsignalpluginclass.AbstractSignalPlugin.__init__(
             self, parent=parent)
 
-        self._init = epyq.widgets.button.Button
-        self._module_path = 'epyq.widgets.button'
+        self._init = epyqlib.widgets.button.Button
+        self._module_path = 'epyqlib.widgets.button'
         self._name = 'Button'
 
 

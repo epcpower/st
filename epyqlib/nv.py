@@ -3,11 +3,11 @@
 #TODO: """DocString if there is one"""
 
 import can
-from epyq.abstractcolumns import AbstractColumns
-import epyq.canneo
+from epyqlib.abstractcolumns import AbstractColumns
+import epyqlib.canneo
 import json
-import epyq.pyqabstractitemmodel
-from epyq.treenode import TreeNode
+import epyqlib.pyqabstractitemmodel
+from epyqlib.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot)
 from PyQt5.QtWidgets import QFileDialog
 import time
@@ -27,13 +27,13 @@ class NoNv(Exception):
     pass
 
 
-class Nvs(TreeNode, epyq.canneo.QtCanListener):
+class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
     set_status_string = pyqtSignal(str)
 
     def __init__(self, neo, bus, parent=None):
         TreeNode.__init__(self)
-        epyq.canneo.QtCanListener.__init__(self, parent=parent)
+        epyqlib.canneo.QtCanListener.__init__(self, parent=parent)
 
         self.bus = bus
         self.neo = neo
@@ -216,9 +216,9 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
         # TODO: is there a response from device to confirm?
 
 
-class Nv(epyq.canneo.Signal, TreeNode):
+class Nv(epyqlib.canneo.Signal, TreeNode):
     def __init__(self, signal, frame, parent=None):
-        epyq.canneo.Signal.__init__(self, signal=signal, frame=frame,
+        epyqlib.canneo.Signal.__init__(self, signal=signal, frame=frame,
                                     parent=parent)
         TreeNode.__init__(self)
 
@@ -228,7 +228,7 @@ class Nv(epyq.canneo.Signal, TreeNode):
         self.clear()
 
     def set_value(self, value):
-        epyq.canneo.Signal.set_value(self, value)
+        epyqlib.canneo.Signal.set_value(self, value)
         self.fields.value = self.full_string
 
     def set_data(self, data):
@@ -271,11 +271,11 @@ class Nv(epyq.canneo.Signal, TreeNode):
         return str(self.fields.name) + '__'
 
 
-class Frame(epyq.canneo.Frame, TreeNode):
+class Frame(epyqlib.canneo.Frame, TreeNode):
     def __init__(self, message=None, tx=False, frame=None,
                  multiplex_value=None, signal_class=Nv,
                  parent=None):
-        epyq.canneo.Frame.__init__(self, frame=frame,
+        epyqlib.canneo.Frame.__init__(self, frame=frame,
                                    multiplex_value=multiplex_value,
                                    signal_class=signal_class,
                                    parent=parent)
@@ -314,7 +314,7 @@ class Frame(epyq.canneo.Frame, TreeNode):
             self._send()
 
     def update_from_signals(self, for_read=False, function=None):
-        epyq.canneo.Frame.update_from_signals(self, function=function)
+        epyqlib.canneo.Frame.update_from_signals(self, function=function)
 
 
 def ufs(signal):
@@ -328,14 +328,14 @@ def ufs(signal):
         return scaled_value
 
 
-class NvModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
+class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     set_status_string = pyqtSignal(str)
 
     def __init__(self, root, parent=None):
         editable_columns = Columns.fill(False)
         editable_columns.value = True
 
-        epyq.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
+        epyqlib.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
                 self, root=root, editable_columns=editable_columns,
                 parent=parent)
 

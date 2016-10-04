@@ -2,8 +2,8 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.device
-import epyq.devicetree
+import epyqlib.device
+import epyqlib.devicetree
 import functools
 import io
 import os
@@ -52,11 +52,11 @@ def load_device(bus=None, file=None):
         if file is None:
             return
 
-    return epyq.device.Device(file=file, bus=bus)
+    return epyqlib.device.Device(file=file, bus=bus)
 
 
 class DeviceTreeView(QtWidgets.QWidget):
-    device_selected = pyqtSignal(epyq.device.Device)
+    device_selected = pyqtSignal(epyqlib.device.Device)
 
     def __init__(self, parent=None, in_designer=False):
         QtWidgets.QWidget.__init__(self, parent=parent)
@@ -76,7 +76,7 @@ class DeviceTreeView(QtWidgets.QWidget):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
-        self.resize_columns = epyq.devicetree.Columns(
+        self.resize_columns = epyqlib.devicetree.Columns(
             name=True,
             bitrate=False)
 
@@ -89,7 +89,7 @@ class DeviceTreeView(QtWidgets.QWidget):
 
     def _current_changed(self, new_index, old_index):
         node = self.model.node_from_index(new_index)
-        if isinstance(node, epyq.devicetree.Device):
+        if isinstance(node, epyqlib.devicetree.Device):
             device = node.device
             self.device_selected.emit(device)
 
@@ -105,9 +105,9 @@ class DeviceTreeView(QtWidgets.QWidget):
         remove_device_action = None
 
         menu = QMenu()
-        if isinstance(node, epyq.devicetree.Device):
+        if isinstance(node, epyqlib.devicetree.Device):
             remove_device_action = menu.addAction('Close')
-        if isinstance(node, epyq.devicetree.Bus):
+        if isinstance(node, epyqlib.devicetree.Bus):
             add_device_action = menu.addAction('Load device...')
 
         action = menu.exec_(self.ui.tree_view.viewport().mapToGlobal(position))
@@ -126,7 +126,7 @@ class DeviceTreeView(QtWidgets.QWidget):
     def add_device(self, bus):
         device = load_device()
         if device is not None:
-            device = epyq.devicetree.Device(device=device)
+            device = epyqlib.devicetree.Device(device=device)
 
             self.model.add_device(bus, device)
             index = self.model.index_from_node(bus)
@@ -151,21 +151,21 @@ class DeviceTreeView(QtWidgets.QWidget):
                     i, QtWidgets.QHeaderView.ResizeToContents)
 
         self.ui.tree_view.setItemDelegateForColumn(
-            epyq.devicetree.Columns.indexes.bitrate,
-            epyq.delegates.Combo(model=model, parent=self))
+            epyqlib.devicetree.Columns.indexes.bitrate,
+            epyqlib.delegates.Combo(model=model, parent=self))
 
         self.ui.tree_view.selectionModel().currentChanged.connect(
             self._current_changed)
 
         widths = [self.ui.tree_view.columnWidth(i)
-                  for i in epyq.devicetree.Columns.indexes]
+                  for i in epyqlib.devicetree.Columns.indexes]
         width = sum(widths)
         width += 2 * self.ui.tree_view.frameWidth()
 
         self.ui.tree_view.setMinimumWidth(1.25 * width)
 
         self.ui.tree_view.header().setSectionResizeMode(
-            epyq.devicetree.Columns.indexes.name,
+            epyqlib.devicetree.Columns.indexes.name,
             QHeaderView.Stretch
         )
 

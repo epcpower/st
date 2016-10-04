@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractwidget
+import epyqlib.widgets.abstractwidget
 import os
 import re
 
@@ -50,12 +50,12 @@ def rgb_string(color):
     return ('{:02X}' * 3).format(*color.getRgb())
 
 
-class Led(epyq.widgets.abstractwidget.AbstractWidget):
+class Led(epyqlib.widgets.abstractwidget.AbstractWidget):
     def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'led.ui')
 
-        epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
+        epyqlib.widgets.abstractwidget.AbstractWidget.__init__(self,
                 ui=ui_file, parent=parent, in_designer=in_designer)
 
         file_name = 'led.svg'
@@ -224,7 +224,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         return label
 
     def event(self, *args, **kwargs):
-        result = epyq.widgets.abstractwidget.AbstractWidget.event(
+        result = epyqlib.widgets.abstractwidget.AbstractWidget.event(
             self, *args, **kwargs
         )
 

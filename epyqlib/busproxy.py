@@ -6,7 +6,7 @@ import can
 import can.interfaces.pcan
 import time
 
-from epyq.canneo import QtCanListener
+from epyqlib.canneo import QtCanListener
 from PyQt5.QtCore import QObject, pyqtSignal
 
 # See file COPYING in this source tree

@@ -2,7 +2,7 @@
 
 # TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractwidget
+import epyqlib.widgets.abstractwidget
 
 from PyQt5.QtCore import pyqtProperty, pyqtSlot, QSizeF, QRectF, Qt
 from PyQt5.QtGui import QPainter, QColor
@@ -16,10 +16,10 @@ def centered_rectangle(width, height):
     return QRectF(-width / 2, -height / 2, width, height)
 
 
-class LineBar(epyq.widgets.abstractwidget.AbstractWidget):
+class LineBar(epyqlib.widgets.abstractwidget.AbstractWidget):
     def __init__(self, parent=None, in_designer=False):
         self.in_designer = in_designer
-        epyq.widgets.abstractwidget.AbstractWidget.__init__(self, parent=parent)
+        epyqlib.widgets.abstractwidget.AbstractWidget.__init__(self, parent=parent)
 
         self._background_color = QColor('#474747')
         self._color = QColor('#39C550')
@@ -93,7 +93,7 @@ class LineBar(epyq.widgets.abstractwidget.AbstractWidget):
         self.update()
 
     def paintEvent(self, event):
-        epyq.widgets.abstractwidget.AbstractWidget.paintEvent(self, event)
+        epyqlib.widgets.abstractwidget.AbstractWidget.paintEvent(self, event)
 
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)

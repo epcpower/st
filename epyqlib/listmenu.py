@@ -4,12 +4,12 @@
 
 import can
 from collections import OrderedDict
-from epyq.abstractcolumns import AbstractColumns
-import epyq.canneo
+from epyqlib.abstractcolumns import AbstractColumns
+import epyqlib.canneo
 import functools
 import json
-import epyq.pyqabstractitemmodel
-from epyq.treenode import TreeNode
+import epyqlib.pyqabstractitemmodel
+from epyqlib.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSlot, QTimer)
 from PyQt5.QtWidgets import QFileDialog
 import time
@@ -62,9 +62,9 @@ class Node(TreeNode):
     def unique(self):
         return self
 
-class ListMenuModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
+class ListMenuModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     def __init__(self, root, parent=None):
-        epyq.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
+        epyqlib.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
                 self, root=root, alignment=Qt.AlignVCenter | Qt.AlignLeft,
                 parent=parent)
 

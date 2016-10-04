@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstracttxwidget
+import epyqlib.widgets.abstracttxwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, Qt, QEvent,
@@ -14,12 +14,12 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Toggle(epyq.widgets.abstracttxwidget.AbstractTxWidget):
+class Toggle(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
     def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'toggle.ui')
 
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
                 ui=ui_file, parent=parent, in_designer=in_designer)
 
         self.ui.value.installEventFilter(self)
@@ -79,7 +79,7 @@ class Toggle(epyq.widgets.abstracttxwidget.AbstractTxWidget):
             else:
                 self.ui.off.setText('-')
                 self.ui.on.setText('-')
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
             self, signal, force_update=force_update)
 
     def signal_value_changed(self, value):

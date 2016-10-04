@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractwidget
+import epyqlib.widgets.abstractwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream)
@@ -12,12 +12,12 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Lcd(epyq.widgets.abstractwidget.AbstractWidget):
+class Lcd(epyqlib.widgets.abstractwidget.AbstractWidget):
     def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'lcd.ui')
 
-        epyq.widgets.abstractwidget.AbstractWidget.__init__(self,
+        epyqlib.widgets.abstractwidget.AbstractWidget.__init__(self,
                 ui=ui_file, parent=parent, in_designer=in_designer)
 
         self._frame = None

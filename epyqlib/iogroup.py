@@ -5,7 +5,7 @@
 import io
 import os
 
-from epyq.iopoint import IoPoint
+from epyqlib.iopoint import IoPoint
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtProperty, QFile, QFileInfo, QTextStream
 from PyQt5.QtGui import QColor

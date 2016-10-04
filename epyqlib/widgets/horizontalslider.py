@@ -2,8 +2,8 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.mixins
-import epyq.widgets.abstracttxwidget
+import epyqlib.mixins
+import epyqlib.widgets.abstracttxwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream)
@@ -13,16 +13,16 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class HorizontalSlider(epyq.widgets.abstracttxwidget.AbstractTxWidget,
-                       epyq.mixins.OverrideRange):
+class HorizontalSlider(epyqlib.widgets.abstracttxwidget.AbstractTxWidget,
+                       epyqlib.mixins.OverrideRange):
     def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'horizontalslider.ui')
 
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
                 ui=ui_file, parent=parent, in_designer=in_designer)
 
-        epyq.mixins.OverrideRange.__init__(self)
+        epyqlib.mixins.OverrideRange.__init__(self)
 
         self._zero_count = None
         self._counts = 1000
@@ -38,7 +38,7 @@ class HorizontalSlider(epyq.widgets.abstracttxwidget.AbstractTxWidget,
         value = (counts - self._zero_count)
         value *= (self._max - self._min) / self._counts
 
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.widget_value_changed(
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.widget_value_changed(
             self, value)
 
     def set_value(self, value):

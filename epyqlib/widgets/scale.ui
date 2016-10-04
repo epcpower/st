@@ -110,7 +110,7 @@
   <customwidget>
    <class>QScale</class>
    <extends>QWidget</extends>
-   <header>epyq.qscale</header>
+   <header>epyqlib.qscale</header>
   </customwidget>
  </customwidgets>
  <resources/>

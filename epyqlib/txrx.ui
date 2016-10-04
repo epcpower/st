@@ -45,7 +45,7 @@
   <customwidget>
    <class>TxRxView</class>
    <extends>QWidget</extends>
-   <header>epyq.txrxview</header>
+   <header>epyqlib.txrxview</header>
   </customwidget>
  </customwidgets>
  <resources/>

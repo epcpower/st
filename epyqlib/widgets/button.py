@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstracttxwidget
+import epyqlib.widgets.abstracttxwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, Qt, QEvent,
@@ -13,12 +13,12 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
+class Button(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
     def __init__(self, parent=None, in_designer=False):
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'button.ui')
 
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.__init__(self,
                 ui=ui_file, parent=parent, in_designer=in_designer)
 
         # TODO: CAMPid 398956661298765098124690765
@@ -48,7 +48,7 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         self.set(self.off_value)
 
     def set_signal(self, signal=None, force_update=False):
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.set_signal(
             self, signal, force_update=force_update)
 
         if signal is not None:
@@ -104,7 +104,7 @@ class Button(epyq.widgets.abstracttxwidget.AbstractTxWidget):
         pass
 
     def showEvent(self, event):
-        epyq.widgets.abstracttxwidget.AbstractTxWidget.showEvent(self, event)
+        epyqlib.widgets.abstracttxwidget.AbstractTxWidget.showEvent(self, event)
         self.set(self.off_value)
 
 if __name__ == '__main__':

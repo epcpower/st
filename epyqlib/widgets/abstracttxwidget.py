@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractwidget
+import epyqlib.widgets.abstractwidget
 
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, QEvent, Qt
 from PyQt5.QtGui import QMouseEvent
@@ -13,12 +13,12 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
+class AbstractTxWidget(epyqlib.widgets.abstractwidget.AbstractWidget):
     edit = pyqtSignal(QWidget, QWidget)
     edited = pyqtSignal(float)
 
     def __init__(self, ui, parent=None, in_designer=False):
-        epyq.widgets.abstractwidget.AbstractWidget.__init__(
+        epyqlib.widgets.abstractwidget.AbstractWidget.__init__(
             self, ui=ui, parent=parent, in_designer=in_designer)
 
         self.tx = False
@@ -66,7 +66,7 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
         else:
             self._period = None
 
-        epyq.widgets.abstractwidget.AbstractWidget.set_signal(
+        epyqlib.widgets.abstractwidget.AbstractWidget.set_signal(
             self, signal, force_update=force_update)
 
     def update_connection(self, signal=None):
@@ -77,7 +77,7 @@ class AbstractTxWidget(epyq.widgets.abstractwidget.AbstractWidget):
             if signal is not None and self.tx and self._period is not None:
                 signal.frame.cyclic_request(self, self._period)
 
-        epyq.widgets.abstractwidget.AbstractWidget.update_connection(
+        epyqlib.widgets.abstractwidget.AbstractWidget.update_connection(
                 self, signal)
 
     def widget_value_changed(self, value):

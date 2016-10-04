@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-from epyq.treenode import TreeNode
+from epyqlib.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QAbstractItemModel, QVariant,
                           QModelIndex, pyqtSignal, pyqtSlot)
 

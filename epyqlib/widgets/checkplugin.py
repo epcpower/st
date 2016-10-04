@@ -2,21 +2,21 @@
 
 #TODO: """DocString if there is one"""
 
-import epyq.widgets.abstractsignalpluginclass
-import epyq.widgets.check
+import epyqlib.widgets.abstractsignalpluginclass
+import epyqlib.widgets.check
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class CheckPlugin(epyq.widgets.abstractsignalpluginclass.AbstractSignalPlugin):
+class CheckPlugin(epyqlib.widgets.abstractsignalpluginclass.AbstractSignalPlugin):
     def __init__(self, parent=None):
-        epyq.widgets.abstractsignalpluginclass.AbstractSignalPlugin.__init__(
+        epyqlib.widgets.abstractsignalpluginclass.AbstractSignalPlugin.__init__(
             self, parent=parent)
 
-        self._init = epyq.widgets.check.Check
-        self._module_path = 'epyq.widgets.check'
+        self._init = epyqlib.widgets.check.Check
+        self._module_path = 'epyqlib.widgets.check'
         self._name = 'Check'
 
 
