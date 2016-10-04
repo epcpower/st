@@ -645,7 +645,7 @@ def main(args=None):
         else:
             node.action = playback.toggle
 
-    actions['<playback>'] = playback
+    actions['<playback>'] = playback.toggle
     special_menu_nodes['<playback>'] = modify_node_playback
 
     def focus_nv(widget):
