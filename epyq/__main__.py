@@ -813,15 +813,8 @@ def main(args=None):
                     dash=value
                 )
             else:
-                try:
-                    modify_node = special_menu_nodes[value]
-                except KeyError:
-                    print("No menu action '{}' found in {}".format(
-                            value,
-                            special_menu_nodes.keys()),
-                        file=sys.stderr
-                    )
-                else:
+                modify_node = special_menu_nodes.get(value)
+                if modify_node is not None:
                     modify_node(child)
 
                     if value in ['<nv>']:
@@ -829,6 +822,10 @@ def main(args=None):
                             stacked_manager.focus_menu_node,
                             node=child
                         )
+                else:
+                    print("No menu action '{}' found in {}".format(
+                              value, special_menu_nodes.keys()),
+                          file=sys.stderr)
 
     traverse(device.ui_paths, menu_root)
 
@@ -922,15 +919,15 @@ def main(args=None):
             action_name = widget.property('action')
 
             if action_name is not None and len(action_name) > 0:
-                try:
-                    dash = device.loaded_uis[action_name]
-                except KeyError:
-                    action = actions[action_name]
-                else:
+
+                dash = device.loaded_uis.get(action_name, None)
+                if dash is not None:
                     action = functools.partial(
                         stacked_manager.focus_dash,
                         dash=dash
                     )
+                else:
+                    action = actions[action_name]
 
                 handler = ActionClickHandler(action=action)
                 action_click_handlers.append(handler)
