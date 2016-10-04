@@ -615,24 +615,24 @@
   <customwidget>
    <class>EpcForm</class>
    <extends>QWidget</extends>
-   <header>epyq.form</header>
+   <header>epyqlib.form</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>LineBar</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.linebar</header>
+   <header>epyqlib.widgets.linebar</header>
   </customwidget>
   <customwidget>
    <class>RingBar</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.ringbar</header>
+   <header>epyqlib.widgets.ringbar</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Text</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.text</header>
+   <header>epyqlib.widgets.text</header>
   </customwidget>
  </customwidgets>
  <resources/>

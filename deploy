@@ -9,9 +9,9 @@ export SYSROOT="${BUILDROOT}/sysroot"
 
 cd ${BUILDROOT}
 rm -rf build
-pyqtdeploycli --target win-32 --project ${GITROOT}/epyq.pdy build
+pyqtdeploycli --target win-32 --project ${GITROOT}/epyqlib.pdy build
 cd build
-sed -i 's/LIBS += -l(ssl|crypto)/LIBS += -lssl -lcrypto/' epyq.pro
+sed -i 's/LIBS += -l(ssl|crypto)/LIBS += -lssl -lcrypto/' epyqlib.pro
 export PATH="${SYSROOT}/native/src/mxe/usr/i686-w64-mingw32.static/qt5/bin:${PATH}"
 export PATH="${SYSROOT}/native/src/mxe/usr/bin:${PATH}"
 echo $PATH

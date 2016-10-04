@@ -17,7 +17,7 @@ except ImportError:
 
 
 # TODO: CAMPid 98852142341263132467998754961432
-import epyq.tee
+import epyqlib.tee
 import os
 import sys
 
@@ -26,12 +26,12 @@ log = open(os.path.join(os.getcwd(), 'build.log'), 'w', encoding='utf-8')
 if sys.stdout is None:
     sys.stdout = log
 else:
-    sys.stdout = epyq.tee.Tee([sys.stdout, log])
+    sys.stdout = epyqlib.tee.Tee([sys.stdout, log])
 
 if sys.stderr is None:
     sys.stderr = log
 else:
-    sys.stderr = epyq.tee.Tee([sys.stderr, log])
+    sys.stderr = epyqlib.tee.Tee([sys.stderr, log])
 
 
 # http://stackoverflow.com/a/2214292/228539
@@ -99,10 +99,11 @@ from subprocess import Popen
 proc = Popen(
     args=[
         sys.executable,
-        'epyq/generaterevision.py'
+        'sub/epyqlib/generaterevision.py'
     ],
     stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT
+    stderr=subprocess.STDOUT,
+    cwd='epyq'
     )
 
 for line in proc.stdout:
@@ -152,7 +153,7 @@ proc = Popen(
         os.path.expandvars(os.path.join(
             '%APPDATA%', 'Python', 'Python35', 'Scripts', 'pyqtdeploycli.exe'
         )),
-        '--project', 'epyq.pdy',
+        '--project', 'epyqlib.pdy',
         'build'
     ],
     env=env,
@@ -197,9 +198,9 @@ for line in proc.stdout:
 
 proc.wait()
 
-import epyq.revision
+import epyqlib.revision
 
 shutil.copy(
     os.path.join('build', 'EPyQ_HMI.exe'),
-    os.path.join('..', 'EPyQ_HMI-{}.exe'.format(epyq.revision.hash))
+    os.path.join('..', 'EPyQ_HMI-{}.exe'.format(epyqlib.revision.hash))
 )

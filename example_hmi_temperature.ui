@@ -180,23 +180,23 @@
   <customwidget>
    <class>EpcForm</class>
    <extends>QWidget</extends>
-   <header>epyq.form</header>
+   <header>epyqlib.form</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Epc</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.epc</header>
+   <header>epyqlib.widgets.epc</header>
   </customwidget>
   <customwidget>
    <class>Scale</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.scale</header>
+   <header>epyqlib.widgets.scale</header>
   </customwidget>
   <customwidget>
    <class>Toggle</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.toggle</header>
+   <header>epyqlib.widgets.toggle</header>
   </customwidget>
  </customwidgets>
  <resources/>

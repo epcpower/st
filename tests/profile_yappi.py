@@ -13,7 +13,7 @@ def gettid():
 
 
 import yappi
-import epyq.__main__
+import epyqlib.__main__
 import os
 
 # See file COPYING in this source tree
@@ -35,7 +35,7 @@ def main():
                  generate=False,
                  ui='main.ui')
     yappi.start()
-    exit_value = epyq.__main__.main(args=args)
+    exit_value = epyqlib.__main__.main(args=args)
     yappi.stop()
     yappi.get_func_stats().save('yappi.stats', type='pstat')
     yappi.get_thread_stats().print_all()

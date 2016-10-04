@@ -3,7 +3,7 @@
 # TODO: get some docstrings in here!
 
 # TODO: CAMPid 98852142341263132467998754961432
-import epyq.tee
+import epyqlib.tee
 import os
 import sys
 
@@ -12,43 +12,43 @@ log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', bufferi
 if sys.stdout is None:
     sys.stdout = log
 else:
-    sys.stdout = epyq.tee.Tee([sys.stdout, log])
+    sys.stdout = epyqlib.tee.Tee([sys.stdout, log])
 
 if sys.stderr is None:
     sys.stderr = log
 else:
-    sys.stderr = epyq.tee.Tee([sys.stderr, log])
+    sys.stderr = epyqlib.tee.Tee([sys.stderr, log])
 
 try:
-    import epyq.revision
+    import epyqlib.revision
 except ImportError:
     pass
 else:
-    print(epyq.revision.hash)
+    print(epyqlib.revision.hash)
 
 import can
 import canmatrix.importany as importany
 import copy
-import epyq.widgets.abstractwidget
-import epyq.busproxy
-import epyq.canneo
-import epyq.device
-import epyq.hmidialog
-import epyq.listmenuview
-import epyq.listselect
-import epyq.numberpad
-import epyq.nv
-import epyq.parameteredit
-import epyq.stylesheets
+import epyqlib.widgets.abstractwidget
+import epyqlib.busproxy
+import epyqlib.canneo
+import epyqlib.device
+import epyqlib.hmidialog
+import epyqlib.listmenuview
+import epyqlib.listselect
+import epyqlib.numberpad
+import epyqlib.nv
+import epyqlib.parameteredit
+import epyqlib.stylesheets
 
 try:
-    import epyq.revision
+    import epyqlib.revision
 except ImportError:
     pass
 
-from epyq.svgwidget import SvgWidget
-import epyq.txrx
-import epyq.wehmd
+from epyqlib.svgwidget import SvgWidget
+import epyqlib.txrx
+import epyqlib.wehmd
 import functools
 import io
 import math
@@ -330,7 +330,7 @@ class TooltipEventFilter(QObject):
 
             widget = self.parent().widgetAt(event.globalPos())
             while not isinstance(
-                    widget, epyq.widgets.abstractwidget.AbstractWidget):
+                    widget, epyqlib.widgets.abstractwidget.AbstractWidget):
                 if widget is None:
                     break
                 widget = widget.parent()
@@ -354,7 +354,7 @@ class Screensaver(QObject):
 
         self.shown = False
 
-        self.overlay = epyq.overlaylabel.OverlayLabel(parent=parent)
+        self.overlay = epyqlib.overlaylabel.OverlayLabel(parent=parent)
         self.overlay.label.setText('')
         self.overlay.setVisible(False)
 
@@ -424,7 +424,7 @@ def excepthook(excType, excValue, tracebackobj):
     email = "kyle.altendorf@epcpower.com"
 
     try:
-        hash = 'Revision Hash: {}\n\n'.format(epyq.revision.hash)
+        hash = 'Revision Hash: {}\n\n'.format(epyqlib.revision.hash)
     except:
         hash = ''
 
@@ -523,14 +523,14 @@ def main(args=None):
 
     ui = load_ui('main.ui')
 
-    bus = epyq.busproxy.BusProxy()
+    bus = epyqlib.busproxy.BusProxy()
 
-    list_select = epyq.listselect.ListSelect()
-    number_pad = epyq.numberpad.NumberPad()
+    list_select = epyqlib.listselect.ListSelect()
+    number_pad = epyqlib.numberpad.NumberPad()
 
-    menu_root = epyq.listmenu.Node(text='Main Menu')
-    menu_model = epyq.listmenu.ListMenuModel(root=menu_root)
-    menu_view = epyq.listmenuview.ListMenuView()
+    menu_root = epyqlib.listmenu.Node(text='Main Menu')
+    menu_model = epyqlib.listmenu.ListMenuModel(root=menu_root)
+    menu_view = epyqlib.listmenuview.ListMenuView()
 
     stacked_manager = StackedManager(stacked=ui.stacked,
                                      list_select=list_select,
@@ -550,11 +550,11 @@ def main(args=None):
         (stacked_manager.connect_to_numberpad, lambda widget: True)
     )
 
-    device = epyq.device.Device(file=device_file,
+    device = epyqlib.device.Device(file=device_file,
                                 bus=bus,
                                 tabs=[],
-                                elements=[epyq.device.Elements.dash,
-                                          epyq.device.Elements.nv],
+                                elements=[epyqlib.device.Elements.dash,
+                                          epyqlib.device.Elements.nv],
                                 rx_interval=0.2,
                                 edit_actions=edit_actions)
 
@@ -582,7 +582,7 @@ def main(args=None):
 
     Action.add('menu', stacked_manager.to_menu)
 
-    hmi_dialog = epyq.hmidialog.HmiDialog()
+    hmi_dialog = epyqlib.hmidialog.HmiDialog()
 
     nv_filters = []
     if platform.system() != 'Windows':
@@ -679,14 +679,14 @@ def main(args=None):
 
     def modify_node_nv(node):
         for nv in device.nvs.children:
-            widget = epyq.parameteredit.ParameterEdit(
+            widget = epyqlib.parameteredit.ParameterEdit(
                 esc_action=stacked_manager.focus_previous,
                 edit=number_pad,
                 nv=nv,
                 dialog=hmi_dialog)
 
             stacked_manager.add(widget)
-            child = epyq.listmenu.Node(
+            child = epyqlib.listmenu.Node(
                 text=nv.name,
                 action=functools.partial(
                     focus_nv,
@@ -698,7 +698,7 @@ def main(args=None):
     special_menu_nodes['<nv>'] = modify_node_nv
 
     def service_restart():
-        hmd = epyq.wehmd.Wehmd()
+        hmd = epyqlib.wehmd.Wehmd()
         hmd.write_boot_mode(1)
         subprocess.run('reboot')
 
@@ -823,7 +823,7 @@ def main(args=None):
             if key == '<shortcuts>':
                 continue
 
-            child = epyq.listmenu.Node(text=key)
+            child = epyqlib.listmenu.Node(text=key)
             model_node.append_child(child)
             if isinstance(value, OrderedDict):
                 traverse(dict_node=value,
@@ -899,7 +899,7 @@ def main(args=None):
 
     stacked_manager.add(hmi_dialog)
 
-    ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=ui)
+    ui.offline_overlay = epyqlib.overlaylabel.OverlayLabel(parent=ui)
     ui.offline_overlay.label.setText('')
 
     screensaver_image = 'logo_color_inverted.480x272.png'
@@ -921,7 +921,7 @@ def main(args=None):
         widget.setProperty('fontawesome',
                            widget.font().family() == 'FontAwesome')
         if widget.property('style_small'):
-            widget.setStyleSheet(epyq.stylesheets.small.format())
+            widget.setStyleSheet(epyqlib.stylesheets.small.format())
 
         # TODO: CAMPid 97453289314763416967675427
         if widget.property('editable'):
@@ -956,7 +956,7 @@ def main(args=None):
                 action_click_handlers.append(handler)
                 widget.installEventFilter(handler)
 
-    app.setStyleSheet(epyq.stylesheets.application.format(
+    app.setStyleSheet(epyqlib.stylesheets.application.format(
         base_font_size_px=base_font_size_px,
         background='black',
         foreground='hsva(0%, 0%, 80%)',

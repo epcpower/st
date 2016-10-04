@@ -2,15 +2,15 @@
 
 # TODO: get some docstrings in here!
 
-import epyq.canneo
-import epyq.deviceextension
+import epyqlib.canneo
+import epyqlib.deviceextension
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class DeviceExtension(epyq.deviceextension.DeviceExtension):
+class DeviceExtension(epyqlib.deviceextension.DeviceExtension):
     def post(self):
         power_ring = self.device.loaded_uis['example_hmi_power_ring.ui']
         self.vac_line_bar = power_ring.vac_line_bar

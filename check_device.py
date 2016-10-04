@@ -2,7 +2,7 @@
 
 # TODO: get some docstrings in here!
 
-import epyq.device
+import epyqlib.device
 
 from PyQt5.QtWidgets import QApplication
 
@@ -27,7 +27,7 @@ def main(args=None):
 
     for device_path in args.devices:
         print(' - - - - - - Checking {}'.format(device_path))
-        epyq.device.Device(file=device_path)
+        epyqlib.device.Device(file=device_path)
 
 
 if __name__ == '__main__':

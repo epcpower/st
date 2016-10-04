@@ -12,5 +12,7 @@ cd /opt/st.hmi/venv/src/canmatrix
 LD_LIBRARY_PATH=/opt/epc/lib: /opt/epc/bin/python3 setup.py develop
 cd /opt/st.hmi/venv/src/bitstruct
 LD_LIBRARY_PATH=/opt/epc/lib: /opt/epc/bin/python3 setup.py develop
+cd /opt/st.hmi/sub/epyqlib
+LD_LIBRARY_PATH=/opt/epc/lib: /opt/epc/bin/python3 setup.py develop
 cd /opt/st.hmi
 LD_LIBRARY_PATH=/opt/epc/lib: /opt/epc/bin/python3 setup.py develop

@@ -492,18 +492,18 @@
   <customwidget>
    <class>EpcForm</class>
    <extends>QWidget</extends>
-   <header>epyq.form</header>
+   <header>epyqlib.form</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Epc</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.epc</header>
+   <header>epyqlib.widgets.epc</header>
   </customwidget>
   <customwidget>
    <class>HorizontalSlider</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.horizontalslider</header>
+   <header>epyqlib.widgets.horizontalslider</header>
   </customwidget>
  </customwidgets>
  <resources/>

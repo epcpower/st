@@ -106,8 +106,11 @@ if not args.in_virtual:
     sys.exit(returncode)
 else:
     def setup(path):
+        print(path)
         backup = os.getcwd()
+        print(os.getcwd())
         os.chdir(path)
+        print(os.getcwd())
         subprocess.run([sys.executable, os.path.join(path, 'setup.py'), 'develop'])
         os.chdir(backup)
 
@@ -116,6 +119,7 @@ else:
 
     packages = [
         'pyqt5'
+        # 'gitpython'
     ]
 
     if not args.no_designer:
@@ -137,17 +141,17 @@ else:
         ('metropolis', 'https://github.com/chrismsimpson/Metropolis/archive/16882c2c2cb58405fd6a7d6a932a1dfc573b6813.zip')
     ])
 
-#    pip_install('gitpython', args.no_ssl_verify)
-#    import git
+#     import git
 #
-#    git_repos = {
-#        'canmatrix': 'https://github.com/ebroecker/canmatrix.git',
-#        'bitstruct': 'https://github.com/altendky/bitstruct.git'
-#    }
+#     git_repos = OrderedDict([
+#         ('epyqlib', ('https://epc-phab.exana.io/diffusion/ST',
+#                      '9709bcf7bb147c8e05d39cc15f269dba589ebcae'))
+#     ])
 #
-#    for name, url in git_repos.items():
+#     for name, (url, hash) in git_repos.items():
 #        dir = os.path.join(src, name)
-#        git.Repo.clone_from(url, dir)
+#        repo = git.Repo.clone_from(url, dir)
+#        repo.git.checkout(hash)
 #        setup(dir)
 
     pip_install('git-app-version', args.no_ssl_verify, virtual=True)
@@ -187,6 +191,14 @@ else:
             shutil.copy('canmatrix.setup.py', os.path.join('venv', 'src', 'canmatrix', 'setup.py'))
         if name not in ['fontawesome']:
             setup(os.path.join(src, name))
+
+    setups = []
+    for root, dirs, files in os.walk('sub'):
+        if 'setup.py' in files:
+            setups.append(os.path.join(mydir, root))
+
+    for path in setups:
+        setup(path)
 
     # TODO: Figure out why this can't be moved before other installs
     #       Dependencies maybe?

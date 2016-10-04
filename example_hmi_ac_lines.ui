@@ -673,28 +673,28 @@
   <customwidget>
    <class>EpcForm</class>
    <extends>QWidget</extends>
-   <header>epyq.form</header>
+   <header>epyqlib.form</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>CompactEpc</class>
    <extends>Epc</extends>
-   <header>epyq.widgets.compactepc</header>
+   <header>epyqlib.widgets.compactepc</header>
   </customwidget>
   <customwidget>
    <class>Epc</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.epc</header>
+   <header>epyqlib.widgets.epc</header>
   </customwidget>
   <customwidget>
    <class>Led</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.led</header>
+   <header>epyqlib.widgets.led</header>
   </customwidget>
   <customwidget>
    <class>Toggle</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.toggle</header>
+   <header>epyqlib.widgets.toggle</header>
   </customwidget>
  </customwidgets>
  <resources/>

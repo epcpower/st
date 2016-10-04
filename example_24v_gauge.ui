@@ -102,18 +102,18 @@
   <customwidget>
    <class>EpcForm</class>
    <extends>QWidget</extends>
-   <header>epyq.form</header>
+   <header>epyqlib.form</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Lcd</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.lcd</header>
+   <header>epyqlib.widgets.lcd</header>
   </customwidget>
   <customwidget>
    <class>Scale</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.scale</header>
+   <header>epyqlib.widgets.scale</header>
   </customwidget>
  </customwidgets>
  <resources/>
