@@ -3,7 +3,7 @@
 # TODO: get some docstrings in here!
 
 # TODO: CAMPid 98852142341263132467998754961432
-import epyq.tee
+import epyqlib.tee
 import os
 import sys
 
@@ -12,12 +12,12 @@ log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', bufferi
 if sys.stdout is None:
     sys.stdout = log
 else:
-    sys.stdout = epyq.tee.Tee([sys.stdout, log])
+    sys.stdout = epyqlib.tee.Tee([sys.stdout, log])
 
 if sys.stderr is None:
     sys.stderr = log
 else:
-    sys.stderr = epyq.tee.Tee([sys.stderr, log])
+    sys.stderr = epyqlib.tee.Tee([sys.stderr, log])
 
 try:
     import epyq.revision
@@ -28,20 +28,20 @@ else:
 
 import can
 import copy
-import epyq.busproxy
-import epyq.canneo
-import epyq.nv
-from epyq.svgwidget import SvgWidget
-import epyq.txrx
-import epyq.widgets.progressbar
-import epyq.widgets.lcd
-import epyq.widgets.led
+import epyqlib.busproxy
+import epyqlib.canneo
+import epyqlib.nv
+from epyqlib.svgwidget import SvgWidget
+import epyqlib.txrx
+import epyqlib.widgets.progressbar
+import epyqlib.widgets.lcd
+import epyqlib.widgets.led
 import functools
 import io
 import math
 import platform
 
-from epyq.device import Device
+from epyqlib.device import Device
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
@@ -84,8 +84,8 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.action_About.triggered.connect(self.about)
 
-        device_tree = epyq.devicetree.Tree()
-        device_tree_model = epyq.devicetree.Model(root=device_tree)
+        device_tree = epyqlib.devicetree.Tree()
+        device_tree_model = epyqlib.devicetree.Model(root=device_tree)
         device_tree_model.device_removed.connect(self._remove_device)
         self.ui.device_tree.setModel(device_tree_model)
 
@@ -115,11 +115,11 @@ class Window(QtWidgets.QMainWindow):
         box.setText('\n'.join(message))
         box.exec_()
 
-    @pyqtSlot(epyq.device.Device)
+    @pyqtSlot(epyqlib.device.Device)
     def _remove_device(self, device):
         self.ui.stacked.removeWidget(device.ui)
 
-    @pyqtSlot(epyq.device.Device)
+    @pyqtSlot(epyqlib.device.Device)
     def set_current_device(self, device):
         self.ui.stacked.addWidget(device.ui)
         self.ui.stacked.setCurrentWidget(device.ui)
@@ -232,7 +232,7 @@ def main(args=None):
         real_bus = can.interface.Bus(bustype=interface, channel=channel)
     else:
         real_bus = None
-    bus = epyq.busproxy.BusProxy(bus=real_bus)
+    bus = epyqlib.busproxy.BusProxy(bus=real_bus)
 
     if args.generate:
         print('generating')
@@ -240,8 +240,8 @@ def main(args=None):
 
         frame_name = 'StatusControlVolts2'
         signal_name = 'n15V_Supply'
-        frame = epyq.canneo.Frame(matrix_tx.frameByName(frame_name))
-        signal = epyq.canneo.Signal(frame.frame.signalByName(signal_name), frame)
+        frame = epyqlib.canneo.Frame(matrix_tx.frameByName(frame_name))
+        signal = epyqlib.canneo.Signal(frame.frame.signalByName(signal_name), frame)
 
         message = can.Message(extended_id=frame.frame._extended,
                               arbitration_id=frame.frame._Id,

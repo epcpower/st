@@ -17,7 +17,7 @@ except ImportError:
 
 
 # TODO: CAMPid 98852142341263132467998754961432
-import epyq.tee
+import epyqlib.tee
 import os
 import sys
 
@@ -26,12 +26,12 @@ log = open(os.path.join(os.getcwd(), 'build.log'), 'w', encoding='utf-8')
 if sys.stdout is None:
     sys.stdout = log
 else:
-    sys.stdout = epyq.tee.Tee([sys.stdout, log])
+    sys.stdout = epyqlib.tee.Tee([sys.stdout, log])
 
 if sys.stderr is None:
     sys.stderr = log
 else:
-    sys.stderr = epyq.tee.Tee([sys.stderr, log])
+    sys.stderr = epyqlib.tee.Tee([sys.stderr, log])
 
 
 # http://stackoverflow.com/a/2214292/228539
@@ -99,10 +99,11 @@ from subprocess import Popen
 proc = Popen(
     args=[
         sys.executable,
-        'epyq/generaterevision.py'
+        'sub/epyqlib/generaterevision.py'
     ],
     stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT
+    stderr=subprocess.STDOUT,
+    cwd='epyq'
     )
 
 for line in proc.stdout:

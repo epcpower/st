@@ -62,7 +62,7 @@
   <customwidget>
    <class>DeviceTreeView</class>
    <extends>QWidget</extends>
-   <header>epyq.devicetreeview</header>
+   <header>epyqlib.devicetreeview</header>
   </customwidget>
  </customwidgets>
  <resources/>
