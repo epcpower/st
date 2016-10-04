@@ -5,6 +5,7 @@
 import can
 import canmatrix.importany as importany
 import epyq.canneo
+import epyq.deviceextension
 import epyq.nv
 import epyq.nvview
 import epyq.overlaylabel
