@@ -5,6 +5,7 @@
 import epyq.mixins
 import epyq.widgets.abstractwidget
 import os
+import sys
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtProperty, QFileInfo
 from PyQt5.QtGui import QColor
 
@@ -44,6 +45,18 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget,
         self._signal = None
 
         self.update_configuration()
+
+    @pyqtProperty(bool)
+    def label_visible(self):
+        return epyq.widgets.abstractwidget.AbstractWidget.label_visible.fget(
+            self)
+
+    @label_visible.setter
+    def label_visible(self, new_visible):
+        epyq.widgets.abstractwidget.AbstractWidget.label_visible.fset(
+            self, new_visible)
+        self.ui.units.setVisible(self.label_visible)
+        self.update_metadata()
 
     @pyqtProperty(float)
     def lower_red_breakpoint(self):
@@ -140,7 +153,10 @@ class Scale(epyq.widgets.abstractwidget.AbstractWidget,
         self.ui.units.setText('[{}]'.format(units))
 
     def update_configuration(self):
-        self.ui.scale.setColorRanges(self._colors, self._breakpoints)
+        try:
+            self.ui.scale.setColorRanges(self._colors, self._breakpoints)
+        except ValueError as e:
+            print(e, file=sys.stderr)
 
         self.repaint()
 

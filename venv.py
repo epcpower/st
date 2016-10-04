@@ -132,7 +132,9 @@ else:
         ('canmatrix', 'https://github.com/ebroecker/canmatrix/archive/'
                      'c64004b785febe4613677ab0107f1bc63b01e339.zip'),
         ('bitstruct', 'https://github.com/altendky/bitstruct/archive/'
-                     '129a72e290c533654a91bd556b1d4b0822df423f.zip')
+                     '129a72e290c533654a91bd556b1d4b0822df423f.zip'),
+        ('fontawesome', 'http://fontawesome.io/assets/font-awesome-4.6.3.zip'),
+        ('metropolis', 'https://github.com/chrismsimpson/Metropolis/archive/16882c2c2cb58405fd6a7d6a932a1dfc573b6813.zip')
     ])
 
 #    pip_install('gitpython', args.no_ssl_verify)
@@ -183,7 +185,8 @@ else:
         if name == 'canmatrix':
             import shutil
             shutil.copy('canmatrix.setup.py', os.path.join('venv', 'src', 'canmatrix', 'setup.py'))
-        setup(os.path.join(src, name))
+        if name not in ['fontawesome']:
+            setup(os.path.join(src, name))
 
     # TODO: Figure out why this can't be moved before other installs
     #       Dependencies maybe?

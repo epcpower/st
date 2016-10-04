@@ -150,6 +150,14 @@ class ListMenuView(QtWidgets.QWidget):
             # TODO: CAMPid 98754713241621231778985432
             button.setMaximumWidth(button.height())
 
+    def selected_text(self):
+        indexes = self.ui.list_view.selectedIndexes()
+        index = indexes[0]
+        return index.internalPointer().fields.name
+
+    def select_node(self, node):
+        self.ui.list_view.setCurrentIndex(self.model.index_from_node(node))
+
 
 if __name__ == '__main__':
     import sys

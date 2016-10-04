@@ -74,7 +74,7 @@ class OverlayLabel(QtWidgets.QWidget):
         return self._width_ratio
 
     @width_ratio.setter
-    def width_percent(self, value):
+    def width_ratio(self, value):
         self._width_ratio = value
 
     @pyqtProperty(float)
@@ -91,10 +91,13 @@ class OverlayLabel(QtWidgets.QWidget):
         self.update_overlay_size(event.size())
 
     def update_overlay_size(self, size):
+        text = self.label.text()
+        if not text:
+            text = '-'
         font = self.label.font()
         font.setPixelSize(1000)
         metric = QFontMetrics(font)
-        rect = metric.boundingRect(self.label.text())
+        rect = metric.boundingRect(text)
 
         pixel_size_width = (
             font.pixelSize() *
@@ -106,9 +109,8 @@ class OverlayLabel(QtWidgets.QWidget):
             (size.height() * self.height_ratio) / rect.height()
         )
 
-        font.setPixelSize(min(pixel_size_width, pixel_size_height))
-        font.setBold(True)
-        self.label.setFont(font)
+        self.label.setStyleSheet('font-size: {}px; font-weight: bold'.format(
+            round(min(pixel_size_width, pixel_size_height))))
 
 
 if __name__ == '__main__':

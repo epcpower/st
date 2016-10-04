@@ -46,6 +46,21 @@ class Node(TreeNode):
             if value is not None:
                 child.set_human_value(value)
 
+    def find_child(self, value):
+        for child in self.children:
+            if child.fields.name == value or child.fields.action == value:
+                return child
+
+    @property
+    def action(self):
+        return self.fields.action
+
+    @action.setter
+    def action(self, action):
+        self.fields.action = action
+
+    def unique(self):
+        return self
 
 class ListMenuModel(epyq.pyqabstractitemmodel.PyQAbstractItemModel):
     def __init__(self, root, parent=None):

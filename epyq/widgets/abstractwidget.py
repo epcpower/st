@@ -6,6 +6,9 @@ import canmatrix.importany as importany
 import epyq.canneo
 import io
 import os
+import textwrap
+
+from collections import OrderedDict
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, QEvent)
@@ -15,27 +18,66 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+factors = OrderedDict([
+    ('M', 6),
+    ('k', 3),
+    ('h', 2),
+    ('da', 1),
+    ('d', -1),
+    ('c', -2),
+    ('m', -3),
+    ('', 0)
+])
+
+
+def conversion_multiplier(old, new):
+    old_factor = None
+    new_factor = None
+
+    for factor in factors:
+        if old_factor is None and old.startswith(factor):
+            old_factor = factor
+        if new_factor is None and new.startswith(factor):
+            new_factor = factor
+
+    old_unit = old[len(old_factor):]
+    new_unit = new[len(new_factor):]
+
+    if old_unit != new_unit:
+        raise Exception('Units do not match: old {}, new {}'.format(old, new))
+
+    return 10**(factors[old_factor] - factors[new_factor])
+
+
 event_type_to_name = {
     getattr(QEvent, t): t for t in dir(QEvent)
     if isinstance(getattr(QEvent, t), QEvent.Type)
 }
 
 class AbstractWidget(QtWidgets.QWidget):
-    def __init__(self, ui, parent=None, in_designer=False):
+    trigger_action = pyqtSignal()
+
+    def __init__(self, ui=None, parent=None, in_designer=False):
         self.in_designer = in_designer
         QtWidgets.QWidget.__init__(self, parent=parent)
 
-        # TODO: CAMPid 9549757292917394095482739548437597676742
-        if not QFileInfo(ui).isAbsolute():
-            ui_file = os.path.join(
-                QFileInfo.absolutePath(QFileInfo(__file__)), ui)
+        self.left = None
+        self.right = None
+
+        if ui is None:
+            self.ui = None
         else:
-            ui_file = ui
-        ui_file = QFile(ui_file)
-        ui_file.open(QFile.ReadOnly | QFile.Text)
-        ts = QTextStream(ui_file)
-        sio = io.StringIO(ts.readAll())
-        self.ui = uic.loadUi(sio, self)
+            # TODO: CAMPid 9549757292917394095482739548437597676742
+            if not QFileInfo(ui).isAbsolute():
+                ui_file = os.path.join(
+                    QFileInfo.absolutePath(QFileInfo(__file__)), ui)
+            else:
+                ui_file = ui
+            ui_file = QFile(ui_file)
+            ui_file.open(QFile.ReadOnly | QFile.Text)
+            ts = QTextStream(ui_file)
+            sio = io.StringIO(ts.readAll())
+            self.ui = uic.loadUi(sio, self)
 
         self.has_units_label = hasattr(self.ui, 'units')
 
@@ -43,11 +85,34 @@ class AbstractWidget(QtWidgets.QWidget):
 
         self._label_override = ''
         self._tool_tip_override = ''
+        self._override_units = ''
+
+        self._conversion_multiplier = 1
+        self._decimal_places = -1
 
         self.set_signal(force_update=True)
 
         self._frame = ''
         self._signal = ''
+        self._display_units = ''
+        self._action = ''
+
+    @pyqtProperty(str)
+    def action(self):
+        return self._action
+
+    @action.setter
+    def action(self, action):
+        self._action = action
+
+    @pyqtProperty(str)
+    def display_units(self):
+        return self._display_units
+
+    @display_units.setter
+    def display_units(self, units):
+        self._display_units = units
+        self.update_metadata()
 
     def changeEvent(self, event):
         QtWidgets.QWidget.changeEvent(self, event)
@@ -98,14 +163,26 @@ class AbstractWidget(QtWidgets.QWidget):
         self._signal = signal
         self.update_metadata()
 
+    @pyqtProperty(int)
+    def decimal_places(self):
+        return self._decimal_places
+
+    @decimal_places.setter
+    def decimal_places(self, decimal_places):
+        self._decimal_places = decimal_places
+        self.update_metadata()
+
     @pyqtProperty('QString')
     def label_override(self):
         return self._label_override
 
     @label_override.setter
     def label_override(self, new_label_override):
-        self._label_override = str(new_label_override)
-        self.ui.label.setText(self.label_override)
+        expanded = str(new_label_override)
+        expanded = expanded.encode('utf8').decode('unicode_escape')
+        self._label_override = expanded
+        if self.ui is not None:
+            self.ui.label.setText(self.label_override)
         self.update_metadata()
 
     @pyqtProperty('QString')
@@ -120,28 +197,52 @@ class AbstractWidget(QtWidgets.QWidget):
 
     @pyqtProperty(bool)
     def label_visible(self):
-        return self.ui.label.isVisible()
+        if self.ui is not None:
+            return self.ui.label.isVisibleTo(self.parent())
+
+        return False
 
     @label_visible.setter
     def label_visible(self, new_visible):
-        self.ui.label.setVisible(new_visible)
-        self.update_metadata()
+        if self.ui is not None:
+            self.ui.label.setVisible(new_visible)
+            self.update_metadata()
 
     def has_units_label_a(self):
         return self.has_units_label
 
     @pyqtProperty(bool)
     def units_visible(self):
-        if self.has_units_label:
-            return self.ui.units.isVisible()
+        if self.ui is not None:
+            if self.has_units_label:
+                return self.ui.units.isVisibleTo(self.parent())
 
         return False
 
     @units_visible.setter
     def units_visible(self, new_visible):
-        if self.has_units_label:
-            self.ui.units.setVisible(new_visible)
-            self.update_metadata()
+        if self.ui is not None:
+            if self.has_units_label:
+                self.ui.units.setVisible(new_visible)
+                self.update_metadata()
+
+    def containing_layout(self):
+        parent = self.parent()
+
+        if parent is None:
+            layout = None
+        else:
+            for layout in parent.findChildren(QtWidgets.QGridLayout):
+                index = layout.indexOf(self)
+                if index != -1:
+                    break
+            else:
+                layout = None
+
+        if layout == None:
+            index = None
+
+        return layout, index
 
     # TODO: CAMPid 943989817913241236127998452684328
     def set_label(self, new_signal=None):
@@ -167,70 +268,81 @@ class AbstractWidget(QtWidgets.QWidget):
         if label is None:
             label = '-'
 
-        self.ui.label.setText(label)
+        if self.ui is not None:
+            self.ui.label.setText(label)
 
-        if not self.label_visible:
-            # TODO: CAMPid 938914912312674213467977981547743
-            try:
-                layout = self.parent().layout()
-            except AttributeError:
-                pass
-            else:
-                if isinstance(layout, QtWidgets.QGridLayout):
-                    index = layout.indexOf(self)
-                    if index >= 0:
-                        row, column, row_span, column_span = (
-                            layout.getItemPosition(index)
-                        )
-                        # TODO: search in case of colspan
-                        left = None
-                        for offset in range(1, column + 1):
-                            left_column = column - offset
-                            left_layout_item = layout.itemAtPosition(
-                                row, left_column)
+            if not self.label_visible:
+                layout, index = self.containing_layout()
 
-                            if left_layout_item is not None:
-                                left_temp = left_layout_item.widget()
-                                left_index = layout.indexOf(left_temp)
-                                _, _, _, column_span = layout.getItemPosition(
-                                    left_index)
+                # TODO: CAMPid 938914912312674213467977981547743
+                if index is not None:
+                    row, column, row_span, column_span = (
+                        layout.getItemPosition(index)
+                    )
+                    # TODO: search in case of colspan
+                    left = None
+                    for offset in range(1, column + 1):
+                        left_column = column - offset
+                        left_layout_item = layout.itemAtPosition(
+                            row, left_column)
 
-                                if left_temp is not None:
-                                    if column_span < offset:
-                                        break
+                        if left_layout_item is not None:
+                            left_temp = left_layout_item.widget()
+                            left_index = layout.indexOf(left_temp)
+                            _, _, _, column_span = layout.getItemPosition(
+                                left_index)
 
-                                    left = left_temp
+                            if left_temp is not None:
+                                if column_span < offset:
+                                    break
 
-                        if isinstance(left, QtWidgets.QLabel):
-                            left.setText(label)
+                                left = left_temp
+
+                    if isinstance(left, QtWidgets.QLabel):
+                        left.setText(label)
+                        self.left = left
 
     def set_label_custom(self, new_signal=None):
         return None
 
+    @pyqtProperty(str)
+    def override_units(self):
+        return self._override_units
+
+    @override_units.setter
+    def override_units(self, units):
+        self._override_units = units
+
+        # TODO: CAMPid 0932498324014012080143014320
+        if self.signal_object is not None and len(self.override_units) > 0:
+            self._conversion_multiplier = conversion_multiplier(
+                    old=self.signal_object.unit,
+                    new=self.override_units
+                )
+
     def set_units(self, units):
         if units is None:
             units = '-'
+        if len(self.override_units) > 0:
+            units = self.override_units
 
         self.set_unit_text(units)
 
-        if not self.units_visible:
-            # TODO: CAMPid 938914912312674213467977981547743
-            try:
-                layout = self.parent().layout()
-            except AttributeError:
-                pass
-            else:
-                if isinstance(layout, QtWidgets.QGridLayout):
-                    index = layout.indexOf(self)
-                    if index >= 0:
-                        row, column, row_span, column_span = (
-                            layout.getItemPosition(index)
-                        )
-                        right = layout.itemAtPosition(row, column + column_span)
-                        if right is not None:
-                            right = right.widget()
-                            if isinstance(right, QtWidgets.QLabel):
-                                right.setText(units)
+        if self.ui is not None:
+            if not self.units_visible:
+                layout, index = self.containing_layout()
+
+                # TODO: CAMPid 938914912312674213467977981547743
+                if index is not None:
+                    row, column, row_span, column_span = (
+                        layout.getItemPosition(index)
+                    )
+                    right = layout.itemAtPosition(row, column + column_span)
+                    if right is not None:
+                        right = right.widget()
+                        if isinstance(right, QtWidgets.QLabel):
+                            right.setText(units)
+                            self.right = right
 
     def set_unit_text(self, units):
         try:
@@ -254,6 +366,15 @@ class AbstractWidget(QtWidgets.QWidget):
             if signal is not None:
                 signal.value_changed.connect(self.set_value)
 
+            # TODO: CAMPid 0932498324014012080143014320
+            if signal is not None and len(self.override_units) > 0:
+                self._conversion_multiplier = conversion_multiplier(
+                    old=signal.unit,
+                    new=self.override_units
+                )
+            else:
+                self._conversion_multiplier = 1
+
     def set_signal(self, signal=None, force_update=False):
         if signal is not self.signal_object or force_update:
             self.set_label(new_signal=signal)
@@ -275,14 +396,34 @@ class AbstractWidget(QtWidgets.QWidget):
                 signal.force_value_changed()
 
     def update_tool_tip(self, new_signal=None):
+        signal = (self.signal_object
+                  if new_signal is None
+                  else new_signal)
+
         if len(self.tool_tip_override) > 0:
             tip = self.tool_tip_override
-        elif new_signal is not None:
-            tip = new_signal.comment
+        elif signal is not None:
+            tip = signal.comment
         else:
             tip = ''
 
-        self.setToolTip(tip)
+        elements = []
+
+        if signal is not None:
+            name = signal.long_name
+            if name is None:
+                name = signal.name
+            if name is not None:
+                elements.append('Name: {}'.format(name))
+
+        elements.append('Description: {}'.format(tip))
+
+        contents = '<br><br>'.join(elements)
+        complete = '<div align="left">{}</div>'.format(contents)
+        self.setToolTip(complete)
+        for widget in [self.left, self.right]:
+            if widget is not None:
+                widget.setToolTip(complete)
 
 
 if __name__ == '__main__':

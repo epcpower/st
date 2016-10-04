@@ -96,8 +96,12 @@ class Nvs(TreeNode, epyq.canneo.QtCanListener):
             frame.send.connect(self.send)
             for nv in signals:
                 self.append_child(nv)
+
                 nv.frame.status_frame = self.status_frames[value]
                 self.status_frames[value].set_frame = nv.frame
+
+                nv.status_signal = [s for s in self.status_frames[value].signals if s.start_bit == nv.start_bit][0]
+                nv.status_signal.set_signal = nv
 
         # TODO: this should probably be done in the view but this is easier for now
         self.children.sort(key=lambda c: (c.frame.mux_name, c.name))
@@ -231,7 +235,9 @@ class Nv(epyq.canneo.Signal, TreeNode):
         # self.fields.value = value
         self.set_human_value(data)
 
-    def write_to_device(self, batch_set):
+    def write_to_device(self, batch_set=None):
+        if batch_set is None:
+            batch_set = set()
         # TODO: this is going to be repetitive since there are multiple
         #       values in many of the frames
         frame = self.frame
@@ -239,7 +245,9 @@ class Nv(epyq.canneo.Signal, TreeNode):
             frame.send_write()
             batch_set.add(frame)
 
-    def read_from_device(self, batch_set):
+    def read_from_device(self, batch_set=None):
+        if batch_set is None:
+            batch_set = set()
         # TODO: this is going to be repetitive since there are multiple
         #       values in many of the frames
         frame = self.frame
@@ -250,7 +258,13 @@ class Nv(epyq.canneo.Signal, TreeNode):
         # TODO: then we'll have to receive them too...
 
     def clear(self):
-        self.set_value(None)
+        self.set_value(float('nan'))
+        try:
+            status_signal = self.status_signal
+        except AttributeError:
+            pass
+        else:
+            status_signal.set_value(float('nan'))
 
     def unique(self):
         # TODO: make it more unique

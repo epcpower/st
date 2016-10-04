@@ -3,6 +3,7 @@ import can
 from canmatrix import canmatrix
 import copy
 import functools
+import locale
 import math
 from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QTimer)
 import re
@@ -68,13 +69,16 @@ class Signal(QObject):
         self.value = None
         self.scaled_value = None
         self.full_string = None
+        self.short_string = None
+        self.enumeration_text = None
 
         self.frame = frame
         # TODO: put this into the frame!
         self.frame.signals.append(self)
 
         self.enumeration_format_re = {'re': '^\[(\d+)\]',
-                                      'format': '[{v}] {s}'}
+                                      'format': '[{v}] {s}',
+                                      'no_value_format': '{s}'}
 
         if connect is not None:
             self.connect(connect)
@@ -93,7 +97,13 @@ class Signal(QObject):
         value = copy.deepcopy(value)
         try:
             # TODO: not the best for integers?
-            value = float(value)
+            try:
+                value = float(value)
+            except ValueError:
+                if len(value) == 0:
+                    value = 0
+                else:
+                    raise
         except ValueError:
             if value in self.enumeration_strings():
                 match = re.search(self.enumeration_format_re['re'], value)
@@ -106,14 +116,18 @@ class Signal(QObject):
         value = round(value)
         self.set_value(value)
 
-    def enumeration_string(self, value):
-        return self.enumeration_format_re['format'].format(
-                v=value, s=self.enumeration[value])
+    def enumeration_string(self, value, include_value=False):
+        format = (self.enumeration_format_re['format']
+                  if include_value
+                  else self.enumeration_format_re['no_value_format'])
 
-    def enumeration_strings(self):
+        return format.format(v=value, s=self.enumeration[value])
+
+    def enumeration_strings(self, include_values=False):
         items = list(self.enumeration)
         items.sort()
-        items = [self.enumeration_string(i) for i in items]
+        items = [self.enumeration_string(i, include_value=include_values)
+                 for i in items]
 
         return items
 
@@ -143,7 +157,13 @@ class Signal(QObject):
         if value is None:
             self.value = None
             self.full_string = '-'
+            self.short_string = '-'
+            self.value_changed.emit(float('nan'))
+            self.enumeration_text = None
+        elif type(value) is float and math.isnan(value):
+            pass
         elif self.value != value:
+            self.enumeration_text = None
             # TODO: be careful here, should all be int which is immutable
             #       and therefore safe but...  otherwise a copy would be
             #       needed
@@ -154,13 +174,17 @@ class Signal(QObject):
                 enum_string = self.enumeration[value]
                 self.full_string = self.enumeration_format_re['format'].format(
                         s=enum_string, v=value)
+                self.enumeration_text = enum_string
+                self.short_string = enum_string
             except KeyError:
                 # TODO: this should be a subclass or something
                 if self.name == '__padding__':
                     self.full_string = '__padding__'
+                    self.short_string = self.full_string
                 elif self.hexadecimal_output:
                     format = '{{:0{}X}}'.format(math.ceil(self.signal_size/math.log2(16)))
                     self.full_string = format.format(int(self.value))
+                    self.short_string = self.full_string
                 else:
                     # TODO: CAMPid 9395616283654658598648263423685
                     # TODO: and _offset...
@@ -170,6 +194,7 @@ class Signal(QObject):
                     )
 
                     self.full_string = self.format_float(self.scaled_value)
+                    self.short_string = self.full_string
 
                     if self.unit is not None:
                         if len(self.unit) > 0:
@@ -185,10 +210,21 @@ class Signal(QObject):
             value = 0
         self.value_changed.emit(value)
 
-    def format_float(self, value=None):
+    def format_float(self, value=None, decimal_places=None):
+        # TODO: ack fix this since it's getting called with an actual None value...
         if value is None:
             value = self.scaled_value
-        return '{{:.{}f}}'.format(self.get_decimal_places()).format(value)
+
+        if value is None:
+            formatted = '-'
+        else:
+            if decimal_places is None:
+                decimal_places = self.get_decimal_places()
+
+            format = '%.{}f'.format(decimal_places)
+            formatted = locale.format(format, value, grouping=True)
+
+        return formatted
 
     def format(self):
         if self.float:

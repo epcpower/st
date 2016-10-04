@@ -6,13 +6,16 @@ import epyq.widgets.abstractwidget
 import os
 import re
 
-from PyQt5.QtCore import pyqtProperty, QFile, QFileInfo
+from PyQt5.QtCore import pyqtProperty, QFile, QFileInfo, QEvent
 from PyQt5.QtGui import QColor
 from PyQt5.QtXml import QDomDocument
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
+
+
+darker_factor = 400
 
 
 def set_attribute_recursive(element, tag_name, attribute,
@@ -86,7 +89,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         self._manual_off_color = QColor()
         self._automatic_off_color = True
         self.on_color = QColor("#20C020")
-        self.manual_off_color = self.on_color.darker(factor=200)
+        self.manual_off_color = self.on_color.darker(factor=darker_factor)
 
         self.update_svg()
 
@@ -113,6 +116,10 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
             self._on_value = new_on_value
             self.update_svg()
 
+            # TODO: this is a hacky way to trigger an update
+            self.set_signal(signal=self.signal_object,
+                            force_update=True)
+
     @pyqtProperty(bool)
     def automatic_off_color(self):
         return self._automatic_off_color
@@ -137,7 +144,7 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
         if self.automatic_off_color:
             self.svg['automatic_off'] = make_color(
                 self.svg_string,
-                rgb_string(self._on_color.darker(factor=200))
+                rgb_string(self._on_color.darker(factor=darker_factor))
             )
 
         self.update_svg()
@@ -185,6 +192,16 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
 
         self.ui.value.load(svg)
 
+        # TODO: figure out if this should be needed.  seems not but
+        #       without it the font metric can return invalid values
+        #       at least when the label_visible property is not
+        #       explicitly set in the .ui file and the font size
+        #       has been set via a second stylesheet.
+        #
+        #       Possibly:
+        #           https://bugreports.qt.io/browse/QTBUG-42720
+
+        self.ui.label.setVisible(self.ui.label.isVisibleTo(self))
         height = self.relative_height * self.ui.label.fontMetrics().height()
 
         width = height / self.ui.value.ratio()
@@ -205,6 +222,18 @@ class Led(epyq.widgets.abstractwidget.AbstractWidget):
                     label = new_signal.enumeration[self.on_value]
 
         return label
+
+    def event(self, *args, **kwargs):
+        result = epyq.widgets.abstractwidget.AbstractWidget.event(
+            self, *args, **kwargs
+        )
+
+        event = args[0]
+        if event.type() == QEvent.Polish:
+            self.update_svg()
+
+        return result
+
 
 if __name__ == '__main__':
     import sys

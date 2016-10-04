@@ -52,6 +52,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="segmentStyle">
+        <enum>QLCDNumber::Flat</enum>
+       </property>
       </widget>
      </item>
      <item>

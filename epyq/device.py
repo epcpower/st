@@ -5,12 +5,14 @@
 import can
 import canmatrix.importany as importany
 import epyq.canneo
+import epyq.deviceextension
 import epyq.nv
 import epyq.nvview
 import epyq.overlaylabel
 import epyq.txrx
 import epyq.txrxview
 import functools
+import importlib.util
 import io
 import json
 import os
@@ -24,6 +26,7 @@ from epyq.busproxy import BusProxy
 from epyq.widgets.abstractwidget import AbstractWidget
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSlot, Qt, QFile, QFileInfo, QTextStream, QObject
+from PyQt5.QtWidgets import QWidget
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -82,7 +85,7 @@ class Device:
         self.bus.set_bus()
 
     def _init_from_file(self, file, bus=None, elements=None,
-                        tabs=None, rx_interval=0):
+                        tabs=None, rx_interval=0, edit_actions=None):
         if elements is None:
             elements = set(Elements)
         if tabs is None:
@@ -98,23 +101,48 @@ class Device:
                 return
             else:
                 self._load_config(file=file, bus=bus, elements=elements,
-                                  tabs=tabs, rx_interval=rx_interval)
+                                  tabs=tabs, rx_interval=rx_interval,
+                                  edit_actions=edit_actions)
         else:
             self._init_from_zip(zip_file, bus=bus, elements=elements,
-                                tabs=tabs, rx_interval=rx_interval)
+                                tabs=tabs, rx_interval=rx_interval,
+                                edit_actions=edit_actions)
 
     def _load_config(self, file, bus=None, elements=None,
-                     tabs=None, rx_interval=0):
-        if elements is None:
-            elements = set(Elements)
+                     tabs=None, rx_interval=0, edit_actions=None):
         if tabs is None:
             tabs = set(Tabs)
 
+        if elements is None:
+            elements = set(Elements)
+            if Tabs.txrx not in tabs:
+                self.elements.discard(Elements.tx)
+                self.elements.discard(Elements.rx)
+
+            if Tabs.nv not in tabs:
+                self.elements.discard(Elements.nv)
+
         s = file.read()
         d = json.loads(s, object_pairs_hook=OrderedDict)
+        self.raw_dict = d
+
+        module = d.get('module', None)
+        self.plugin = None
+        if module is None:
+            extension_class = epyq.deviceextension.DeviceExtension
+        else:
+            spec = importlib.util.spec_from_file_location(
+                'extension', self.absolute_path(module))
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            extension_class = module.DeviceExtension
+
+        self.extension = extension_class(device=self)
 
         path = os.path.dirname(file.name)
-        for ui_path_name in ['ui_path', 'ui_paths']:
+        json_ui_paths = {}
+        for ui_path_name in ['ui_path', 'ui_paths', 'menu']:
             try:
                 json_ui_paths = d[ui_path_name]
                 break
@@ -156,10 +184,11 @@ class Device:
             name=d.get('name', ''),
             elements=elements,
             tabs=tabs,
-            rx_interval=rx_interval)
+            rx_interval=rx_interval,
+            edit_actions=edit_actions)
 
     def _init_from_zip(self, zip_file, bus=None, elements=None,
-                       tabs=None, rx_interval=0):
+                       tabs=None, rx_interval=0, edit_actions=None):
         if elements is None:
             elements = set(Elements)
         if tabs is None:
@@ -174,18 +203,16 @@ class Device:
         self.config_path = os.path.abspath(file)
         with open(file, 'r') as file:
             self._load_config(file, bus=bus, elements=elements, tabs=tabs,
-                              rx_interval=rx_interval)
+                              rx_interval=rx_interval, edit_actions=edit_actions)
 
         shutil.rmtree(path)
 
     def _init_from_parameters(self, uis, serial_number, name, bus=None,
                               elements=None, tabs=None,
-                              rx_interval=0):
-        self.elements = set(Elements) if elements == None else elements
+                              rx_interval=0, edit_actions=None):
+        self.elements = set(Elements) if elements == None else set(elements)
         if tabs is None:
             tabs = set(Tabs)
-
-        self.elements = elements
 
         if not hasattr(self, 'bus'):
             self.bus = BusProxy(bus=bus)
@@ -207,28 +234,36 @@ class Device:
         ts = QTextStream(ui_file)
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio)
+        self.loaded_uis = {}
 
+        def traverse(dict_node):
+            for key, value in dict_node.items():
+                if isinstance(value, dict):
+                    traverse(value)
+                elif value.endswith('.ui'):
+                    path = value
+                    try:
+                        dict_node[key] = self.loaded_uis[path]
+                    except KeyError:
+                        # TODO: CAMPid 9549757292917394095482739548437597676742
+                        if not QFileInfo(path).isAbsolute():
+                            ui_file = os.path.join(
+                                QFileInfo.absolutePath(QFileInfo(self.config_path)),
+                                path)
+                        else:
+                            ui_file = path
+                        ui_file = QFile(ui_file)
+                        ui_file.open(QFile.ReadOnly | QFile.Text)
+                        ts = QTextStream(ui_file)
+                        sio = io.StringIO(ts.readAll())
+                        dict_node[key] = uic.loadUi(sio)
+                        dict_node[key].file_name = path
+                        self.loaded_uis[path] = dict_node[key]
 
-        self.dash_uis = OrderedDict()
-        for name, path in uis.items():
-            # TODO: CAMPid 9549757292917394095482739548437597676742
-            if not QFileInfo(path).isAbsolute():
-                ui_file = os.path.join(
-                    QFileInfo.absolutePath(QFileInfo(self.config_path)), path)
-            else:
-                ui_file = path
-            ui_file = QFile(ui_file)
-            ui_file.open(QFile.ReadOnly | QFile.Text)
-            ts = QTextStream(ui_file)
-            sio = io.StringIO(ts.readAll())
-            self.dash_uis[name] = uic.loadUi(sio)
+        traverse(uis)
 
-        if Tabs.txrx not in tabs:
-            self.elements.discard(Elements.tx)
-            self.elements.discard(Elements.rx)
-
-        if Tabs.nv not in tabs:
-            self.elements.discard(Elements.nv)
+        # TODO: yuck, actually tidy the code
+        self.dash_uis = uis
 
         notifiees = []
 
@@ -300,6 +335,7 @@ class Device:
             self.nvs = epyq.nv.Nvs(self.frames_nv, self.bus)
             notifiees.append(self.nvs)
 
+
             nv_views = self.ui.findChildren(epyq.nvview.NvView)
             if len(nv_views) > 0:
                 nv_model = epyq.nv.NvModel(self.nvs)
@@ -307,6 +343,24 @@ class Device:
 
                 for view in nv_views:
                     view.setModel(nv_model)
+
+        if Tabs.dashes in tabs:
+            for i, (name, dash) in enumerate(self.dash_uis.items()):
+                self.ui.tabs.insertTab(i,
+                                       dash,
+                                       name)
+        if Tabs.txrx not in tabs:
+            self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.txrx))
+        if Tabs.nv not in tabs:
+            self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.nv))
+        if tabs:
+            self.ui.offline_overlay = epyq.overlaylabel.OverlayLabel(parent=self.ui)
+            self.ui.offline_overlay.label.setText('offline')
+
+            self.ui.name.setText(name)
+            self.ui.tabs.setCurrentIndex(0)
+
+
 
         if Tabs.dashes in tabs:
             for i, (name, dash) in enumerate(self.dash_uis.items()):
@@ -330,17 +384,29 @@ class Device:
         for notifiee in notifiees:
             notifier.add(notifiee)
 
-        self.dash_connected_frames = {}
+        def flatten(dict_node):
+            flat = set()
+            for key, value in dict_node.items():
+                if isinstance(value, dict):
+                    flat |= flatten(value)
+                else:
+                    flat.add(value)
+
+            return flat
+
+        flat = flatten(self.dash_uis)
+        flat = [v for v in flat if isinstance(v, QWidget)]
+
         self.dash_connected_signals = set()
         self.dash_missing_signals = set()
-        for name, dash in self.dash_uis.items():
+        for dash in flat:
             # TODO: CAMPid 99457281212789437474299
             children = dash.findChildren(QObject)
             widgets = [c for c in children if
                        isinstance(c, AbstractWidget)]
 
-            self.dash_connected_frames[name] = set()
-            frames = self.dash_connected_frames[name]
+            dash.connected_frames = set()
+            frames = dash.connected_frames
 
             for widget in widgets:
                 frame_name = widget.property('frame')
@@ -361,6 +427,15 @@ class Device:
                         widget.set_signal(signal)
                         frame.user_send_control = False
 
+                if edit_actions is not None:
+                    # TODO: CAMPid 97453289314763416967675427
+                    if widget.property('editable'):
+                        for action in edit_actions:
+                            if action[1](widget):
+                                action[0](dash=dash,
+                                          widget=widget,
+                                          signal=widget.edit)
+                                break
                 if not found:
                     self.dash_missing_signals.add(
                         '{} : {}'.format(frame_name, signal_name))
@@ -397,6 +472,17 @@ class Device:
             for frame_signal in sorted(self.dash_missing_signals):
                 print(frame_signal)
 
+        self.extension.post()
+
+    def absolute_path(self, path=''):
+        # TODO: CAMPid 9549757292917394095482739548437597676742
+        if not QFileInfo(path).isAbsolute():
+            path = os.path.join(
+                QFileInfo.absolutePath(QFileInfo(self.config_path)),
+                path)
+
+        return path
+
     def get_frames(self):
         return self.frames
 
@@ -411,9 +497,14 @@ class Device:
         else:
             text = 'offline'
 
-        self.ui.offline_overlay.label.setText(text)
-        self.ui.offline_overlay.setVisible(len(text) > 0)
-        self.ui.offline_overlay.setStyleSheet(style)
+        try:
+            offline_overlay = self.ui.offline_overlay
+        except AttributeError:
+            pass
+        else:
+            offline_overlay.label.setText(text)
+            offline_overlay.setVisible(len(text) > 0)
+            offline_overlay.setStyleSheet(style)
 
 
 if __name__ == '__main__':
