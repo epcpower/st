@@ -17,8 +17,11 @@ __license__ = 'GPLv2+'
 class BusProxy(QObject):
     went_offline = pyqtSignal()
 
-    def __init__(self, bus=None, timeout=0.1, transmit=True, parent=None):
+    def __init__(self, bus=None, timeout=0.1, transmit=True, filters=None,
+                 parent=None):
         QObject.__init__(self, parent=parent)
+
+        self.filters = filters
 
         self.timeout = timeout
         self.notifier = NotifierProxy(self)
@@ -133,6 +136,7 @@ class BusProxy(QObject):
         self.bus = bus
 
         if self.bus is not None:
+            self.set_filters(self.filters)
             if isinstance(self.bus, can.BusABC):
                 self.real_notifier = can.Notifier(
                     bus=self.bus,
@@ -165,6 +169,7 @@ class BusProxy(QObject):
                     pass
 
     def set_filters(self, filters):
+        self.filters = filters
         real_bus = self.bus
         if real_bus is not None:
             if hasattr(real_bus, 'setFilters'):
