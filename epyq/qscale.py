@@ -56,16 +56,28 @@ class QScale(QtWidgets.QWidget):
         if painter is None:
             painter = QtGui.QPainter(self)
 
-        metric = painter.fontMetrics()
-        rect = metric.boundingRect(self.labelSample)
+        # TODO: CAMPid 079370432832243267955437254329546425654321
+        rect = painter.boundingRect(QtCore.QRectF(0,0,self.width(),self.height()),
+                                    QtCore.Qt.AlignBottom | QtCore.Qt.AlignHCenter,self.labelSample)
+        # TODO: CAMPid 07899789654211527951677432169
+        if (not (self.m_orientations & QtCore.Qt.Vertical)) ^ (not (self.m_orientations & QtCore.Qt.Horizontal)):
+            vertical = self.m_orientations & QtCore.Qt.Vertical
+        else:
+            vertical = self.height() > self.width()
 
         wLabel = rect.width() if self.m_labelsVisible else 0
         hLabel = rect.height() if self.m_labelsVisible else 0
 
+        if vertical:
+            wLabel, hLabel = hLabel, wLabel
+
         if width is None:
-            width = 2 * (self.m_borderWidth + wLabel) + 2
+            width = 2 * self.m_borderWidth + wLabel + 1
         if height is None:
-            height = 2 * (self.m_borderWidth + hLabel) + 1
+            height = 2 * (1 + self.m_borderWidth + hLabel)
+
+        if vertical:
+            height, width = width, height
 
         QtWidgets.QWidget.setMinimumSize(self, width, height)
 
@@ -171,8 +183,11 @@ class QScale(QtWidgets.QWidget):
     def paintEvent(self, paintEvent):
         painter = QtGui.QPainter(self)
 
+        painter.setRenderHint(QtGui.QPainter.Antialiasing,True)
+
         self.setMinimumSize(painter=painter)
 
+        # TODO: CAMPid 07899789654211527951677432169
         if (not (self.m_orientations & QtCore.Qt.Vertical)) ^ (not (self.m_orientations & QtCore.Qt.Horizontal)):
             vertical = self.m_orientations & QtCore.Qt.Vertical
         else:
@@ -181,8 +196,7 @@ class QScale(QtWidgets.QWidget):
         wWidget = self.width()
         hWidget = self.height()
 
-        painter.setRenderHint(QtGui.QPainter.Antialiasing,True)
-
+        # TODO: CAMPid 079370432832243267955437254329546425654321
         boundingRect = painter.boundingRect(QtCore.QRectF(0,0,self.width(),self.height()),
                                                  QtCore.Qt.AlignBottom | QtCore.Qt.AlignHCenter,self.labelSample)
 
