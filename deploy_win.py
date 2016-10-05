@@ -99,7 +99,8 @@ from subprocess import Popen
 proc = Popen(
     args=[
         sys.executable,
-        'sub/epyqlib/generaterevision.py'
+        os.path.join('..', 'sub','epyqlib', 'epyqlib',
+	             'generaterevision.py')
     ],
     stdout=subprocess.PIPE,
     stderr=subprocess.STDOUT,
