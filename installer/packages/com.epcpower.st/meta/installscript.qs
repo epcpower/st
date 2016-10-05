@@ -14,14 +14,14 @@ Component.prototype.createOperations = function()
                     "workingDirectory=@TargetDir@", "iconPath=%SystemRoot%/system32/SHELL32.dll",
                     "iconId=2");
                 component.addOperation("CreateShortcut", "@TargetDir@/source/designer.vbs", "@StartMenuDir@/EPyQ HMI - Designer.lnk",
-                    "workingDirectory=@TargetDir@/source", "iconPath=@TargetDir@/epyqlib.exe",
+                    "workingDirectory=@TargetDir@/source", "iconPath=@TargetDir@/epyq.exe",
                     "iconId=0");
-                component.addOperation("CreateShortcut", "@TargetDir@/epyqlib.exe", "@StartMenuDir@/EPyQ_HMI.lnk",
-                    "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/epyqlib.exe",
+                component.addOperation("CreateShortcut", "@TargetDir@/epyq.exe", "@StartMenuDir@/EPyQ_HMI.lnk",
+                    "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/epyq.exe",
                     "iconId=0");
 
-                component.addOperation("CreateShortcut", "@TargetDir@/epyqlib.exe", "@DesktopDir@/EPyQ_HMI.lnk",
-                    "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/epyqlib.exe",
+                component.addOperation("CreateShortcut", "@TargetDir@/epyq.exe", "@DesktopDir@/EPyQ_HMI.lnk",
+                    "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/epyq.exe",
                     "iconId=1");
             } catch (e) {
                 // Do nothing if key doesn't exist
