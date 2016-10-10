@@ -357,24 +357,6 @@ class Device:
             self.ui.offline_overlay = epyqlib.overlaylabel.OverlayLabel(parent=self.ui)
             self.ui.offline_overlay.label.setText('offline')
 
-            self.ui.name.setText(name)
-            self.ui.tabs.setCurrentIndex(0)
-
-
-
-        if Tabs.dashes in tabs:
-            for i, (name, dash) in enumerate(self.dash_uis.items()):
-                self.ui.tabs.insertTab(i,
-                                       dash,
-                                       name)
-        if Tabs.txrx not in tabs:
-            self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.txrx))
-        if Tabs.nv not in tabs:
-            self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.nv))
-        if tabs:
-            self.ui.offline_overlay = epyqlib.overlaylabel.OverlayLabel(parent=self.ui)
-            self.ui.offline_overlay.label.setText('offline')
-
             self.ui.name.setText(self.name)
             self.ui.tabs.setCurrentIndex(0)
 
