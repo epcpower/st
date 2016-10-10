@@ -30,7 +30,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--bin')
 parser.add_argument('--activate')
 parser.add_argument('--no-ssl-verify', action='store_true')
-parser.add_argument('--virtualenv', '--venv', default='venv')
+parser.add_argument('--virtualenv', '--venv', default=os.path.join(os.getcwd(), 'venv'))
 parser.add_argument('--in-virtual', action='store_true', default=False)
 parser.add_argument('--rebuild', action='store_true')
 parser.add_argument('--no-designer', action='store_true')
@@ -188,14 +188,15 @@ else:
         #       over in https://github.com/ebroecker/canmatrix/commit/084e1e01eb750adb46e9e33a0d94fadcbf2cc896
         if name == 'canmatrix':
             import shutil
-            shutil.copy('canmatrix.setup.py', os.path.join('venv', 'src', 'canmatrix', 'setup.py'))
+            shutil.copy(os.path.join(os.path.dirname(__file__), 'canmatrix.setup.py'),
+                        os.path.join(args.virtualenv, 'src', 'canmatrix', 'setup.py'))
         if name not in ['fontawesome']:
             setup(os.path.join(src, name))
 
     setups = []
     for root, dirs, files in os.walk('sub'):
         if 'setup.py' in files:
-            setups.append(os.path.join(mydir, root))
+            setups.append(os.path.join(os.getcwd(), root))
 
     for path in setups:
         setup(path)
