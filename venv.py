@@ -250,7 +250,7 @@ else:
             f.write('{}\n'.format(activate))
 
     with open(os.path.join(mydir, 'activate'), 'w', newline='') as f:
-        f.write('export PYQTDESIGNERPATH="{root}/epyq:{root}/epyq/widgets"\n'
+        f.write('export PYQTDESIGNERPATH="{root}/sub/epyqlib/epyqlib:{root}/sub/epyqlib/epyqlib/widgets"\n'
                 .format(root=mydir))
         f.write('source {}\n'.format(activate))
 
