@@ -106,15 +106,12 @@ if not args.in_virtual:
     sys.exit(returncode)
 else:
     def setup(path):
-        print(path)
         backup = os.getcwd()
-        print(os.getcwd())
         os.chdir(path)
-        print(os.getcwd())
         subprocess.run([sys.executable, os.path.join(path, 'setup.py'), 'develop'])
         os.chdir(backup)
 
-    src = os.path.join(mydir, args.virtualenv, 'src')
+    src = os.path.join(os.getcwd(), args.virtualenv, 'src')
     os.makedirs(src, exist_ok=True)
 
     packages = [
@@ -203,7 +200,7 @@ else:
 
     # TODO: Figure out why this can't be moved before other installs
     #       Dependencies maybe?
-    setup(mydir)
+    setup(os.getcwd())
 
     with open(os.path.join(args.bin, 'qt.conf'), 'w') as f:
         import PyQt5.QtCore
@@ -244,15 +241,15 @@ else:
             command += ';'.join(paths)
             set_commands.append(command)
         
-        with open(os.path.join(mydir, 'activate.bat'), 'w') as f:
+        with open('activate.bat', 'w') as f:
             activate = activate.replace('\\', '/')
             for command in set_commands:
                 f.write(command + '\n')
             f.write('{}\n'.format(activate))
 
-    with open(os.path.join(mydir, 'activate'), 'w', newline='') as f:
+    with open('activate', 'w', newline='') as f:
         f.write('export PYQTDESIGNERPATH="{root}/sub/epyqlib/epyqlib:{root}/sub/epyqlib/epyqlib/widgets"\n'
-                .format(root=mydir))
+                .format(root=os.getcwd()))
         f.write('source {}\n'.format(activate))
 
     if sys.platform == 'win32':
