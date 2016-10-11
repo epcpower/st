@@ -252,6 +252,10 @@ else:
                 .format(root=os.getcwd()))
         f.write('source {}\n'.format(activate))
 
+    files = ['designer', 'designer.bat', 'designer.vbs']
+    for file in files:
+        shutil.copy(os.path.join(mydir, file), file)
+
     if sys.platform == 'win32':
         import ctypes
         try:
