@@ -22,9 +22,10 @@ else:
 try:
     import epyq.revision
 except ImportError:
-    pass
+    revision_hash = None
 else:
-    print(epyq.revision.hash)
+    revision_hash = epyq.revision.hash
+    print(revision_hash)
 
 import can
 import canmatrix.importany as importany
@@ -40,11 +41,6 @@ import epyqlib.numberpad
 import epyqlib.nv
 import epyqlib.parameteredit
 import epyqlib.stylesheets
-
-try:
-    import epyq.revision
-except ImportError:
-    pass
 
 from epyqlib.svgwidget import SvgWidget
 import epyqlib.txrx
@@ -423,10 +419,7 @@ def excepthook(excType, excValue, tracebackobj):
     separator = '-' * 70
     email = "kyle.altendorf@epcpower.com"
 
-    try:
-        hash = 'Revision Hash: {}\n\n'.format(epyq.revision.hash)
-    except:
-        hash = ''
+    hash = 'Revision Hash: {}\n\n'.format(revision_hash)
 
     notice = \
         """An unhandled exception occurred. Please report the problem via email to:\n"""\
@@ -777,15 +770,14 @@ def main(args=None):
         __license__
     ]
 
-    try:
-        hash = epyq.revision.hash
-    except AttributeError:
-        pass
-    else:
+    if revision_hash is not None:
         index = round(len(hash) / 2)
         hash = '({first}<br>{second})'.format(first=hash[:index],
                                               second=hash[index:])
-        message.append(hash)
+    else:
+        hash = '{}'.format(revision_hash)
+
+    message.append(hash)
 
     about_text = '<br>'.join(message)
 
