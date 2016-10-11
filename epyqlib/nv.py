@@ -207,6 +207,9 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             value = d.get(child.fields.name, None)
             if value is not None:
                 child.set_human_value(value)
+            else:
+                print("Nv value named '{}' not found when loading from dict"
+                      .format(child.fields.name))
 
     def module_to_nv(self):
         self.set_status_string.emit('Requested save to NV...')
