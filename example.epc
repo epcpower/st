@@ -1,6 +1,0 @@
-{
-    "can_path": "example.sym",
-    "name": "Example Device",
-    "serial_number": "42",
-    "ui_path": "example_dash.ui"
-}

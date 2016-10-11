@@ -1,8 +1,0 @@
-{
-    "can_path": "hydra.sym",
-    "name": "Hydra",
-    "ui_paths": {
-        "Control": "hydra_control.ui",
-        "Setup and Status": "hydra_setup.ui"
-    }
-}
