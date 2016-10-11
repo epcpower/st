@@ -771,13 +771,10 @@ def main(args=None):
     ]
 
     if revision_hash is not None:
-        index = round(len(hash) / 2)
-        hash = '({first}<br>{second})'.format(first=hash[:index],
-                                              second=hash[index:])
-    else:
-        hash = '{}'.format(revision_hash)
-
-    message.append(hash)
+        index = round(len(revision_hash) / 2)
+        hash = '({first}<br>{second})'.format(first=revision_hash[:index],
+                                              second=revision_hash[index:])
+        message.append(hash)
 
     about_text = '<br>'.join(message)
 
