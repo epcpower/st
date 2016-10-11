@@ -4,6 +4,7 @@
 generated/
 *.stats
 EPyQ-*.exe
+designer*
 
 # PyCharm
 .idea/workspace.xml
