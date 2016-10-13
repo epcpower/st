@@ -206,13 +206,20 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         return d
 
     def from_dict(self, d):
+        only_in_file = list(d.keys())
+
         for child in self.children:
             value = d.get(child.fields.name, None)
             if value is not None:
                 child.set_human_value(value)
+                only_in_file.remove(child.fields.name)
             else:
                 print("Nv value named '{}' not found when loading from dict"
                       .format(child.fields.name))
+
+        for name in only_in_file:
+            print("Unrecognized NV value named '{}' found when loading "
+                  "from dict".format(name))
 
     def module_to_nv(self):
         self.set_status_string.emit('Requested save to NV...')
