@@ -286,14 +286,16 @@ class TxRx(TreeNode, epyqlib.canneo.QtCanListener):
             message = self.messages[id]
 
         message.extract_message(msg)
-        self.changed.emit(
-            message, Columns.indexes.value,
-            message, Columns.indexes.count,
-            [Qt.DisplayRole])
-        if len(message.children) > 0:
+        for column in [Columns.indexes.value, Columns.indexes.dt,
+                       Columns.indexes.count]:
+            self.changed.emit(message, column,
+                              message, column,
+                              [Qt.DisplayRole])
+
+        for child in message.children:
             self.changed.emit(
-                message.children[0], Columns.indexes.value,
-                message.children[-1], Columns.indexes.count,
+                child, Columns.indexes.value,
+                child, Columns.indexes.value,
                 [Qt.DisplayRole])
 
     def unique(self):
