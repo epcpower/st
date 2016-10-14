@@ -96,21 +96,29 @@ import shutil
 
 from subprocess import Popen
 
-proc = Popen(
+def runit(args, cwd, env=None):
+    proc = Popen(
+        args=args,
+        cwd=cwd,
+        shell=True,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+        )
+
+    for line in proc.stdout:
+        sys.stdout.write(str(line, 'UTF-8'))
+
+    proc.wait()
+
+runit(
     args=[
         sys.executable,
         os.path.join('..', 'sub','epyqlib', 'epyqlib',
 	             'generaterevision.py')
     ],
-    stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT,
     cwd='epyq'
-    )
-
-for line in proc.stdout:
-    sys.stdout.write(str(line, 'UTF-8'))
-
-proc.wait()
+)
 
 
 qt_root = os.path.join('C:/', 'Qt', 'Qt5.7.0')
@@ -149,7 +157,7 @@ def pip_install(package, no_ssl_verify, site=False):
 
 pip_install('pyqtdeploy', no_ssl_verify=False, site=True)
 
-proc = Popen(
+runit(
     args=[
         os.path.expandvars(os.path.join(
             '%APPDATA%', 'Python', 'Python35', 'Scripts', 'pyqtdeploycli.exe'
@@ -158,46 +166,17 @@ proc = Popen(
         'build'
     ],
     env=env,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT
-    )
+)
 
-for line in proc.stdout:
-    sys.stdout.write(str(line, 'UTF-8'))
-
-proc.wait()
-
-proc = Popen(
+runit(
     args=[
         'qmake',
     ],
     cwd='build',
-    shell=True,
     env=env,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT
-    )
+)
 
-for line in proc.stdout:
-    sys.stdout.write(str(line, 'UTF-8'))
-
-proc.wait()
-
-proc = Popen(
-    args=[
-        'nmake',
-    ],
-    cwd='build',
-    shell=True,
-    env=env,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT
-    )
-
-for line in proc.stdout:
-    sys.stdout.write(str(line, 'UTF-8'))
-
-proc.wait()
+runit(args='nmake', cwd='build', env=env)
 
 import epyq.revision
 
