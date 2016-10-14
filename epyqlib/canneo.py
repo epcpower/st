@@ -83,14 +83,14 @@ class Signal(QObject):
         if connect is not None:
             self.connect(connect)
 
-    def get_human_value(self):
+    def get_human_value(self, for_file=False):
         # TODO: handle offset
         if self.value is None:
             return None
 
         value = self.offset + (self.value * float(self.factor))
 
-        return self.format_float(value)
+        return self.format_float(value, for_file=for_file)
 
     def set_human_value(self, value):
         # TODO: handle offset
@@ -216,7 +216,7 @@ class Signal(QObject):
             value = 0
         self.value_changed.emit(value)
 
-    def format_float(self, value=None, decimal_places=None):
+    def format_float(self, value=None, decimal_places=None, for_file=False):
         # TODO: ack fix this since it's getting called with an actual None value...
         if value is None:
             value = self.scaled_value
@@ -227,8 +227,12 @@ class Signal(QObject):
             if decimal_places is None:
                 decimal_places = self.get_decimal_places()
 
-            format = '%.{}f'.format(decimal_places)
-            formatted = locale.format(format, value, grouping=True)
+            if for_file:
+                format = '{{:.{}f}}'.format(self.get_decimal_places())
+                formatted = format.format(value)
+            else:
+                format = '%.{}f'.format(decimal_places)
+                formatted = locale.format(format, value, grouping=True)
 
         return formatted
 

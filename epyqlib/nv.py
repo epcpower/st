@@ -6,7 +6,6 @@ import can
 from epyqlib.abstractcolumns import AbstractColumns
 import epyqlib.canneo
 import json
-import locale
 import epyqlib.pyqabstractitemmodel
 from epyqlib.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot)
@@ -197,11 +196,9 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         return '-'
 
     def to_dict(self):
-        thousep = locale.format('%f', 1000, grouping=True)[1]
-
         d = {}
         for child in self.children:
-            d[child.fields.name] = child.get_human_value().replace(thousep, '')
+            d[child.fields.name] = child.get_human_value(for_file=True)
 
         return d
 
