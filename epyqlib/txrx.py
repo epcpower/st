@@ -237,6 +237,20 @@ class TxRx(TreeNode, epyqlib.canneo.QtCanListener):
                       dt='',
                       count='')
 
+        self.update_timer = QTimer()
+        # 81 seems to provide nice variation in the count on 10ms messages
+        # but is still a bit of a 'random' selection.
+        # TODO: pick a number based on the cycle times in the .sym
+        self.update_timer.setInterval(81)
+        self.update_timer.timeout.connect(self.gui_update)
+        self.update_timer.start()
+
+    def gui_update(self):
+        self.changed.emit(
+            self, 0,
+            self, 1,
+            [Qt.DisplayRole])
+
     def set_node_id(self, node_id):
         # TODO: I think this can go away
         self.node_id = node_id
@@ -286,17 +300,18 @@ class TxRx(TreeNode, epyqlib.canneo.QtCanListener):
             message = self.messages[id]
 
         message.extract_message(msg)
-        for column in [Columns.indexes.value, Columns.indexes.dt,
-                       Columns.indexes.count]:
-            self.changed.emit(message, column,
-                              message, column,
-                              [Qt.DisplayRole])
 
-        for child in message.children:
-            self.changed.emit(
-                child, Columns.indexes.value,
-                child, Columns.indexes.value,
-                [Qt.DisplayRole])
+        # for column in [Columns.indexes.value, Columns.indexes.dt,
+        #                Columns.indexes.count]:
+        #     self.changed.emit(message, column,
+        #                       message, column,
+        #                       [Qt.DisplayRole])
+        #
+        # for child in message.children:
+        #     self.changed.emit(
+        #         child, Columns.indexes.value,
+        #         child, Columns.indexes.value,
+        #         [Qt.DisplayRole])
 
     def unique(self):
         # TODO: actually identify the object
