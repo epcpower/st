@@ -135,21 +135,27 @@ class Signal(QObject):
         try:
             return self.decimal_places
         except AttributeError:
-            x = self.factor
-            # http://stackoverflow.com/a/3019027/228539
-            max_digits = 14
-            int_part = int(abs(x))
-            magnitude = 1 if int_part == 0 else int(math.log10(int_part)) + 1
-            if magnitude >= max_digits:
-                return (magnitude, 0)
-            frac_part = abs(x) - int_part
-            multiplier = 10 ** (max_digits - magnitude)
-            frac_digits = multiplier + int(multiplier * frac_part + 0.5)
-            while frac_digits % 10 == 0:
-                frac_digits /= 10
-            scale = int(math.log10(frac_digits))
+            if self.float:
+                # TODO: these signals probably ought to have decimal places
+                #       specified in the .sym, but that isn't supported yet
+                #       anyways.
+                self.decimal_places = 3
+            else:
+                x = self.factor
+                # http://stackoverflow.com/a/3019027/228539
+                max_digits = 14
+                int_part = int(abs(x))
+                magnitude = 1 if int_part == 0 else int(math.log10(int_part)) + 1
+                if magnitude >= max_digits:
+                    return (magnitude, 0)
+                frac_part = abs(x) - int_part
+                multiplier = 10 ** (max_digits - magnitude)
+                frac_digits = multiplier + int(multiplier * frac_part + 0.5)
+                while frac_digits % 10 == 0:
+                    frac_digits /= 10
+                scale = int(math.log10(frac_digits))
 
-            self.decimal_places = scale
+                self.decimal_places = scale
 
         return self.decimal_places
 
