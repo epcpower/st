@@ -14,6 +14,10 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+class OutOfRangeError(ValueError):
+    pass
+
+
 class Signal(QObject):
     # TODO: but some (progress bar, etc) require an int!
     value_changed = pyqtSignal(float)
@@ -177,6 +181,11 @@ class Signal(QObject):
             # TODO: be careful here, should all be int which is immutable
             #       and therefore safe but...  otherwise a copy would be
             #       needed
+            human_value = self.to_human(value)
+            if not self.min <= human_value <= self.max:
+                raise OutOfRangeError('{} not in range [{}, {}]'.format(
+                    *[self.format_float(f) for f
+                      in (human_value, self.min, self.max)]))
             self.value = value
 
             try:
@@ -612,7 +621,7 @@ class Neo(QtCanListener):
                     neo_frame = frame_class(frame=matrix_frame)
                     for signal in neo_frame.signals:
                         if signal.multiplex is None:
-                            signal.set_value(multiplex_value)
+                            signal.set_value(int(multiplex_value))
                     frames.append(neo_frame)
                     multiplex_neo_frame.\
                         multiplex_frames[int(multiplex_value)] = neo_frame

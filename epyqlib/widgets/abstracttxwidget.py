@@ -3,10 +3,11 @@
 #TODO: """DocString if there is one"""
 
 import epyqlib.widgets.abstractwidget
+import textwrap
 
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, QEvent, Qt
 from PyQt5.QtGui import QMouseEvent
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QMessageBox, QWidget
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -82,10 +83,26 @@ class AbstractTxWidget(epyqlib.widgets.abstractwidget.AbstractWidget):
 
     def widget_value_changed(self, value):
         if self.signal_object is not None and self.tx:
-            self.signal_object.set_human_value(value)
+            try:
+                self.signal_object.set_human_value(value)
+            except epyqlib.canneo.OutOfRangeError as e:
+                box = QMessageBox()
+                box.setWindowTitle("EPyQ")
 
-            if self._period is None:
-                self.signal_object.frame.send_now()
+                message = textwrap.dedent('''\
+                Frame: {frame}
+                Signal: {signal}
+
+                Error: {error}
+                ''').format(frame=self.signal_object.frame.name,
+                            signal=self.signal_object.name,
+                            error=str(e))
+
+                box.setText(message)
+                box.exec_()
+            else:
+                if self._period is None:
+                    self.signal_object.frame.send_now()
 
 
 if __name__ == '__main__':
