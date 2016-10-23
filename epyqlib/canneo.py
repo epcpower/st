@@ -83,12 +83,18 @@ class Signal(QObject):
         if connect is not None:
             self.connect(connect)
 
+    def to_human(self, value):
+        return self.offset + (value * float(self.factor))
+
+    def from_human(self, value):
+        return round((value - self.offset) / self.factor)
+
     def get_human_value(self, for_file=False):
         # TODO: handle offset
         if self.value is None:
             return None
 
-        value = self.offset + (self.value * float(self.factor))
+        value = self.to_human(self.value)
 
         return self.format_float(value, for_file=for_file)
 
@@ -112,9 +118,7 @@ class Signal(QObject):
             else:
                 raise
 
-        value = (value - self.offset) / self.factor
-        value = round(value)
-        self.set_value(value, force=force)
+        self.set_value(self.from_human(value), force=force)
 
     def enumeration_string(self, value, include_value=False):
         format = (self.enumeration_format_re['format']
