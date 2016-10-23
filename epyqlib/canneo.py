@@ -92,7 +92,7 @@ class Signal(QObject):
 
         return self.format_float(value, for_file=for_file)
 
-    def set_human_value(self, value):
+    def set_human_value(self, value, force=False):
         # TODO: handle offset
         value = copy.deepcopy(value)
         try:
@@ -114,7 +114,7 @@ class Signal(QObject):
 
         value = (value - self.offset) / self.factor
         value = round(value)
-        self.set_value(value)
+        self.set_value(value, force=force)
 
     def enumeration_string(self, value, include_value=False):
         format = (self.enumeration_format_re['format']
@@ -159,7 +159,7 @@ class Signal(QObject):
 
         return self.decimal_places
 
-    def set_value(self, value):
+    def set_value(self, value, force=False):
         if value is None:
             self.value = None
             self.full_string = '-'
@@ -168,7 +168,7 @@ class Signal(QObject):
             self.enumeration_text = None
         elif type(value) is float and math.isnan(value):
             pass
-        elif self.value != value:
+        elif self.value != value or force:
             self.enumeration_text = None
             # TODO: be careful here, should all be int which is immutable
             #       and therefore safe but...  otherwise a copy would be

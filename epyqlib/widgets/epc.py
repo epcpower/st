@@ -6,6 +6,7 @@ import epyqlib.widgets.abstracttxwidget
 import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, Qt)
+from PyQt5.QtGui import QFocusEvent, QKeyEvent
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -21,7 +22,8 @@ class Epc(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
                 ui=ui_file, parent=parent, in_designer=in_designer)
 
         # TODO: CAMPid 398956661298765098124690765
-        self.ui.value.editingFinished.connect(self.widget_value_changed)
+        self.ui.value.returnPressed.connect(self.widget_value_changed)
+        self.ui.value.installEventFilter(self)
 
         self.ui.edit_button.hide()
 
@@ -47,6 +49,30 @@ class Epc(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
             self, *args, **kwargs)
 
         self.update()
+
+    def cancel_edit(self):
+        self.signal_object.set_human_value(
+            self.signal_object.get_human_value(),
+            force=True
+        )
+
+    def eventFilter(self, object, event):
+        super_result = epyqlib.widgets.abstracttxwidget.AbstractTxWidget.\
+            eventFilter(self, object, event)
+
+        if not super_result:
+            if object is self.ui.value:
+                if isinstance(event, QKeyEvent):
+                    if event.key() == Qt.Key_Escape:
+                        # TODO: for some reason this is triggering 3x
+                        #       for one press
+                        self.cancel_edit()
+
+                if isinstance(event, QFocusEvent):
+                    if event.lostFocus():
+                        self.cancel_edit()
+
+        return super_result
 
     # TODO: CAMPid 097327143264214321432453216453762354
     def update(self):
