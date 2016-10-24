@@ -9,9 +9,21 @@ except ImportError as e:
 import json
 import os
 import pip
+import shutil
+import stat
 import sys
 import tempfile
 import zipfile
+
+
+# TODO: CAMPid 0238493420143087667542054268097120437916848
+# http://stackoverflow.com/a/21263493/228539
+def del_rw(action, name, exc):
+    os.chmod(name, stat.S_IWRITE)
+    if os.path.isdir(name):
+        os.rmdir(name)
+    else:
+        os.remove(name)
 
 
 def collect(devices, output_directory):
@@ -46,6 +58,9 @@ def collect(devices, output_directory):
                     zip.write(filename=filename,
                               arcname=os.path.relpath(filename, start=device_dir)
                               )
+
+            # http://bugs.python.org/issue26660
+            shutil.rmtree(dir, onerror=del_rw)
 
 
 class LoadJsonFiles(argparse.Action):
