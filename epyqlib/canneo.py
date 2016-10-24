@@ -105,10 +105,16 @@ class Signal(QObject):
     def set_human_value(self, value, force=False):
         # TODO: handle offset
         value = copy.deepcopy(value)
+        locale.setlocale(locale.LC_ALL, '')
+        atof = locale.atof
         try:
             # TODO: not the best for integers?
             try:
-                value = float(value)
+                try:
+                    value = atof(value)
+                except AttributeError:
+                    # probably a float already...
+                    pass
             except ValueError:
                 if len(value) == 0:
                     value = 0
