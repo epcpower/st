@@ -1,0 +1,12 @@
+{
+    "UL1741": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "UL1741",
+        "file": "interface/microgrid.epc"
+    },
+    "AFE": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "AFE",
+        "file": "interface/hydra.epc"
+    }
+}
