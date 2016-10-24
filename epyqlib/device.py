@@ -85,7 +85,8 @@ class Device:
         self.bus.set_bus()
 
     def _init_from_file(self, file, bus=None, elements=None,
-                        tabs=None, rx_interval=0, edit_actions=None):
+                        tabs=None, rx_interval=0, edit_actions=None,
+                        only_for_files=False):
         if elements is None:
             elements = set(Elements)
         if tabs is None:
@@ -102,14 +103,16 @@ class Device:
             else:
                 self._load_config(file=file, bus=bus, elements=elements,
                                   tabs=tabs, rx_interval=rx_interval,
-                                  edit_actions=edit_actions)
+                                  edit_actions=edit_actions,
+                                  only_for_files=only_for_files)
         else:
             self._init_from_zip(zip_file, bus=bus, elements=elements,
                                 tabs=tabs, rx_interval=rx_interval,
                                 edit_actions=edit_actions)
 
     def _load_config(self, file, bus=None, elements=None,
-                     tabs=None, rx_interval=0, edit_actions=None):
+                     tabs=None, rx_interval=0, edit_actions=None,
+                     only_for_files=False):
         if tabs is None:
             tabs = set(Tabs)
 
@@ -126,13 +129,13 @@ class Device:
         d = json.loads(s, object_pairs_hook=OrderedDict)
         self.raw_dict = d
 
-        module = d.get('module', None)
+        self.module_path = d.get('module', None)
         self.plugin = None
-        if module is None:
+        if self.module_path is None:
             extension_class = epyqlib.deviceextension.DeviceExtension
         else:
             spec = importlib.util.spec_from_file_location(
-                'extension', self.absolute_path(module))
+                'extension', self.absolute_path(self.module_path))
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
 
@@ -178,14 +181,24 @@ class Device:
             node_id=self.node_id
         )
 
-        self._init_from_parameters(
-            uis=self.ui_paths,
-            serial_number=d.get('serial_number', ''),
-            name=d.get('name', ''),
-            elements=elements,
-            tabs=tabs,
-            rx_interval=rx_interval,
-            edit_actions=edit_actions)
+        self.referenced_files = [
+            f for f in [
+                d.get('module', None),
+                d.get('can_path', None),
+                *json_ui_paths.values()
+            ]
+            if f is not None
+        ]
+
+        if not only_for_files:
+            self._init_from_parameters(
+                uis=self.ui_paths,
+                serial_number=d.get('serial_number', ''),
+                name=d.get('name', ''),
+                elements=elements,
+                tabs=tabs,
+                rx_interval=rx_interval,
+                edit_actions=edit_actions)
 
     def _init_from_zip(self, zip_file, bus=None, elements=None,
                        tabs=None, rx_interval=0, edit_actions=None):
