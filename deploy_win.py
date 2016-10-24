@@ -19,6 +19,7 @@ except ImportError:
 # TODO: CAMPid 98852142341263132467998754961432
 import epyqlib.tee
 import glob
+import json
 import os
 import stat
 import sys
@@ -143,6 +144,7 @@ env = get_environment_from_batch_command(
     initial=env
 )
 
+# TODO: CAMPid 0238493420143087667542054268097120437916848
 # http://stackoverflow.com/a/21263493/228539
 def del_rw(action, name, exc):
     os.chmod(name, stat.S_IWRITE)
@@ -151,7 +153,8 @@ def del_rw(action, name, exc):
     else:
         os.remove(name)
 
-shutil.rmtree('build', onerror=del_rw)
+if os.path.isdir('build'):
+    shutil.rmtree('build', onerror=del_rw)
 
 # TODO: CAMPid 9811163648546549994313612126896
 def pip_install(package, no_ssl_verify, site=False):
@@ -194,6 +197,21 @@ runit(args=[
 ])
 
 files = []
+
+pip_install('gitpython', no_ssl_verify=False, site=True)
+os.environ['PATH'] = os.pathsep.join([
+    os.environ['PATH'],
+    os.path.join('c:/', 'Program Files', 'Git', 'bin')
+])
+import epyqlib.collectdevices
+
+collected_devices_directory = os.path.join('build', 'devices')
+epyqlib.collectdevices.main(args=[
+    '-d', os.path.join('installer', 'devices.json'),
+    '-o', collected_devices_directory
+])
+files.extend(glob.glob(os.path.join(collected_devices_directory, '*.epz')))
+
 for extension in ['sym', 'epc', 'epz', 'py', 'ui']:
     files.extend(glob.glob('*.' + extension))
 files.append(os.path.join('c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'redist', 'x86', 'Microsoft.VC140.CRT', 'msvcp140.dll'))
