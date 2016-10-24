@@ -134,7 +134,7 @@ else:
                      'c64004b785febe4613677ab0107f1bc63b01e339.zip'),
         ('bitstruct', 'https://github.com/altendky/bitstruct/archive/'
                      '129a72e290c533654a91bd556b1d4b0822df423f.zip'),
-        ('fontawesome', 'http://fontawesome.io/assets/font-awesome-4.6.3.zip'),
+        ('fontawesome', 'https://github.com/FortAwesome/Font-Awesome/archive/v4.6.3.zip'),
         ('metropolis', 'https://github.com/chrismsimpson/Metropolis/archive/16882c2c2cb58405fd6a7d6a932a1dfc573b6813.zip')
     ])
 
