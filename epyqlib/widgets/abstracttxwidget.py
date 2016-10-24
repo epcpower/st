@@ -42,7 +42,7 @@ class AbstractTxWidget(epyqlib.widgets.abstractwidget.AbstractWidget):
         self.ui.value.setDisabled(not self.tx)
 
     def user_set_value(self, value):
-        self.signal_object.set_human_value(value)
+        self.signal_object.set_human_value(value, check_range=True)
         self.edited.emit(value)
 
     def eventFilter(self, qobject, qevent):
@@ -84,7 +84,7 @@ class AbstractTxWidget(epyqlib.widgets.abstractwidget.AbstractWidget):
     def widget_value_changed(self, value):
         if self.signal_object is not None and self.tx:
             try:
-                self.signal_object.set_human_value(value)
+                self.signal_object.set_human_value(value, check_range=True)
             except epyqlib.canneo.OutOfRangeError as e:
                 box = QMessageBox()
                 box.setWindowTitle("EPyQ")

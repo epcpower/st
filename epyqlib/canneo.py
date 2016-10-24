@@ -102,7 +102,7 @@ class Signal(QObject):
 
         return self.format_float(value, for_file=for_file)
 
-    def set_human_value(self, value, force=False):
+    def set_human_value(self, value, force=False, check_range=False):
         # TODO: handle offset
         value = copy.deepcopy(value)
         locale.setlocale(locale.LC_ALL, '')
@@ -128,7 +128,9 @@ class Signal(QObject):
             else:
                 raise
 
-        self.set_value(self.from_human(value), force=force, check_range=True)
+        self.set_value(value=self.from_human(value),
+                       force=force,
+                       check_range=check_range)
 
     def enumeration_string(self, value, include_value=False):
         format = (self.enumeration_format_re['format']
@@ -173,7 +175,7 @@ class Signal(QObject):
 
         return self.decimal_places
 
-    def set_value(self, value, force=False, check_range=True):
+    def set_value(self, value, force=False, check_range=False):
         if value is None:
             self.value = None
             self.full_string = '-'
@@ -469,7 +471,7 @@ class Frame(QtCanListener):
 
             unpacked = bitstruct.unpack(bitstruct_fmt, data)
             for s, v in zip(self.signals, unpacked):
-                s.set_value(v, check_range=False)
+                s.set_value(v)
 
     @pyqtSlot()
     def _send(self, update=False):

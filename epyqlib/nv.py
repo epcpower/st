@@ -237,7 +237,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
                               value='')
         self.clear()
 
-    def set_value(self, value, force=False, check_range=True):
+    def set_value(self, value, force=False, check_range=False):
         epyqlib.canneo.Signal.set_value(self,
                                         value=value,
                                         force=force,
