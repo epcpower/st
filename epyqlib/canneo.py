@@ -122,7 +122,7 @@ class Signal(QObject):
             else:
                 raise
 
-        self.set_value(self.from_human(value), force=force)
+        self.set_value(self.from_human(value), force=force, check_range=True)
 
     def enumeration_string(self, value, include_value=False):
         format = (self.enumeration_format_re['format']
@@ -167,7 +167,7 @@ class Signal(QObject):
 
         return self.decimal_places
 
-    def set_value(self, value, force=False):
+    def set_value(self, value, force=False, check_range=True):
         if value is None:
             self.value = None
             self.full_string = '-'
@@ -181,11 +181,12 @@ class Signal(QObject):
             # TODO: be careful here, should all be int which is immutable
             #       and therefore safe but...  otherwise a copy would be
             #       needed
-            human_value = self.to_human(value)
-            if not self.min <= human_value <= self.max:
-                raise OutOfRangeError('{} not in range [{}, {}]'.format(
-                    *[self.format_float(f) for f
-                      in (human_value, self.min, self.max)]))
+            if check_range:
+                human_value = self.to_human(value)
+                if not self.min <= human_value <= self.max:
+                    raise OutOfRangeError('{} not in range [{}, {}]'.format(
+                        *[self.format_float(f) for f
+                          in (human_value, self.min, self.max)]))
             self.value = value
 
             try:
@@ -462,7 +463,7 @@ class Frame(QtCanListener):
 
             unpacked = bitstruct.unpack(bitstruct_fmt, data)
             for s, v in zip(self.signals, unpacked):
-                s.set_value(v)
+                s.set_value(v, check_range=False)
 
     @pyqtSlot()
     def _send(self, update=False):
