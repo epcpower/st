@@ -194,26 +194,6 @@ else:
     #       Dependencies maybe?
     setup(os.getcwd())
 
-    with open(os.path.join(args.bin, 'qt.conf'), 'w') as f:
-        import PyQt5.QtCore
-        pyqt5 = os.path.dirname(PyQt5.__file__)
-        pyqt5_plugins = PyQt5.QtCore.QLibraryInfo.location(
-            PyQt5.QtCore.QLibraryInfo.PluginsPath)
-
-        content = [
-            '[Paths]',
-            'Prefix = "{}"'.format(pyqt5),
-            'Binaries = "{}"'.format(pyqt5)
-        ]
-
-        if sys.platform == 'win32':
-            content = [l.replace('\\', '/') for l in content]
-
-        if sys.platform == 'linux':
-            content.append('Plugins = "{}"'.format(pyqt5_plugins))
-
-        f.write('\n'.join(content) + '\n')
-
     activate = args.activate
     if sys.platform == 'win32':
         path_variables = OrderedDict([
