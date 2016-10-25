@@ -104,6 +104,7 @@ from subprocess import Popen
 
 parser =  argparse.ArgumentParser()
 parser.add_argument('--device-file', '-d', type=str, default=None)
+parser.add_argument('--name', '-n', type=str, required=True)
 
 args = parser.parse_args()
 
@@ -214,6 +215,7 @@ if args.device_file is not None:
 
     collected_devices_directory = os.path.join('build', 'devices')
     epyqlib.collectdevices.main(
+        args=[],
         device_files=[args.device_file],
         output_directory=collected_devices_directory
     )
@@ -324,7 +326,7 @@ runit(args=[
 
 import epyq.revision
 
-installer_file = 'epyq-{}.exe'.format(epyq.revision.hash)
+installer_file = '{}-{}.exe'.format(args.name, epyq.revision.hash)
 shutil.copy(
     os.path.join('build', 'epyq.exe'),
     os.path.join('..', installer_file)
