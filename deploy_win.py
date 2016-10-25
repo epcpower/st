@@ -172,9 +172,7 @@ pip_install('pyqtdeploy', no_ssl_verify=False, site=True)
 
 runit(
     args=[
-        os.path.expandvars(os.path.join(
-            '%APPDATA%', 'Python', 'Python35', 'Scripts', 'pyqtdeploycli.exe'
-        )),
+        'pyqtdeploycli',
         '--project', 'epyq.pdy',
         'build'
     ],
