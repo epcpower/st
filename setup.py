@@ -6,7 +6,7 @@ conditional_requires = []
 
 arch = platform.architecture()
 if arch[1].lower().startswith('win'):
-    conditional_requires.append('PyQt5-tools')
+    conditional_requires.append('pyqt5-tools')
 
 setup(
     name="EPyQ",
