@@ -84,9 +84,16 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(args=None):
+def main(args=None, device_files=None, output_directory=None):
     if args is None:
         args = sys.argv[1:]
+
+    if device_files is not None:
+        for device in device_files:
+            args.extend(['-d', device])
+
+    if output_directory is not None:
+        args.extend(['-o', output_directory])
 
     args = parse_args(args=args)
 
