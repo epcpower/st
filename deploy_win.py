@@ -172,9 +172,7 @@ pip_install('pyqtdeploy', no_ssl_verify=False, site=True)
 
 runit(
     args=[
-        os.path.expandvars(os.path.join(
-            '%APPDATA%', 'Python', 'Python35', 'Scripts', 'pyqtdeploycli.exe'
-        )),
+        'pyqtdeploycli',
         '--project', 'epyq.pdy',
         'build'
     ],
@@ -198,21 +196,23 @@ runit(args=[
 
 files = []
 
-pip_install('gitpython', no_ssl_verify=False, site=True)
-os.environ['PATH'] = os.pathsep.join([
-    os.environ['PATH'],
-    os.path.join('c:/', 'Program Files', 'Git', 'bin')
-])
-import epyqlib.collectdevices
+collect = False
+if collect:
+    pip_install('gitpython', no_ssl_verify=False, site=True)
+    os.environ['PATH'] = os.pathsep.join([
+        os.environ['PATH'],
+        os.path.join('c:/', 'Program Files', 'Git', 'bin')
+    ])
+    import epyqlib.collectdevices
 
-collected_devices_directory = os.path.join('build', 'devices')
-epyqlib.collectdevices.main(
-    device_files=[os.path.join('installer', 'devices.json')],
-    output_directory=collected_devices_directory
-)
-files.extend(glob.glob(os.path.join(collected_devices_directory, '*.epz')))
+    collected_devices_directory = os.path.join('build', 'devices')
+    epyqlib.collectdevices.main(
+        device_files=[os.path.join('installer', 'devices.json')],
+        output_directory=collected_devices_directory
+    )
+    files.extend(glob.glob(os.path.join(collected_devices_directory, '*.epz')))
 
-for extension in ['sym', 'epc', 'epz', 'py', 'ui']:
+for extension in ['sym', 'epc', 'epz', 'py', 'ui', 'svg']:
     files.extend(glob.glob('*.' + extension))
 files.append(os.path.join('c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'redist', 'x86', 'Microsoft.VC140.CRT', 'msvcp140.dll'))
 files.append(os.path.join('c:/', 'Windows', 'SysWOW64', 'PCANBasic.dll'))
