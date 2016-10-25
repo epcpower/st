@@ -206,10 +206,10 @@ os.environ['PATH'] = os.pathsep.join([
 import epyqlib.collectdevices
 
 collected_devices_directory = os.path.join('build', 'devices')
-epyqlib.collectdevices.main(args=[
-    '-d', os.path.join('installer', 'devices.json'),
-    '-o', collected_devices_directory
-])
+epyqlib.collectdevices.main(
+    device_files=[os.path.join('installer', 'devices.json')],
+    output_directory=collected_devices_directory
+)
 files.extend(glob.glob(os.path.join(collected_devices_directory, '*.epz')))
 
 for extension in ['sym', 'epc', 'epz', 'py', 'ui']:
