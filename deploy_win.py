@@ -18,7 +18,10 @@ except ImportError:
 
 # TODO: CAMPid 98852142341263132467998754961432
 import epyqlib.tee
+import glob
+import json
 import os
+import stat
 import sys
 
 log = open(os.path.join(os.getcwd(), 'build.log'), 'w', encoding='utf-8')
@@ -89,28 +92,36 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     # let the process finish
     proc.communicate()
     return result
-    
+
 
 import os
 import shutil
 
 from subprocess import Popen
 
-proc = Popen(
+def runit(args, cwd=None, env=None):
+    proc = Popen(
+        args=args,
+        cwd=cwd,
+        shell=True,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+        )
+
+    for line in proc.stdout:
+        sys.stdout.write(str(line, 'UTF-8'))
+
+    proc.wait()
+
+runit(
     args=[
         sys.executable,
         os.path.join('..', 'sub','epyqlib', 'epyqlib',
-               'generaterevision.py')
+	             'generaterevision.py')
     ],
-    stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT,
     cwd='epyq'
-    )
-
-for line in proc.stdout:
-    sys.stdout.write(str(line, 'UTF-8'))
-
-proc.wait()
+)
 
 
 qt_root = os.path.join('C:/', 'Qt', 'Qt5.7.0')
@@ -133,7 +144,17 @@ env = get_environment_from_batch_command(
     initial=env
 )
 
-shutil.rmtree('build', ignore_errors=True)
+# TODO: CAMPid 0238493420143087667542054268097120437916848
+# http://stackoverflow.com/a/21263493/228539
+def del_rw(action, name, exc):
+    os.chmod(name, stat.S_IWRITE)
+    if os.path.isdir(name):
+        os.rmdir(name)
+    else:
+        os.remove(name)
+
+if os.path.isdir('build'):
+    shutil.rmtree('build', onerror=del_rw)
 
 # TODO: CAMPid 9811163648546549994313612126896
 def pip_install(package, no_ssl_verify, site=False):
@@ -149,7 +170,7 @@ def pip_install(package, no_ssl_verify, site=False):
 
 pip_install('pyqtdeploy', no_ssl_verify=False, site=True)
 
-proc = Popen(
+runit(
     args=[
         os.path.expandvars(os.path.join(
             '%APPDATA%', 'Python', 'Python35', 'Scripts', 'pyqtdeploycli.exe'
@@ -158,50 +179,148 @@ proc = Popen(
         'build'
     ],
     env=env,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT
-    )
+)
 
-for line in proc.stdout:
-    sys.stdout.write(str(line, 'UTF-8'))
-
-proc.wait()
-
-proc = Popen(
+runit(
     args=[
         'qmake',
     ],
     cwd='build',
-    shell=True,
     env=env,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT
-    )
+)
 
-for line in proc.stdout:
-    sys.stdout.write(str(line, 'UTF-8'))
+runit(args='nmake', cwd='build', env=env)
 
-proc.wait()
+runit(args=[
+    os.path.join('c:/', 'Qt', 'Qt5.7.0', '5.7', 'msvc2015', 'bin', 'windeployqt.exe'),
+    os.path.join('build', 'release', 'epyq.exe')
+])
 
-proc = Popen(
+files = []
+
+pip_install('gitpython', no_ssl_verify=False, site=True)
+os.environ['PATH'] = os.pathsep.join([
+    os.environ['PATH'],
+    os.path.join('c:/', 'Program Files', 'Git', 'bin')
+])
+import epyqlib.collectdevices
+
+collected_devices_directory = os.path.join('build', 'devices')
+epyqlib.collectdevices.main(
+    device_files=[os.path.join('installer', 'devices.json')],
+    output_directory=collected_devices_directory
+)
+files.extend(glob.glob(os.path.join(collected_devices_directory, '*.epz')))
+
+for extension in ['sym', 'epc', 'epz', 'py', 'ui']:
+    files.extend(glob.glob('*.' + extension))
+files.append(os.path.join('c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'redist', 'x86', 'Microsoft.VC140.CRT', 'msvcp140.dll'))
+files.append(os.path.join('c:/', 'Windows', 'SysWOW64', 'PCANBasic.dll'))
+for file in files:
+    shutil.copy(file, os.path.join('build', 'release'))
+
+shutil.copytree('installer', os.path.join('build', 'installer'))
+
+def copy_files(src, dst):
+    os.makedirs(dst)
+    src_files = os.listdir(src)
+    for file_name in src_files:
+        full_file_name = os.path.join(src, file_name)
+        if (os.path.isfile(full_file_name)):
+            shutil.copy(full_file_name, dst)
+        else:
+            shutil.copytree(full_file_name, os.path.join(dst, file_name))
+
+copy_files(os.path.join('build', 'release'), os.path.join('build', 'installer', 'packages', 'com.epcpower.st', 'data'))
+
+shutil.copy('COPYING', os.path.join('build', 'installer', 'packages', 'com.epcpower.st', 'meta', 'epyq-COPYING.txt'))
+
+
+third_party_license = os.path.join(
+    'build', 'installer', 'packages', 'com.epcpower.st', 'meta',
+    'third_party-LICENSE.txt'
+)
+
+with open(third_party_license, 'w', encoding='utf-8') as out:
+    licenses = [
+        ('bitstruct', ('venv', 'src', 'bitstruct', 'LICENSE'), None),
+        ('canmatrix', ('venv', 'src', 'canmatrix', 'LICENSE'), None),
+        ('python-can', ('venv', 'src', 'python-can', 'LICENSE.txt'), None),
+        ('Python', ('c:/', 'Program Files (x86)', 'python35-32', 'LICENSE.txt'), None),
+        ('PyQt5', ('$SYSROOT', '..', 'src', 'PyQt5_gpl-5.7', 'LICENSE'), None),
+        ('Qt', ('c:/', 'Qt', 'Qt5.7.0', 'Licenses', 'LICENSE'), None),
+        ('PEAK-System', ('installer', 'peak-system.txt'), 'http://www.peak-system.com/produktcd/Develop/PC%20interfaces/Windows/API-ReadMe.txt'),
+        ('Microsoft Visual C++ Build Tools', ('installer', 'microsoft_visual_cpp_build_tools_eula.html'), 'https://www.visualstudio.com/en-us/support/legal/mt644918')
+    ]
+
+    widest = max([len(name) for name, _, _ in licenses])
+    minimum = 4
+    for name, path, url in licenses:
+        print('Appending {} to third party license file'.format(name))
+        header = '  == ' + name + ' '
+        header += '=' * ((widest + 6 + minimum) - len(header))
+        out.write(header + '\n\n')
+
+        encodings = [None, 'utf-8']
+        
+        in_path = os.path.expandvars(os.path.join(*path))
+        
+        for encoding in encodings:
+            try:
+                with open(in_path, encoding=encoding) as in_file:
+                    if url is not None:
+                        out.write(url + '\n\n')
+
+                    contents = in_file.read()
+                    out.write(contents)
+                    out.write('\n\n\n')
+            except UnicodeDecodeError:
+                pass
+            else:
+                break
+        else:
+            raise Exception("Unable to parse '{}' without an error".format(in_path))
+
+config = os.path.join('build', 'installer', 'config')
+ico = 'icon.ico'
+png = 'icon.png'
+
+to_copy = [
+    (ico, ''),
+    (png, ''),
+    (png, 'icon_duplicate.png'),
+    (png, 'aicon.png'),
+    (png, 'wicon.png')
+]
+
+for source, destination in to_copy:
+    shutil.copy(os.path.join('epyq', source), os.path.join(config, destination))
+
+
+runit(
     args=[
-        'nmake',
+        sys.executable,
+        os.path.join('installer', 'config.py'),
+        '--template', os.path.join('installer', 'config', 'config_template.xml'),
+        '--output', os.path.join('installer', 'config', 'config.xml')
     ],
-    cwd='build',
-    shell=True,
-    env=env,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT
-    )
+    cwd='build'
+)
 
-for line in proc.stdout:
-    sys.stdout.write(str(line, 'UTF-8'))
-
-proc.wait()
+runit(args=[
+    os.path.join('c:/', 'Qt', 'QtIFW2.0.3', 'bin', 'binarycreator.exe'),
+    '-c', os.path.join('installer', 'config', 'config.xml'),
+    '-p', os.path.join('installer', 'packages'),
+    'epyq.exe'],
+    cwd='build'
+)
 
 import epyq.revision
 
+installer_file = 'epyq_hmi-{}.exe'.format(epyq.revision.hash)
 shutil.copy(
-    os.path.join('build', 'EPyQ_HMI.exe'),
-    os.path.join('..', 'EPyQ_HMI-{}.exe'.format(epyq.revision.hash))
+    os.path.join('build', 'epyq_hmi.exe'),
+    os.path.join('..', installer_file)
 )
+
+print('Created {}'.format(installer_file))
