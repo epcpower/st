@@ -114,15 +114,7 @@ else:
     src = os.path.join(os.getcwd(), args.virtualenv, 'src')
     os.makedirs(src, exist_ok=True)
 
-    packages = [
-        'pyqt5'
-        # 'gitpython'
-    ]
-
-    if not args.no_designer:
-        arch = platform.architecture()
-        if arch[1].lower().startswith('win'):
-            packages.append('pyqt5-tools')
+    packages = []
 
     for package in packages:
         pip_install(package, args.no_ssl_verify, virtual=True)
