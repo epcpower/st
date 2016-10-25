@@ -42,7 +42,7 @@ myfile = os.path.realpath(__file__)
 mydir = os.path.dirname(myfile)
 
 # TODO: CAMPid 9811163648546549994313612126896
-def pip_install(package, no_ssl_verify, virtual=False):
+def pip_install(package, no_ssl_verify, virtual=False, editable=False):
     pip_parameters = ['install']
     if no_ssl_verify:
         pip_parameters.append('--index-url=http://pypi.python.org/simple/')
@@ -50,6 +50,8 @@ def pip_install(package, no_ssl_verify, virtual=False):
         pip_parameters.append('pypi.python.org')
     if not virtual:
         pip_parameters.append('--user')
+    if editable:
+        pip_parameters.append('-e')
     pip_parameters.append(package)
     if pip.main(pip_parameters):
         raise Exception('Failed to install {}'.format(package))
@@ -108,7 +110,7 @@ else:
     def setup(path):
         backup = os.getcwd()
         os.chdir(path)
-        subprocess.run([sys.executable, os.path.join(path, 'setup.py'), 'develop'])
+        pip_install('.', args.no_ssl_verify, virtual=True, editable=True)
         os.chdir(backup)
 
     src = os.path.join(os.getcwd(), args.virtualenv, 'src')
