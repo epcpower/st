@@ -96,10 +96,16 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     return result
 
 
+import argparse
 import os
 import shutil
 
 from subprocess import Popen
+
+parser =  argparse.ArgumentParser()
+parser.add_argument('--device-file', '-d', type=str, default=None)
+
+args = parser.parse_args()
 
 def runit(args, cwd=None, env=None):
     proc = Popen(
@@ -198,8 +204,7 @@ runit(args=[
 
 files = []
 
-collect = False
-if collect:
+if args.device_file is not None:
     pip_install('gitpython', no_ssl_verify=False, site=True)
     os.environ['PATH'] = os.pathsep.join([
         os.environ['PATH'],
@@ -209,7 +214,7 @@ if collect:
 
     collected_devices_directory = os.path.join('build', 'devices')
     epyqlib.collectdevices.main(
-        device_files=[os.path.join('installer', 'devices.json')],
+        device_files=[args.device_file],
         output_directory=collected_devices_directory
     )
     files.extend(glob.glob(os.path.join(collected_devices_directory, '*.epz')))
