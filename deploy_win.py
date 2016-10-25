@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import sys
+
 # TODO: CAMPid 097541134161236179854863478319
 try:
     import pip
