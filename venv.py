@@ -179,7 +179,7 @@ else:
             import shutil
             shutil.copy(os.path.join(os.path.dirname(__file__), 'canmatrix.setup.py'),
                         os.path.join(args.virtualenv, 'src', 'canmatrix', 'setup.py'))
-        if name not in ['fontawesome']:
+        if name not in ['fontawesome', 'metropolis']:
             setup(os.path.join(src, name))
 
     setups = []
