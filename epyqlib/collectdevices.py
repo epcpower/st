@@ -26,16 +26,36 @@ def del_rw(action, name, exc):
         os.remove(name)
 
 
+def collect_blobs(tree):
+    blobs = tree.blobs
+    for subtree in tree.trees:
+        blobs.extend(collect_blobs(subtree))
+
+    return blobs
+
+
 def collect(devices, output_directory):
     with tempfile.TemporaryDirectory() as checkout_dir:
         os.makedirs(output_directory, exist_ok=True)
 
+        all_urls = set()
+        all_remotes = set()
+        all_devices = set()
+
+        dirs = []
+
         for name, values in devices.items():
             dir = os.path.join(checkout_dir, name)
+            dirs.append(dir)
             print('  Handling {}'.format(name))
             print('    Cloning {}'.format(values['repository']))
             repo = git.Repo.clone_from(values['repository'], dir)
             repo.git.checkout(values['branch'])
+
+            if values['repository'] not in all_urls:
+                all_urls.add(values['repository'])
+                all_remotes.add(repo)
+            all_devices.add((values['repository'], values['branch'], values['file']))
 
             device_path = os.path.join(dir, values['file'])
             print('    Loading {}'.format(values['file']))
@@ -59,6 +79,33 @@ def collect(devices, output_directory):
                               arcname=os.path.relpath(filename, start=device_dir)
                               )
 
+        all_devices_strings = ['{}:{}:{}'.format(url, branch, file) for url, branch, file in all_devices]
+
+        other_devices = set()
+
+        for repo in all_remotes:
+            origin_heads = [
+                r for r in repo.refs
+                if str(r).startswith('origin/')
+            ]
+
+            for branch in origin_heads:
+                tree = repo.tree(str(branch))
+                blobs = collect_blobs(tree=tree)
+                for blob in blobs:
+                    if blob.path.endswith('.epc'):
+                        s = '{}:{}:{}'.format(repo.remotes.origin.url, str(branch)[len('origin/'):], blob.path)
+                        if s not in all_devices_strings:
+                            other_devices.add(s)
+
+        other_devices = sorted(other_devices)
+        if len(other_devices) > 0:
+            print()
+            print('Other devices available from the referenced repositories:')
+            for device in other_devices:
+                print('    {}'.format(device))
+
+        for dir in dirs:
             # http://bugs.python.org/issue26660
             shutil.rmtree(dir, onerror=del_rw)
 
