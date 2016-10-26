@@ -34,7 +34,7 @@ def collect_blobs(tree):
     return blobs
 
 
-def collect(devices, output_directory):
+def collect(devices, output_directory, dry_run):
     with tempfile.TemporaryDirectory() as checkout_dir:
         os.makedirs(output_directory, exist_ok=True)
 
@@ -70,14 +70,16 @@ def collect(devices, output_directory):
 
             zip_file_name = name + '.epz'
             zip_path = os.path.join(output_directory, zip_file_name)
-            print('    Writing {}'.format(zip_file_name))
+            print('    {} {}'.format({False: 'Writing', True: 'Not writing'}[dry_run],
+                                     zip_file_name))
 
-            with zipfile.ZipFile(file=zip_path, mode='w') as zip:
-                for device_path in referenced_files:
-                    filename = os.path.join(device_dir, device_path)
-                    zip.write(filename=filename,
-                              arcname=os.path.relpath(filename, start=device_dir)
-                              )
+            if not dry_run:
+                with zipfile.ZipFile(file=zip_path, mode='w') as zip:
+                    for device_path in referenced_files:
+                        filename = os.path.join(device_dir, device_path)
+                        zip.write(filename=filename,
+                                  arcname=os.path.relpath(filename, start=device_dir)
+                                  )
 
         all_devices_strings = ['{}:{}:{}'.format(url, branch, file) for url, branch, file in all_devices]
 
@@ -127,6 +129,7 @@ def parse_args(args):
                         action=LoadJsonFiles, dest='device_files', nargs='+',
                         required=True)
     parser.add_argument('--output-directory', '-o', default=os.getcwd())
+    parser.add_argument('--dry-run', '-n', action='store_true')
 
     return parser.parse_args(args)
 
@@ -146,7 +149,9 @@ def main(args=None, device_files=None, output_directory=None):
 
     for name, devices in args.device_files:
         print('Processing {}'.format(name))
-        collect(devices=devices, output_directory=args.output_directory)
+        collect(devices=devices,
+                output_directory=args.output_directory,
+                dry_run=args.dry_run)
 
 
 if __name__ == '__main__':
