@@ -74,6 +74,8 @@ def load(file):
 
 class Device:
     def __init__(self, *args, **kwargs):
+        self.bus = None
+
         if kwargs.get('file', None) is not None:
             constructor = self._init_from_file
         else:
@@ -82,7 +84,8 @@ class Device:
         constructor(*args, **kwargs)
 
     def __del__(self):
-        self.bus.set_bus()
+        if self.bus is not None:
+            self.bus.set_bus()
 
     def _init_from_file(self, file, bus=None, elements=None,
                         tabs=None, rx_interval=0, edit_actions=None,
