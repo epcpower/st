@@ -14,6 +14,7 @@ import shutil
 import stat
 import sys
 import tempfile
+import traceback
 import zipfile
 
 
@@ -33,6 +34,10 @@ def collect_blobs(tree):
         blobs.extend(collect_blobs(subtree))
 
     return blobs
+
+
+class DeviceLoadError(Exception):
+    pass
 
 
 def collect(devices, output_directory, dry_run):
@@ -60,8 +65,17 @@ def collect(devices, output_directory, dry_run):
 
             device_path = os.path.join(dir, values['file'])
             print('    Loading {}'.format(values['file']))
-            device = epyqlib.device.Device(file=device_path,
-                                           only_for_files=True)
+            try:
+                device = epyqlib.device.Device(file=device_path,
+                                               only_for_files=True)
+            except Exception as e:
+                try:
+                    raise DeviceLoadError("Unable to open '{}'".format(device_path)) from e
+                except:
+                    print()
+                    traceback.print_exc()
+                    print()
+                    continue
             device_dir = os.path.dirname(device_path)
             device_file_name = os.path.basename(device_path)
             referenced_files = [
