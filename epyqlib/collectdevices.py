@@ -40,7 +40,10 @@ class DeviceLoadError(Exception):
     pass
 
 
-def collect(devices, output_directory, dry_run):
+def collect(devices, output_directory, dry_run, groups=None):
+    if groups is None:
+        groups = [None]
+
     with tempfile.TemporaryDirectory() as checkout_dir:
         os.makedirs(output_directory, exist_ok=True)
 
@@ -54,6 +57,7 @@ def collect(devices, output_directory, dry_run):
             dir = os.path.join(checkout_dir, name)
             dirs.append(dir)
             print('  Handling {}'.format(name))
+
             print('    Cloning {}'.format(values['repository']))
             repo = git.Repo.clone_from(values['repository'], dir)
             repo.git.checkout(values['branch'])
@@ -62,6 +66,12 @@ def collect(devices, output_directory, dry_run):
                 all_urls.add(values['repository'])
                 all_remotes.add(repo)
             all_devices.add((values['repository'], values['branch'], values['file']))
+
+            device_groups = values.get('groups', [None])
+            if set(device_groups).isdisjoint(set(groups)):
+                print('    Skipping {}'.format(values['file']))
+                print('        Device groups {} not in selected groups {}'.format(device_groups, groups))
+                continue
 
             device_path = os.path.join(dir, values['file'])
             print('    Loading {}'.format(values['file']))
