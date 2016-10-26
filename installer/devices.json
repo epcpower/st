@@ -1,12 +1,35 @@
 {
-    "UL1741": {
+    "DCDC 246 Factory": {
+        "repository": "https://epc-phab.exana.io/diffusion/DCDC",
+        "branch": "Feature_LC12_6",
+        "file": "interface/DCDC_ID246_FACTORY.epc",
+        "groups": ["factory"]
+    },
+    "DCDC 247 Factory": {
+        "repository": "https://epc-phab.exana.io/diffusion/DCDC",
+        "branch": "Feature_LC12_6",
+        "file": "interface/DCDC_ID247_FACTORY.epc",
+        "groups": ["factory"]
+    },
+    "UL1741 Microgrid": {
         "repository": "https://epc-phab.exana.io/diffusion/ICU",
         "branch": "UL1741",
         "file": "interface/microgrid.epc"
     },
-    "AFE": {
+    "Hydra": {
         "repository": "https://epc-phab.exana.io/diffusion/ICU",
         "branch": "AFE",
         "file": "interface/hydra.epc"
+    },
+    "Microgrid": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "AFE",
+        "file": "interface/microgrid.epc"
+    },
+    "Microgrid Factory": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "AFE",
+        "file": "interface/microgrid_factory.epc",
+        "groups": ["factory"]
     }
 }
