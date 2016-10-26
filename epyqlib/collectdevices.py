@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import collections
 import epyqlib.device
 try:
     import git
@@ -119,7 +120,7 @@ class LoadJsonFiles(argparse.Action):
 
         for value in values:
             getattr(namespace, self.dest).append(
-                (value.name, json.loads(value.read()))
+                (value.name, json.loads(value.read(), object_pairs_hook=collections.OrderedDict))
             )
 
 
