@@ -46,8 +46,9 @@ from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
                           Qt, pyqtSlot, QMarginsF)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
-                             QListWidgetItem, QAction, QMenu)
-from PyQt5.QtGui import QPixmap, QPicture
+                             QListWidgetItem, QAction, QMenu, QInputDialog,
+                             QPlainTextEdit)
+from PyQt5.QtGui import QPixmap, QPicture, QTextCursor
 import time
 import traceback
 
@@ -79,7 +80,10 @@ class Window(QtWidgets.QMainWindow):
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
-        self.ui.action_About.triggered.connect(self.about)
+        self.ui.action_about.triggered.connect(self.about_dialog)
+        self.ui.action_license.triggered.connect(self.license_dialog)
+        self.ui.action_third_party_licenses.triggered.connect(
+            self.third_party_licenses_dialog)
 
         device_tree = epyqlib.devicetree.Tree()
         device_tree_model = epyqlib.devicetree.Model(root=device_tree)
@@ -88,20 +92,30 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.device_tree.device_selected.connect(self.set_current_device)
 
-    def about(self):
-        box = QMessageBox()
-        box.setWindowTitle("About EPyQ")
+    def license_dialog(self):
+        print(os.getcwd())
+        with open(os.path.join('Licenses', 'epyq-COPYING.txt')) as f:
+            message = f.read()
 
-        # TODO: CAMPid 980567566238416124867857834291346779
-        ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
-        ico = QtGui.QIcon(ico_file)
-        box.setWindowIcon(ico)
+        self.dialog(title='EPyQ License',
+                    message=message,
+                    scrollable=True)
 
+    def third_party_licenses_dialog(self):
+        print(os.getcwd())
+        with open(os.path.join('Licenses', 'third_party-LICENSE.txt')) as f:
+            message = f.read()
+
+        self.dialog(title='Third Party License',
+                    message=message,
+                    scrollable=True)
+
+    def about_dialog(self):
         message = [
             __copyright__,
             __license__
         ]
-        
+
         try:
             import epyq.revision
         except ImportError:
@@ -109,7 +123,41 @@ class Window(QtWidgets.QMainWindow):
         else:
             message.append(epyq.revision.hash)
 
-        box.setText('\n'.join(message))
+        message = '\n'.join(message)
+
+        self.dialog(title='About EPyQ',
+                    message=message)
+
+    def dialog(self, title, message, scrollable=False):
+        if not scrollable:
+            box = QMessageBox()
+            box.setText(message)
+        else:
+            box = QInputDialog()
+            box.setOptions(QInputDialog.UsePlainTextEditForTextInput)
+            box.setTextValue(message)
+            box.setLabelText('')
+
+            text_edit = box.findChildren(QPlainTextEdit)[0]
+
+            metric = text_edit.fontMetrics()
+            line_widths = sorted([metric.width(line) for line
+                                  in message.splitlines()])
+
+            index = int(0.95 * len(line_widths))
+            width = line_widths[index]
+
+            text_edit.setMinimumWidth(width * 1.1)
+            text_edit.setReadOnly(True)
+
+        box.setWindowTitle(title)
+
+        # TODO: CAMPid 980567566238416124867857834291346779
+        ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
+                                'icon.ico')
+        ico = QtGui.QIcon(ico_file)
+        box.setWindowIcon(ico)
+
         box.exec_()
 
     @pyqtSlot(epyqlib.device.Device)
