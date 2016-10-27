@@ -94,7 +94,7 @@ class Window(QtWidgets.QMainWindow):
 
     def license_dialog(self):
         print(os.getcwd())
-        with open(os.path.join('Licenses', 'epyq-COPYING.txt')) as f:
+        with open(os.path.join('Licenses', 'epyq-COPYING.txt'), encoding='UTF-8') as f:
             message = f.read()
 
         self.dialog(title='EPyQ License',
@@ -103,7 +103,7 @@ class Window(QtWidgets.QMainWindow):
 
     def third_party_licenses_dialog(self):
         print(os.getcwd())
-        with open(os.path.join('Licenses', 'third_party-LICENSE.txt')) as f:
+        with open(os.path.join('Licenses', 'third_party-LICENSE.txt'), encoding='UTF-8') as f:
             message = f.read()
 
         self.dialog(title='Third Party License',
