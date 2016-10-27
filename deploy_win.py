@@ -252,19 +252,19 @@ third_party_license = os.path.join(
 
 with open(third_party_license, 'w', encoding='utf-8') as out:
     licenses = [
-        ('bitstruct', ('venv', 'src', 'bitstruct', 'LICENSE'), None),
-        ('canmatrix', ('venv', 'src', 'canmatrix', 'LICENSE'), None),
-        ('python-can', ('venv', 'src', 'python-can', 'LICENSE.txt'), None),
-        ('Python', ('c:/', 'Program Files (x86)', 'python35-32', 'LICENSE.txt'), None),
-        ('PyQt5', ('$SYSROOT', '..', 'src', 'PyQt5_gpl-5.7', 'LICENSE'), None),
-        ('Qt', ('c:/', 'Qt', 'Qt5.7.0', 'Licenses', 'LICENSE'), None),
-        ('PEAK-System', ('installer', 'peak-system.txt'), 'http://www.peak-system.com/produktcd/Develop/PC%20interfaces/Windows/API-ReadMe.txt'),
-        ('Microsoft Visual C++ Build Tools', ('installer', 'microsoft_visual_cpp_build_tools_eula.html'), 'https://www.visualstudio.com/en-us/support/legal/mt644918')
+        ('bitstruct', ('venv', 'src', 'bitstruct', 'LICENSE'), None, False),
+        ('canmatrix', ('venv', 'src', 'canmatrix', 'LICENSE'), None, False),
+        ('python-can', ('venv', 'src', 'python-can', 'LICENSE.txt'), None, False),
+        ('Python', ('c:/', 'Program Files (x86)', 'python35-32', 'LICENSE.txt'), None, False),
+        ('PyQt5', ('$SYSROOT', '..', 'src', 'PyQt5_gpl-5.7', 'LICENSE'), None, False),
+        ('Qt', ('c:/', 'Qt', 'Qt5.7.0', 'Licenses', 'LICENSE'), None, True),
+        ('PEAK-System', ('installer', 'peak-system.txt'), 'http://www.peak-system.com/produktcd/Develop/PC%20interfaces/Windows/API-ReadMe.txt', False),
+        ('Microsoft Visual C++ Build Tools', ('installer', 'microsoft_visual_cpp_build_tools_eula.html'), 'https://www.visualstudio.com/en-us/support/legal/mt644918', False)
     ]
 
-    widest = max([len(name) for name, _, _ in licenses])
+    widest = max([len(name) for name, _, _, _ in licenses])
     minimum = 4
-    for name, path, url in licenses:
+    for name, path, url, collapse_double_newlines in licenses:
         print('Appending {} to third party license file'.format(name))
         header = '  == ' + name + ' '
         header += '=' * ((widest + 6 + minimum) - len(header))
@@ -281,6 +281,8 @@ with open(third_party_license, 'w', encoding='utf-8') as out:
                         out.write(url + '\n\n')
 
                     contents = in_file.read()
+                    if collapse_double_newlines:
+                        contents = contents.replace('\n\n', '\n')
                     out.write(contents)
                     out.write('\n\n\n')
             except UnicodeDecodeError:
