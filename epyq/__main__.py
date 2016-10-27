@@ -92,23 +92,36 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.device_tree.device_selected.connect(self.set_current_device)
 
-    def license_dialog(self):
-        print(os.getcwd())
-        with open(os.path.join('Licenses', 'epyq-COPYING.txt'), encoding='UTF-8') as f:
-            message = f.read()
+    def dialog_from_file(self, title, file_name):
+        # The Qt Installer Framework (QtIFW) likes to do a few things to license files...
+        #  * '\n' -> '\r\n'
+        #   * even such that '\r\n' -> '\r\r\n'
+        #  * Recodes to something else (probably cp-1251)
+        #
+        # So, we'll just try different encodings and hope one of them works.
 
-        self.dialog(title='EPyQ License',
+        encodings = [None, 'utf-8']
+
+        for encoding in encodings:
+            try:
+                with open(os.path.join('Licenses', file_name), encoding=encoding) as in_file:
+                    message = in_file.read()
+            except UnicodeDecodeError:
+                pass
+            else:
+                break
+
+        self.dialog(title=title,
                     message=message,
                     scrollable=True)
+
+    def license_dialog(self):
+        self.dialog_from_file(title='EPyQ License',
+                              file_name='epyq-COPYING.txt')
 
     def third_party_licenses_dialog(self):
-        print(os.getcwd())
-        with open(os.path.join('Licenses', 'third_party-LICENSE.txt'), encoding='UTF-8') as f:
-            message = f.read()
-
-        self.dialog(title='Third Party License',
-                    message=message,
-                    scrollable=True)
+        self.dialog_from_file(title='Third Party Licenses',
+                              file_name='third_party-LICENSE.txt')
 
     def about_dialog(self):
         message = [
