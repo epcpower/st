@@ -250,7 +250,13 @@ third_party_license = os.path.join(
     'third_party-LICENSE.txt'
 )
 
-with open(third_party_license, 'w', encoding='utf-8') as out:
+# The Qt Installer Framework (QtIFW) likes to do a few things to license files...
+#  * '\n' -> '\r\n'
+#   * even such that '\r\n' -> '\r\r\n'
+#  * Recodes to something else (probably cp-1251)
+#
+# So, we'll just try force '\n' can become something still acceptable after being messed with
+with open(third_party_license, 'w', encoding='utf-8', newline='\n') as out:
     licenses = [
         ('bitstruct', ('venv', 'src', 'bitstruct', 'LICENSE'), None, False),
         ('canmatrix', ('venv', 'src', 'canmatrix', 'LICENSE'), None, False),
