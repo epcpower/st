@@ -121,12 +121,7 @@ class Signal(QObject):
                 else:
                     raise
         except ValueError:
-            if value in self.enumeration_strings():
-                match = re.search(self.enumeration_format_re['re'], value)
-                value = match.group(1)
-                value = float(value)
-            else:
-                raise
+            value = float(self.enumeration_strings().index(value))
 
         self.set_value(value=self.from_human(value),
                        force=force,
