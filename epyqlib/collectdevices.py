@@ -48,6 +48,7 @@ def collect(devices, output_directory, dry_run, groups=None):
         os.makedirs(output_directory, exist_ok=True)
 
         all_urls = set()
+        all_repos = []
         all_remotes = set()
         all_devices = set()
 
@@ -60,6 +61,7 @@ def collect(devices, output_directory, dry_run, groups=None):
 
             print('    Cloning {}'.format(values['repository']))
             repo = git.Repo.clone_from(values['repository'], dir)
+            all_repos.append(repo)
             repo.git.checkout(values['branch'])
 
             if values['repository'] not in all_urls:
@@ -131,6 +133,12 @@ def collect(devices, output_directory, dry_run, groups=None):
             print('Other devices available from the referenced repositories:')
             for device in other_devices:
                 print('    {}'.format(device))
+
+        # TODO: workaround for 'bug' in gitpython
+        #       https://epc-phab.exana.io/T407
+        #       https://github.com/gitpython-developers/GitPython/issues/546
+        for repo in all_repos:
+            repo.git.clear_cache()
 
         for dir in dirs:
             # http://bugs.python.org/issue26660
