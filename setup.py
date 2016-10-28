@@ -9,7 +9,12 @@ setup(
          "GNU General Public License v2 or later (GPLv2+)")
     ],
     packages=find_packages(),
-    entry_points={'console_scripts': ['collectdevices = epyqlib.collectdevices:main']},
+    entry_points={
+        'console_scripts': [
+            'collectdevices = epyqlib.collectdevices:main',
+            'patchvenv = epyqlib.patchvenv:main'
+        ]
+    },
     install_requires=[
         'gitpython',
         'PyQt5'
