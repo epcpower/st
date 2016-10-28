@@ -249,10 +249,14 @@ class TxRx(TreeNode, epyqlib.canneo.QtCanListener):
         self.update_timer.start()
 
     def gui_update(self):
-        self.changed.emit(
-            self, 0,
-            self, 1,
-            [Qt.DisplayRole])
+        # TODO: this is hacky but without it the rx widget would get values
+        #       overwritten while they were being edited keeping the user
+        #       from actually being able to change them
+        if self.rx:
+            self.changed.emit(
+                self, 0,
+                self, 1,
+                [Qt.DisplayRole])
 
     def set_node_id(self, node_id):
         # TODO: I think this can go away
