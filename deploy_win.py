@@ -102,9 +102,14 @@ import shutil
 
 from subprocess import Popen
 
+default_sysroot = os.path.abspath(
+    os.path.join('..', '..', 'sysroot')
+)
+
 parser =  argparse.ArgumentParser()
 parser.add_argument('--device-file', '-d', type=str, default=None)
 parser.add_argument('--name', '-n', type=str, required=True)
+parser.add_argument('--sysroot', '-s', type=str)
 
 args = parser.parse_args()
 
@@ -144,6 +149,11 @@ env['PATH'] = ';'.join([
         os.environ['PATH']
     ])
 env['QMAKESPEC'] = 'win32-msvc2015'
+if 'SYSROOT' not in env:
+    if args.sysroot is None:
+        env['SYSROOT'] = default_sysroot
+    else:
+        env['SYSROOT'] = args.sysroot
 
 env = get_environment_from_batch_command(
     [
