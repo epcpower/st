@@ -14,17 +14,44 @@
     "UL1741 Microgrid": {
         "repository": "https://epc-phab.exana.io/diffusion/ICU",
         "branch": "UL1741",
-        "file": "interface/microgrid.epc"
+        "file": "interface/microgrid.epc",
+        "groups": ["dev"]
+    },
+    "UL1741 Microgrid Factory": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "UL1741",
+        "file": "interface/microgrid_factory.epc",
+        "groups": ["dev", "factory"]
+    },
+    "UL1741 Hydra": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "UL1741",
+        "file": "interface/hydra.epc",
+        "groups": ["dev"]
     },
     "Hydra": {
         "repository": "https://epc-phab.exana.io/diffusion/ICU",
         "branch": "AFE",
-        "file": "interface/hydra.epc"
+        "file": "interface/hydra.epc",
+        "groups": ["dev"]
+    },
+    "Distributed Generation": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "TUV_UUTapp",
+        "file": "interface/distributed_generation.epc",
+        "groups": ["release"]
+    },
+    "ICU": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "RS11_Cleanup",
+        "file": "interface/icu.epc",
+        "groups": ["release"]
     },
     "Microgrid": {
         "repository": "https://epc-phab.exana.io/diffusion/ICU",
         "branch": "AFE",
-        "file": "interface/microgrid.epc"
+        "file": "interface/microgrid.epc",
+        "groups": ["release"]
     },
     "Microgrid Factory": {
         "repository": "https://epc-phab.exana.io/diffusion/ICU",
