@@ -42,7 +42,7 @@ class DeviceLoadError(Exception):
 
 def collect(devices, output_directory, dry_run, groups=None):
     if groups is None:
-        groups = [None]
+        groups = []
 
     with tempfile.TemporaryDirectory() as checkout_dir:
         os.makedirs(output_directory, exist_ok=True)
@@ -69,7 +69,7 @@ def collect(devices, output_directory, dry_run, groups=None):
                 all_remotes.add(repo)
             all_devices.add((values['repository'], values['branch'], values['file']))
 
-            device_groups = values.get('groups', [None])
+            device_groups = values.get('groups', [])
             if set(device_groups).isdisjoint(set(groups)):
                 print('    Skipping {}'.format(values['file']))
                 print('        Device groups {} not in selected groups {}'.format(device_groups, groups))
@@ -163,11 +163,12 @@ def parse_args(args):
                         required=True)
     parser.add_argument('--output-directory', '-o', default=os.getcwd())
     parser.add_argument('--dry-run', '-n', action='store_true')
+    parser.add_argument('--group', '-g', dest='groups', action='append', required=True)
 
     return parser.parse_args(args)
 
 
-def main(args=None, device_files=None, output_directory=None):
+def main(args=None, device_files=None, output_directory=None, groups=None):
     if args is None:
         args = sys.argv[1:]
 
@@ -178,13 +179,18 @@ def main(args=None, device_files=None, output_directory=None):
     if output_directory is not None:
         args.extend(['-o', output_directory])
 
+    if groups is not None:
+        for group in groups:
+            args.extend(['-g', group])
+
     args = parse_args(args=args)
 
     for name, devices in args.device_files:
         print('Processing {}'.format(name))
         collect(devices=devices,
                 output_directory=args.output_directory,
-                dry_run=args.dry_run)
+                dry_run=args.dry_run,
+                groups=args.groups)
 
 
 if __name__ == '__main__':
