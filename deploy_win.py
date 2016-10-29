@@ -99,6 +99,8 @@ def get_environment_from_batch_command(env_cmd, initial=None):
 import argparse
 import os
 import shutil
+import tempfile
+import zipfile
 
 from subprocess import Popen
 
@@ -137,6 +139,7 @@ runit(
     cwd='epyq'
 )
 
+import epyq.revision
 
 qt_root = os.path.join('C:/', 'Qt', 'Qt5.7.0')
 
@@ -227,11 +230,28 @@ if args.device_file is not None:
     epyqlib.collectdevices.main(
         args=[],
         device_files=[args.device_file],
-        output_directory=collected_devices_directory
+        output_directory=collected_devices_directory,
+        groups=['release']
     )
     files.extend(glob.glob(os.path.join(collected_devices_directory, '*.epz')))
 
-for extension in ['sym', 'epc', 'epz', 'py', 'ui', 'svg']:
+    with tempfile.TemporaryDirectory() as factory_dir:
+        epyqlib.collectdevices.main(
+            args=[],
+            device_files=[args.device_file],
+            output_directory=factory_dir,
+            groups=['factory']
+        )
+
+        zip_path = os.path.join('..', '{}_factory-{}.zip'.format(args.name, epyq.revision.hash))
+        with zipfile.ZipFile(file=zip_path, mode='w') as zip:
+            for path in glob.glob(os.path.join(factory_dir, '*.epz')):
+                zip.write(filename=path,
+                          arcname=os.path.basename(path)
+                )
+
+
+for extension in ['svg']:
     files.extend(glob.glob('*.' + extension))
 files.append(os.path.join('c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'redist', 'x86', 'Microsoft.VC140.CRT', 'msvcp140.dll'))
 files.append(os.path.join('c:/', 'Windows', 'SysWOW64', 'PCANBasic.dll'))
@@ -287,9 +307,9 @@ with open(third_party_license, 'w', encoding='utf-8', newline='\n') as out:
         out.write(header + '\n\n')
 
         encodings = [None, 'utf-8']
-        
+
         in_path = os.path.expandvars(os.path.join(*path))
-        
+
         for encoding in encodings:
             try:
                 with open(in_path, encoding=encoding) as in_file:
@@ -341,8 +361,6 @@ runit(args=[
     'epyq.exe'],
     cwd='build'
 )
-
-import epyq.revision
 
 installer_file = '{}-{}.exe'.format(args.name, epyq.revision.hash)
 shutil.copy(
