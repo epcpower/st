@@ -63,6 +63,7 @@ def collect(devices, output_directory, dry_run, groups=None):
             repo = git.Repo.clone_from(values['repository'], dir)
             all_repos.append(repo)
             repo.git.checkout(values['branch'])
+            sha = repo.head.commit.hexsha
 
             if values['repository'] not in all_urls:
                 all_urls.add(values['repository'])
@@ -107,6 +108,15 @@ def collect(devices, output_directory, dry_run, groups=None):
                         zip.write(filename=filename,
                                   arcname=os.path.relpath(filename, start=device_dir)
                                   )
+
+                    sha_file_name = 'sha'
+                    sha_file_path = os.path.join(checkout_dir, sha_file_name)
+                    with open(sha_file_path, 'w') as sha_file:
+                        sha_file.write(sha + '\n')
+                    zip.write(
+                        filename=sha_file_path,
+                        arcname=sha_file_name
+                    )
 
         all_devices_strings = ['{}:{}:{}'.format(url, branch, file) for url, branch, file in all_devices]
 
