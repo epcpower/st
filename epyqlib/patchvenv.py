@@ -138,6 +138,7 @@ def parse_args(args):
     parser.add_argument('--source', '--src', '-s', required=True)
     parser.add_argument('--bin', '-b', required=True)
     parser.add_argument('--root', '-r', required=True)
+    parser.add_argument('--for-test', action='store_true')
 
     return parser.parse_args(args)
 
@@ -150,8 +151,9 @@ def main(args=None):
 
     download_zips(directory=args.source)
     patch_activate(bin=args.bin)
-    write_activate_shortcuts(root=args.root, bin=args.bin)
-    copy_designer_files(root=args.root)
+    if not args.for_test:
+        write_activate_shortcuts(root=args.root, bin=args.bin)
+        copy_designer_files(root=args.root)
 
 
 if __name__ == '__main__':
