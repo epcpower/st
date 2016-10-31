@@ -78,7 +78,6 @@ import tox
 
 tox_arguments = [
     '-e', 'devenv',
-    '--recreate',
     *sys.argv[1:]
 ]
 
