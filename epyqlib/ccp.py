@@ -48,8 +48,7 @@ class Handler(epyqlib.canneo.QtCanListener):
         self._send_counter = 0
 
     def connect(self):
-        packet = HostCommand()
-        packet.command_code = CommandCode.connect
+        packet = HostCommand(code=CommandCode.connect)
 
         self._send(packet=packet)
 
@@ -132,6 +131,7 @@ class Packet(can.Message):
             c = HostCommand
 
         return c(
+            code=None,
             timestamp=message.timestamp,
             is_remote_frame=message.is_remote_frame,
             extended_id=message.id_type,
@@ -170,8 +170,11 @@ class Packet(can.Message):
 
 
 class HostCommand(Packet):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, code, *args, **kwargs):
         super().__init__(counter_index=1, payload_start=2, *args, **kwargs)
+
+        if code is not None:
+            self.command_code = code
 
     @property
     def command_code(self):
@@ -183,8 +186,11 @@ class HostCommand(Packet):
 
 
 class BootloaderReply(Packet):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, code, *args, **kwargs):
         super().__init__(counter_index=2, payload_start=3, *args, **kwargs)
+
+        if code is not None:
+            self.command_return_code = code
 
     @property
     def command_return_code(self):

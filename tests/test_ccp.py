@@ -11,23 +11,25 @@ def test_print_some_stuff():
 
 def test_IdentifierTypeError():
     with pytest.raises(ccp.IdentifierTypeError):
-        ccp.HostCommand(extended_id=False)
+        ccp.HostCommand(code=ccp.CommandCode.connect,
+                        extended_id=False)
 
 
 def test_PayloadLengthError():
     with pytest.raises(ccp.PayloadLengthError):
-        hc = ccp.HostCommand()
+        hc = ccp.HostCommand(code=ccp.CommandCode.connect)
         hc.payload = [0] * 20
 
 
 def test_MessageLengthError():
     with pytest.raises(ccp.MessageLengthError):
-        ccp.HostCommand(dlc=5)
+        ccp.HostCommand(code=ccp.CommandCode.connect,
+                        dlc=5)
 
 
 def test_UnexpectedMessageReceived():
     handler = ccp.Handler(bus=None)
-    packet = ccp.HostCommand()
+    packet = ccp.HostCommand(code=ccp.CommandCode.connect)
     packet.data[0] = 0
 
     with pytest.raises(ccp.UnexpectedMessageReceived):
