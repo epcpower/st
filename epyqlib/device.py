@@ -19,6 +19,7 @@ import math
 import os
 import shutil
 import tempfile
+import textwrap
 import zipfile
 
 from collections import OrderedDict
@@ -27,7 +28,7 @@ from epyqlib.busproxy import BusProxy
 from epyqlib.widgets.abstractwidget import AbstractWidget
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSlot, Qt, QFile, QFileInfo, QTextStream, QObject
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QMessageBox
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -396,6 +397,8 @@ class Device:
         flat = flatten(self.dash_uis)
         flat = [v for v in flat if isinstance(v, QWidget)]
 
+        default_widget_value = math.nan
+
         self.dash_connected_signals = set()
         self.dash_missing_signals = set()
         for dash in flat:
@@ -412,7 +415,7 @@ class Device:
                 signal_name = widget.property('signal')
 
                 widget.set_range(min=0, max=100)
-                widget.set_value(math.nan)
+                widget.set_value(default_widget_value)
 
                 # TODO: add some notifications
                 found = False
@@ -468,8 +471,26 @@ class Device:
 
         if len(self.dash_missing_signals) > 0:
             print('\n === Signals referenced by a widget but not defined')
-            for frame_signal in sorted(self.dash_missing_signals):
-                print(frame_signal)
+            undefined_signals = '\n'.join(sorted(self.dash_missing_signals))
+            print(undefined_signals)
+
+            box = QMessageBox()
+            box.setWindowTitle("EPyQ")
+
+            message = ('The following signals are referenced by the .ui '
+                       'files but were not found in the loaded CAN '
+                       'database.  The widgets will show `{}`.'
+                       .format(default_widget_value))
+
+            message = textwrap.dedent('''\
+            {message}
+
+            {signals}
+            ''').format(message=message,
+                        signals=undefined_signals)
+
+            box.setText(message)
+            box.exec_()
 
         self.extension.post()
 
