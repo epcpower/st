@@ -371,7 +371,7 @@ if __name__ == '__main__':
 
     def excepthook(excType, excValue, tracebackobj):
         print('Uncaught exception hooked:')
-        traceback.print_tb(tracebackobj)
+        traceback.print_exception(excType, excType, tracebackobj)
 
     sys.excepthook = excepthook
     signal.signal(signal.SIGINT, signal.SIG_DFL)
