@@ -35,6 +35,13 @@ class UnexpectedMessageReceived(ValueError):
 bootloader_can_id = 0x0B081880
 
 
+@enum.unique
+class HandlerState(enum.Enum):
+    idle = 0
+    connecting = 1
+    connected = 2
+
+
 class Handler(epyqlib.canneo.QtCanListener):
     def __init__(self, bus, id=bootloader_can_id, extended=True, parent=None):
         epyqlib.canneo.QtCanListener.__init__(self,
@@ -47,10 +54,18 @@ class Handler(epyqlib.canneo.QtCanListener):
 
         self._send_counter = 0
 
+        self._state = HandlerState.idle
+
     def connect(self):
+        if self._state is not HandlerState.idle:
+            raise HandlerBusy(
+                'Connect requested while {}'.format(self._state.name))
+
         packet = HostCommand(code=CommandCode.connect)
 
         self._send(packet=packet)
+
+        self._state = HandlerState.connecting
 
     def _send(self, packet):
         packet.command_counter = self._send_counter
@@ -64,15 +79,35 @@ class Handler(epyqlib.canneo.QtCanListener):
 
     @pyqtSlot(can.Message)
     def packet_received(self, msg):
-        if (msg.arbitration_id == self._id and
+        if not (msg.arbitration_id == self._id and
                     bool(msg.id_type) == self._extended):
-            packet = Packet.from_message(message=msg)
+            return
 
-            if not isinstance(packet, BootloaderReply):
+        packet = Packet.from_message(message=msg)
+
+        if not isinstance(packet, BootloaderReply):
+            raise UnexpectedMessageReceived(
+                'Not a bootloader reply: {}'.format(packet))
+
+
+        print('packet received: {}'.format(packet.command_return_code.name))
+
+        if self._state is HandlerState.connecting:
+            if packet.command_return_code is not CommandStatus.acknowledge:
                 raise UnexpectedMessageReceived(
-                    'Not a bootloader reply: {}'.format(packet))
+                    'Bootloader should ack when trying to connect, instead: {}'
+                        .format(packet))
 
-            print('packet received: {}'.format(packet.command_return_code.name))
+            print('Bootloader version: {major}.{minor}'.format(
+                major=packet.payload[0],
+                minor=packet.payload[1]
+            ))
+
+            dsp_code = (int(packet.payload[2]) << 8) + int(packet.payload[3])
+
+            print('DSP Part ID: {}'.format(DspCode(dsp_code).name))
+
+            self._state = HandlerState.connected
 
 
 def crc(bytes):
@@ -240,6 +275,25 @@ _command_code_properties = {
     CommandCode.action_service: CommandCodeProperties(timeout=1000),
     CommandCode.download_6: CommandCodeProperties(timeout=1000)
 }
+
+
+@enum.unique
+class DspCode(enum.IntEnum):
+    _2801 = 0x002C
+    _2802 = 0x0024
+    _2806 = 0x0034
+    _2808 = 0x003C
+    _2809 = 0x00FE
+    _28232 = 0x00E6
+    _28234 = 0x00E7
+    _28235 = 0x00E8
+    _28332 = 0x00ED
+    _28334 = 0x00EE
+    _28335 = 0x00EF
+    _28069PZP = 0x009E
+    _28069UPZ = 0x009F
+    _28069PFP = 0x009C
+    _28069UPFP = 0x009D
 
 
 @enum.unique

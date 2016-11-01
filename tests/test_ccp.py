@@ -1,3 +1,4 @@
+import epyqlib.busproxy
 import epyqlib.ccp as ccp
 import pytest
 
@@ -34,3 +35,13 @@ def test_UnexpectedMessageReceived():
 
     with pytest.raises(ccp.UnexpectedMessageReceived):
         handler.packet_received(packet)
+
+
+def test_HandlerBusy():
+    bus = epyqlib.busproxy.BusProxy()
+    handler = ccp.Handler(bus=bus)
+
+    handler.connect()
+
+    with pytest.raises(ccp.HandlerBusy):
+        handler.connect()
