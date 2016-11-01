@@ -15,6 +15,7 @@ import functools
 import importlib.util
 import io
 import json
+import math
 import os
 import shutil
 import tempfile
@@ -411,7 +412,7 @@ class Device:
                 signal_name = widget.property('signal')
 
                 widget.set_range(min=0, max=100)
-                widget.set_value(42)
+                widget.set_value(math.nan)
 
                 # TODO: add some notifications
                 found = False

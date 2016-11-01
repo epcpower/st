@@ -5,6 +5,7 @@
 import canmatrix.importany as importany
 import epyqlib.canneo
 import epyqlib.widgets.abstractwidget
+import math
 import os
 
 from PyQt5.QtCore import pyqtProperty, QTimer
@@ -113,7 +114,7 @@ class EpcForm(QWidget):
             signal_name = widget.property('signal')
 
             widget.set_range(min=0, max=100)
-            widget.set_value(42)
+            widget.set_value(math.nan)
 
             # TODO: add some notifications
             frame = self.neo.frame_by_name(frame_name)
