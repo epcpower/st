@@ -1,18 +1,25 @@
+import epyqlib.ccp
+import logging
 import can
-import epyqlib.busproxy
-import epyqlib.canneo
 import collections
 import enum
+import epyqlib.busproxy
+import epyqlib.canneo
 import functools
-import signal
 import os
+import signal
 import sys
+import twisted.internet.defer
+import twisted.protocols.policies
 
 from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtWidgets import QApplication
 
 
-def main(args=None):
+logger = logging.getLogger()
+
+
+def main():
     app = QApplication(sys.argv)
 
     real_bus = can.interface.Bus(bustype='socketcan', channel='can0')
@@ -28,6 +35,9 @@ def main(args=None):
 class HandlerBusy(RuntimeError):
     pass
 
+class HandlerUnknownState(RuntimeError):
+    pass
+
 class UnexpectedMessageReceived(ValueError):
     pass
 
@@ -40,15 +50,15 @@ class HandlerState(enum.Enum):
     idle = 0
     connecting = 1
     connected = 2
+    disconnecting = 3
 
 
-class Handler(epyqlib.canneo.QtCanListener):
-    def __init__(self, bus, id=bootloader_can_id, extended=True, parent=None):
-        epyqlib.canneo.QtCanListener.__init__(self,
-                                              self.packet_received,
-                                              parent=parent)
+class Handler(twisted.protocols.policies.TimeoutMixin):
+    def __init__(self, id=bootloader_can_id, extended=True, parent=None):
+        self._deferred = None
+        self._active = False
+        self._transport = None
 
-        self._bus = bus
         self._id = id
         self._extended = extended
 
@@ -56,18 +66,47 @@ class Handler(epyqlib.canneo.QtCanListener):
 
         self._state = HandlerState.idle
 
-    def connect(self):
+    def makeConnection(self, transport):
+        self._transport = transport
+        logger.debug('Handler.makeConnection(): {}'.format(transport))
+
+    def connect(self, _=None):
+        if self._active:
+            raise Exception('self._active is True')
+
+        self._deferred = twisted.internet.defer.Deferred()
+
         if self._state is not HandlerState.idle:
-            raise HandlerBusy(
-                'Connect requested while {}'.format(self._state.name))
+            self.errback(HandlerBusy(
+                'Connect requested while {}'.format(self._state.name)))
 
         packet = HostCommand(code=CommandCode.connect)
-
-        self._send(packet=packet)
+        self._send(packet)
 
         self._state = HandlerState.connecting
 
-    def _send(self, packet):
+        return self._deferred
+
+    def disconnect(self, _=None):
+        if self._active:
+            raise Exception('self._active is True')
+
+        self._deferred = twisted.internet.defer.Deferred()
+
+        if self._state is not HandlerState.connected:
+            self.errback(HandlerBusy(
+                'Disconnect requested while {}'.format(self._state.name)))
+
+        packet = HostCommand(code=CommandCode.disconnect)
+        self._send(packet)
+
+        self._state = HandlerState.disconnecting
+
+        logger.debug('disconnecting')
+        return self._deferred
+
+
+    def _send(self, packet, timeout=1):
         packet.command_counter = self._send_counter
 
         if self._send_counter < 255:
@@ -75,39 +114,74 @@ class Handler(epyqlib.canneo.QtCanListener):
         else:
             self._send_counter = 0
 
-        self._bus.send(msg=packet)
+        self._transport.write(packet)
 
-    @pyqtSlot(can.Message)
-    def packet_received(self, msg):
+        if timeout > 0:
+            self.setTimeout(timeout)
+        else:
+            self.resetTimeout()
+
+    def dataReceived(self, msg):
         if not (msg.arbitration_id == self._id and
                     bool(msg.id_type) == self._extended):
             return
 
+        if self._active:
+            raise Exception('self._active is False')
+
+        self.setTimeout(None)
+
         packet = Packet.from_message(message=msg)
 
         if not isinstance(packet, BootloaderReply):
-            raise UnexpectedMessageReceived(
-                'Not a bootloader reply: {}'.format(packet))
+            self.errback(UnexpectedMessageReceived(
+                'Not a bootloader reply: {}'.format(packet)))
 
 
-        print('packet received: {}'.format(packet.command_return_code.name))
+        logger.debug('packet received: {}'.format(packet.command_return_code.name))
 
         if self._state is HandlerState.connecting:
             if packet.command_return_code is not CommandStatus.acknowledge:
-                raise UnexpectedMessageReceived(
+                self.errback(UnexpectedMessageReceived(
                     'Bootloader should ack when trying to connect, instead: {}'
-                        .format(packet))
+                        .format(packet)))
 
-            print('Bootloader version: {major}.{minor}'.format(
+            logger.debug('Bootloader version: {major}.{minor}'.format(
                 major=packet.payload[0],
                 minor=packet.payload[1]
             ))
 
             dsp_code = (int(packet.payload[2]) << 8) + int(packet.payload[3])
 
-            print('DSP Part ID: {}'.format(DspCode(dsp_code).name))
+            logger.debug('DSP Part ID: {}'.format(DspCode(dsp_code).name))
 
             self._state = HandlerState.connected
+            self.callback('successfully connected')
+        elif self._state is HandlerState.disconnecting:
+            if packet.command_return_code is not CommandStatus.acknowledge:
+                self.errback(UnexpectedMessageReceived(
+                    'Bootloader should ack when trying to disconnect, instead: {}'
+                        .format(packet)))
+
+            self._state = HandlerState.idle
+            self.callback('successfully disconnected')
+        else:
+            self.errback(HandlerUnknownState(
+                'Handler in unknown state: {}'.format(self._state)))
+
+    def timeoutConnection(self):
+        raise Exception(
+            'Handler timed out while in state: {}'.format(self._state))
+
+    def callback(self, payload):
+        self._active = False
+        logger.debug('calling back')
+        self._deferred.callback(payload)
+
+    def errback(self, payload):
+        self._active = False
+        logger.debug('erring back')
+        self._deferred.errback(payload)
 
 
 def crc(bytes):
@@ -430,7 +504,7 @@ if __name__ == '__main__':
     import traceback
 
     def excepthook(excType, excValue, tracebackobj):
-        print('Uncaught exception hooked:')
+        logger.debug('Uncaught exception hooked:')
         traceback.print_exception(excType, excType, tracebackobj)
 
     sys.excepthook = excepthook
