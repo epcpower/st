@@ -24,7 +24,7 @@ def test_main():
         bus=bus)
 
     d = protocol.connect()
-    d.addCallbacks(protocol.disconnect, logit)
+    d.addCallbacks(lambda _: protocol.disconnect(), logit)
     d.addBoth(logit)
 
     logging.debug('---------- started')

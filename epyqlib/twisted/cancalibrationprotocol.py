@@ -1,4 +1,3 @@
-import epyqlib.ccp
 import logging
 import can
 import collections
@@ -66,11 +65,13 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
 
         self._state = HandlerState.idle
 
+        self._remaining_retries = 0
+
     def makeConnection(self, transport):
         self._transport = transport
         logger.debug('Handler.makeConnection(): {}'.format(transport))
 
-    def connect(self, _=None):
+    def connect(self):
         if self._active:
             raise Exception('self._active is True')
 
@@ -87,7 +88,7 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
 
         return self._deferred
 
-    def disconnect(self, _=None):
+    def disconnect(self):
         if self._active:
             raise Exception('self._active is True')
 
