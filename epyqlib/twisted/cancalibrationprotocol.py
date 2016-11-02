@@ -80,6 +80,7 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
         if self._state is not HandlerState.idle:
             self.errback(HandlerBusy(
                 'Connect requested while {}'.format(self._state.name)))
+            return
 
         packet = HostCommand(code=CommandCode.connect)
         self._send(packet)
@@ -97,6 +98,7 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
         if self._state is not HandlerState.connected:
             self.errback(HandlerBusy(
                 'Disconnect requested while {}'.format(self._state.name)))
+            return
 
         packet = HostCommand(code=CommandCode.disconnect)
         self._send(packet)
@@ -137,7 +139,7 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
         if not isinstance(packet, BootloaderReply):
             self.errback(UnexpectedMessageReceived(
                 'Not a bootloader reply: {}'.format(packet)))
-
+            return
 
         logger.debug('packet received: {}'.format(packet.command_return_code.name))
 
@@ -146,6 +148,7 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
                 self.errback(UnexpectedMessageReceived(
                     'Bootloader should ack when trying to connect, instead: {}'
                         .format(packet)))
+                return
 
             logger.debug('Bootloader version: {major}.{minor}'.format(
                 major=packet.payload[0],
@@ -163,12 +166,14 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
                 self.errback(UnexpectedMessageReceived(
                     'Bootloader should ack when trying to disconnect, instead: {}'
                         .format(packet)))
+                return
 
             self._state = HandlerState.idle
             self.callback('successfully disconnected')
         else:
             self.errback(HandlerUnknownState(
                 'Handler in unknown state: {}'.format(self._state)))
+            return
 
     def timeoutConnection(self):
         raise Exception(
