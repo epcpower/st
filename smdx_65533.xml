@@ -1,0 +1,110 @@
+<sunSpecModels v="1">
+  <!-- 65533: EPC DC-DC -->
+  <model id="65533" len="8" name="epcDCDC">
+    <block len="8">
+      <point id="CmdBits" offset="0" type="bitfield32" access="rw" >
+        <symbol id="En">0</symbol>
+        <symbol id="FltClr">1</symbol>
+        <symbol id="Ictl">2</symbol>
+        <symbol id="ForceMX1">4</symbol>
+        <symbol id="ForceMX2">5</symbol>
+        <symbol id="ForceK1">6</symbol>
+        <symbol id="ForceK2">7</symbol>
+        <symbol id="ForceFan">8</symbol>
+        <symbol id="InvertHwEnable">9</symbol>
+      </point>
+      <point id="CmdVout" offset="2" type="uint16" sf="V_SF" units="V" access="rw" />
+	  <point id="V_SF" offset="3" type="sunssf" />
+      <point id="CmdIin" offset="4" type="int16" sf="I_SF" units="A" access="rw" />
+      <point id="I_SF" offset="5" type="sunssf" />
+      <point id="CtlSrc" offset="6" type="enum16" access="rw" >
+        <symbol id="CAN">0</symbol>
+        <symbol id="Modbus">1</symbol>
+      </point>
+	  <point id="Pad" offset="7" type="pad" />
+    </block>
+  </model>
+
+  <strings id="65533" locale="en">
+    <model>
+      <label>EPC DC-DC</label>
+      <description></description>
+      <notes></notes>
+    </model>
+    <point id="CmdBits">
+      <label>Control Bits</label>
+      <description></description>
+      <notes></notes>
+      <symbol id="En">
+        <label>Enable</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="FltClr">
+        <label>Fault Clear</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="Ictl">
+        <label>Enable Current Control Mode</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="ForceMX1">
+        <label>Close MX1</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="ForceMX2">
+        <label>Close MX2</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="ForceK1">
+        <label>Close K1</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="ForceK2">
+        <label>Close K2</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="ForceFan">
+        <label>Force Fan On</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="InvertHwEnable">
+        <label>Invert Hardware Enable</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+    </point>
+    <point id="CmdVout">
+      <label>Output Voltage Setpoint</label>
+      <description></description>
+      <notes></notes>
+    </point>
+    <point id="CmdIin">
+      <label>Input Current Setpoint</label>
+      <description></description>
+      <notes></notes>
+    </point>
+    <point id="CtlSrc">
+      <label>Control Source</label>
+      <description></description>
+      <notes></notes>
+      <symbol id="CAN">
+        <label>CAN control</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="Modbus">
+        <label>Modbus control</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+    </point>
+  </strings>
+</sunSpecModels>
