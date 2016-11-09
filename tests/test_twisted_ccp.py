@@ -7,9 +7,46 @@ import epyqlib.twisted.busproxy
 import epyqlib.twisted.cancalibrationprotocol as ccp
 import pytest
 import qt5reactor
-import time
 
 from PyQt5.QtCore import QTimer
+
+# import epyqlib.ticoff as ticoff
+#
+# files = [
+#     '/epc/t/409/afe.out',
+#     '/epc/t/409/ul1741.lc12_3.out',
+#     '/epc/t/409/RS12_04c.out'
+# ]
+#
+# files = {file: ticoff.Coff(file) for file in files}
+#
+# import itertools
+#
+#
+# def endswap(l):
+#     return itertools.chain(*((b, a) for a, b in zip(l[::2], l[1::2])))
+#
+#
+# for file, c in sorted(files.items()):
+#     print('\n\n\n----- {}'.format(file))
+#     print('\n'.join([str((i,
+#                           s.name,
+#                           hex(s.virt_addr),
+#                           s.virt_size,
+#                           len(s.data),  # if s.data is not None else -1,
+#                           'even' if len(s.data) % 2 else 'odd',
+#                           ' '.join(list('{:02X}'.format(b) for b in
+#                                         itertools.islice(endswap(s.data), 10))),
+#                           # if s.data is not None else []
+#                           ' '.join(list('{:02X}'.format(b) for b in
+#                                         itertools.islice(endswap(s.data), max(0,
+#                                                                               len(
+#                                                                                   s.data) - 10),
+#                                                          None))),
+#                           # if s.data is not None else []
+#                           s.data[:30]
+#                           )) for i, s
+#                      in enumerate(c.sections) if s.data is not None]))
 
 
 def test_main():
@@ -24,7 +61,11 @@ def test_main():
         bus=bus)
 
     d = protocol.connect()
-    d.addCallbacks(lambda _: protocol.disconnect(), logit)
+    d.addCallback(lambda _: protocol.set_mta(
+        address_extension=ccp.AddressExtension.flash_memory,
+        address=0x310000,
+    ))
+    d.addCallback(lambda _: protocol.disconnect())
     d.addBoth(logit)
 
     logging.debug('---------- started')
@@ -32,8 +73,12 @@ def test_main():
     reactor.run()
 
 
+# def retry(deferred_function, retries, delay):
+
+
+
 def logit(it):
-    logging.debug('logit(): {}'.format(it))
+    logging.debug('logit(): ({}) {}'.format(type(it), it))
 
 
 def test_IdentifierTypeError():

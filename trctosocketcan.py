@@ -9,10 +9,10 @@ def convert(trc, socketcan):
         counter = int(columns.pop(0)[:-1])
         milliseconds = float(columns.pop(0))
         seconds = milliseconds / 1000
-        bus = int(columns.pop(0))
+        # bus = int(columns.pop(0))
         transmit = columns.pop(0) == 'Tx'
         id = int(columns.pop(0), 16)
-        reserved = columns.pop(0)
+        # reserved = columns.pop(0)
         data_length = int(columns.pop(0))
         data = columns
 
