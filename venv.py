@@ -97,6 +97,13 @@ if sys.platform == 'win32':
         print('')
         print('        http://www.peak-system.com/produktcd/Drivers/PeakOemDrv.exe')
 
+    print('')
+    print('')
+    print('    I have not been programmed to detect it but you may need:')
+    print('')
+    print('        https://download.microsoft.com/download/5/B/C/5BC5DBB3-652D-4DCE-B14A-475AB85EEF6E/vcredist_x86.exe')
+    print
+
 
 print('')
 print('')
