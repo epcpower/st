@@ -9,6 +9,7 @@ import epyqlib.ticoff
 import epyqlib.twisted.busproxy
 import functools
 import itertools
+import platform
 import qt5reactor
 import signal
 import twisted.internet.defer
@@ -47,7 +48,13 @@ def main(args=None):
 
     qt5reactor.install()
     from twisted.internet import reactor
-    real_bus = can.interface.Bus(bustype='socketcan', channel='can0')
+
+    default = {
+        'Linux': {'bustype': 'socketcan', 'channel': 'can0'},
+        'Windows': {'bustype': 'pcan', 'channel': 'PCAN_USBBUS1', 'bitrate': 250000}
+    }[platform.system()]
+
+    real_bus = can.interface.Bus(**default)
     bus = epyqlib.busproxy.BusProxy(bus=real_bus)
     protocol = Handler()
     transport = epyqlib.twisted.busproxy.BusProxy(
