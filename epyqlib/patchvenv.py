@@ -4,6 +4,7 @@ import argparse
 import collections
 import io
 import os
+import platform
 import requests
 import shutil
 import sys
@@ -154,6 +155,11 @@ def main(args=None):
     if not args.for_test:
         write_activate_shortcuts(root=args.root, bin=args.bin)
         copy_designer_files(root=args.root)
+        if platform.system() != 'Windows':
+            backup_cwd = os.getcwd()
+            os.chdir(os.path.dirname(args.bin))
+            os.symlink(os.path.basename(args.bin), 'Scripts')
+            os.chdir(backup_cwd)
 
 
 if __name__ == '__main__':
