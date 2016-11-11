@@ -7,4 +7,4 @@ requests
 -e git+https://github.com/altendky/bitstruct@129a72e290c533654a91bd556b1d4b0822df423f#egg=bitstruct
 twisted
 -e git+https://github.com/sunu/qt5reactor@6c7cd0dec341bee74d04c99646848457f01fcd3c#egg=qt5reactor
-pypiwin32; sys_platform == 'windows'
+pypiwin32; sys_platform == 'win32'
