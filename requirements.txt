@@ -5,6 +5,6 @@ requests
 -e hg+https://bitbucket.org/altendky/python-can@076a7864f1e292647a501ae60ea90f62b5703d71#egg=python-can
 -e git+https://github.com/ebroecker/canmatrix@c64004b785febe4613677ab0107f1bc63b01e339#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@129a72e290c533654a91bd556b1d4b0822df423f#egg=bitstruct
--e git+https://github.com/twisted/twisted@4368c0b84b82f0791f6df52dc80328f7bd493547#egg=twisted
+twisted
 -e git+https://github.com/sunu/qt5reactor@6c7cd0dec341bee74d04c99646848457f01fcd3c#egg=qt5reactor
 pypiwin32; sys_platform == 'windows'
