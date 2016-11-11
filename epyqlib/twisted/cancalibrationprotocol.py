@@ -65,7 +65,16 @@ def main(args=None):
     coff = epyqlib.ticoff.Coff()
     coff.from_stream(args.file)
 
-    d = protocol.connect()
+    retries = 5
+
+    # We should start sending before the bootloader is listening to help
+    # make sure we catch it.
+    d = retry(function=protocol.connect, times=retries,
+              acceptable=[RequestTimeoutError])
+    # Since we will send multiple connects in most cases we should give
+    # the bootloader a chance to respond to all of them before moving on.
+    d.addCallbacks(lambda _: sleep(0.1 * retries),
+                   logit)
     # unlock
     d.addCallbacks(
         lambda _: protocol.set_mta(
@@ -161,6 +170,33 @@ def chunkit(it, n):
         yield itertools.chain((first_el,), chunk_it)
 
 
+@twisted.internet.defer.inlineCallbacks
+def retry(function, times, acceptable=None):
+    if acceptable is None:
+        acceptable = []
+
+    for iteration in range(times):
+        try:
+            result = yield function()
+        except Exception as e:
+            if type(e) not in acceptable:
+                logger.debug('green')
+                raise
+            logger.debug('blue')
+        else:
+            logger.debug('red')
+            twisted.internet.defer.returnValue(result)
+
+    raise Exception('out of retries')
+
+
+def sleep(seconds):
+    d = twisted.internet.defer.Deferred()
+    from twisted.internet import reactor
+    reactor.callLater(seconds, d.callback, None)
+    return d
+
+
 class HandlerBusy(RuntimeError):
     pass
 
@@ -173,6 +209,8 @@ class UnexpectedMessageReceived(ValueError):
 class InvalidSection(ValueError):
     pass
 
+class RequestTimeoutError(TimeoutError):
+    pass
 
 bootloader_can_id = 0x0B081880
 
@@ -203,9 +241,10 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
         self._id = id
         self._extended = extended
 
-        self._send_counter = 0
+        self._send_counter = -1
 
         self._state = HandlerState.idle
+        self._previous_state = self._state
 
         self._remaining_retries = 0
 
@@ -222,6 +261,7 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
     @state.setter
     def state(self, new_state):
         logger.debug('Entering {}'.format(new_state))
+        self._previous_state = self._state
         self._state = new_state
 
     def makeConnection(self, transport):
@@ -537,18 +577,19 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
         # return self._internal_deferred
 
     def _send(self, packet, state):
-        packet.command_counter = self._send_counter
-
         if self._send_counter < 255:
             self._send_counter += 1
         else:
             self._send_counter = 0
+
+        packet.command_counter = self._send_counter
 
         self._transport.write(packet)
 
         self.state = state
 
         self.setTimeout(packet.command_code.timeout)
+        logger.debug('Timeout set to {}'.format(packet.command_code.timeout))
 
     def dataReceived(self, msg):
         if not (msg.arbitration_id == self._id and
@@ -567,9 +608,20 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
                 'Not a bootloader reply: {}'.format(packet)))
             return
 
+        if self.state not in [HandlerState.connecting, HandlerState.connected]:
+            if packet.command_counter != self._send_counter:
+                self.errback(UnexpectedMessageReceived(
+                    'Reply out of sequence: expected {} but got {} - {}'
+                        .format(self._send_counter, packet.command_counter,
+                                packet)))
+                return
+
         logger.debug('packet received: {}'.format(packet.command_return_code.name))
 
-        if self.state is HandlerState.connecting:
+        if self.state is HandlerState.connected:
+            logger.debug('Unexpected message received in state connected: {}'
+                         .format(packet))
+        elif self.state is HandlerState.connecting:
             if packet.command_return_code is not CommandStatus.acknowledge:
                 self.errback(UnexpectedMessageReceived(
                     'Bootloader should ack when trying to connect, instead: {}'
@@ -659,8 +711,11 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
             return
 
     def timeoutConnection(self):
-        self._deferred.errback(Exception(
-            'Handler timed out while in state: {}'.format(self.state)))
+        message = 'Handler timed out while in state: {}'.format(self.state)
+        logger.debug(message)
+        if self._previous_state in [HandlerState.idle]:
+            self.state = self._previous_state
+        self._deferred.errback(RequestTimeoutError(message))
 
     def callback(self, payload):
         self._active = False
@@ -670,6 +725,7 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
     def errback(self, payload):
         self._active = False
         logger.debug('erring back for {}'.format(self._deferred))
+        logger.debug('with payload {}'.format(payload))
         self._deferred.errback(payload)
 
 
@@ -859,15 +915,15 @@ CommandCodeProperties = collections.namedtuple(
 
 
 _command_code_properties = {
-    CommandCode.connect: CommandCodeProperties(timeout=1000),
-    CommandCode.set_mta: CommandCodeProperties(timeout=1000),
-    CommandCode.download: CommandCodeProperties(timeout=1000),
-    CommandCode.disconnect: CommandCodeProperties(timeout=1000),
-    CommandCode.build_checksum: CommandCodeProperties(timeout=1000),
-    CommandCode.clear_memory: CommandCodeProperties(timeout=30000),
-    CommandCode.unlock: CommandCodeProperties(timeout=1000),
-    CommandCode.action_service: CommandCodeProperties(timeout=1000),
-    CommandCode.download_6: CommandCodeProperties(timeout=1000)
+    CommandCode.connect: CommandCodeProperties(timeout=1),
+    CommandCode.set_mta: CommandCodeProperties(timeout=1),
+    CommandCode.download: CommandCodeProperties(timeout=1),
+    CommandCode.disconnect: CommandCodeProperties(timeout=1),
+    CommandCode.build_checksum: CommandCodeProperties(timeout=1),
+    CommandCode.clear_memory: CommandCodeProperties(timeout=30),
+    CommandCode.unlock: CommandCodeProperties(timeout=1),
+    CommandCode.action_service: CommandCodeProperties(timeout=1),
+    CommandCode.download_6: CommandCodeProperties(timeout=1)
 }
 
 
