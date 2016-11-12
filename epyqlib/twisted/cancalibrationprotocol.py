@@ -7,6 +7,8 @@ import itertools
 import twisted.internet.defer
 import twisted.protocols.policies
 
+from PyQt5.QtCore import QObject, pyqtSignal
+
 
 logger = logging.getLogger(__name__)
 
@@ -103,8 +105,11 @@ class HandlerState(enum.Enum):
     clearing_memory = 9
 
 
-class Handler(twisted.protocols.policies.TimeoutMixin):
+class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
+    messages_sent = pyqtSignal(int)
+
     def __init__(self, id=bootloader_can_id, extended=True, parent=None):
+        QObject.__init__(self, parent=parent)
         self._deferred = None
         self._stream_deferred = None
         self._internal_deferred = None
@@ -127,6 +132,8 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
         self.continuous_crc = None
 
         self._download_block_counter = 0
+
+        self._messages_sent = 0
 
     @property
     def state(self):
@@ -458,7 +465,11 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
 
         packet.command_counter = self._send_counter
 
+        logger.debug('Message to be sent: {}'.format(packet))
         self._transport.write(packet)
+
+        self._messages_sent += 1
+        self.messages_sent.emit(self._messages_sent)
 
         self.state = state
 

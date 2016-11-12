@@ -8,6 +8,7 @@ import epyqlib.twisted.busproxy
 import epyqlib.twisted.cancalibrationprotocol as ccp
 import functools
 import itertools
+import math
 import platform
 import qt5reactor
 import signal
@@ -37,7 +38,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(args=None, create_app=True, create_reactor=True):
+def main(args=None, create_app=True, create_reactor=True, progress=None):
     if create_app:
         app = QApplication(sys.argv)
 
@@ -77,6 +78,21 @@ def main(args=None, create_app=True, create_reactor=True):
 
     retries = 5
 
+    sections = [s for s in coff.sections
+                if s.data is not None and s.virt_size > 0]
+
+    download_messages_to_send = sum(
+        [math.ceil(len(s.data) / 6) for s in sections])
+    # For every 5 download messages there is also 1 set MTA and 1 CRC.
+    # There will likely be a couple retries and there's a bit more overhead
+    # to get started.
+    total_messages_to_send = download_messages_to_send * 7/5 + retries + 15
+
+    if progress is not None:
+        progress.setMinimum(0)
+        progress.setMaximum(total_messages_to_send)
+        protocol.messages_sent.connect(progress.setValue)
+
     # We should start sending before the bootloader is listening to help
     # make sure we catch it.
     d = ccp.retry(function=protocol.connect, times=retries,
@@ -108,9 +124,6 @@ def main(args=None, create_app=True, create_reactor=True):
 
     protocol.continuous_crc = None
 
-    sections = [s for s in coff.sections
-                if s.data is not None and s.virt_size > 0]
-
     for section in sections:
         if len(section.data) % 2 != 0:
             data = itertools.chain(section.data, [0])
@@ -128,9 +141,11 @@ def main(args=None, create_app=True, create_reactor=True):
     d.addCallback(lambda _: protocol.build_checksum(
         checksum=protocol.continuous_crc, length=0))
     d.addCallbacks(lambda _: protocol.disconnect(), ccp.logit)
-    d.addBoth(lambda result: done(result, create_app=create_app,
+    d.addBoth(lambda result: done(result,
+                                  create_app=create_app,
                                   create_reactor=create_reactor,
-                                  bus=bus))
+                                  bus=bus,
+                                  progress=progress))
     d.addErrback(ccp.logit)
 
     logger.debug('---------- started')
@@ -141,13 +156,16 @@ def main(args=None, create_app=True, create_reactor=True):
             pass
 
     if create_app:
-        return app.exec_()
+        return app.exec()
 
 
-def done(result, create_app, create_reactor, bus):
+def done(result, create_app, create_reactor, bus, progress):
     ccp.logit(result)
 
     bus.set_bus()
+
+    if progress is not None:
+        progress.close()
 
     if create_reactor:
         from twisted.internet import reactor

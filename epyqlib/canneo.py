@@ -5,7 +5,7 @@ import copy
 import functools
 import locale
 import math
-from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QTimer)
+from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QTimer, Qt)
 import re
 import sys
 
@@ -286,7 +286,7 @@ class QtCanListener(QObject, can.Listener):
             self.receiver(receiver)
 
     def receiver(self, slot):
-        self.message_received_signal.connect(slot)
+        self.message_received_signal.connect(slot, Qt.QueuedConnection)
 
     def on_message_received(self, msg):
         # TODO: Be careful since this is no longer being deep copied.

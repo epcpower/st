@@ -9,7 +9,8 @@ import functools
 import io
 import os
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QApplication, QAction, QFileDialog, QHeaderView, QMenu
+from PyQt5.QtWidgets import (QApplication, QAction, QFileDialog, QHeaderView,
+                             QMenu, QProgressDialog)
 from PyQt5.QtCore import (Qt, pyqtSignal, pyqtSlot, QFile, QFileInfo,
                           QTextStream, QModelIndex, QItemSelectionModel)
 
@@ -151,6 +152,11 @@ class DeviceTreeView(QtWidgets.QWidget):
         file = file_dialog(filters)
 
         if file is not None:
+            progress = QProgressDialog(self)
+            progress.setLabelText('Flashing...')
+            progress.setWindowModality(Qt.WindowModal)
+            progress.setAutoReset(False)
+            progress.setCancelButton(None)
             epyqlib.flash.main(
                 [
                     '-vvv',
@@ -159,7 +165,9 @@ class DeviceTreeView(QtWidgets.QWidget):
                     '--channel', channel
                 ],
                 create_app=False,
-                create_reactor=False)
+                create_reactor=False,
+                progress=progress
+            )
 
     def remove_device(self, device):
         self.ui.tree_view.clearSelection()
