@@ -4,11 +4,12 @@
 
 import epyqlib.device
 import epyqlib.devicetree
+import epyqlib.flash
 import functools
 import io
 import os
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QAction, QFileDialog, QHeaderView, QMenu
+from PyQt5.QtWidgets import QApplication, QAction, QFileDialog, QHeaderView, QMenu
 from PyQt5.QtCore import (Qt, pyqtSignal, pyqtSlot, QFile, QFileInfo,
                           QTextStream, QModelIndex, QItemSelectionModel)
 
@@ -109,6 +110,9 @@ class DeviceTreeView(QtWidgets.QWidget):
             remove_device_action = menu.addAction('Close')
         if isinstance(node, epyqlib.devicetree.Bus):
             add_device_action = menu.addAction('Load device...')
+            flash_action = menu.addAction('Flash...')
+            flash_action.setEnabled(not node._checked.name
+                                    and not node.fields.name == 'Offline')
 
         action = menu.exec_(self.ui.tree_view.viewport().mapToGlobal(position))
 
@@ -122,6 +126,9 @@ class DeviceTreeView(QtWidgets.QWidget):
                 self.ui.tree_view.selectionModel().setCurrentIndex(
                     self.model.index_from_node(device),
                     QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows)
+        elif action is flash_action:
+            self.flash(interface=node.interface,
+                       channel=node.channel)
 
     def add_device(self, bus):
         device = load_device()
@@ -134,6 +141,25 @@ class DeviceTreeView(QtWidgets.QWidget):
             self.ui.tree_view.setExpanded(index, True)
 
         return device
+
+    def flash(self, interface, channel):
+        # TODO  CAMPid 9561616237195401795426778
+        filters = [
+            ('TICOFF Binaries', ['out']),
+            ('All Files', ['*'])
+        ]
+        file = file_dialog(filters)
+
+        if file is not None:
+            epyqlib.flash.main(
+                [
+                    '-vvv',
+                    '--file', file,
+                    '--interface', interface,
+                    '--channel', channel
+                ],
+                create_app=False,
+                create_reactor=False)
 
     def remove_device(self, device):
         self.ui.tree_view.clearSelection()

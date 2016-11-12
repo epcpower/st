@@ -12,6 +12,7 @@ setup(
     entry_points={
         'console_scripts': [
             'collectdevices = epyqlib.collectdevices:main',
+            'epyqflash = epyqlib.flash:_entry_point',
             'patchvenv = epyqlib.patchvenv:main'
         ]
     },

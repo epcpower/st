@@ -1,140 +1,14 @@
 import logging
-import argparse
 import can
 import collections
 import enum
-import epyqlib.busproxy
-import epyqlib.canneo
-import epyqlib.ticoff
-import epyqlib.twisted.busproxy
 import functools
 import itertools
-import platform
-import qt5reactor
-import signal
 import twisted.internet.defer
 import twisted.protocols.policies
 
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication
 
-from twisted.internet.defer import setDebugging
-setDebugging(True)
-
-
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-
-def parse_args(args):
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--verbose', '-v', action='store_true')
-    parser.add_argument('--file', '-f', type=argparse.FileType('rb'))
-
-    return parser.parse_args(args)
-
-
-def main(args=None):
-    app = QApplication(sys.argv)
-
-    if args is None:
-        args = sys.argv[1:]
-
-    args = parse_args(args=args)
-
-    if args.verbose:
-        logger.setLevel(logging.DEBUG)
-        logging.getLogger().setLevel(logging.DEBUG)
-
-    qt5reactor.install()
-    from twisted.internet import reactor
-
-    default = {
-        'Linux': {'bustype': 'socketcan', 'channel': 'can0'},
-        'Windows': {'bustype': 'pcan', 'channel': 'PCAN_USBBUS1', 'bitrate': 250000}
-    }[platform.system()]
-
-    real_bus = can.interface.Bus(**default)
-    bus = epyqlib.busproxy.BusProxy(bus=real_bus)
-    protocol = Handler()
-    transport = epyqlib.twisted.busproxy.BusProxy(
-        protocol=protocol,
-        reactor=reactor,
-        bus=bus)
-
-    coff = epyqlib.ticoff.Coff()
-    coff.from_stream(args.file)
-
-    retries = 5
-
-    # We should start sending before the bootloader is listening to help
-    # make sure we catch it.
-    d = retry(function=protocol.connect, times=retries,
-              acceptable=[RequestTimeoutError])
-    # Since we will send multiple connects in most cases we should give
-    # the bootloader a chance to respond to all of them before moving on.
-    d.addCallbacks(lambda _: sleep(0.1 * retries),
-                   logit)
-    # unlock
-    d.addCallbacks(
-        lambda _: protocol.set_mta(
-            address_extension=AddressExtension.configuration_registers,
-            address=0),
-        logit
-    )
-    d.addCallbacks(
-        lambda _: protocol.unlock(section=Password.dsp_flash),
-        logit
-    )
-    d.addCallbacks(
-        lambda _: protocol.set_mta(
-            address_extension=AddressExtension.flash_memory,
-            address=0),
-        logit
-    )
-    d.addCallbacks(
-        lambda _: protocol.clear_memory()
-    )
-    # d.addErrback(lambda _: protocol.connect())
-    # d.addCallbacks(
-    #     lambda _: protocol.set_mta(
-    #         address_extension=AddressExtension.flash_memory,
-    #         address=0x310000,
-    #     ),
-    #     logit
-    # )
-
-    protocol.continuous_crc = None
-
-    sections = [s for s in coff.sections
-                if s.data is not None and s.virt_size > 0]
-
-    for section in sections:
-        if len(section.data) % 2 != 0:
-            data = itertools.chain(section.data, [0])
-        else:
-            data = section.data
-        callback = functools.partial(
-            protocol.download_block,
-            address_extension=AddressExtension.flash_memory,
-            address=section.virt_addr,
-            data=data
-        )
-        print('0x{:08X}'.format(section.virt_addr))
-        d.addCallbacks(lambda _, cb=callback: cb(), logit)
-
-    d.addCallback(lambda _: protocol.build_checksum(
-        checksum=protocol.continuous_crc, length=0))
-    d.addCallbacks(lambda _: protocol.disconnect(), logit)
-    d.addBoth(logit)
-
-    logger.debug('---------- started')
-    run_time = 10*60
-    QTimer.singleShot(1000 * run_time, reactor.stop)
-    QTimer.singleShot(1000 * (run_time + 0.5), app.quit)
-    reactor.runReturn()
-
-    return app.exec_()
 
 
 def logit(it):
@@ -592,6 +466,7 @@ class Handler(twisted.protocols.policies.TimeoutMixin):
         logger.debug('Timeout set to {}'.format(packet.command_code.timeout))
 
     def dataReceived(self, msg):
+        logger.debug('Message received: {}'.format(msg))
         if not (msg.arbitration_id == self._id and
                     bool(msg.id_type) == self._extended):
             return

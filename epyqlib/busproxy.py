@@ -18,10 +18,11 @@ class BusProxy(QObject):
     went_offline = pyqtSignal()
 
     def __init__(self, bus=None, timeout=0.1, transmit=True, filters=None,
-                 parent=None):
+                 auto_disconnect=True, parent=None):
         QObject.__init__(self, parent=parent)
 
         self.filters = filters
+        self.auto_disconnect = auto_disconnect
 
         self.timeout = timeout
         self.notifier = NotifierProxy(self)
@@ -89,7 +90,8 @@ class BusProxy(QObject):
                 #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
                 sent = self.bus.send(msg, passive=passive)
 
-            self.verify_bus_ok()
+            if self.auto_disconnect:
+                self.verify_bus_ok()
 
             # TODO: since send() doesn't always report failures this won't either
             #       fix that
