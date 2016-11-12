@@ -7,6 +7,7 @@ import epyqlib.ticoff
 import epyqlib.twisted.busproxy
 import epyqlib.twisted.cancalibrationprotocol as ccp
 import functools
+import itertools
 import platform
 import qt5reactor
 import signal
