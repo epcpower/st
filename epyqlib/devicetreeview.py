@@ -8,9 +8,10 @@ import epyqlib.flash
 import functools
 import io
 import os
+import textwrap
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import (QApplication, QAction, QFileDialog, QHeaderView,
-                             QMenu, QProgressDialog)
+                             QMenu, QProgressDialog, QMessageBox)
 from PyQt5.QtCore import (Qt, pyqtSignal, pyqtSlot, QFile, QFileInfo,
                           QTextStream, QModelIndex, QItemSelectionModel)
 
@@ -152,22 +153,38 @@ class DeviceTreeView(QtWidgets.QWidget):
         file = file_dialog(filters)
 
         if file is not None:
-            progress = QProgressDialog(self)
-            progress.setLabelText('Flashing...')
-            progress.setWindowModality(Qt.WindowModal)
-            progress.setAutoReset(False)
-            progress.setCancelButton(None)
-            epyqlib.flash.main(
-                [
-                    '-vvv',
-                    '--file', file,
-                    '--interface', interface,
-                    '--channel', channel
-                ],
-                create_app=False,
-                create_reactor=False,
-                progress=progress
-            )
+            message_box = QMessageBox(self)
+            message_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            message_box.setDefaultButton(QMessageBox.Cancel)
+            message_box.setText(textwrap.dedent('''\
+            Flashing {file}
+
+            1. Prepare to power on the inverter
+            2. Press OK
+            3. Power on inverter within 2 seconds
+            4. Progress bar is innaccurate while reading 0%
+            5. Progress bar is accurate once it starts moving
+            '''.format(file=file)))
+
+            result = message_box.exec()
+
+            if result == QMessageBox.Ok:
+                progress = QProgressDialog(self)
+                progress.setLabelText('Flashing...')
+                progress.setWindowModality(Qt.WindowModal)
+                progress.setAutoReset(False)
+                progress.setCancelButton(None)
+                epyqlib.flash.main(
+                    [
+                        '-vvv',
+                        '--file', file,
+                        '--interface', interface,
+                        '--channel', channel
+                    ],
+                    create_app=False,
+                    create_reactor=False,
+                    progress=progress
+                )
 
     def remove_device(self, device):
         self.ui.tree_view.clearSelection()
