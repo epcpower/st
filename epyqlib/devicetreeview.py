@@ -2,6 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
+import can
 import epyqlib.device
 import epyqlib.devicetree
 import epyqlib.flash
@@ -169,22 +170,41 @@ class DeviceTreeView(QtWidgets.QWidget):
             result = message_box.exec()
 
             if result == QMessageBox.Ok:
-                progress = QProgressDialog(self)
-                progress.setLabelText('Flashing...')
-                progress.setWindowModality(Qt.WindowModal)
-                progress.setAutoReset(False)
-                progress.setCancelButton(None)
-                epyqlib.flash.main(
-                    [
-                        '-vvv',
-                        '--file', file,
-                        '--interface', interface,
-                        '--channel', channel
-                    ],
-                    create_app=False,
-                    create_reactor=False,
-                    progress=progress
-                )
+                with open(file, 'rb') as f:
+                    real_bus = can.interface.Bus(bustype=interface,
+                                                 channel=channel,
+                                                 bitrate=250000)
+                    bus = epyqlib.busproxy.BusProxy(bus=real_bus,
+                                                    auto_disconnect=False)
+
+                    progress = QProgressDialog(self)
+                    progress.setLabelText('Flashing...')
+                    progress.setWindowModality(Qt.WindowModal)
+                    progress.setAutoReset(False)
+                    progress.setCancelButton(None)
+
+                    flasher = epyqlib.flash.Flasher(file=f,
+                                                    bus=bus,
+                                                    progress=progress,
+                                                    parent=self)
+
+                    completed_box = QMessageBox(self)
+                    completed_box.setText(textwrap.dedent('''\
+                    Flashing completed successfully
+                    '''))
+
+                    failed_box = QMessageBox(self)
+                    failed_box.setText(textwrap.dedent('''\
+                    Flashing failed
+                    '''))
+
+                    flasher.done.connect(progress.close)
+                    flasher.done.connect(bus.set_bus)
+
+                    flasher.completed.connect(completed_box.exec)
+                    flasher.failed.connect(failed_box.exec)
+
+                    flasher.flash()
 
     def remove_device(self, device):
         self.ui.tree_view.clearSelection()

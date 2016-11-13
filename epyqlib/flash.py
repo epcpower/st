@@ -15,11 +15,110 @@ import signal
 import sys
 import twisted
 
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QApplication
 
 
 logger = logging.getLogger(__name__)
+
+
+class Flasher(QObject):
+    progress_messages = pyqtSignal(int)
+    completed = pyqtSignal()
+    done = pyqtSignal()
+    failed = pyqtSignal()
+
+    def __init__(self, file, bus, progress=None, parent=None):
+        super().__init__(parent)
+
+        self.failed.connect(self.done)
+        self.completed.connect(self.done)
+
+        self.protocol = ccp.Handler()
+        self.protocol.messages_sent.connect(self.update_progress)
+        from twisted.internet import reactor
+        self.transport = epyqlib.twisted.busproxy.BusProxy(
+            protocol=self.protocol,
+            reactor=reactor,
+            bus=bus)
+
+        coff = epyqlib.ticoff.Coff()
+        coff.from_stream(file)
+
+        self.retries = 5
+
+        self.sections = [s for s in coff.sections
+                         if s.data is not None and s.virt_size > 0]
+
+        download_messages_to_send = sum(
+            [math.ceil(len(s.data) / 6) for s in self.sections])
+        # For every 5 download messages there is also 1 set MTA and 1 CRC.
+        # There will likely be a couple retries and there's a bit more overhead
+        # to get started.
+        self.total_messages_to_send = (
+            download_messages_to_send * 7 / 5 + self.retries + 15)
+
+        if progress is not None:
+            self.connect_to_progress(progress=progress)
+
+    def update_progress(self, messages_sent):
+        self.progress_messages.emit(messages_sent)
+
+    def connect_to_progress(self, progress):
+        progress.setMinimum(0)
+        progress.setMaximum(self.total_messages_to_send)
+        self.progress_messages.connect(progress.setValue)
+
+    def flash(self):
+        # We should start sending before the bootloader is listening to help
+        # make sure we catch it.
+        d = ccp.retry(function=self.protocol.connect, times=self.retries,
+                      acceptable=[ccp.RequestTimeoutError])
+        # Since we will send multiple connects in most cases we should give
+        # the bootloader a chance to respond to all of them before moving on.
+        d.addCallback(lambda _: ccp.sleep(0.1 * self.retries))
+        # unlock
+        d.addCallback(
+            lambda _: self.protocol.set_mta(
+                address_extension=ccp.AddressExtension.configuration_registers,
+                address=0)
+        )
+        d.addCallback(
+            lambda _: self.protocol.unlock(section=ccp.Password.dsp_flash),
+        )
+        d.addCallback(
+            lambda _: self.protocol.set_mta(
+                address_extension=ccp.AddressExtension.flash_memory,
+                address=0)
+        )
+        d.addCallbacks(
+            lambda _: self.protocol.clear_memory()
+        )
+
+        self.protocol.continuous_crc = None
+
+        for section in self.sections:
+            if len(section.data) % 2 != 0:
+                data = itertools.chain(section.data, [0])
+            else:
+                data = section.data
+            callback = functools.partial(
+                self.protocol.download_block,
+                address_extension=ccp.AddressExtension.flash_memory,
+                address=section.virt_addr,
+                data=data
+            )
+            print('0x{:08X}'.format(section.virt_addr))
+            d.addCallbacks(lambda _, cb=callback: cb())
+
+        d.addCallback(lambda _: self.protocol.build_checksum(
+            checksum=self.protocol.continuous_crc, length=0))
+        d.addCallback(lambda _: self.protocol.disconnect())
+        d.addCallback(lambda _: self.completed.emit())
+        d.addErrback(lambda _: self.failed.emit())
+        # d.addErrback(ccp.logit)
+
+        logger.debug('---------- started')
 
 
 def parse_args(args):
@@ -38,9 +137,8 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(args=None, create_app=True, create_reactor=True, progress=None):
-    if create_app:
-        app = QApplication(sys.argv)
+def main(args=None):
+    app = QApplication(sys.argv)
 
     if args is None:
         args = sys.argv[1:]
@@ -56,123 +154,40 @@ def main(args=None, create_app=True, create_reactor=True, progress=None):
     if args.verbose >= 3:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    if create_reactor:
-        try:
-            qt5reactor.install()
-        except twisted.internet.error.ReactorAlreadyInstalledError:
-            pass
+    try:
+        qt5reactor.install()
+    except twisted.internet.error.ReactorAlreadyInstalledError:
+        pass
     from twisted.internet import reactor
 
     real_bus = can.interface.Bus(bustype=args.interface,
                                  channel=args.channel,
                                  bitrate=args.bitrate)
     bus = epyqlib.busproxy.BusProxy(bus=real_bus, auto_disconnect=False)
-    protocol = ccp.Handler()
-    transport = epyqlib.twisted.busproxy.BusProxy(
-        protocol=protocol,
-        reactor=reactor,
-        bus=bus)
 
-    coff = epyqlib.ticoff.Coff()
-    coff.from_stream(args.file)
+    flasher = Flasher(file=args.file, bus=bus)
 
-    retries = 5
+    flasher.flash()
 
-    sections = [s for s in coff.sections
-                if s.data is not None and s.virt_size > 0]
+    flasher.completed.connect(completed)
+    flasher.failed.connect(failed)
 
-    download_messages_to_send = sum(
-        [math.ceil(len(s.data) / 6) for s in sections])
-    # For every 5 download messages there is also 1 set MTA and 1 CRC.
-    # There will likely be a couple retries and there's a bit more overhead
-    # to get started.
-    total_messages_to_send = download_messages_to_send * 7/5 + retries + 15
+    try:
+        reactor.runReturn()
+    except twisted.internet.error.ReactorAlreadyRunning:
+        pass
 
-    if progress is not None:
-        progress.setMinimum(0)
-        progress.setMaximum(total_messages_to_send)
-        protocol.messages_sent.connect(progress.setValue)
-
-    # We should start sending before the bootloader is listening to help
-    # make sure we catch it.
-    d = ccp.retry(function=protocol.connect, times=retries,
-              acceptable=[ccp.RequestTimeoutError])
-    # Since we will send multiple connects in most cases we should give
-    # the bootloader a chance to respond to all of them before moving on.
-    d.addCallbacks(lambda _: ccp.sleep(0.1 * retries),
-                   ccp.logit)
-    # unlock
-    d.addCallbacks(
-        lambda _: protocol.set_mta(
-            address_extension=ccp.AddressExtension.configuration_registers,
-            address=0),
-        ccp.logit
-    )
-    d.addCallbacks(
-        lambda _: protocol.unlock(section=ccp.Password.dsp_flash),
-        ccp.logit
-    )
-    d.addCallbacks(
-        lambda _: protocol.set_mta(
-            address_extension=ccp.AddressExtension.flash_memory,
-            address=0),
-        ccp.logit
-    )
-    d.addCallbacks(
-        lambda _: protocol.clear_memory()
-    )
-
-    protocol.continuous_crc = None
-
-    for section in sections:
-        if len(section.data) % 2 != 0:
-            data = itertools.chain(section.data, [0])
-        else:
-            data = section.data
-        callback = functools.partial(
-            protocol.download_block,
-            address_extension=ccp.AddressExtension.flash_memory,
-            address=section.virt_addr,
-            data=data
-        )
-        print('0x{:08X}'.format(section.virt_addr))
-        d.addCallbacks(lambda _, cb=callback: cb(), ccp.logit)
-
-    d.addCallback(lambda _: protocol.build_checksum(
-        checksum=protocol.continuous_crc, length=0))
-    d.addCallbacks(lambda _: protocol.disconnect(), ccp.logit)
-    d.addBoth(lambda result: done(result,
-                                  create_app=create_app,
-                                  create_reactor=create_reactor,
-                                  bus=bus,
-                                  progress=progress))
-    d.addErrback(ccp.logit)
-
-    logger.debug('---------- started')
-    if create_reactor:
-        try:
-            reactor.runReturn()
-        except twisted.internet.error.ReactorAlreadyRunning:
-            pass
-
-    if create_app:
-        return app.exec()
+    return app.exec()
 
 
-def done(result, create_app, create_reactor, bus, progress):
-    ccp.logit(result)
+def completed():
+    print("Flashing completed successfully")
+    QApplication.instance().quit()
 
-    bus.set_bus()
 
-    if progress is not None:
-        progress.close()
-
-    if create_reactor:
-        from twisted.internet import reactor
-        reactor.stop()
-
-    if create_app:
-        QApplication.instance().quit()
+def failed():
+    print("Flashing failed")
+    QApplication.instance().exit(1)
 
 
 def _entry_point():
