@@ -9,6 +9,10 @@ import sys
 
 log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', buffering=1)
 
+import logging
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
+logging.getLogger().setLevel(logging.DEBUG)
+
 if sys.stdout is None:
     sys.stdout = log
 else:
@@ -265,10 +269,7 @@ def main(args=None):
     window = Window(ui_file=args.ui)
 
     window.show()
-    from twisted.internet import reactor
-    reactor.runReturn()
-    app.aboutToQuit.connect(reactor.stop)
-    result = app.exec_()
+    result = app.exec()
     return result
 
 
