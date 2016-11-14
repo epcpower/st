@@ -11,7 +11,6 @@ log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', bufferi
 
 import logging
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
-logging.getLogger().setLevel(logging.DEBUG)
 
 if sys.stdout is None:
     sys.stdout = log
@@ -264,7 +263,17 @@ def main(args=None):
 
         parser = argparse.ArgumentParser()
         parser.add_argument('--ui', default=ui_default)
+        parser.add_argument('--verbose', '-v', action='count', default=0)
         args = parser.parse_args()
+
+    if args.verbose >= 1:
+        logger.setLevel(logging.DEBUG)
+
+    if args.verbose >= 2:
+        twisted.internet.defer.setDebugging(True)
+
+    if args.verbose >= 3:
+        logging.getLogger().setLevel(logging.DEBUG)
 
     window = Window(ui_file=args.ui)
 
