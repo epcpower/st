@@ -320,11 +320,11 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             return self._deferred
 
         packet = HostCommand(code=CommandCode.build_checksum)
-        print(type(length), type(checksum))
-        print((length.to_bytes(4, 'big'), checksum.to_bytes(2, 'big')))
+        logger.debug('{}, {}'.format(type(length), type(checksum)))
+        logger.debug((length.to_bytes(4, 'big'), checksum.to_bytes(2, 'big')))
         packet.payload[:4] = length.to_bytes(4, 'big')
         packet.payload[4:] = checksum.to_bytes(2, 'big')
-        print(packet)
+        logger.debug(packet)
 
         self._send(packet=packet, state=HandlerState.building_checksum)
 
@@ -435,7 +435,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                                  address_extension=address_extension)
                 )
         else:
-            print('crc: {} {}'.format(type(self._crc), self._crc))
+            logger.debug('crc: {} {}'.format(type(self._crc), self._crc))
             # l = lambda _: self._internal_deferred.callback(
             #         'Done downloading stream')
             if self._crc is not None:

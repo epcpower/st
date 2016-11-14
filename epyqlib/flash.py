@@ -13,6 +13,7 @@ import platform
 import qt5reactor
 import signal
 import sys
+import time
 import twisted
 
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -50,6 +51,7 @@ class Flasher(QObject):
         self.sections = [s for s in coff.sections
                          if s.data is not None and s.virt_size > 0]
 
+        self.download_bytes = sum([len(s.data) for s in self.sections])
         download_messages_to_send = sum(
             [math.ceil(len(s.data) / 6) for s in self.sections])
         # For every 5 download messages there is also 1 set MTA and 1 CRC.
@@ -60,6 +62,9 @@ class Flasher(QObject):
 
         if progress is not None:
             self.connect_to_progress(progress=progress)
+
+        self._data_start_time = None
+        self.data_delta_time = None
 
     def update_progress(self, messages_sent):
         self.progress_messages.emit(messages_sent)
@@ -94,6 +99,7 @@ class Flasher(QObject):
         d.addCallbacks(
             lambda _: self.protocol.clear_memory()
         )
+        d.addCallback(lambda _: self._start_timing_data())
 
         self.protocol.continuous_crc = None
 
@@ -108,17 +114,29 @@ class Flasher(QObject):
                 address=section.virt_addr,
                 data=data
             )
-            print('0x{:08X}'.format(section.virt_addr))
-            d.addCallbacks(lambda _, cb=callback: cb())
+            logger.debug('0x{:08X}'.format(section.virt_addr))
+            d.addCallback(lambda _, cb=callback: cb())
 
         d.addCallback(lambda _: self.protocol.build_checksum(
             checksum=self.protocol.continuous_crc, length=0))
         d.addCallback(lambda _: self.protocol.disconnect())
-        d.addCallback(lambda _: self.completed.emit())
-        d.addErrback(lambda _: self.failed.emit())
-        # d.addErrback(ccp.logit)
+        d.addCallback(lambda _: self._completed())
+        d.addErrback(self._failed)
 
         logger.debug('---------- started')
+
+    def _start_timing_data(self):
+        self._data_start_time = time.monotonic()
+        logger.debug('Started timing data at {}'.format(self._data_start_time))
+        # return twisted.internet.defer.succeed()
+
+    def _completed(self):
+        self.data_delta_time = time.monotonic() - self._data_start_time
+        self.completed.emit()
+
+    def _failed(self, result):
+        ccp.logit(result)
+        self.failed.emit()
 
 
 def parse_args(args):
@@ -168,7 +186,7 @@ def main(args=None):
 
     flasher = Flasher(file=args.file, bus=bus)
 
-    flasher.completed.connect(completed)
+    flasher.completed.connect(lambda f=flasher: completed(flasher=f))
     flasher.failed.connect(failed)
     flasher.done.connect(bus.set_bus)
 
@@ -182,8 +200,12 @@ def about_to_quit():
     reactor.stop()
 
 
-def completed():
+def completed(flasher):
     print("Flashing completed successfully")
+    print('Data time: {:.3f} seconds for {} bytes or {:.0f} bytes/second'
+          .format(flasher.data_delta_time,
+                  flasher.download_bytes,
+                  flasher.download_bytes / flasher.data_delta_time))
     QApplication.instance().quit()
 
 

@@ -188,11 +188,6 @@ class DeviceTreeView(QtWidgets.QWidget):
                                                     progress=progress,
                                                     parent=self)
 
-                    completed_box = QMessageBox(self)
-                    completed_box.setText(textwrap.dedent('''\
-                    Flashing completed successfully
-                    '''))
-
                     failed_box = QMessageBox(self)
                     failed_box.setText(textwrap.dedent('''\
                     Flashing failed
@@ -201,7 +196,32 @@ class DeviceTreeView(QtWidgets.QWidget):
                     flasher.done.connect(progress.close)
                     flasher.done.connect(bus.set_bus)
 
-                    flasher.completed.connect(completed_box.exec)
+                    completed_format = textwrap.dedent('''\
+                    Flashing completed successfully
+
+                    Data time: {:.3f} seconds for {} bytes or {:.0f} bytes/second''')
+                    flasher.completed.connect(
+                        lambda f=flasher:
+                            print(
+                                completed_format.format(
+                                    f.data_delta_time,
+                                    f.download_bytes,
+                                    f.download_bytes / f.data_delta_time
+                                )
+                            )
+                    )
+                    flasher.completed.connect(
+                        lambda f=flasher:
+                            QMessageBox.information(
+                                self,
+                                'EPyQ',
+                                completed_format.format(
+                                    f.data_delta_time,
+                                    f.download_bytes,
+                                    f.download_bytes / f.data_delta_time
+                                )
+                            )
+                    )
                     flasher.failed.connect(failed_box.exec)
                     flasher.done.connect(bus.set_bus)
 
