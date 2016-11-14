@@ -154,11 +154,12 @@ def main(args=None):
     if args.verbose >= 3:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    try:
-        qt5reactor.install()
-    except twisted.internet.error.ReactorAlreadyInstalledError:
-        pass
+    qt5reactor.install()
     from twisted.internet import reactor
+
+    reactor.runReturn()
+
+    QApplication.instance().aboutToQuit.connect(about_to_quit)
 
     real_bus = can.interface.Bus(bustype=args.interface,
                                  channel=args.channel,
@@ -167,17 +168,18 @@ def main(args=None):
 
     flasher = Flasher(file=args.file, bus=bus)
 
-    flasher.flash()
-
     flasher.completed.connect(completed)
     flasher.failed.connect(failed)
+    flasher.done.connect(bus.set_bus)
 
-    try:
-        reactor.runReturn()
-    except twisted.internet.error.ReactorAlreadyRunning:
-        pass
+    flasher.flash()
 
     return app.exec()
+
+
+def about_to_quit():
+    from twisted.internet import reactor
+    reactor.stop()
 
 
 def completed():

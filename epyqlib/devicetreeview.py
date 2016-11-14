@@ -203,6 +203,7 @@ class DeviceTreeView(QtWidgets.QWidget):
 
                     flasher.completed.connect(completed_box.exec)
                     flasher.failed.connect(failed_box.exec)
+                    flasher.done.connect(bus.set_bus)
 
                     flasher.flash()
 
