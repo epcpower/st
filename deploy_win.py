@@ -192,10 +192,12 @@ def pip_install(package, no_ssl_verify, site=False):
 
 pip_install('pyqtdeploy', no_ssl_verify=False, site=True)
 
+print('Starting pyqtdeploycli')
 runit(
     args=[
         'pyqtdeploycli',
         '--project', 'epyq.pdy',
+        '--timeout', '600',
         'build'
     ],
     env=env,
@@ -255,6 +257,8 @@ for extension in ['svg']:
     files.extend(glob.glob('*.' + extension))
 files.append(os.path.join('c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'redist', 'x86', 'Microsoft.VC140.CRT', 'msvcp140.dll'))
 files.append(os.path.join('c:/', 'Windows', 'SysWOW64', 'PCANBasic.dll'))
+files.extend(glob.glob(os.path.join('venv', 'Lib', 'site-packages', 'win32', '*.pyd')))
+files.extend(glob.glob(os.path.join('venv', 'Lib', 'site-packages', 'pypiwin32_system32', '*.dll')))
 for file in files:
     shutil.copy(file, os.path.join('build', 'release'))
 
