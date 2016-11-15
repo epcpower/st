@@ -256,6 +256,7 @@ if args.device_file is not None:
 for extension in ['svg']:
     files.extend(glob.glob('*.' + extension))
 files.append(os.path.join('c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'redist', 'x86', 'Microsoft.VC140.CRT', 'msvcp140.dll'))
+files.append(os.path.join('d:/', 'vcredist_x86-2010-sp1.exe'))
 files.append(os.path.join('c:/', 'Windows', 'SysWOW64', 'PCANBasic.dll'))
 files.extend(glob.glob(os.path.join('venv', 'Lib', 'site-packages', 'win32', '*.pyd')))
 files.extend(glob.glob(os.path.join('venv', 'Lib', 'site-packages', 'pypiwin32_system32', '*.dll')))
@@ -299,7 +300,8 @@ with open(third_party_license, 'w', encoding='utf-8', newline='\n') as out:
         ('PyQt5', ('$SYSROOT', '..', 'src', 'PyQt5_gpl-5.7', 'LICENSE'), None, False),
         ('Qt', ('c:/', 'Qt', 'Qt5.7.0', 'Licenses', 'LICENSE'), None, True),
         ('PEAK-System', ('installer', 'peak-system.txt'), 'http://www.peak-system.com/produktcd/Develop/PC%20interfaces/Windows/API-ReadMe.txt', False),
-        ('Microsoft Visual C++ Build Tools', ('installer', 'microsoft_visual_cpp_build_tools_eula.html'), 'https://www.visualstudio.com/en-us/support/legal/mt644918', False)
+        ('Microsoft Visual C++ Build Tools', ('installer', 'microsoft_visual_cpp_build_tools_eula.html'), 'https://www.visualstudio.com/en-us/support/legal/mt644918', False),
+        ('Microsoft Visual C++ 2010 x86 Redistributable SP1', ('installer', 'microsoft_visual_cpp_2010_x86_redistributable_setup_sp1.rtf'), None, False)
     ]
 
     widest = max([len(name) for name, _, _, _ in licenses])
