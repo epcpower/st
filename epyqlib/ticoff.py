@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 """
 Read TI COFF file into a python object
-
-"Eliot Blennerhassett" <eblennerhassett@audioscience.com>
-AudioScience Inc. 2011
 """
+
+
 from __future__ import print_function
 
 from builtins import bytes, object, range
@@ -12,6 +11,19 @@ from array import array
 from collections import namedtuple
 from optparse import OptionParser
 from struct import unpack, calcsize
+
+
+# See file COPYING in this source tree
+# See file ticoff.asi_license.txt in this source tree
+__copyright__ = ('\n'.join([
+    'Copyright 2011 "Eliot Blennerhassett" <eblennerhassett@audioscience.com>',
+    # https://gist.github.com/eliotb/1073231
+
+    'Copyright 2016, EPC Power Corp.'
+    # Added Python3 support and a few tweaks
+]))
+__license__ = 'GPLv2+'
+
 
 def read_struct(file, format):
     '''read struct data formatted according to format'''

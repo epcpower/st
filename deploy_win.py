@@ -320,7 +320,8 @@ with open(third_party_license, 'w', encoding='utf-8', newline='\n') as out:
         ('constantly', (), 'https://github.com/twisted/constantly/raw/master/LICENSE', False),
         ('incremental', (), 'https://github.com/hawkowl/incremental/raw/master/LICENSE', False),
         ('twisted', (), 'https://github.com/twisted/twisted/raw/trunk/LICENSE', False),
-        ('zope.interface', (), 'https://github.com/zopefoundation/zope.interface/raw/master/LICENSE.txt', False)
+        ('zope.interface', (), 'https://github.com/zopefoundation/zope.interface/raw/master/LICENSE.txt', False),
+        ('ASI TICOFF', ('sub', 'epyqlib', 'epyqlib', 'ticoff.asi_license.txt'), 'https://gist.github.com/eliotb/1073231', False)
     ]
 
     widest = max([len(name) for name, _, _, _ in licenses])
