@@ -23,6 +23,7 @@ import epyqlib.tee
 import glob
 import json
 import os
+import requests
 import stat
 import sys
 
@@ -285,6 +286,17 @@ third_party_license = os.path.join(
     'third_party-LICENSE.txt'
 )
 
+def write_license(name, contents, url, collapse_double_newlines):
+        print('Appending {} to third party license file'.format(name))
+        header = '  == ' + name + ' '
+        header += '=' * ((widest + 6 + minimum) - len(header))
+        out.write(header + '\n\n')
+
+        if collapse_double_newlines:
+            contents = contents.replace('\n\n', '\n')
+        out.write(contents)
+        out.write('\n\n\n')
+
 # The Qt Installer Framework (QtIFW) likes to do a few things to license files...
 #  * '\n' -> '\r\n'
 #   * even such that '\r\n' -> '\r\r\n'
@@ -307,32 +319,25 @@ with open(third_party_license, 'w', encoding='utf-8', newline='\n') as out:
     widest = max([len(name) for name, _, _, _ in licenses])
     minimum = 4
     for name, path, url, collapse_double_newlines in licenses:
-        print('Appending {} to third party license file'.format(name))
-        header = '  == ' + name + ' '
-        header += '=' * ((widest + 6 + minimum) - len(header))
-        out.write(header + '\n\n')
-
-        encodings = [None, 'utf-8']
-
-        in_path = os.path.expandvars(os.path.join(*path))
-
-        for encoding in encodings:
-            try:
-                with open(in_path, encoding=encoding) as in_file:
-                    if url is not None:
-                        out.write(url + '\n\n')
-
-                    contents = in_file.read()
-                    if collapse_double_newlines:
-                        contents = contents.replace('\n\n', '\n')
-                    out.write(contents)
-                    out.write('\n\n\n')
-            except UnicodeDecodeError:
-                pass
-            else:
-                break
+        if len(path) == 0:
+            contents = requests.get(url).text
+            write_license(name, contents, url, collapse_double_newlines)
         else:
-            raise Exception("Unable to parse '{}' without an error".format(in_path))
+            encodings = [None, 'utf-8']
+
+            in_path = os.path.expandvars(os.path.join(*path))
+
+            for encoding in encodings:
+                try:
+                    with open(in_path, encoding=encoding) as in_file:
+                        contents = in_file.read()
+                except UnicodeDecodeError:
+                    pass
+                else:
+                    write_license(name, contents, url, collapse_double_newlines)
+                    break
+            else:
+                raise Exception("Unable to parse '{}' without an error".format(in_path))
 
 config = os.path.join('build', 'installer', 'config')
 ico = 'icon.ico'
