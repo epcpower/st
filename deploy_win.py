@@ -313,7 +313,14 @@ with open(third_party_license, 'w', encoding='utf-8', newline='\n') as out:
         ('Qt', ('c:/', 'Qt', 'Qt5.7.0', 'Licenses', 'LICENSE'), None, True),
         ('PEAK-System', ('installer', 'peak-system.txt'), 'http://www.peak-system.com/produktcd/Develop/PC%20interfaces/Windows/API-ReadMe.txt', False),
         ('Microsoft Visual C++ Build Tools', ('installer', 'microsoft_visual_cpp_build_tools_eula.html'), 'https://www.visualstudio.com/en-us/support/legal/mt644918', False),
-        ('Microsoft Visual C++ 2010 x86 Redistributable SP1', ('installer', 'microsoft_visual_cpp_2010_x86_redistributable_setup_sp1.rtf'), None, False)
+        ('Microsoft Visual C++ 2010 x86 Redistributable SP1', ('installer', 'microsoft_visual_cpp_2010_x86_redistributable_setup_sp1.rtf'), None, False),
+        ('Qt5Reactor', ('venv', 'src', 'qt5reactor', 'LICENSE'), None, False),
+        ('win32', ('venv', 'Lib', 'site-packages', 'win32', 'license.txt'), None, False),
+        ('win32com', ('venv', 'Lib', 'site-packages', 'win32com', 'License.txt'), None, False),
+        ('constantly', (), 'https://github.com/twisted/constantly/raw/master/LICENSE', False),
+        ('incremental', (), 'https://github.com/hawkowl/incremental/raw/master/LICENSE', False),
+        ('twisted', (), 'https://github.com/twisted/twisted/raw/trunk/LICENSE', False),
+        ('zope.interface', (), 'https://github.com/zopefoundation/zope.interface/raw/master/LICENSE.txt', False)
     ]
 
     widest = max([len(name) for name, _, _, _ in licenses])
