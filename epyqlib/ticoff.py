@@ -102,6 +102,43 @@ class Section(namedtuple('Section',
             s = s + '\n\t%s = 0x%X' % fv
         return s
 
+class Symbol(namedtuple('Symbol', 'name, value, section_number, reserved,'
+                                  'storage_class, number_of_aux_entries')):
+
+    __slots__ = () # prevent creation of instance dictionaries
+    symbol_fmt = '<8sLhHcc'
+    symbol_auxiliary_format = '<LHH10c'
+    symbol_flags = [
+        (0, 'C_NULL'),
+        (1, 'C_AUTO'),
+        (2, 'C_EXT'),
+        (3, 'C_STAT'),
+        (4, 'C_REG'),
+        (5, 'C_EXTREF'),
+        (6, 'C_LABEL'),
+        (7, 'C_ULABEL'),
+        (8, 'C_MOS'),
+        (9, 'C_ARG'),
+        (10, 'C_STRTAG'),
+        (11, 'C_MOU'),
+        (12, 'C_UNTAG'),
+        (13, 'C_TPDEF'),
+        (14, 'C_USTATIC'),
+        (15, 'C_ENTAG'),
+        (16, 'C_MOE'),
+        (17, 'C_REGPARM'),
+        (18, 'C_FIELD'),
+        (19, 'C_UEXT'),
+        (20, 'C_STATLAB'),
+        (21, 'C_EXTLAB'),
+        (27, 'C_VARARG'),
+        (100, 'C_BLOCK'),
+        (101, 'C_FCN'),
+        (102, 'C_EOS'),
+        (103, 'C_FILE'),
+        (104, 'C_LINE')
+    ]
+
 class Coff(object):
     Header = namedtuple('Header',
         'machine_type, section_count, time_date, symbol_table_ptr, ' +
@@ -140,6 +177,37 @@ class Coff(object):
                 f.seek(here)
                 section = section._replace(data=data)
             self.sections.append(section)
+
+        self.symbols = []
+        f.seek(self.header.symbol_table_ptr)
+        for i in range(self.header.symbol_count):
+            symbol = Symbol(*read_struct(f, Symbol.symbol_fmt))
+            try:
+                symbol = symbol._replace(name=self.symname(f, symbol.name))
+            except UnicodeDecodeError:
+                # TODO: not sure what to do with these
+                pass
+            symbol = symbol._replace(
+                number_of_aux_entries=symbol.number_of_aux_entries[0])
+            try:
+                symbol = symbol._replace(
+                    storage_class=next(f for f in symbol.symbol_flags
+                                   if symbol.storage_class[0] == f[0]))
+            except StopIteration:
+                print('bad {}'.format(symbol))
+            self.symbols.append(symbol)
+
+            # TODO: this breaks by hitting EOF but it seems we would need
+            #       to read the aux entries somewhere
+            # if symbol.number_of_aux_entries:
+            #     read_struct(f, Symbol.symbol_auxiliary_format)
+
+        stack_section_number = next(i for i, s in enumerate(self.sections)
+                                    if s.name == '.stack')
+        self.variables = [str(s) for s in self.symbols
+                          if isinstance(s.name, str)
+                          and s.name[0] == '_'
+                          and s.section_number == stack_section_number]
 
         self.entry_point = self.optheader.entry_point
         self.sections.sort(key=lambda s: s.virt_addr)
