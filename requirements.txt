@@ -8,3 +8,5 @@ requests
 twisted
 -e git+https://github.com/altendky/qt5reactor@1e11b637594d5c587bca3228361d8dd7f87b2b35#egg=qt5reactor
 pypiwin32; sys_platform == 'win32'
+-e git+https://github.com/eliben/pyelftools@2300c1ffbe0f12f8bcd8f68ff1b1c6bdd0258c73#egg=pyelftools
+attrs
