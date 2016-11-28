@@ -185,13 +185,34 @@ class ArrayType:
     bytes = attr.ib()
     name = attr.ib(default=None)
 
-    def unpack(self, bits):
+    def length(self):
+        return self.bytes // base_type(self.type).bytes
+
+    def array_markup(self):
+        return '[{}]'.format(self.length())
+
+    def unpack(self, data):
+        # TODO: CAMPid 078587996542145215432667431535465465421
+        if isinstance(data, bytes):
+            data = bytearray(data)
+        elif isinstance(data, str):
+            data = bytearray(int(data, 2)
+                             .to_bytes(self.bytes * bits_per_byte // 8,
+                                       byteorder='big'))
+        bits = ''.join(['{:08b}'.format(b) for b in data])
+
         base = base_type(self.type)
         type_bit_size = base.bytes * bits_per_byte
 
+        expected_items = self.length()
+
         values = []
         for group in grouper(bits, type_bit_size):
+            expected_items -= 1
             values.append(base.unpack(''.join(group)))
+
+        if expected_items != 0:
+            raise Exception('wrong amount of data for array')
 
         return values
 
@@ -334,6 +355,7 @@ class Struct:
         return ranges
 
     def unpack(self, data):
+        # TODO: CAMPid 078587996542145215432667431535465465421
         if isinstance(data, bytes):
             data = bytearray(data)
         elif isinstance(data, str):
@@ -485,9 +507,15 @@ class Variable:
     address = attr.ib()
 
     def render(self):
-        return '{type} {name}; // {base} @ 0x{address:08X}'.format(
+        base = base_type(self)
+        if isinstance(base, ArrayType):
+            array = base.array_markup()
+        else:
+            array = ''
+        return '{type} {name}{array}; // {base} @ 0x{address:08X}'.format(
             type=full_type(self),
             name=name(self),
+            array=array,
             base=base_type(self).name,
             address=self.address
         )
@@ -1040,13 +1068,17 @@ def process_file(filename):
     data['TestStruct10'] = b'\xFF\xFF\xFF\xFF\xFF\xFF\x0F\xFF'
     data['TestStruct11'] = b'\xFF\xFF\xFF\xFF\xFF\xFF\x0F\xFF\x44\x05\x00\x00'
     data['TestStruct12'] = b'\xFF\xFF\xFF\xFF\xFF\xFF\x0F\xFF\x44\x05\x00\x00\x00\x2A\x00\x00\x00\x18\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x04\x00\x00\x00\x05\x00\x00'
+    # huh? 6 entries listed in the debugger for a 5 entry array?
+    data['testArray1'] = b'\x00\x0B\x00\x00\x00\x16\x00\x00\x00\x21\x00\x00\x00\x2C\x00\x00\x00\x37\x00\x00'#\x00\x05\x35\x4A'
 
     for name in data.keys():#['TestStruct{}'.format(i) for i in [1,2,3,4,5,6,7,8,9,10,11]]:
         print(names[name].render())
-        pp.pprint(base_type(names[name]).padded_members())
+        base = base_type(names[name])
+        if hasattr(base, 'padded_members'):
+            pp.pprint(base.padded_members())
         # print(base_type(names[name]).format_string())
         print(''.join(['{:08b}'.format(b) for b in data[name]]))
-        pp.pprint(base_type(names[name]).unpack(data[name]))
+        pp.pprint(base.unpack(data[name]))
 
         # data = bytearray(data)
         # for member in base_type(names[name]).padded_members():
