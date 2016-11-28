@@ -255,6 +255,7 @@ class Signal(QObject):
 
     def format(self):
         if self.float:
+            # TODO: CAMPid 097897541967932453154321546542175421549
             types = {
                 32: 'f',
                 64: 'd'
