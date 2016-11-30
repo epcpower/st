@@ -56,7 +56,7 @@ class Cache:
 @attr.s(hash=False)
 class Chunk:
     _address = attr.ib()
-    _bytes = attr.ib(convert=lambda value: bytearray(value))
+    _bytes = attr.ib(convert=bytearray)
     _bits_per_byte = attr.ib(default=8)
 
     def __len__(self):
