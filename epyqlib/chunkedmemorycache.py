@@ -60,6 +60,8 @@ class Chunk:
     _bits_per_byte = attr.ib(default=8)
 
     def __len__(self):
+        # TODO: maybe...
+        #       return len(self._bytes) // (self._bits_per_byte // 8)
         return len(self._bytes)
 
     def __hash__(self):
@@ -100,11 +102,11 @@ class Chunk:
 
         if _length >= 1:
             slice_start = (start - self._address) * (self._bits_per_byte // 8)
-            slice_end = (slice_start + _length) * (self._bits_per_byte // 8)
+            slice_end = slice_start + (_length * self._bits_per_byte // 8)
             self_slice = slice(slice_start, slice_end)
 
             slice_start = (start - chunk._address) * (self._bits_per_byte // 8)
-            slice_end = (slice_start + _length) * (self._bits_per_byte // 8)
+            slice_end = slice_start + (_length * self._bits_per_byte // 8)
             chunk_slice = slice(slice_start, slice_end)
 
             self._bytes[self_slice] = chunk._bytes[chunk_slice]
@@ -140,13 +142,14 @@ def testit(filename):
 
     testStruct12 = names['testStruct12']
     TestStruct12 = epyqlib.cmemoryparser.base_type(testStruct12)
-    # TODO: but this is bit packed so not all those bytes!  but maybe it's
-    #       ok and bitfields must all be updated at once?  hmm..
+    members = ['sA', 'm10']
+    member, offset = TestStruct12.member_and_offset(members)
+    def all_set_byte(): return 255
+    def random_byte(): return random.randint(0, 255)
     chunk = cache.new_chunk(
-        address=testStruct12.address,
-        # bytes=[255] * TestStruct12.members[0].bytes * (bits_per_byte // 8)
-        bytes=[random.randint(0, 255) for _ in
-               range(TestStruct12.members['m9'].bytes * (bits_per_byte // 8))]
+        address=testStruct12.address + offset,
+        bytes=[random_byte() for _ in
+               range(member.bytes * (bits_per_byte // 8))]
     )
     print('sending update: {}'.format(chunk))
     cache.update(chunk)

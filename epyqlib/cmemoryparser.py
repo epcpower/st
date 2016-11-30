@@ -421,6 +421,29 @@ class Struct:
         return collections.OrderedDict(
             (m.name, values[m.name]) for m in self.members.values())
 
+    def offset_of(self, names):
+        offset = 0
+
+        struct = self
+
+        for name in names:
+            member = struct.members[name]
+            offset += member.location
+            struct = base_type(member)
+
+        return offset
+
+    def member(self, names):
+        struct = self
+
+        for name in names:
+            member = base_type(struct.members[name])
+            struct = member
+
+        return member
+
+    def member_and_offset(self, names):
+        return self.member(names), self.offset_of(names)
 
 # https://docs.python.org/3/library/itertools.html
 def grouper(iterable, n, fillvalue=None):
