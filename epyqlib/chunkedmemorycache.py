@@ -15,7 +15,7 @@ class ByteLengthError(Exception):
 class Cache:
     _chunks = attr.ib(init=False, default=attr.Factory(list))
     _subscribers = attr.ib(init=False, default=attr.Factory(dict))
-    _bytes_per_address = attr.ib(default=1)
+    _bits_per_byte = attr.ib(default=8)
 
     def add(self, chunk):
         if chunk in self._subscribers.keys():
@@ -38,26 +38,26 @@ class Cache:
     def update(self, update_chunk):
         for chunk in self._chunks:
             if chunk.update(update_chunk):
-                for subscriber in self._subscribers[chunk]:
+                for subscriber in self._subscribers.get(chunk, ()):
                     subscriber(chunk._bytes)
 
     def chunk_from_variable(self, variable):
-        data = bytearray([0] * variable.type.bytes * self._bytes_per_address)
+        data = bytearray([0] * variable.type.bytes * (self._bits_per_byte // 8))
         return Chunk(address=variable.address,
                      bytes=data,
-                     bytes_per_address=self._bytes_per_address)
+                     bits_per_byte=self._bits_per_byte)
 
     def new_chunk(self, address, bytes):
         return Chunk(address=address,
                      bytes=bytes,
-                     bytes_per_address=self._bytes_per_address)
+                     bits_per_byte=self._bits_per_byte)
 
 
 @attr.s(hash=False)
 class Chunk:
     _address = attr.ib()
-    _bytes = attr.ib()
-    _bytes_per_address = attr.ib(default=1)
+    _bytes = attr.ib(convert=lambda value: bytearray(value))
+    _bits_per_byte = attr.ib(default=8)
 
     def __len__(self):
         return len(self._bytes)
@@ -67,7 +67,7 @@ class Chunk:
 
     def bounds(self):
         return (self._address,
-                self._address + len(self) // self._bytes_per_address)
+                self._address + len(self) // (self._bits_per_byte // 8))
 
     def __lt__(self, other):
         if not isinstance(other, self.__class__):
@@ -99,12 +99,12 @@ class Chunk:
         _length = end - start
 
         if _length >= 1:
-            slice_start = start - self._address
-            slice_end = slice_start + _length + 1
+            slice_start = (start - self._address) * (self._bits_per_byte // 8)
+            slice_end = (slice_start + _length) * (self._bits_per_byte // 8)
             self_slice = slice(slice_start, slice_end)
 
-            slice_start = start - chunk._address
-            slice_end = slice_start + _length + 1
+            slice_start = (start - chunk._address) * (self._bits_per_byte // 8)
+            slice_end = (slice_start + _length) * (self._bits_per_byte // 8)
             chunk_slice = slice(slice_start, slice_end)
 
             self._bytes[self_slice] = chunk._bytes[chunk_slice]
@@ -120,9 +120,9 @@ def testit(filename):
     import functools
     import random
 
-    names, variables, bytes_per_address = epyqlib.cmemoryparser.process_file(filename)
+    names, variables, bits_per_byte = epyqlib.cmemoryparser.process_file(filename)
 
-    cache = Cache(bytes_per_address=bytes_per_address)
+    cache = Cache(bits_per_byte=bits_per_byte)
 
     for variable in variables:
         chunk = cache.chunk_from_variable(variable)
@@ -137,6 +137,20 @@ def testit(filename):
     chunk.set_bytes(new_bytes)
     print('sending update: {}'.format(chunk))
     cache.update(chunk)
+
+    testStruct12 = names['testStruct12']
+    TestStruct12 = epyqlib.cmemoryparser.base_type(testStruct12)
+    # TODO: but this is bit packed so not all those bytes!  but maybe it's
+    #       ok and bitfields must all be updated at once?  hmm..
+    chunk = cache.new_chunk(
+        address=testStruct12.address,
+        # bytes=[255] * TestStruct12.members[0].bytes * (bits_per_byte // 8)
+        bytes=[random.randint(0, 255) for _ in
+               range(TestStruct12.members['m9'].bytes * (bits_per_byte // 8))]
+    )
+    print('sending update: {}'.format(chunk))
+    cache.update(chunk)
+
 
 def testit_updated(variable, bytes):
     print('{} was updated: {} -> {}'.format(variable.name, bytes, variable.unpack(bytes)))

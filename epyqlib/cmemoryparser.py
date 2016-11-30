@@ -284,11 +284,11 @@ def location(member):
 class Struct:
     bytes = attr.ib()
     name = attr.ib(default=None)
-    members = attr.ib(default=attr.Factory(list))
+    members = attr.ib(default=attr.Factory(collections.OrderedDict))
 
     def render(self, terminate=True):
         members = []
-        for member in self.members:
+        for member in self.members.values():
             members.append(
                 '    {type} {name}{bits}; // {base_type} {size}@{location}'
                     .format(
@@ -326,7 +326,7 @@ class Struct:
 
     def padded_members(self):
         locations = collections.defaultdict(list)
-        for member in self.members:
+        for member in self.members.values():
             if member.bit_offset is None:
                 range = (
                     0,
@@ -419,7 +419,7 @@ class Struct:
         # )
         #
         return collections.OrderedDict(
-            (m.name, values[m.name]) for m in self.members)
+            (m.name, values[m.name]) for m in self.members.values())
 
 
 # https://docs.python.org/3/library/itertools.html
@@ -872,14 +872,13 @@ def process_file(filename):
             if bit_size is not None:
                 bit_size = bit_size.value
             # TODO: location[1] is just based on observation
-            struct.members.append(
-                StructMember(
-                    name=a['DW_AT_name'].value.decode('utf-8'),
-                    type=a['DW_AT_type'].value,
-                    location=a['DW_AT_data_member_location'].value[1],
-                    bit_offset=bit_offset,
-                    bit_size=bit_size
-                )
+            name = a['DW_AT_name'].value.decode('utf-8')
+            struct.members[name] = StructMember(
+                name=name,
+                type=a['DW_AT_type'].value,
+                location=a['DW_AT_data_member_location'].value[1],
+                bit_offset=bit_offset,
+                bit_size=bit_size
             )
         print(list(die.iter_children()))
         print('{: 10d} {}'.format(die.offset, struct))
@@ -956,7 +955,7 @@ def process_file(filename):
     print(fails)
 
     for structure in structure_types:
-        for member in structure.members:
+        for member in structure.members.values():
             member.type = offsets[member.type]
 
     passes = 0
@@ -1016,7 +1015,7 @@ def process_file(filename):
                 # names[item.name].append(item)
                 names[item.name] = item
 
-    return names, variables, bits_per_byte // 8
+    return names, variables, bits_per_byte
 
 def testit(names, variables):
     def nonesorter(a):
@@ -1224,5 +1223,5 @@ def die_info_rec(die, indent_level='    ', objects=None):
 
 if __name__ == '__main__':
     for filename in sys.argv[1:]:
-        names, variables, bytes_per_address = process_file(filename)
+        names, variables, bits_per_byte = process_file(filename)
         testit(names, variables)
