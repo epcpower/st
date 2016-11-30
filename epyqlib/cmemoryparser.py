@@ -67,6 +67,16 @@ class TypeFormats(enum.Enum):
         return self in [TypeFormats.float]
 
 
+class BytesProxy:
+    @property
+    def bytes(self):
+        return self.type.bytes
+
+
+def bytearray_to_bits(data):
+    return ''.join(['{:08b}'.format(b) for b in data])
+
+
 @attr.s
 class Type:
     name = attr.ib()
@@ -99,7 +109,12 @@ class Type:
     #
     #     return '{}{}{}'.format('>', type, self.bytes * bits_per_byte)
 
-    def unpack(self, bits):
+    def unpack(self, data):
+        if isinstance(data, bytearray):
+            bits = bytearray_to_bits(data)
+        else:
+            bits = data
+
         total_bit_count = self.bytes * bits_per_byte
 
         # TODO: the % seems fishy
@@ -173,7 +188,7 @@ class PointerType:
 
 
 @attr.s
-class VolatileType:
+class VolatileType(BytesProxy):
     type = attr.ib()
     name = attr.ib(default=None)
     modifier = 'volatile'
@@ -199,7 +214,7 @@ class ArrayType:
             data = bytearray(int(data, 2)
                              .to_bytes(self.bytes * bits_per_byte // 8,
                                        byteorder='big'))
-        bits = ''.join(['{:08b}'.format(b) for b in data])
+        bits = bytearray_to_bits(data)
 
         base = base_type(self.type)
         type_bit_size = base.bytes * bits_per_byte
@@ -217,7 +232,7 @@ class ArrayType:
         return values
 
 @attr.s
-class ConstType:
+class ConstType(BytesProxy):
     type = attr.ib()
     name = attr.ib(default=None)
     modifier = 'const'
@@ -375,7 +390,7 @@ class Struct:
                     data[s] = bytearray(itertools.chain(*reversed(list(
                         grouper(data[s], bits_per_byte // 8)))))
 
-        bits = ''.join(['{:08b}'.format(b) for b in data])
+        bits = bytearray_to_bits(data)
         values = collections.OrderedDict()
         for member in self.padded_members():
             if member.name != '<padding>':
@@ -489,9 +504,13 @@ class TypeDef:
     def unpack(self, bits):
         return base_type(self).unpack(bits)
 
+    @property
+    def bytes(self):
+        return self.target.bytes
+
 
 @attr.s
-class LoUser:
+class LoUser(BytesProxy):
     type = attr.ib()
 
 
@@ -519,6 +538,9 @@ class Variable:
             base=base_type(self).name,
             address=self.address
         )
+
+    def unpack(self, data):
+        return base_type(self).unpack(data)
 
 
 def get_value(variable):
@@ -994,6 +1016,9 @@ def process_file(filename):
                 # names[item.name].append(item)
                 names[item.name] = item
 
+    return names, variables, bits_per_byte // 8
+
+def testit(names, variables):
     def nonesorter(a):
         if a[0] is None:
             return '', a[1]
@@ -1032,7 +1057,7 @@ def process_file(filename):
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(base_type(names['TestStruct']).padded_members())
     # print(base_type(names['TestStruct']).format_string())
-    print(''.join(['{:08b}'.format(b) for b in data]))
+    print(bytearray_to_bits(data))
     pp.pprint(base_type(names['TestStruct']).unpack(data))
 
     data = bytearray(data)
@@ -1077,7 +1102,7 @@ def process_file(filename):
         if hasattr(base, 'padded_members'):
             pp.pprint(base.padded_members())
         # print(base_type(names[name]).format_string())
-        print(''.join(['{:08b}'.format(b) for b in data[name]]))
+        print(bytearray_to_bits(data[name]))
         pp.pprint(base.unpack(data[name]))
 
         # data = bytearray(data)
@@ -1199,4 +1224,5 @@ def die_info_rec(die, indent_level='    ', objects=None):
 
 if __name__ == '__main__':
     for filename in sys.argv[1:]:
-        process_file(filename)
+        names, variables, bytes_per_address = process_file(filename)
+        testit(names, variables)
