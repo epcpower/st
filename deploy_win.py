@@ -191,7 +191,7 @@ def pip_install(package, no_ssl_verify, site=False):
     pip_parameters.append(package)
     return pip.main(pip_parameters)
 
-pip_install('pyqtdeploy', no_ssl_verify=False, site=True)
+pip_install('hg+http://www.riverbankcomputing.com/hg/pyqtdeploy@bef6017b100c#egg=pyqtdeploy', no_ssl_verify=False, site=True)
 
 print('Starting pyqtdeploycli')
 runit(
