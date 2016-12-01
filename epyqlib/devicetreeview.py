@@ -183,7 +183,6 @@ class DeviceTreeView(QtWidgets.QWidget):
                     progress.setWindowFlags(flags)
                     progress.setWindowModality(Qt.WindowModal)
                     progress.setAutoReset(False)
-                    progress.setCancelButton(None)
 
                     flasher = epyqlib.flash.Flasher(file=f,
                                                     bus=bus,
@@ -193,6 +192,11 @@ class DeviceTreeView(QtWidgets.QWidget):
                     failed_box = QMessageBox(self)
                     failed_box.setText(textwrap.dedent('''\
                     Flashing failed
+                    '''))
+
+                    canceled_box = QMessageBox(self)
+                    canceled_box.setText(textwrap.dedent('''\
+                    Flashing canceled
                     '''))
 
                     flasher.done.connect(progress.close)
@@ -225,6 +229,7 @@ class DeviceTreeView(QtWidgets.QWidget):
                             )
                     )
                     flasher.failed.connect(failed_box.exec)
+                    flasher.canceled.connect(canceled_box.exec)
                     flasher.done.connect(bus.set_bus)
 
                     flasher.flash()

@@ -28,13 +28,15 @@ class Flasher(QObject):
     completed = pyqtSignal()
     done = pyqtSignal()
     failed = pyqtSignal()
+    canceled = pyqtSignal()
 
     def __init__(self, file, bus, progress=None, parent=None):
         super().__init__(parent)
 
         self.progress = progress
+        self.deferred = None
+        self._canceled = False
 
-        self.failed.connect(self.done)
         self.completed.connect(self.done)
 
         self.protocol = ccp.Handler()
@@ -70,13 +72,24 @@ class Flasher(QObject):
     def update_progress(self, messages_sent):
         self.progress_messages.emit(messages_sent)
 
-    def connect_to_progress(self):
+    def connect_to_progress(self, progress=None):
+        if progress is not None:
+            self.progress = progress
+
         if self.progress is not None:
             self.progress.setMinimumDuration(0)
             # Default to a busy indicator, progress maximum will be set later
             self.progress.setMinimum(0)
             self.progress.setMaximum(0)
             self.progress_messages.connect(self.progress.setValue)
+            self.progress.canceled.connect(self.cancel)
+
+    def disconnect_from_progress(self):
+        if self.progress is not None:
+            self.progress_messages.disconnect(self.progress.setValue)
+            self.progress.canceled.disconnect(self.cancel)
+
+            self.progress = None
 
     def set_progress_label(self, text):
         if self.progress is not None:
@@ -87,14 +100,26 @@ class Flasher(QObject):
             self.progress.setMinimum(0)
             self.progress.setMaximum(self.total_messages_to_send)
 
+    def cancel(self):
+        if self.deferred is not None and not self._canceled:
+            self._canceled = True
+            self.disconnect_from_progress()
+            self.protocol.cancel()
+            self.deferred.cancel()
+
     def flash(self):
         # We should start sending before the bootloader is listening to help
         # make sure we catch it.
 
         self.set_progress_label('Searching...')
 
-        d = ccp.retry(function=self.protocol.connect, times=self.retries,
-                      acceptable=[ccp.RequestTimeoutError])
+        # let any buffered/old messages get dumped
+        d = ccp.sleep(0.5)
+        self.deferred = d
+        d.addCallback(lambda _: ccp.retry(
+            function=self.protocol.connect, times=self.retries,
+            acceptable=[ccp.RequestTimeoutError])
+        )
 
         d.addCallback(lambda _: self.set_progress_label('Clearing...'))
 
@@ -159,7 +184,11 @@ class Flasher(QObject):
 
     def _failed(self, result):
         ccp.logit(result)
-        self.failed.emit()
+        if self._canceled:
+            self.canceled.emit()
+        else:
+            self.failed.emit()
+        self.done.emit()
 
 
 def parse_args(args):

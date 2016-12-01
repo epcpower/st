@@ -141,7 +141,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
     @state.setter
     def state(self, new_state):
-        logger.debug('Entering {}'.format(new_state))
+        logger.debug('Entering state {}'.format(new_state))
         self._previous_state = self._state
         self._state = new_state
 
@@ -153,6 +153,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         logger.debug('Entering connect()')
         if self._active:
             raise Exception('self._active is True')
+        self._active = True
 
         self._deferred = twisted.internet.defer.Deferred()
 
@@ -173,6 +174,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         logger.debug('Entering disconnect()')
         if self._active:
             raise Exception('self._active is True')
+        self._active = True
 
         self._deferred = twisted.internet.defer.Deferred()
 
@@ -191,6 +193,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         logger.debug('Entering set_mta()')
         if self._active:
             raise Exception('self._active is True')
+        self._active = True
 
         self._deferred = twisted.internet.defer.Deferred()
 
@@ -228,6 +231,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         logger.debug('Entering unlock()')
         if self._active:
             raise Exception('self._active is True')
+        self._active = True
 
         self._deferred = twisted.internet.defer.Deferred()
 
@@ -250,6 +254,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         if self._active:
             raise Exception('self._active is True')
+        self._active = True
 
         self._deferred = twisted.internet.defer.Deferred()
 
@@ -282,6 +287,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         if self._active:
             raise Exception('self._active is True')
+        self._active = True
 
         self._deferred = twisted.internet.defer.Deferred()
 
@@ -311,6 +317,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         if self._active:
             raise Exception('self._active is True')
+        self._active = True
 
         self._deferred = twisted.internet.defer.Deferred()
 
@@ -336,6 +343,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         if self._active:
             raise Exception('self._active is True')
+        self._active = True
 
         self._deferred = twisted.internet.defer.Deferred()
 
@@ -465,13 +473,13 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         packet.command_counter = self._send_counter
 
+        self.state = state
+
         logger.debug('Message to be sent: {}'.format(packet))
         self._transport.write(packet)
 
         self._messages_sent += 1
         self.messages_sent.emit(self._messages_sent)
-
-        self.state = state
 
         self.setTimeout(packet.command_code.timeout)
         logger.debug('Timeout set to {}'.format(packet.command_code.timeout))
@@ -482,8 +490,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                     bool(msg.id_type) == self._extended):
             return
 
-        if self._active:
-            raise Exception('self._active is False')
+        if not self._active:
+            return
 
         self.setTimeout(None)
 
@@ -599,6 +607,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
     def timeoutConnection(self):
         message = 'Handler timed out while in state: {}'.format(self.state)
         logger.debug(message)
+        self._active = False
         if self._previous_state in [HandlerState.idle]:
             self.state = self._previous_state
         self._deferred.errback(RequestTimeoutError(message))
@@ -613,6 +622,10 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         logger.debug('erring back for {}'.format(self._deferred))
         logger.debug('with payload {}'.format(payload))
         self._deferred.errback(payload)
+
+    def cancel(self):
+        self._active = False
+        self.setTimeout(None)
 
 
 def crc(data, crc=None):
