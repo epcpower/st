@@ -99,6 +99,10 @@ class Flasher(QObject):
             self.progress.setMinimum(0)
             self.progress.setMaximum(self.total_messages_to_send)
 
+    def show_progress(self):
+        if self.progress is not None:
+            self.progress.show()
+
     def cancel(self):
         if self.deferred is not None and not self._canceled:
             self._canceled = True
@@ -111,6 +115,7 @@ class Flasher(QObject):
         # make sure we catch it.
 
         self.set_progress_label('Searching...')
+        self.show_progress()
 
         # let any buffered/old messages get dumped
         d = ccp.sleep(0.5)
