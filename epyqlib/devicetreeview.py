@@ -158,15 +158,48 @@ class DeviceTreeView(QtWidgets.QWidget):
             message_box = QMessageBox(self)
             message_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
             message_box.setDefaultButton(QMessageBox.Cancel)
-            message_box.setText(textwrap.dedent('''\
+            message_box.setTextFormat(Qt.RichText)
+
+            text = textwrap.dedent('''\
             Flashing {file}
 
-            1. Prepare to power on the inverter
-            2. Press OK
-            3. Power on inverter within 2 seconds
-            4. Progress bar is innaccurate while reading 0%
-            5. Progress bar is accurate once it starts moving
-            '''.format(file=file)))
+            <ol>
+              <li> Prepare module for programming
+                <ul>
+                  <li> Remove all high power from the module </li>
+                  <li> Remove 24V control power </li>
+                  <li> Install jumper between J1 pin 1 and pin 2 (+24V to Boot Enable), but do not reconnect 24V at this time </li>
+                  <li> Ensure that the USB to CAN device is installed and connected to the appropriate CAN network </li>
+                  <br>
+                  <br>
+                  <i> <b>Note:</b> no other devices may be active on the CAN network during programming operations </i>
+                  <br>
+                  <i> <b>Note:</b> firmware programming occurs at a CAN baud rate of 250kbits/sec.  If any CAN tools are in use during programming, they should be set to a baud rate of 250kbits/sec </i>
+                </ul>
+              </li>
+              <br>
+              <li> Apply firmware update via CAN
+                <ul>
+                  <li> Click OK </li>
+                  <li> Reapply 24V control power </li>
+                  <li> EPyQ will search for the module and should find it within a second or two </li>
+                  <li> EPyQ will initiate clearing of module's flash memory </li>
+                  <li> EPyQ will flash the device providing progress status </li>
+                  <li> This whole process should take 1-2 minutes </li>
+                </ul>
+              </li>
+              <br>
+              <li> Restore System
+                <ul>
+                  <li> Remove 24V control power </li>
+                  <li> Remove Boot Enable jumper </li>
+                  <li> Power up module normally </li>
+                </ul>
+              </li>
+            </ol>
+            '''.format(file=file))
+
+            message_box.setText(text)
 
             result = message_box.exec()
 
