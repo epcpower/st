@@ -32,6 +32,8 @@ class Flasher(QObject):
     def __init__(self, file, bus, progress=None, parent=None):
         super().__init__(parent)
 
+        self.progress = progress
+
         self.failed.connect(self.done)
         self.completed.connect(self.done)
 
@@ -60,8 +62,7 @@ class Flasher(QObject):
         self.total_messages_to_send = (
             download_messages_to_send * 7 / 5 + self.retries + 15)
 
-        if progress is not None:
-            self.connect_to_progress(progress=progress)
+        self.connect_to_progress()
 
         self._data_start_time = None
         self.data_delta_time = None
@@ -69,16 +70,34 @@ class Flasher(QObject):
     def update_progress(self, messages_sent):
         self.progress_messages.emit(messages_sent)
 
-    def connect_to_progress(self, progress):
-        progress.setMinimum(0)
-        progress.setMaximum(self.total_messages_to_send)
-        self.progress_messages.connect(progress.setValue)
+    def connect_to_progress(self):
+        if self.progress is not None:
+            self.progress.setMinimumDuration(0)
+            # Default to a busy indicator, progress maximum will be set later
+            self.progress.setMinimum(0)
+            self.progress.setMaximum(0)
+            self.progress_messages.connect(self.progress.setValue)
+
+    def set_progress_label(self, text):
+        if self.progress is not None:
+            self.progress.setLabelText(text)
+
+    def set_progress_range(self):
+        if self.progress is not None:
+            self.progress.setMinimum(0)
+            self.progress.setMaximum(self.total_messages_to_send)
 
     def flash(self):
         # We should start sending before the bootloader is listening to help
         # make sure we catch it.
+
+        self.set_progress_label('Searching...')
+
         d = ccp.retry(function=self.protocol.connect, times=self.retries,
                       acceptable=[ccp.RequestTimeoutError])
+
+        d.addCallback(lambda _: self.set_progress_label('Clearing...'))
+
         # Since we will send multiple connects in most cases we should give
         # the bootloader a chance to respond to all of them before moving on.
         d.addCallback(lambda _: ccp.sleep(0.1 * self.retries))
@@ -99,6 +118,10 @@ class Flasher(QObject):
         d.addCallbacks(
             lambda _: self.protocol.clear_memory()
         )
+
+        d.addCallback(lambda _: self.set_progress_label('Flashing...'))
+        d.addCallback(lambda _: self.set_progress_range())
+
         d.addCallback(lambda _: self._start_timing_data())
 
         self.protocol.continuous_crc = None

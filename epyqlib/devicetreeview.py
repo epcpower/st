@@ -181,7 +181,6 @@ class DeviceTreeView(QtWidgets.QWidget):
                     flags =  progress.windowFlags()
                     flags &= ~Qt.WindowContextHelpButtonHint
                     progress.setWindowFlags(flags)
-                    progress.setLabelText('Flashing...')
                     progress.setWindowModality(Qt.WindowModal)
                     progress.setAutoReset(False)
                     progress.setCancelButton(None)
