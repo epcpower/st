@@ -631,6 +631,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
     def cancel(self):
         self._active = False
         self.setTimeout(None)
+        self._deferred.cancel()
 
 
 def crc(data, crc=None):
