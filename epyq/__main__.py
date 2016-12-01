@@ -267,6 +267,7 @@ def main(args=None):
         args = parser.parse_args()
 
     if args.verbose >= 1:
+        logger = logging.getLogger(__name__)
         logger.setLevel(logging.DEBUG)
 
     if args.verbose >= 2:
