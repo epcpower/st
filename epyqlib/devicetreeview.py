@@ -8,6 +8,7 @@ import epyqlib.devicetree
 import epyqlib.flash
 import functools
 import io
+import math
 import os
 import textwrap
 from PyQt5 import QtWidgets, uic
@@ -187,6 +188,7 @@ class DeviceTreeView(QtWidgets.QWidget):
                     flasher = epyqlib.flash.Flasher(file=f,
                                                     bus=bus,
                                                     progress=progress,
+                                                    retries=math.inf,
                                                     parent=self)
 
                     failed_box = QMessageBox(self)

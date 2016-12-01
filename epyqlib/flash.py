@@ -30,7 +30,7 @@ class Flasher(QObject):
     failed = pyqtSignal()
     canceled = pyqtSignal()
 
-    def __init__(self, file, bus, progress=None, parent=None):
+    def __init__(self, file, bus, progress=None, retries=5, parent=None):
         super().__init__(parent)
 
         self.progress = progress
@@ -50,7 +50,7 @@ class Flasher(QObject):
         coff = epyqlib.ticoff.Coff()
         coff.from_stream(file)
 
-        self.retries = 5
+        self.retries = retries
 
         self.sections = [s for s in coff.sections
                          if s.data is not None and s.virt_size > 0]
@@ -61,8 +61,7 @@ class Flasher(QObject):
         # For every 5 download messages there is also 1 set MTA and 1 CRC.
         # There will likely be a couple retries and there's a bit more overhead
         # to get started.
-        self.total_messages_to_send = (
-            download_messages_to_send * 7 / 5 + self.retries + 15)
+        self.total_messages_to_send = download_messages_to_send * 7 / 5 + 15
 
         self.connect_to_progress()
 
@@ -125,7 +124,7 @@ class Flasher(QObject):
 
         # Since we will send multiple connects in most cases we should give
         # the bootloader a chance to respond to all of them before moving on.
-        d.addCallback(lambda _: ccp.sleep(0.1 * self.retries))
+        d.addCallback(lambda _: ccp.sleep(min(1, 0.01 * self.retries)))
         # unlock
         d.addCallback(
             lambda _: self.protocol.set_mta(

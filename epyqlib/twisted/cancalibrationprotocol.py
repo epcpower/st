@@ -51,7 +51,8 @@ def retry(function, times, acceptable=None):
     if acceptable is None:
         acceptable = []
 
-    for iteration in range(times):
+    remaining = times
+    while remaining > 0:
         try:
             result = yield function()
         except Exception as e:
@@ -62,6 +63,8 @@ def retry(function, times, acceptable=None):
         else:
             logger.debug('red')
             twisted.internet.defer.returnValue(result)
+
+        remaining -= 1
 
     raise Exception('out of retries')
 
@@ -166,7 +169,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         # TODO: shouldn't be needed, just makes it agree with oz
         #       for cleaner diff
         packet.payload[0] = 1
-        self._send(packet, state=HandlerState.connecting)
+        self._send(packet, state=HandlerState.connecting,
+                   count_towards_total=False)
 
         return self._deferred
 
@@ -465,7 +469,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         # deferred.callback('Oh so smelly...')
         # return self._internal_deferred
 
-    def _send(self, packet, state):
+    def _send(self, packet, state, count_towards_total=True):
         if self._send_counter < 255:
             self._send_counter += 1
         else:
@@ -478,8 +482,9 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         logger.debug('Message to be sent: {}'.format(packet))
         self._transport.write(packet)
 
-        self._messages_sent += 1
-        self.messages_sent.emit(self._messages_sent)
+        if count_towards_total:
+            self._messages_sent += 1
+            self.messages_sent.emit(self._messages_sent)
 
         self.setTimeout(packet.command_code.timeout)
         logger.debug('Timeout set to {}'.format(packet.command_code.timeout))
