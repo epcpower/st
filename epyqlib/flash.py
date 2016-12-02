@@ -103,6 +103,10 @@ class Flasher(QObject):
         if self.progress is not None:
             self.progress.show()
 
+    def hide_progress_cancel_button(self):
+        if self.progress is not None:
+            self.progress.setCancelButton(None)
+
     def cancel(self):
         if self.deferred is not None and not self._canceled:
             self._canceled = True
@@ -150,6 +154,7 @@ class Flasher(QObject):
 
         d.addCallback(lambda _: self.set_progress_label('Flashing...'))
         d.addCallback(lambda _: self.set_progress_range())
+        d.addCallback(lambda _: self.hide_progress_cancel_button())
 
         d.addCallback(lambda _: self._start_timing_data())
 
