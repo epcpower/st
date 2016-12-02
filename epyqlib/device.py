@@ -415,7 +415,10 @@ class Device:
                 signal_name = widget.property('signal')
 
                 widget.set_range(min=0, max=100)
-                widget.set_value(default_widget_value)
+                try:
+                    widget.set_value(default_widget_value)
+                except ValueError:
+                    widget.set_value(0)
 
                 # TODO: add some notifications
                 found = False
