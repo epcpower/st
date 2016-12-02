@@ -40,14 +40,20 @@ class Elements(Enum):
     dash = 1
     tx = 2
     rx = 3
-    nv = 4
+    variables = 4
+    nv = 5
 
 
 @unique
 class Tabs(Enum):
     dashes = 1
     txrx = 2
-    nv = 3
+    variables = 3
+    nv = 4
+
+    @classmethod
+    def defaults(cls):
+        return set(cls) - set((cls.variables,))
 
 
 def j1939_node_id_adjust(message_id, node_id):
@@ -95,7 +101,7 @@ class Device:
         if elements is None:
             elements = set(Elements)
         if tabs is None:
-            tabs = set(Tabs)
+            tabs = Tabs.defaults()
 
         try:
             zip_file = zipfile.ZipFile(file)
@@ -119,13 +125,16 @@ class Device:
                      tabs=None, rx_interval=0, edit_actions=None,
                      only_for_files=False):
         if tabs is None:
-            tabs = set(Tabs)
+            tabs = Tabs.defaults()
 
         if elements is None:
             elements = set(Elements)
             if Tabs.txrx not in tabs:
                 self.elements.discard(Elements.tx)
                 self.elements.discard(Elements.rx)
+
+            if Tabs.variables not in tabs:
+                self.elements.discard(Elements.variables)
 
             if Tabs.nv not in tabs:
                 self.elements.discard(Elements.nv)
@@ -210,7 +219,7 @@ class Device:
         if elements is None:
             elements = set(Elements)
         if tabs is None:
-            tabs = set(Tabs)
+            tabs = Tabs.defaults()
 
         path = tempfile.mkdtemp()
         zip_file.extractall(path=path)
@@ -230,7 +239,7 @@ class Device:
                               rx_interval=0, edit_actions=None):
         self.elements = set(Elements) if elements == None else set(elements)
         if tabs is None:
-            tabs = set(Tabs)
+            tabs = Tabs.defaults()
 
         if not hasattr(self, 'bus'):
             self.bus = BusProxy(bus=bus)
@@ -369,6 +378,8 @@ class Device:
                                        name)
         if Tabs.txrx not in tabs:
             self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.txrx))
+        if Tabs.variables not in tabs:
+            self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.variables))
         if Tabs.nv not in tabs:
             self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.nv))
         if tabs:
@@ -401,6 +412,7 @@ class Device:
 
         self.dash_connected_signals = set()
         self.dash_missing_signals = set()
+        self.dash_missing_defaults = set()
         for dash in flat:
             # TODO: CAMPid 99457281212789437474299
             children = dash.findChildren(QObject)
