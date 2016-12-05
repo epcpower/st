@@ -28,7 +28,8 @@ from enum import Enum, unique
 from epyqlib.busproxy import BusProxy
 from epyqlib.widgets.abstractwidget import AbstractWidget
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtSlot, Qt, QFile, QFileInfo, QTextStream, QObject
+from PyQt5.QtCore import (pyqtSlot, Qt, QFile, QFileInfo, QTextStream, QObject,
+                          QSortFilterProxyModel)
 from PyQt5.QtWidgets import QWidget, QMessageBox
 
 # See file COPYING in this source tree
@@ -358,7 +359,10 @@ class Device:
                 root=variables
             )
 
-            self.ui.variable_selection.set_model(variable_model)
+            proxy = QSortFilterProxyModel()
+            proxy.setSourceModel(variable_model)
+            self.ui.variable_selection.set_model(proxy)
+            self.ui.variable_selection.set_sorting_enabled(True)
 
         if Elements.nv in self.elements:
             matrix_nv = list(importany.importany(self.can_path).values())[0]

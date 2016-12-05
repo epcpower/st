@@ -33,6 +33,9 @@ class VariableSelectionView(QtWidgets.QWidget):
     def set_model(self, model):
         self.ui.tree_view.setModel(model)
 
+    def set_sorting_enabled(self, enabled):
+        self.ui.tree_view.setSortingEnabled(enabled)
+
     @property
     def model(self):
         return self.tree_view.model()

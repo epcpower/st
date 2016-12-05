@@ -4,7 +4,7 @@ import io
 import os
 from PyQt5 import QtWidgets, uic
 # from PyQt5.QtGui import QFontMetrics
-from PyQt5.QtCore import QFile, QFileInfo, QTextStream
+from PyQt5.QtCore import QFile, QFileInfo, QTextStream, QSortFilterProxyModel
 from PyQt5.QtWidgets import QFileDialog
 
 # See file COPYING in this source tree
@@ -60,6 +60,9 @@ class VariableSelection(QtWidgets.QWidget):
     def set_model(self, model):
         self.ui.view.set_model(model)
 
+    def set_sorting_enabled(self, enabled):
+        self.ui.view.set_sorting_enabled(enabled)
+
     def load_binary(self):
         filters = [
             ('TICOFF Binaries', ['out']),
@@ -68,4 +71,8 @@ class VariableSelection(QtWidgets.QWidget):
         filename = file_dialog(filters)
 
         if filename is not None:
-            self.ui.view.model.load_binary(filename)
+            model = self.ui.view.model
+            while isinstance(model, QSortFilterProxyModel):
+                model = model.sourceModel()
+
+            model.load_binary(filename)
