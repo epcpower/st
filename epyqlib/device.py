@@ -360,6 +360,7 @@ class Device:
             )
 
             proxy = QSortFilterProxyModel()
+            proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
             proxy.setSourceModel(variable_model)
             self.ui.variable_selection.set_model(proxy)
             self.ui.variable_selection.set_sorting_enabled(True)
