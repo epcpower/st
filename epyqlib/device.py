@@ -11,6 +11,7 @@ import epyqlib.nvview
 import epyqlib.overlaylabel
 import epyqlib.txrx
 import epyqlib.txrxview
+import epyqlib.variableselectionmodel
 import functools
 import importlib.util
 import io
@@ -349,6 +350,15 @@ class Device:
                 # TODO: actually find them and actually support multiple
                 self.ui.rx.setModel(rx_model)
                 self.ui.tx.setModel(tx_model)
+
+        if Elements.variables in self.elements:
+            variables = epyqlib.variableselectionmodel.Variables()
+
+            variable_model = epyqlib.variableselectionmodel.VariableModel(
+                root=variables
+            )
+
+            self.ui.variable_selection.set_model(variable_model)
 
         if Elements.nv in self.elements:
             matrix_nv = list(importany.importany(self.can_path).values())[0]

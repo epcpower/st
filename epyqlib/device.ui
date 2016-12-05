@@ -34,7 +34,7 @@
    <item>
     <widget class="QTabWidget" name="tabs">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="txrx">
       <attribute name="title">
@@ -90,25 +90,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
-          <widget class="QPushButton" name="load_binary_button">
-           <property name="text">
-            <string>Load Binary</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QPushButton" name="update_parameters_button">
-           <property name="text">
-            <string>Update Parameters</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="VariableSelectionView" name="variableselectionview"/>
-         </item>
-        </layout>
+        <widget class="VariableSelection" name="variable_selection"/>
        </item>
       </layout>
      </widget>
@@ -138,9 +120,9 @@
    <header>epyqlib.txrxview</header>
   </customwidget>
   <customwidget>
-   <class>VariableSelectionView</class>
+   <class>VariableSelection</class>
    <extends>QWidget</extends>
-   <header>epyqlib.variableselectionview</header>
+   <header>epyqlib.variableselection</header>
   </customwidget>
  </customwidgets>
  <resources/>

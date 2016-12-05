@@ -263,7 +263,7 @@ def full_type(type):
 
 
 def base_type(type):
-    if isinstance(type, (PointerType, ArrayType)):
+    if isinstance(type, (PointerType, ArrayType, EnumerationType)):
         return type
     elif hasattr(type, 'type'):
         return base_type(type.type)
@@ -421,6 +421,7 @@ class Struct:
         return collections.OrderedDict(
             (m.name, values[m.name]) for m in self.members.values())
 
+    # TODO: refactor to *args
     def offset_of(self, names):
         offset = 0
 
@@ -486,7 +487,7 @@ class PointerToMember:
 
 
 @attr.s
-class Enumeration:
+class EnumerationType:
     bytes = attr.ib()
     name = attr.ib(default=None)
     type = attr.ib(default=None)
@@ -937,7 +938,7 @@ def process_file(filename):
         type = die.attributes.get('DW_AT_type', None)
         if type is not None:
             type = type.value
-        enumeration = Enumeration(
+        enumeration = EnumerationType(
             name=name,
             bytes=die.attributes['DW_AT_byte_size'].value * byte_size_fudge,
             type=type
