@@ -63,6 +63,9 @@ class VariableSelection(QtWidgets.QWidget):
     def set_sorting_enabled(self, enabled):
         self.ui.view.set_sorting_enabled(enabled)
 
+    def sort_by_column(self, column, order):
+        self.ui.view.sort_by_column(column=column, order=order)
+
     def load_binary(self):
         filters = [
             ('TICOFF Binaries', ['out']),

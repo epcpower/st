@@ -36,6 +36,9 @@ class VariableSelectionView(QtWidgets.QWidget):
     def set_sorting_enabled(self, enabled):
         self.ui.tree_view.setSortingEnabled(enabled)
 
+    def sort_by_column(self, column, order):
+        self.ui.tree_view.sortByColumn(column, order)
+
     @property
     def model(self):
         return self.tree_view.model()

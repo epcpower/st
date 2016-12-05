@@ -364,6 +364,10 @@ class Device:
             proxy.setSourceModel(variable_model)
             self.ui.variable_selection.set_model(proxy)
             self.ui.variable_selection.set_sorting_enabled(True)
+            self.ui.variable_selection.sort_by_column(
+                column=epyqlib.variableselectionmodel.Columns.indexes.name,
+                order=Qt.AscendingOrder
+            )
 
         if Elements.nv in self.elements:
             matrix_nv = list(importany.importany(self.can_path).values())[0]
