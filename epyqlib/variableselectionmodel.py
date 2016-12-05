@@ -52,13 +52,7 @@ class Variables(epyqlib.treenode.TreeNode):
         # TODO: this should probably be done in the view but this is easier for now
         self.children.sort(key=lambda c: c.name)
 
-        self.fields = Columns(
-            name='',
-            type='',
-            address='',
-            size='',
-            bits=''
-        )
+        self.fields = Columns.fill('')
 
     def unique(self):
         return id(self)
