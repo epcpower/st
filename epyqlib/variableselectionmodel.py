@@ -34,8 +34,17 @@ class VariableNode(epyqlib.treenode.TreeNode):
                               size=epyqlib.cmemoryparser.base_type(variable).bytes,
                               bits=bits)
 
+        self._checked = Columns.fill(Qt.Unchecked)
+
     def unique(self):
         return id(self)
+
+    def checked(self, column=Columns.indexes.name):
+        return self._checked[column]
+
+    def set_checked(self, checked, column=Columns.indexes.name):
+        self._checked[column] = checked
+
 
 
 class Variables(epyqlib.treenode.TreeNode):
@@ -61,6 +70,7 @@ class Variables(epyqlib.treenode.TreeNode):
 class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     def __init__(self, root, parent=None):
         checkbox_columns = Columns.fill(False)
+        checkbox_columns.name = True
 
         epyqlib.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
                 self, root=root, checkbox_columns=checkbox_columns,
@@ -75,6 +85,15 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         )
 
         self.root = root
+
+    def setData(self, index, data, role=None):
+        if index.column() == Columns.indexes.name:
+            if role == Qt.CheckStateRole:
+                node = self.node_from_index(index)
+
+                node.set_checked(data)
+
+                return True
 
     def load_binary(self, filename):
         names, variables, bits_per_byte =\
