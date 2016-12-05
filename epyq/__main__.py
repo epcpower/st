@@ -243,12 +243,32 @@ def excepthook(excType, excValue, tracebackobj):
     errorbox.exec_()
 
 
+# http://stackoverflow.com/a/35902894/228539
+def qt_message_handler(mode, context, message):
+    mode_strings = {
+        QtCore.QtInfoMsg: 'INFO',
+        QtCore.QtWarningMsg: 'WARNING',
+        QtCore.QtCriticalMsg: 'CRITICAL',
+        QtCore.QtFatalMsg: 'FATAL'
+    }
+
+    mode = mode_strings.get(mode, 'DEBUG')
+
+    print('qt_message_handler: f:{file} l:{line} f():{function}'.format(
+        file=context.file,
+        line=context.line,
+        function=context.function
+    ))
+    print('  {}: {}\n'.format(mode, message))
+
+
 def main(args=None):
     print('starting epyq')
 
     # TODO: CAMPid 9757656124812312388543272342377
     app = QApplication(sys.argv)
     sys.excepthook = excepthook
+    QtCore.qInstallMessageHandler(qt_message_handler)
     app.setStyleSheet('QMessageBox {{ messagebox-text-interaction-flags: {}; }}'
                       .format(Qt.TextBrowserInteraction))
     app.setOrganizationName('EPC Power Corp.')
