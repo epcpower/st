@@ -12,23 +12,27 @@ __license__ = 'GPLv2+'
 
 
 class Columns(epyqlib.abstractcolumns.AbstractColumns):
-    _members = ['name', 'type', 'address', 'size']
+    _members = ['name', 'type', 'address', 'size', 'bits']
 
 Columns.indexes = Columns.indexes()
 
 
 class VariableNode(epyqlib.treenode.TreeNode):
-    def __init__(self, variable, name=None, address=None, tree_parent=None):
+    def __init__(self, variable, name=None, address=None, bits=None,
+                 tree_parent=None):
         epyqlib.treenode.TreeNode.__init__(self, parent=tree_parent)
 
         self.variable = variable
         name = name if name is not None else variable.name
         address = address if address is not None else variable.address
+        if bits is None:
+            bits = ''
 
         self.fields = Columns(name=name,
                               type=variable.type,
                               address='0x{:08X}'.format(address),
-                              size=epyqlib.cmemoryparser.base_type(variable).bytes)
+                              size=epyqlib.cmemoryparser.base_type(variable).bytes,
+                              bits=bits)
 
     def unique(self):
         return id(self)
@@ -52,7 +56,8 @@ class Variables(epyqlib.treenode.TreeNode):
             name='',
             type='',
             address='',
-            size=''
+            size='',
+            bits=''
         )
 
     def unique(self):
@@ -71,7 +76,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             name='Name',
             type='Type',
             address='Address',
-            size='Size'
+            size='Size',
+            bits='Bits'
         )
 
         self.root = root
@@ -99,7 +105,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 child_node = VariableNode(
                     variable=member,
                     name=name,
-                    address=child_address
+                    address=child_address,
+                    bits=member.bit_size
                 )
                 node.append_child(child_node)
 
