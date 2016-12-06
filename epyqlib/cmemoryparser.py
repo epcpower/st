@@ -267,8 +267,6 @@ def base_type(type):
         return type
     elif hasattr(type, 'type'):
         return base_type(type.type)
-    elif hasattr(type, 'target'):
-        return base_type(type.target)
     else:
         return type
 
@@ -503,26 +501,26 @@ class EnumerationValue:
 @attr.s
 class TypeDef:
     name = attr.ib()
-    target = attr.ib()
+    type = attr.ib()
 
     # @property
     # def bytes(self):
-    #     return self.target.bytes
+    #     return self.type.bytes
     #
     # @property
     # def format(self):
-    #     return self.target.format
+    #     return self.type.format
 
     # @property
     # def base_type(self):
-    #     if isinstance(self.target, Type):
-    #         return self.target
+    #     if isinstance(self.type, Type):
+    #         return self.type
     #     else:
-    #         return self.target.base_type
+    #         return self.type.base_type
 
     def render(self):
-        return 'typedef {target} {name};'.format(
-            target=self.target.render(terminate=False),
+        return 'typedef {type} {name};'.format(
+            type=self.type.render(terminate=False),
             name=self.name)
 
     def unpack(self, bits):
@@ -530,7 +528,7 @@ class TypeDef:
 
     @property
     def bytes(self):
-        return self.target.bytes
+        return self.type.bytes
 
 
 @attr.s
@@ -587,10 +585,7 @@ def dereference(variable):
 
     type = variable
     while not isinstance(type, PointerType):
-        if hasattr(type, 'target'):
-            type = type.target
-        else:
-            type = type.type
+        type = type.type
 
     # one more to get past the pointer
     type = type.type
@@ -958,7 +953,7 @@ def process_file(filename):
     for die in objects['DW_TAG_typedef']:
         typedef = TypeDef(
             name=die.attributes['DW_AT_name'].value.decode('utf-8'),
-            target=(die.offset, die.attributes['DW_AT_type'].value)
+            type=(die.offset, die.attributes['DW_AT_type'].value)
         )
         typedefs.append(typedef)
         offsets[die.offset] = typedef
@@ -968,11 +963,11 @@ def process_file(filename):
     print(offset_values)
     fails = 0
     for typedef in typedefs:
-        offset = typedef.target[0]
+        offset = typedef.type[0]
         try:
-            typedef.target = offsets[typedef.target[1]]
+            typedef.type = offsets[typedef.type[1]]
         except KeyError:
-            print('Failed to find target for {}'.format(typedef))
+            print('Failed to find type for {}'.format(typedef))
             fails += 1
         else:
             print('{: 10d} {}'.format(offset, typedef))
