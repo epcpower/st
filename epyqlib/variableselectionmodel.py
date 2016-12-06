@@ -43,8 +43,58 @@ class VariableNode(epyqlib.treenode.TreeNode):
         return self._checked[column]
 
     def set_checked(self, checked, column=Columns.indexes.name):
+        was_checked = self._checked[column]
         self._checked[column] = checked
 
+        if was_checked != checked and Qt.Checked in [was_checked, checked]:
+            if self.tree_parent.tree_parent is None:
+                self.update_checks()
+            else:
+                self.tree_parent.update_checks()
+
+    def addresses(self):
+        address = int(self.fields.address, 16)
+        return [address + offset for offset in range(self.fields.size)]
+
+    def update_checks(self):
+        def append_address(node, addresses):
+            if node.checked() == Qt.Checked:
+                addresses |= set(node.addresses())
+
+        addresses = set()
+
+        top_ancestor = self
+        while top_ancestor.tree_parent.tree_parent is not None:
+            top_ancestor = top_ancestor.tree_parent
+
+        top_ancestor.traverse(
+            call_this=append_address,
+            payload=addresses,
+            internal_nodes=True
+        )
+
+        def set_partially_checked(node, _):
+            if node.checked() != Qt.Checked:
+                if not set(node.addresses()).isdisjoint(addresses):
+                    check = Qt.PartiallyChecked
+                else:
+                    check = Qt.Unchecked
+
+                node.set_checked(check)
+
+        self.traverse(call_this=set_partially_checked, internal_nodes=True)
+
+        ancestor = self
+        while ancestor.tree_parent is not None:
+            if ancestor.checked() != Qt.Checked:
+                if not set(ancestor.addresses()).isdisjoint(addresses):
+                    change_to = Qt.PartiallyChecked
+                else:
+                    change_to = Qt.Unchecked
+
+                ancestor.set_checked(change_to)
+
+            ancestor = ancestor.tree_parent
 
 
 class Variables(epyqlib.treenode.TreeNode):
@@ -92,6 +142,12 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 node = self.node_from_index(index)
 
                 node.set_checked(data)
+
+                # TODO: CAMPid 9349911217316754793971391349
+                parent = node.tree_parent
+                self.changed(parent.children[0], Columns.indexes.name,
+                             parent.children[-1], Columns.indexes.name,
+                             [Qt.CheckStateRole])
 
                 return True
 

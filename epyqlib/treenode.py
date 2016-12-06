@@ -46,12 +46,13 @@ class TreeNode:
 
         return True
 
-    def traverse(self, call_this, payload=None):
+    def traverse(self, call_this, payload=None, internal_nodes=False):
+        child = None
         for child in self.children:
-            if len(child.children) == 0:
-                call_this(child, payload)
-            else:
-                child.traverse(child, call_this, payload)
+            child.traverse(call_this, payload, internal_nodes=internal_nodes)
+
+        if internal_nodes or child is None:
+            call_this(self, payload)
 
     def __len__(self):
         return len(self.children)
