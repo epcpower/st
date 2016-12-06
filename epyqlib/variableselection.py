@@ -13,7 +13,7 @@ __license__ = 'GPLv2+'
 
 
 # TODO: CAMPid 097347143788543453113499349316
-def file_dialog(filters, default=0):
+def file_dialog(filters, default=0, save=False):
     # TODO: CAMPid 9857216134675885472598426718023132
     # filters = [
     #     ('EPC Packages', ['epc', 'epz']),
@@ -26,7 +26,12 @@ def file_dialog(filters, default=0):
                                        ) for f in filters]
     filter_string = ';;'.join(filter_strings)
 
-    file = QFileDialog.getOpenFileName(
+    if save:
+        dialog = QFileDialog.getSaveFileName
+    else:
+        dialog = QFileDialog.getOpenFileName
+
+    file = dialog(
             filter=filter_string,
             initialFilter=filter_strings[default])[0]
 
@@ -56,6 +61,7 @@ class VariableSelection(QtWidgets.QWidget):
         self.ui = uic.loadUi(sio, self)
 
         self.ui.load_binary_button.clicked.connect(self.load_binary)
+        self.ui.save_selection_button.clicked.connect(self.save_selection)
 
     def set_model(self, model):
         self.ui.view.set_model(model)
@@ -66,6 +72,24 @@ class VariableSelection(QtWidgets.QWidget):
     def sort_by_column(self, column, order):
         self.ui.view.sort_by_column(column=column, order=order)
 
+    def save_selection(self):
+        filters = [
+            ('EPC Variable Selection', ['epv']),
+            ('All Files', ['*'])
+        ]
+        filename = file_dialog(filters, save=True)
+
+        if filename is not None:
+            model = self.nonproxy_model()
+            model.save_selection(filename=filename)
+
+    def nonproxy_model(self):
+        model = self.ui.view.model
+        while isinstance(model, QSortFilterProxyModel):
+            model = model.sourceModel()
+
+        return model
+
     def load_binary(self):
         filters = [
             ('TICOFF Binaries', ['out']),
@@ -74,8 +98,5 @@ class VariableSelection(QtWidgets.QWidget):
         filename = file_dialog(filters)
 
         if filename is not None:
-            model = self.ui.view.model
-            while isinstance(model, QSortFilterProxyModel):
-                model = model.sourceModel()
-
+            model = self.nonproxy_model()
             model.load_binary(filename)

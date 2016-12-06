@@ -2,6 +2,7 @@ import epyqlib.abstractcolumns
 import epyqlib.cmemoryparser
 import epyqlib.pyqabstractitemmodel
 import epyqlib.treenode
+import json
 
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
                           QTimer)
@@ -166,6 +167,29 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             )
 
         self.modelReset.emit()
+
+    def save_selection(self, filename):
+        selected = []
+
+        def add_if_checked(node, selected):
+            if node is self.root:
+                return
+
+            if node.checked() == Qt.Checked:
+                path = []
+                while node.tree_parent is not None:
+                    path.insert(0, node.fields.name)
+                    node = node.tree_parent
+                selected.append(path)
+
+        self.root.traverse(
+            call_this=add_if_checked,
+            payload=selected,
+            internal_nodes=True
+        )
+
+        with open(filename, 'w') as f:
+            json.dump(selected, f, indent='    ')
 
     def add_struct_members(self, base_type, address, node):
         if isinstance(base_type, epyqlib.cmemoryparser.Struct):
