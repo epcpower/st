@@ -100,6 +100,15 @@ class VariableNode(epyqlib.treenode.TreeNode):
 
             ancestor = ancestor.tree_parent
 
+    def path(self):
+        path = []
+        node = self
+        while node.tree_parent is not None:
+            path.insert(0, node.fields.name)
+            node = node.tree_parent
+
+        return path
+
 
 class Variables(epyqlib.treenode.TreeNode):
     # TODO: just Rx?
@@ -176,11 +185,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 return
 
             if node.checked() == Qt.Checked:
-                path = []
-                while node.tree_parent is not None:
-                    path.insert(0, node.fields.name)
-                    node = node.tree_parent
-                selected.append(path)
+                selected.append(node.path())
 
         self.root.traverse(
             call_this=add_if_checked,
@@ -190,6 +195,22 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         with open(filename, 'w') as f:
             json.dump(selected, f, indent='    ')
+
+    def load_selection(self, filename):
+        with open(filename, 'r') as f:
+            selected = json.load(f)
+
+        def check_if_selected(node, _):
+            if node is self.root:
+                return
+
+            if node.path() in selected:
+                node.set_checked(Qt.Checked)
+
+        self.root.traverse(
+            call_this=check_if_selected,
+            internal_nodes=True
+        )
 
     def add_struct_members(self, base_type, address, node):
         if isinstance(base_type, epyqlib.cmemoryparser.Struct):

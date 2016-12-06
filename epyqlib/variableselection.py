@@ -62,6 +62,7 @@ class VariableSelection(QtWidgets.QWidget):
 
         self.ui.load_binary_button.clicked.connect(self.load_binary)
         self.ui.save_selection_button.clicked.connect(self.save_selection)
+        self.ui.load_selection_button.clicked.connect(self.load_selection)
 
     def set_model(self, model):
         self.ui.view.set_model(model)
@@ -82,6 +83,17 @@ class VariableSelection(QtWidgets.QWidget):
         if filename is not None:
             model = self.nonproxy_model()
             model.save_selection(filename=filename)
+
+    def load_selection(self):
+        filters = [
+            ('EPC Variable Selection', ['epv']),
+            ('All Files', ['*'])
+        ]
+        filename = file_dialog(filters)
+
+        if filename is not None:
+            model = self.nonproxy_model()
+            model.load_selection(filename=filename)
 
     def nonproxy_model(self):
         model = self.ui.view.model
