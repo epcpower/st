@@ -111,9 +111,6 @@ class Variables(epyqlib.treenode.TreeNode):
     def __init__(self):
         epyqlib.treenode.TreeNode.__init__(self)
 
-        # TODO: this should probably be done in the view but this is easier for now
-        self.children.sort(key=lambda c: c.name)
-
         self.fields = Columns.fill('')
 
     def unique(self):
