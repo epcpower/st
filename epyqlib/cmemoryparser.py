@@ -271,6 +271,19 @@ def base_type(type):
         return type
 
 
+def type_name(type):
+    name = None
+    while type is not None:
+        type = type.type
+
+        if hasattr(type, 'name'):
+            if type.name is not None and len(type.name) > 0:
+                name = type.name
+                break
+
+    return name
+
+
 def location(member):
     l = member.location
     if member.bit_offset is not None:

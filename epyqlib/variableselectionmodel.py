@@ -28,10 +28,13 @@ class VariableNode(epyqlib.treenode.TreeNode):
         if bits is None:
             bits = ''
 
+        base_type = epyqlib.cmemoryparser.base_type(variable)
+        type_name = epyqlib.cmemoryparser.type_name(variable)
+
         self.fields = Columns(name=name,
-                              type=variable.type,
+                              type=type_name,
                               address='0x{:08X}'.format(address),
-                              size=epyqlib.cmemoryparser.base_type(variable).bytes,
+                              size=base_type.bytes,
                               bits=bits)
 
         self._checked = Columns.fill(Qt.Unchecked)
