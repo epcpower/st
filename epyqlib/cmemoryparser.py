@@ -256,8 +256,6 @@ def full_type(type):
         return type.name
     elif hasattr(type, 'modifier'):
         return '{} {}'.format(type.modifier, full_type(type.type))
-    # elif hasattr(type, 'name'):
-    #     return type.name
     else:
         return full_type(type.type)
 
