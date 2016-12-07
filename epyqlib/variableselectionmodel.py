@@ -1,4 +1,5 @@
 import epyqlib.abstractcolumns
+import epyqlib.chunkedmemorycache as cmc
 import epyqlib.cmemoryparser
 import epyqlib.pyqabstractitemmodel
 import epyqlib.treenode
@@ -211,6 +212,40 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             call_this=check_if_selected,
             internal_nodes=True
         )
+
+    def update_parameters(self):
+        # TODO: quit hardcoding bits per byte
+        cache = cmc.Cache(bits_per_byte=16)
+
+        def update_parameter(node, cache):
+            if node is self.root:
+                return
+
+            if node.checked() == Qt.Checked:
+                print('{path}: {address}+{size}'.format(
+                    path='.'.join(node.path()),
+                    address=node.fields.address,
+                    size=node.fields.size
+                ))
+
+                chunk = cache.new_chunk(
+                    address=int(node.fields.address, 16),
+                    bytes=b'\x00' * node.fields.size
+                )
+                cache.add(chunk)
+
+        self.root.traverse(
+            call_this=update_parameter,
+            payload=cache,
+            internal_nodes=True
+        )
+
+        chunks = cache.contiguous_chunks()
+        for chunk in chunks:
+            print('{address}+{size}'.format(
+                address='0x{:08X}'.format(chunk._address),
+                size=len(chunk._bytes)
+            ))
 
     def add_struct_members(self, base_type, address, node):
         if isinstance(base_type, epyqlib.cmemoryparser.Struct):

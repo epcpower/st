@@ -63,6 +63,7 @@ class VariableSelection(QtWidgets.QWidget):
         self.ui.load_binary_button.clicked.connect(self.load_binary)
         self.ui.save_selection_button.clicked.connect(self.save_selection)
         self.ui.load_selection_button.clicked.connect(self.load_selection)
+        self.ui.update_parameters_button.clicked.connect(self.update_parameters)
 
     def set_model(self, model):
         self.ui.view.set_model(model)
@@ -112,3 +113,7 @@ class VariableSelection(QtWidgets.QWidget):
         if filename is not None:
             model = self.nonproxy_model()
             model.load_binary(filename)
+
+    def update_parameters(self):
+        model = self.nonproxy_model()
+        model.update_parameters()
