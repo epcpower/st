@@ -225,6 +225,13 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         self.send(self.save_frame.to_message())
         # TODO: is there a response from device to confirm?
 
+    def logger_set_frames(self):
+        frames = [frame for frame in self.set_frames.values()
+                  if frame.mux_name.startswith('LoggerChunk')]
+        frames.sort(key=lambda frame: frame.mux_name)
+
+        return frames
+
 
 class Nv(epyqlib.canneo.Signal, TreeNode):
     def __init__(self, signal, frame, parent=None):

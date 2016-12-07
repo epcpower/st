@@ -129,7 +129,7 @@ class Variables(epyqlib.treenode.TreeNode):
 
 
 class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
-    def __init__(self, root, parent=None):
+    def __init__(self, root, nvs, parent=None):
         checkbox_columns = Columns.fill(False)
         checkbox_columns.name = True
 
@@ -146,6 +146,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         )
 
         self.root = root
+        self.nvs = nvs
 
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
@@ -240,12 +241,21 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             internal_nodes=True
         )
 
+        set_frames = self.nvs.logger_set_frames()
+
         chunks = cache.contiguous_chunks()
-        for chunk in chunks:
+
+        for chunk, frame in zip(chunks, set_frames):
             print('{address}+{size}'.format(
                 address='0x{:08X}'.format(chunk._address),
                 size=len(chunk._bytes)
             ))
+
+            address_signal = frame.signal_by_name('Address')
+            bytes_signal = frame.signal_by_name('Bytes')
+
+            address_signal.set_value(chunk._address)
+            bytes_signal.set_value(len(chunk._bytes))
 
     def add_struct_members(self, base_type, address, node):
         if isinstance(base_type, epyqlib.cmemoryparser.Struct):

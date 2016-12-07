@@ -352,23 +352,6 @@ class Device:
                 self.ui.rx.setModel(rx_model)
                 self.ui.tx.setModel(tx_model)
 
-        if Elements.variables in self.elements:
-            variables = epyqlib.variableselectionmodel.Variables()
-
-            variable_model = epyqlib.variableselectionmodel.VariableModel(
-                root=variables
-            )
-
-            proxy = QSortFilterProxyModel()
-            proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
-            proxy.setSourceModel(variable_model)
-            self.ui.variable_selection.set_model(proxy)
-            self.ui.variable_selection.set_sorting_enabled(True)
-            self.ui.variable_selection.sort_by_column(
-                column=epyqlib.variableselectionmodel.Columns.indexes.name,
-                order=Qt.AscendingOrder
-            )
-
         if Elements.nv in self.elements:
             matrix_nv = list(importany.importany(self.can_path).values())[0]
             self.frames_nv = epyqlib.canneo.Neo(
@@ -389,6 +372,24 @@ class Device:
 
                 for view in nv_views:
                     view.setModel(nv_model)
+
+        if Elements.variables in self.elements:
+            variables = epyqlib.variableselectionmodel.Variables()
+
+            variable_model = epyqlib.variableselectionmodel.VariableModel(
+                root=variables,
+                nvs=self.nvs
+            )
+
+            proxy = QSortFilterProxyModel()
+            proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
+            proxy.setSourceModel(variable_model)
+            self.ui.variable_selection.set_model(proxy)
+            self.ui.variable_selection.set_sorting_enabled(True)
+            self.ui.variable_selection.sort_by_column(
+                column=epyqlib.variableselectionmodel.Columns.indexes.name,
+                order=Qt.AscendingOrder
+            )
 
         if Tabs.dashes in tabs:
             for i, (name, dash) in enumerate(self.dash_uis.items()):
