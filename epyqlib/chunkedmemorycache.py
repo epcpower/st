@@ -52,6 +52,36 @@ class Cache:
                      bytes=bytes,
                      bits_per_byte=self._bits_per_byte)
 
+    def contiguous_chunks(self):
+        chunks = []
+
+        addresses = set()
+        for chunk in self._chunks:
+            addresses.update(chunk._address + offset
+                             for offset in range(len(chunk._bytes)))
+
+        addresses = sorted(list(addresses))
+
+        addresses.append(None)
+
+        if len(addresses) > 0:
+            start = None
+            for address in addresses:
+                if start is None:
+                    start = address
+                    end = start
+                elif address == end + 1:
+                    end = address
+                else:
+                    chunk = self.new_chunk(
+                        address=start,
+                        bytes=b'\x00' * (end - start + 1)
+                    )
+                    chunks.append(chunk)
+                    start = address
+                    end = start
+
+        return chunks
 
 @attr.s(hash=False)
 class Chunk:
