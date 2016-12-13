@@ -1036,6 +1036,8 @@ def process_file(filename):
                 names[item.name].append(item)
             elif is_modifier(item):
                 pass
+            elif item.name.startswith('$'):
+                pass
             else:
                 if item.name in names:
                     raise Exception('{}\n{}'.format(item, names[item.name]))
