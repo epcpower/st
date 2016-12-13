@@ -3,6 +3,7 @@ import epyqlib.chunkedmemorycache as cmc
 import epyqlib.cmemoryparser
 import epyqlib.pyqabstractitemmodel
 import epyqlib.treenode
+import itertools
 import json
 
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
@@ -245,7 +246,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         chunks = cache.contiguous_chunks()
 
-        for chunk, frame in zip(chunks, set_frames):
+        for chunk, frame in itertools.zip_longest(
+                chunks, set_frames, fillvalue=cache.new_chunk(0, 0)):
             print('{address}+{size}'.format(
                 address='0x{:08X}'.format(chunk._address),
                 size=len(chunk._bytes)
