@@ -35,6 +35,12 @@
         "file": "interface/hydra.epc",
         "groups": ["dev"]
     },
+    "Hydra Factory": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "Imergy",
+        "file": "interface/hydra_factory.epc",
+        "groups": ["factory"]
+    },
     "Distributed Generation": {
         "repository": "https://epc-phab.exana.io/diffusion/ICU",
         "branch": "TUV_UUTapp",
