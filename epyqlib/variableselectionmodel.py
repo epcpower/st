@@ -8,6 +8,7 @@ import json
 
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
                           QTimer)
+from PyQt5.QtWidgets import QMessageBox
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -245,6 +246,23 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         set_frames = self.nvs.logger_set_frames()
 
         chunks = cache.contiguous_chunks()
+
+        frame_count = len(set_frames)
+        chunk_count = len(chunks)
+        if chunk_count > frame_count:
+            chunks = chunks[:frame_count]
+
+            message_box = QMessageBox()
+            message_box.setStandardButtons(QMessageBox.Ok)
+
+            text = ("Variable selection yields {chunks} memory chunks but "
+                    "is limited to {frames}.  Selection has been truncated."
+                    .format(chunks=chunk_count, frames=frame_count))
+
+            message_box.setText(text)
+
+            message_box.exec()
+
 
         for chunk, frame in itertools.zip_longest(
                 chunks, set_frames, fillvalue=cache.new_chunk(0, 0)):
