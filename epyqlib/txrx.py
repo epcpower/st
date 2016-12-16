@@ -71,14 +71,10 @@ class MessageNode(epyqlib.canneo.Frame, TreeNode):
 
         identifier = epyqlib.canneo.format_identifier(frame._Id, frame._extended)
 
-        name = self.name
-        try:
-            length = len(self.mux_name)
-        except TypeError:
-            pass
+        if self.mux_name is None:
+            name = self.name
         else:
-            if length > 0:
-                name += ' - ' + self.mux_name
+            name = '{} - {}'.format(self.name, self.mux_name)
 
         count = self.count['tx'] if self.tx else self.count['rx']
 
@@ -153,7 +149,7 @@ class MessageNode(epyqlib.canneo.Frame, TreeNode):
         self.fields.id = epyqlib.canneo.format_identifier(
                 message.arbitration_id, message.id_type)
 
-        self.fields.name = self.name
+        # self.fields.name = self.name
 
         self.fields.length = '{} B'.format(message.dlc)
         self.fields.value = epyqlib.canneo.format_data(message.data)
@@ -185,7 +181,7 @@ class MessageNode(epyqlib.canneo.Frame, TreeNode):
 
 
     def unique(self):
-        return self.fields.id
+        return id(self)
 
     def set_data(self, data):
         self.fields.value = data
@@ -221,12 +217,7 @@ class TxRx(TreeNode, epyqlib.canneo.QtCanListener):
 
         if self.tx:
             for frame in self.neo.frames:
-                message = can.Message()
-                message.arbitration_id = frame.id
-                message.id_type = frame.extended
-                message.dlc = frame.size
-                message.data = frame.pack(frame)
-                self.add_message(message=message, tx=True)
+                self.add_message_node(node=frame)
 
         # TODO: this should probably be done in the view but this is easier for now
         #       Tx can't be added to later (yet)
@@ -286,6 +277,15 @@ class TxRx(TreeNode, epyqlib.canneo.QtCanListener):
         # TODO: move to TreeNode?
         self.begin_insert_rows.emit(self, index, index)
         self.append_child(message_node)
+        self.end_insert_rows.emit()
+
+    def add_message_node(self, node):
+        node.send.connect(self.send)
+
+        index = len(self.children)
+        # TODO: move to TreeNode?
+        self.begin_insert_rows.emit(self, index, index)
+        self.append_child(node)
         self.end_insert_rows.emit()
 
     def generate_id(self, message):

@@ -662,7 +662,7 @@ class Neo(QtCanListener):
             try:
                 frame = base_frame.multiplex_frames[multiplex_value]
             except KeyError:
-                return (None, None)
+                return (base_frame, None)
 
         return (frame, multiplex_value)
 
