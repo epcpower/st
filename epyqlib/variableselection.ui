@@ -30,20 +30,27 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
+     <item row="0" column="4">
       <widget class="QPushButton" name="update_parameters_button">
        <property name="text">
         <string>Update Parameters</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="4">
+     <item row="1" column="0" colspan="5">
       <widget class="VariableSelectionView" name="view"/>
      </item>
      <item row="0" column="2">
       <widget class="QPushButton" name="load_selection_button">
        <property name="text">
         <string>Load Selection</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="pull_log_button">
+       <property name="text">
+        <string>Pull Log</string>
        </property>
       </widget>
      </item>

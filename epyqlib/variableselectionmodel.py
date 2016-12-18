@@ -3,6 +3,7 @@ import epyqlib.chunkedmemorycache as cmc
 import epyqlib.cmemoryparser
 import epyqlib.pyqabstractitemmodel
 import epyqlib.treenode
+import epyqlib.twisted.cancalibrationprotocol as ccp
 import itertools
 import json
 
@@ -276,6 +277,33 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
             address_signal.set_value(chunk._address)
             bytes_signal.set_value(len(chunk._bytes))
+
+    def pull_log(self):
+        protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
+        from twisted.internet import reactor
+        transport = epyqlib.twisted.busproxy.BusProxy(
+            protocol=protocol,
+            reactor=reactor,
+            bus=self.nvs.bus.bus)
+        # TODO: whoa! cheater!  stealing a bus like that
+
+        d = protocol.connect(station_address=0)
+        # TODO: hardcoded extension, tsk-tsk
+        d.addCallback(lambda _: protocol.set_mta(
+            address=0,
+            address_extension=ccp.AddressExtension.data_logger)
+        )
+        d.addCallback(lambda _: protocol.upload(
+            container=bytearray(),
+            number_of_bytes=4)
+        )
+
+        # TODO: figure out how many need to be read
+        for _ in range(10):
+            d.addCallback(protocol.upload, number_of_bytes=4)
+
+        d.addCallback(print)
+        d.addErrback(print)
 
     def add_struct_members(self, base_type, address, node):
         if isinstance(base_type, epyqlib.cmemoryparser.Struct):

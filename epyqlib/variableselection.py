@@ -64,6 +64,7 @@ class VariableSelection(QtWidgets.QWidget):
         self.ui.save_selection_button.clicked.connect(self.save_selection)
         self.ui.load_selection_button.clicked.connect(self.load_selection)
         self.ui.update_parameters_button.clicked.connect(self.update_parameters)
+        self.ui.pull_log_button.clicked.connect(self.pull_log)
 
     def set_model(self, model):
         self.ui.view.set_model(model)
@@ -117,3 +118,7 @@ class VariableSelection(QtWidgets.QWidget):
     def update_parameters(self):
         model = self.nonproxy_model()
         model.update_parameters()
+
+    def pull_log(self):
+        model = self.nonproxy_model()
+        model.pull_log()

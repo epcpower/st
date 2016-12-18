@@ -106,12 +106,14 @@ class HandlerState(enum.Enum):
     unlocking = 7
     building_checksum = 8
     clearing_memory = 9
+    uploading = 10
 
 
 class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
     messages_sent = pyqtSignal(int)
 
-    def __init__(self, id=bootloader_can_id, extended=True, parent=None):
+    def __init__(self, tx_id=bootloader_can_id, rx_id=bootloader_can_id,
+                 extended=True, parent=None):
         QObject.__init__(self, parent=parent)
         self._deferred = None
         self._stream_deferred = None
@@ -120,7 +122,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         self._active = False
         self._transport = None
 
-        self._id = id
+        self._tx_id = tx_id
+        self._rx_id = rx_id
         self._extended = extended
 
         self._send_counter = -1
@@ -138,6 +141,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         self._messages_sent = 0
 
+        self.request_memory = None
+
     @property
     def state(self):
         return self._state
@@ -152,7 +157,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         self._transport = transport
         logger.debug('Handler.makeConnection(): {}'.format(transport))
 
-    def connect(self):
+    def connect(self, station_address=1):
         logger.debug('Entering connect()')
         if self._active:
             raise Exception('self._active is True')
@@ -165,10 +170,11 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                 'Connect requested while {}'.format(self.state.name)))
             return self._deferred
 
-        packet = HostCommand(code=CommandCode.connect)
+        packet = HostCommand(code=CommandCode.connect,
+                             arbitration_id=self._tx_id)
         # TODO: shouldn't be needed, just makes it agree with oz
         #       for cleaner diff
-        packet.payload[0] = 1
+        packet.payload[0] = station_address
         self._send(packet, state=HandlerState.connecting,
                    count_towards_total=False)
 
@@ -187,7 +193,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                 'Disconnect requested while {}'.format(self.state.name)))
             return self._deferred
 
-        packet = HostCommand(code=CommandCode.disconnect)
+        packet = HostCommand(code=CommandCode.disconnect,
+                             arbitration_id=self._tx_id)
         self._send(packet, state=HandlerState.disconnecting)
 
         logger.debug('disconnecting')
@@ -221,7 +228,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         if address != 0 and (not 0x310000 <= address <= 0x33fff6+1):
             raise Exception('Hardcoded memory range protection')
 
-        packet = HostCommand(code=CommandCode.set_mta)
+        packet = HostCommand(code=CommandCode.set_mta,
+                             arbitration_id=self._tx_id)
         # always zero for Oz bootloader
         packet.payload[0] = 0
         packet.payload[1] = address_extension
@@ -245,7 +253,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                     section.name, section.value)))
             return self._deferred
 
-        packet = HostCommand(code=CommandCode.unlock)
+        packet = HostCommand(code=CommandCode.unlock,
+                             arbitration_id=self._tx_id)
         packet.payload[0] = 2
         packet.payload[1:3] = section.value.to_bytes(2, 'big')
 
@@ -277,7 +286,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                 'Download requested while {}'.format(self.state.name)))
             return self._deferred
 
-        packet = HostCommand(code=CommandCode.download)
+        packet = HostCommand(code=CommandCode.download,
+                             arbitration_id=self._tx_id)
         swapped_data = tuple(endianness_swap_2byte(data))
         packet.payload[0] = len(swapped_data)
         packet.payload[1:len(swapped_data)+1] = swapped_data
@@ -307,10 +317,39 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                 'Download requested while {}'.format(self.state.name)))
             return self._deferred
 
-        packet = HostCommand(code=CommandCode.download_6)
+        packet = HostCommand(code=CommandCode.download_6,
+                             arbitration_id=self._tx_id)
         packet.payload[:] = endianness_swap_2byte(data)
 
         self._send(packet=packet, state=HandlerState.download_6ing)
+
+        return self._deferred
+
+    def upload(self, container, number_of_bytes=4):
+        logger.debug('Entering upload()')
+
+        if self._active:
+            raise Exception('self._active is True')
+        self._active = True
+
+        self._deferred = twisted.internet.defer.Deferred()
+
+        if not 1 <= number_of_bytes <= 5:
+            self.errback(TypeError(
+                'Invalid byte count requested: {}'
+                    .format(number_of_bytes)
+            ))
+        else:
+            if self.state is not HandlerState.connected:
+                self.errback(HandlerBusy(
+                    'Upload requested while {}'.format(self.state.name)))
+            else:
+                packet = HostCommand(code=CommandCode.upload,
+                                     arbitration_id=self._tx_id)
+                packet.payload[0] = number_of_bytes
+                self.request_memory = number_of_bytes, container
+
+                self._send(packet=packet, state=HandlerState.uploading)
 
         return self._deferred
 
@@ -330,7 +369,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                 'Build checksum requested while {}'.format(self.state.name)))
             return self._deferred
 
-        packet = HostCommand(code=CommandCode.build_checksum)
+        packet = HostCommand(code=CommandCode.build_checksum,
+                             arbitration_id=self._tx_id)
         logger.debug('{}, {}'.format(type(length), type(checksum)))
         logger.debug((length.to_bytes(4, 'big'), checksum.to_bytes(2, 'big')))
         packet.payload[:4] = length.to_bytes(4, 'big')
@@ -356,7 +396,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                 'Clear memory requested while {}'.format(self.state.name)))
             return self._deferred
 
-        packet = HostCommand(code=CommandCode.clear_memory)
+        packet = HostCommand(code=CommandCode.clear_memory,
+                             arbitration_id=self._tx_id)
         packet.payload[:4] = length.to_bytes(4, 'big')
 
         self._send(packet=packet, state=HandlerState.clearing_memory)
@@ -491,7 +532,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
     def dataReceived(self, msg):
         logger.debug('Message received: {}'.format(msg))
-        if not (msg.arbitration_id == self._id and
+        if not (msg.arbitration_id == self._rx_id and
                     bool(msg.id_type) == self._extended):
             return
 
@@ -534,7 +575,12 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
             dsp_code = (int(packet.payload[2]) << 8) + int(packet.payload[3])
 
-            logger.debug('DSP Part ID: {}'.format(DspCode(dsp_code).name))
+            try:
+                dsp_code = DspCode(dsp_code)
+            except ValueError:
+                pass
+            else:
+                logger.debug('DSP Part ID: {}'.format(dsp_code.name))
 
             self.state = HandlerState.connected
             self.callback('successfully connected')
@@ -604,6 +650,17 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
             self.state = HandlerState.connected
             self.callback('successfully unlocked {}'.format(packet.payload[1]))
+        elif self.state is HandlerState.uploading:
+            if packet.command_return_code is not CommandStatus.acknowledge:
+                self.errback(UnexpectedMessageReceived(
+                    'Module should ack when trying to upload, instead: {} {}'
+                        .format(packet.command_return_code.name, packet)))
+                return
+
+            self.state = HandlerState.connected
+            number_of_bytes, container = self.request_memory
+            container.extend(packet.payload[0:number_of_bytes])
+            self.callback(container)
         else:
             self.errback(HandlerUnknownState(
                 'Handler in unknown state: {}'.format(self.state)))
@@ -796,6 +853,7 @@ class CommandCode(enum.IntEnum):
     connect = 0x01
     set_mta = 0x02
     download = 0x03
+    upload = 0x04
     disconnect = 0x07
     build_checksum = 0x0E
     clear_memory = 0x10
@@ -828,7 +886,8 @@ _command_code_properties = {
     CommandCode.clear_memory: CommandCodeProperties(timeout=30),
     CommandCode.unlock: CommandCodeProperties(timeout=1),
     CommandCode.action_service: CommandCodeProperties(timeout=1),
-    CommandCode.download_6: CommandCodeProperties(timeout=1)
+    CommandCode.download_6: CommandCodeProperties(timeout=1),
+    CommandCode.upload: CommandCodeProperties(timeout=1)
 }
 
 
@@ -865,12 +924,16 @@ class DspCode(enum.IntEnum):
     _28069UPFP = 0x009D
 
 
-@enum.unique
+# TODO: separate bootloader vs. embedded enumerations
+# @enum.unique
 class AddressExtension(enum.IntEnum):
     flash_memory = 0x00
     configuration_registers = 0x01
     eeprom_memory_bootloader = 0x02
     eeprom_memory_data = 0x03
+
+    raw = 0x00
+    data_logger = 0x01
 
 
 @enum.unique
