@@ -217,7 +217,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             internal_nodes=True
         )
 
-    def update_parameters(self):
+    def create_cache(self):
         # TODO: quit hardcoding bits per byte
         cache = cmc.Cache(bits_per_byte=16)
 
@@ -243,6 +243,11 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             payload=cache,
             internal_nodes=True
         )
+
+        return cache
+
+    def update_parameters(self):
+        cache = self.create_cache()
 
         set_frames = self.nvs.logger_set_frames()
 
