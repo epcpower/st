@@ -1,9 +1,12 @@
+import collections
+import csv
 import epyqlib.abstractcolumns
 import epyqlib.chunkedmemorycache as cmc
 import epyqlib.cmemoryparser
 import epyqlib.pyqabstractitemmodel
 import epyqlib.treenode
 import epyqlib.twisted.cancalibrationprotocol as ccp
+import io
 import itertools
 import json
 
@@ -12,6 +15,8 @@ from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
 from PyQt5.QtWidgets import QMessageBox
 
 # See file COPYING in this source tree
+from _pytest.junitxml import record_xml_property
+
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
@@ -151,6 +156,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.root = root
         self.nvs = nvs
 
+        # TODO: quit hardcoding bits per byte
+        self.bits_per_byte = 16
+
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
             if role == Qt.CheckStateRole:
@@ -218,8 +226,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         )
 
     def create_cache(self):
-        # TODO: quit hardcoding bits per byte
-        cache = cmc.Cache(bits_per_byte=16)
+        cache = cmc.Cache(bits_per_byte=self.bits_per_byte)
 
         def update_parameter(node, cache):
             if node is self.root:
@@ -274,14 +281,15 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 chunks, set_frames, fillvalue=cache.new_chunk(0, 0)):
             print('{address}+{size}'.format(
                 address='0x{:08X}'.format(chunk._address),
-                size=len(chunk._bytes)
+                size=len(chunk._bytes) // (self.bits_per_byte // 8)
             ))
 
             address_signal = frame.signal_by_name('Address')
             bytes_signal = frame.signal_by_name('Bytes')
 
             address_signal.set_value(chunk._address)
-            bytes_signal.set_value(len(chunk._bytes))
+            bytes_signal.set_value(
+                len(chunk._bytes) // (self.bits_per_byte // 8))
 
     def pull_log(self):
         protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
@@ -304,11 +312,84 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         )
 
         # TODO: figure out how many need to be read
-        for _ in range(10):
+        for _ in range(250): # 300 exceeds maximum recursion depth
             d.addCallback(protocol.upload, number_of_bytes=4)
 
-        d.addCallback(print)
+        d.addCallback(self.parse_log)
         d.addErrback(print)
+
+    def parse_log(self, data):
+        print('about to parse: {}'.format(data))
+
+        cache = self.create_cache()
+
+        chunks = cache.contiguous_chunks()
+
+        data_stream = io.BytesIO(data)
+
+        # TODO: hardcoded, either add a global header or figure it out
+        #       from the already parsed variables (need to get structure
+        #       definitions directly?)
+        octets_per_byte = self.bits_per_byte // 8
+        record_header_byte_length = 1 * octets_per_byte
+
+        variables = {}
+        for node in self.root.children:
+            for chunk in chunks:
+                if node.variable.address == chunk._address:
+                    variables[chunk] = node.variable
+
+        rows = []
+
+        try:
+            while True:
+                header = bytearray(
+                    data_stream.read(record_header_byte_length))
+                if len(header) == 0:
+                    break
+
+                print('record_header: {}'.format(header))
+
+                row = collections.OrderedDict([
+                    # TODO: actually decode the record header
+                    ('Record Header', int.from_bytes(header, byteorder='big'))
+                ])
+                for chunk in chunks:
+                    chunk_bytes = bytearray(
+                        data_stream.read(len(chunk)))
+                    if len(chunk_bytes) != len(chunk):
+                        raise EOFError(
+                            'Unexpected EOF found in the middle of a record')
+
+                    chunk.set_bytes(chunk_bytes)
+                    variable = variables[chunk]
+                    unpacked = variable.unpack(chunk_bytes)
+                    print('{} was updated: {} -> {}'.format(
+                        variable.name,
+                        chunk_bytes,
+                        unpacked)
+                    )
+                    cache.update(chunk)
+                    row[variable.name] = unpacked
+
+                rows.append(row)
+        except EOFError:
+            message_box = QMessageBox()
+            message_box.setStandardButtons(QMessageBox.Ok)
+
+            text = ("Unexpected EOF found in the middle of a record.  "
+                    "Continuing with partially extracted log.")
+
+            message_box.setText(text)
+
+            message_box.exec()
+
+        with open('datalogger.csv', 'w') as f:
+            writer = csv.DictWriter(f, fieldnames=rows[0].keys())
+            writer.writeheader()
+
+            for row in rows:
+                writer.writerow(row)
 
     def add_struct_members(self, base_type, address, node):
         if isinstance(base_type, epyqlib.cmemoryparser.Struct):

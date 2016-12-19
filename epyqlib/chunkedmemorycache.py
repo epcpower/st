@@ -75,7 +75,9 @@ class Cache:
                 else:
                     chunk = self.new_chunk(
                         address=start,
-                        bytes=b'\x00' * (end - start + 1)
+                        bytes=b'\x00'
+                              * (end - start + 1)
+                              * (self._bits_per_byte // 8)
                     )
                     chunks.append(chunk)
                     start = address
@@ -141,7 +143,6 @@ class Chunk:
 
             self._bytes[self_slice] = chunk._bytes[chunk_slice]
 
-            print('chunk updated: {}'.format(self))
             return True
         
         return False
