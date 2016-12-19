@@ -325,7 +325,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         return self._deferred
 
-    def upload(self, container, number_of_bytes=4):
+    def upload(self, number_of_bytes=4):
         logger.debug('Entering upload()')
 
         if self._active:
@@ -347,7 +347,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                 packet = HostCommand(code=CommandCode.upload,
                                      arbitration_id=self._tx_id)
                 packet.payload[0] = number_of_bytes
-                self.request_memory = number_of_bytes, container
+                self.request_memory = number_of_bytes
 
                 self._send(packet=packet, state=HandlerState.uploading)
 
@@ -658,9 +658,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                 return
 
             self.state = HandlerState.connected
-            number_of_bytes, container = self.request_memory
-            container.extend(packet.payload[0:number_of_bytes])
-            self.callback(container)
+            number_of_bytes = self.request_memory
+            self.callback(packet.payload[0:number_of_bytes])
         else:
             self.errback(HandlerUnknownState(
                 'Handler in unknown state: {}'.format(self.state)))

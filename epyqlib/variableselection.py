@@ -121,4 +121,5 @@ class VariableSelection(QtWidgets.QWidget):
 
     def pull_log(self):
         model = self.nonproxy_model()
-        model.pull_log()
+        d = model.pull_log()
+        d.addErrback(print)

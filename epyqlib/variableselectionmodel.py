@@ -9,6 +9,7 @@ import epyqlib.twisted.cancalibrationprotocol as ccp
 import io
 import itertools
 import json
+import twisted
 
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
                           QTimer)
@@ -291,6 +292,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             bytes_signal.set_value(
                 len(chunk._bytes) // (self.bits_per_byte // 8))
 
+    @twisted.internet.defer.inlineCallbacks
     def pull_log(self):
         protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
         from twisted.internet import reactor
@@ -300,23 +302,21 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             bus=self.nvs.bus.bus)
         # TODO: whoa! cheater!  stealing a bus like that
 
-        d = protocol.connect(station_address=0)
+        yield protocol.connect(station_address=0)
         # TODO: hardcoded extension, tsk-tsk
-        d.addCallback(lambda _: protocol.set_mta(
+        yield protocol.set_mta(
             address=0,
-            address_extension=ccp.AddressExtension.data_logger)
+            address_extension=ccp.AddressExtension.data_logger
         )
-        d.addCallback(lambda _: protocol.upload(
-            container=bytearray(),
-            number_of_bytes=4)
-        )
+
+        data = bytearray()
 
         # TODO: figure out how many need to be read
-        for _ in range(250): # 300 exceeds maximum recursion depth
-            d.addCallback(protocol.upload, number_of_bytes=4)
+        for _ in range(2000):
+            block = yield protocol.upload(number_of_bytes=4)
+            data.extend(block)
 
-        d.addCallback(self.parse_log)
-        d.addErrback(print)
+        self.parse_log(data=data)
 
     def parse_log(self, data):
         print('about to parse: {}'.format(data))
