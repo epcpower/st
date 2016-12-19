@@ -21,7 +21,43 @@
         <symbol id="CAN">0</symbol>
         <symbol id="Modbus">1</symbol>
       </point>
-	  <point id="Pad" offset="7" type="pad" />
+	  <point id="St" offset="7" type="enum16" >
+        <symbol id="POR">0</symbol>
+        <symbol id="Ready">1</symbol>
+		<symbol id="Enabled">2</symbol>
+		<symbol id="Fault">3</symbol>
+      </point>
+	  <point id="Evt1" offset="8" type="bitfield32" >
+        <symbol id="HARDWARE_ENABLE">0</symbol>
+        <symbol id="PWR_CRCT_EN">3</symbol>
+        <symbol id="MX1">4</symbol>
+        <symbol id="MX2">5</symbol>
+        <symbol id="K1">6</symbol>
+        <symbol id="K2">7</symbol>
+        <symbol id="CTL_MSG_VALID">8</symbol>
+        <symbol id="PWR_CMD_VALID">9</symbol>
+      </point>
+	  <point id="Vo" offset="10" type="uint16" sf="V_SF" units="V" />
+	  <point id="Vi" offset="11" type="uint16" sf="V_SF" units="V" />
+	  <point id="Io" offset="12" type="int16" sf="I_SF" units="A" />
+	  <point id="Ii" offset="13" type="int16" sf="I_SF" units="A" />
+	  <point id="FaultFlags" offset="14" type="bitfield32" >
+        <symbol id="OCDC">0</symbol>
+        <symbol id="OVDC">1</symbol>
+        <symbol id="OTPD">2</symbol>
+        <symbol id="OTInt">3</symbol>
+        <symbol id="CtlMsg">4</symbol>
+        <symbol id="UVDC">5</symbol>
+        <symbol id="ESTP">6</symbol>
+        <symbol id="ILGL">7</symbol>
+		<symbol id="EEH">8</symbol>
+		<symbol id="EES">9</symbol>
+		<symbol id="TOL">10</symbol>
+		<symbol id="THRM">11</symbol>
+		<symbol id="SYS">12</symbol>
+      </point>
+	  <point id="V24" offset="16" type="uint16" sf="CTV_SF" units="V" />
+	  <point id="CTV_SF" offset="17" type="sunssf" />
     </block>
   </model>
 
@@ -105,6 +141,171 @@
         <description></description>
         <notes></notes>
       </symbol>
+    </point>
+	<point id="St">
+      <label>Operating State</label>
+      <description></description>
+      <notes></notes>
+      <symbol id="POR">
+        <label>por</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="Ready">
+        <label>Ready</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+	  <symbol id="Enabled">
+        <label>Enabled</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="Fault">
+        <label>Fault</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+    </point>
+	<point id="Evt1">
+      <label>Event1</label>
+      <description></description>
+      <notes></notes>
+      <symbol id="HARDWARE_ENABLE">
+        <label>Hardware enable status</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="PWR_CRCT_EN">
+        <label>Power Circuit Enabled</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="MX1">
+        <label>MX1 relay status</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="MX2">
+        <label>MX2 relay status</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="K1">
+        <label>Precharge relay status</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="K2">
+        <label>K2 relay status</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="CTL_MSG_VALID">
+        <label>Control commands valid</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="PWR_CMD_VALID">
+        <label>Power command valid</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+    </point>
+	<point id="Vo">
+      <label>Output voltage</label>
+      <description></description>
+      <notes></notes>
+    </point>
+	<point id="Vi">
+      <label>Input voltage</label>
+      <description></description>
+      <notes></notes>
+    </point>
+	<point id="Io">
+      <label>Output current</label>
+      <description></description>
+      <notes></notes>
+    </point>
+	<point id="Ii">
+      <label>Input current</label>
+      <description></description>
+      <notes></notes>
+    </point>
+	<point id="FaultFlags">
+      <label>Fault Flags</label>
+      <description></description>
+      <notes></notes>
+      <symbol id="OCDC">
+        <label>DC Overcurrent</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="OVDC">
+        <label>DC Overvoltage</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="OTPD">
+        <label>Power Device OT</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="OTInt">
+        <label>Internal OT</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="CtlMsg">
+        <label>Invalid Ctl Msg</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="UVDC">
+        <label>DC Undervoltage</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="ESTP">
+        <label>E-Stop</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="ILGL">
+        <label>Illegal Transition</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+      <symbol id="EEH">
+        <label>Invalid EE header</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+	  <symbol id="EES">
+        <label>Invalid EE section</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+	  <symbol id="TOL">
+        <label>Timed Overload</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+	  <symbol id="THRM">
+        <label>Thermal Overload</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+	  <symbol id="SYS">
+        <label>System fault</label>
+        <description></description>
+        <notes></notes>
+      </symbol>
+    </point>
+	<point id="V24">
+      <label>Control Voltage</label>
+      <description></description>
+      <notes></notes>
     </point>
   </strings>
 </sunSpecModels>
