@@ -293,7 +293,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 len(chunk._bytes) // (self.bits_per_byte // 8))
 
     @twisted.internet.defer.inlineCallbacks
-    def pull_log(self, csv_path):
+    def read_range(self, address_extension, address, octets):
         protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
         from twisted.internet import reactor
         transport = epyqlib.twisted.busproxy.BusProxy(
@@ -305,18 +305,32 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         yield protocol.connect(station_address=0)
         # TODO: hardcoded extension, tsk-tsk
         yield protocol.set_mta(
-            address=0,
-            address_extension=ccp.AddressExtension.data_logger
+            address=address,
+            address_extension=address_extension
         )
 
         data = bytearray()
 
-        # TODO: figure out how many need to be read
-        for _ in range(2000):
-            block = yield protocol.upload(number_of_bytes=4)
+        remaining = octets
+        while remaining > 0:
+            number_of_bytes = min(4, remaining)
+            block = yield protocol.upload(number_of_bytes=number_of_bytes)
+            remaining -= number_of_bytes
+
             data.extend(block)
 
-        self.parse_log(data=data, csv_path=csv_path)
+        twisted.internet.defer.returnValue(data)
+
+    def pull_log(self, csv_path):
+        # TODO: figure out how many need to be read
+        d = self.read_range(
+            address_extension=ccp.AddressExtension.data_logger,
+            address=0,
+            octets=2000
+        )
+
+        d.addCallback(self.parse_log, csv_path=csv_path)
+        d.addErrback(print)
 
     def parse_log(self, data, csv_path):
         print('about to parse: {}'.format(data))

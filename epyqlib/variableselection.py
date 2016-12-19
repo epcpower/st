@@ -128,5 +128,4 @@ class VariableSelection(QtWidgets.QWidget):
 
         if filename is not None:
             model = self.nonproxy_model()
-            d = model.pull_log(csv_path=filename)
-            d.addErrback(print)
+            model.pull_log(csv_path=filename)
