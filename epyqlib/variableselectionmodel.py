@@ -293,7 +293,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 len(chunk._bytes) // (self.bits_per_byte // 8))
 
     @twisted.internet.defer.inlineCallbacks
-    def pull_log(self):
+    def pull_log(self, csv_path):
         protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
         from twisted.internet import reactor
         transport = epyqlib.twisted.busproxy.BusProxy(
@@ -316,9 +316,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             block = yield protocol.upload(number_of_bytes=4)
             data.extend(block)
 
-        self.parse_log(data=data)
+        self.parse_log(data=data, csv_path=csv_path)
 
-    def parse_log(self, data):
+    def parse_log(self, data, csv_path):
         print('about to parse: {}'.format(data))
 
         cache = self.create_cache()
@@ -384,7 +384,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
             message_box.exec()
 
-        with open('datalogger.csv', 'w') as f:
+        with open(csv_path, 'w') as f:
             writer = csv.DictWriter(f, fieldnames=rows[0].keys())
             writer.writeheader()
 

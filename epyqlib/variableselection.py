@@ -120,6 +120,13 @@ class VariableSelection(QtWidgets.QWidget):
         model.update_parameters()
 
     def pull_log(self):
-        model = self.nonproxy_model()
-        d = model.pull_log()
-        d.addErrback(print)
+        filters = [
+            ('CSV', ['csv']),
+            ('All Files', ['*'])
+        ]
+        filename = file_dialog(filters, save=True)
+
+        if filename is not None:
+            model = self.nonproxy_model()
+            d = model.pull_log(csv_path=filename)
+            d.addErrback(print)
