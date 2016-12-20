@@ -6,6 +6,7 @@ import epyqlib.cmemoryparser
 import epyqlib.pyqabstractitemmodel
 import epyqlib.treenode
 import epyqlib.twisted.cancalibrationprotocol as ccp
+import functools
 import io
 import itertools
 import json
@@ -23,7 +24,7 @@ __license__ = 'GPLv2+'
 
 
 class Columns(epyqlib.abstractcolumns.AbstractColumns):
-    _members = ['name', 'type', 'address', 'size', 'bits']
+    _members = ['name', 'type', 'address', 'size', 'bits', 'value']
 
 Columns.indexes = Columns.indexes()
 
@@ -46,7 +47,8 @@ class VariableNode(epyqlib.treenode.TreeNode):
                               type=type_name,
                               address='0x{:08X}'.format(address),
                               size=base_type.bytes,
-                              bits=bits)
+                              bits=bits,
+                              value=None)
 
         self._checked = Columns.fill(Qt.Unchecked)
 
@@ -66,8 +68,11 @@ class VariableNode(epyqlib.treenode.TreeNode):
             else:
                 self.tree_parent.update_checks()
 
+    def address(self):
+        return int(self.fields.address, 16)
+
     def addresses(self):
-        address = int(self.fields.address, 16)
+        address = self.address()
         return [address + offset for offset in range(self.fields.size)]
 
     def update_checks(self):
@@ -119,6 +124,9 @@ class VariableNode(epyqlib.treenode.TreeNode):
 
         return path
 
+    def chunk_updated(self, data):
+        self.fields.value = self.variable.unpack(data)
+
 
 class Variables(epyqlib.treenode.TreeNode):
     # TODO: just Rx?
@@ -151,7 +159,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             type='Type',
             address='Address',
             size='Size',
-            bits='Bits'
+            bits='Bits',
+            value='Value'
         )
 
         self.root = root
@@ -159,6 +168,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         # TODO: quit hardcoding bits per byte
         self.bits_per_byte = 16
+
+        self.cache = None
 
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
@@ -179,7 +190,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         names, variables, bits_per_byte =\
             epyqlib.cmemoryparser.process_file(filename)
 
-        self.root = Variables()
+        self.beginResetModel()
+
+        self.root.children = []
         for variable in variables:
             node = VariableNode(variable=variable)
             self.root.append_child(node)
@@ -189,7 +202,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 node=node
             )
 
-        self.modelReset.emit()
+        self.endResetModel()
+
+        self.cache = self.create_cache(only_checked=False, subscribe=True)
 
     def save_selection(self, filename):
         selected = []
@@ -226,25 +241,29 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             internal_nodes=True
         )
 
-    def create_cache(self):
+    def create_cache(self, only_checked=True, subscribe=False):
         cache = cmc.Cache(bits_per_byte=self.bits_per_byte)
 
         def update_parameter(node, cache):
             if node is self.root:
                 return
 
-            if node.checked() == Qt.Checked:
-                print('{path}: {address}+{size}'.format(
-                    path='.'.join(node.path()),
-                    address=node.fields.address,
-                    size=node.fields.size
-                ))
-
+            if not only_checked or node.checked() == Qt.Checked:
                 chunk = cache.new_chunk(
                     address=int(node.fields.address, 16),
-                    bytes=b'\x00' * node.fields.size
+                    bytes=b'\x00' * node.fields.size * (self.bits_per_byte // 8)
                 )
-                cache.add(chunk)
+                try:
+                    cache.add(chunk)
+                except epyqlib.chunkedmemorycache.ChunkExistsError:
+                    pass
+
+                if subscribe:
+                    callback = functools.partial(
+                        self.update_chunk,
+                        node=node,
+                    )
+                    cache.subscribe(callback, chunk)
 
         self.root.traverse(
             call_this=update_parameter,
@@ -253,6 +272,14 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         )
 
         return cache
+
+    def update_chunk(self, data, node):
+        node.chunk_updated(data)
+        node.traverse(
+            lambda node, _: self.changed(node, Columns.indexes.value,
+                                         node, Columns.indexes.value,
+                                         roles=[Qt.DisplayRole])
+        )
 
     def update_parameters(self):
         cache = self.create_cache()
@@ -423,4 +450,19 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     node=child_node
                 )
 
+    def read(self, variable):
+        chunk = self.cache.new_chunk(
+            address=int(variable.fields.address, 16),
+            bytes=b'\x00' * variable.fields.size * (self.bits_per_byte // 8)
+        )
 
+        d = self.read_range(
+            address_extension=ccp.AddressExtension.raw,
+            address=variable.address(),
+            octets=variable.fields.size * (self.bits_per_byte // 8)
+        )
+
+        d.addCallback(chunk.set_bytes)
+        d.addCallback(lambda _: print('VariableModel.read(): lambda'))
+        d.addCallback(lambda _: self.cache.update(update_chunk=chunk))
+        d.addErrback(print)

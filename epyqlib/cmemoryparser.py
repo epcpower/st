@@ -109,6 +109,7 @@ class Type:
     #
     #     return '{}{}{}'.format('>', type, self.bytes * bits_per_byte)
 
+    # TODO: CAMPid 034173541438600605430541538
     def unpack(self, data):
         if isinstance(data, bytearray):
             bits = bytearray_to_bits(data)
@@ -185,6 +186,35 @@ class PointerType:
 
     def format_string(self):
         return '<u{}'.format(self.bytes * bits_per_byte)
+
+
+    # TODO: CAMPid 034173541438600605430541538
+    def unpack(self, data):
+        if isinstance(data, bytearray):
+            bits = bytearray_to_bits(data)
+        else:
+            bits = data
+
+        total_bit_count = self.bytes * bits_per_byte
+
+        # TODO: the % seems fishy
+        if self.bytes > 1 and len(bits) % bits_per_byte == 0:
+            # TODO: CAMPid 08793287728743824372437983526631513679
+            bits = ''.join(itertools.chain(*reversed(list(
+                grouper(bits, bits_per_byte)))))
+
+        pad = '0'
+        type = 'u'
+
+        self.value, = bitstruct.unpack(
+            '>' + type + str(total_bit_count),
+            int(bits, 2).to_bytes(
+                self.bytes * bits_per_byte // 8,
+                byteorder='big')
+        )
+
+        return self.value
+        # bits.extend(pad * (total_bit_count - len(bits)))
 
 
 @attr.s
@@ -501,6 +531,34 @@ class EnumerationType:
     name = attr.ib(default=None)
     type = attr.ib(default=None)
     values = attr.ib(default=attr.Factory(list))
+
+    # TODO: CAMPid 034173541438600605430541538
+    def unpack(self, data):
+        if isinstance(data, bytearray):
+            bits = bytearray_to_bits(data)
+        else:
+            bits = data
+
+        total_bit_count = self.bytes * bits_per_byte
+
+        # TODO: the % seems fishy
+        if self.bytes > 1 and len(bits) % bits_per_byte == 0:
+            # TODO: CAMPid 08793287728743824372437983526631513679
+            bits = ''.join(itertools.chain(*reversed(list(
+                grouper(bits, bits_per_byte)))))
+
+        pad = '0'
+        type = 'u'
+
+        self.value, = bitstruct.unpack(
+            '>' + type + str(total_bit_count),
+            int(bits, 2).to_bytes(
+                self.bytes * bits_per_byte // 8,
+                byteorder='big')
+        )
+
+        return self.value
+        # bits.extend(pad * (total_bit_count - len(bits)))
 
 
 @attr.s

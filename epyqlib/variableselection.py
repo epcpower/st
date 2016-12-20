@@ -4,7 +4,8 @@ import io
 import os
 from PyQt5 import QtWidgets, uic
 # from PyQt5.QtGui import QFontMetrics
-from PyQt5.QtCore import QFile, QFileInfo, QTextStream, QSortFilterProxyModel
+from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QSortFilterProxyModel,
+                          Qt)
 from PyQt5.QtWidgets import QFileDialog
 
 # See file COPYING in this source tree
@@ -65,6 +66,11 @@ class VariableSelection(QtWidgets.QWidget):
         self.ui.load_selection_button.clicked.connect(self.load_selection)
         self.ui.update_parameters_button.clicked.connect(self.update_parameters)
         self.ui.pull_log_button.clicked.connect(self.pull_log)
+
+        self.ui.view.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ui.view.tree_view.customContextMenuRequested.connect(
+            self.context_menu
+        )
 
     def set_model(self, model):
         self.ui.view.set_model(model)
@@ -129,3 +135,23 @@ class VariableSelection(QtWidgets.QWidget):
         if filename is not None:
             model = self.nonproxy_model()
             model.pull_log(csv_path=filename)
+
+    def context_menu(self, position):
+        index = self.ui.view.tree_view.indexAt(position)
+        index = self.ui.view.tree_view.model().mapToSource(index)
+
+        if not index.isValid():
+            return
+
+        node = self.nonproxy_model().node_from_index(index)
+
+        menu = QtWidgets.QMenu()
+        read_action = menu.addAction('Read')
+
+        action = menu.exec(
+            self.ui.view.tree_view.viewport().mapToGlobal(position))
+
+        if action is None:
+            pass
+        elif action is read_action:
+            self.nonproxy_model().read(variable=node)
