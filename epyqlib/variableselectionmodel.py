@@ -253,10 +253,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     address=int(node.fields.address, 16),
                     bytes=b'\x00' * node.fields.size * (self.bits_per_byte // 8)
                 )
-                try:
-                    cache.add(chunk)
-                except epyqlib.chunkedmemorycache.ChunkExistsError:
-                    pass
+                cache.add(chunk)
 
                 if subscribe:
                     callback = functools.partial(
@@ -275,11 +272,10 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     def update_chunk(self, data, node):
         node.chunk_updated(data)
-        node.traverse(
-            lambda node, _: self.changed(node, Columns.indexes.value,
-                                         node, Columns.indexes.value,
-                                         roles=[Qt.DisplayRole])
-        )
+
+        self.changed(node, Columns.indexes.value,
+                     node, Columns.indexes.value,
+                     roles=[Qt.DisplayRole])
 
     def update_parameters(self):
         cache = self.create_cache()
@@ -463,6 +459,5 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         )
 
         d.addCallback(chunk.set_bytes)
-        d.addCallback(lambda _: print('VariableModel.read(): lambda'))
         d.addCallback(lambda _: self.cache.update(update_chunk=chunk))
         d.addErrback(print)

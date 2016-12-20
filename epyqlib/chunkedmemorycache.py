@@ -7,6 +7,10 @@ class ChunkExistsError(Exception):
     pass
 
 
+class ChunkNotFoundError(Exception):
+    pass
+
+
 class ByteLengthError(Exception):
     pass
 
@@ -17,29 +21,45 @@ class Cache:
     _subscribers = attr.ib(init=False, default=attr.Factory(dict))
     _bits_per_byte = attr.ib(default=8)
 
-    def add(self, chunk):
-        if chunk in self._subscribers.keys():
-            # TODO: just return because it's already added?
-            raise ChunkExistsError()
+    def __attrs_post_init__(self):
+        self.address_to_chunks = collections.defaultdict(set)
 
-        if any(chunk == c for c in self._chunks):
-            # TODO: who cares if there are duplicates?
-            raise ChunkExistsError()
+    def __repr__(self):
+        return object.__repr__(self)
+
+    def __str__(self):
+        return object.__str__(self)
+
+    def add(self, chunk):
+        if any(chunk is c for c in self._chunks):
+            raise ChunkExistsError(chunk)
 
         bisect.insort_left(self._chunks, chunk)
         self._subscribers[chunk] = set()
 
+        for address in chunk.addresses():
+            self.address_to_chunks[address].add(chunk)
+
     def subscribe(self, subscriber, chunk):
+        if chunk not in self._chunks:
+            raise ChunkNotFoundError(chunk)
+
         self._subscribers[chunk].add(subscriber)
 
     def unsubscribe(self, subscriber, chunk):
         self._subscribers[chunk].discard(subscriber)
 
     def update(self, update_chunk):
-        for chunk in self._chunks:
-            if chunk.update(update_chunk):
-                for subscriber in self._subscribers.get(chunk, ()):
-                    subscriber(chunk._bytes)
+
+        intersected_chunks = set()
+        for address in update_chunk.addresses():
+            intersected_chunks |= self.address_to_chunks[address]
+
+        for chunk in intersected_chunks:
+            chunk.update(update_chunk)
+
+            for subscriber in self._subscribers[chunk]:
+                subscriber(chunk._bytes)
 
     def chunk_from_variable(self, variable):
         data = bytearray([0] * variable.type.bytes * (self._bits_per_byte // 8))
@@ -96,10 +116,12 @@ class Chunk:
         #       return len(self._bytes) // (self._bits_per_byte // 8)
         return len(self._bytes)
 
-    def __hash__(self):
-        return hash((self._address, len(self)))
+    def addresses(self):
+        start, end = self.bounds()
+        return range(start, end)
 
     def bounds(self):
+        # TODO: is this returning one too long?
         return (self._address,
                 self._address + len(self) // (self._bits_per_byte // 8))
 
@@ -110,12 +132,6 @@ class Chunk:
         return self._address < other._address or (
             self._address == other._address and len(self) < len(other)
         ) 
-
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-
-        return self._address == other._address and len(self) == len(other)
 
     def set_bytes(self, new_bytes):
         if len(new_bytes) != len(self):
