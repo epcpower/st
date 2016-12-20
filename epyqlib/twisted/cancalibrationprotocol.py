@@ -220,14 +220,6 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                 'Set MTA requested while {}'.format(self.state.name)))
             return self._deferred
 
-        if (address_extension not in
-                [AddressExtension.flash_memory,
-                 AddressExtension.configuration_registers]):
-            raise Exception('Hardcoded address extension protection')
-
-        if address != 0 and (not 0x310000 <= address <= 0x33fff6+1):
-            raise Exception('Hardcoded memory range protection')
-
         packet = HostCommand(code=CommandCode.set_mta,
                              arbitration_id=self._tx_id)
         # always zero for Oz bootloader
