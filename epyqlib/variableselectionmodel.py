@@ -410,7 +410,10 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.root.traverse(collect_variables, variable_list)
 
         variables_and_chunks = {
-            variable: cache.chunk_from_variable(variable.variable)
+            variable: cache.new_chunk(
+                address=int(variable.fields.address, 16),
+                bytes=b'\x00' * variable.fields.size * (self.bits_per_byte // 8)
+            )
             for variable in variable_list
         }
 
