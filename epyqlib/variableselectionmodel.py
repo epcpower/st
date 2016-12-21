@@ -300,7 +300,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
             message_box.exec()
 
-
         for chunk, frame in itertools.zip_longest(
                 chunks, set_frames, fillvalue=cache.new_chunk(0, 0)):
             print('{address}+{size}'.format(
@@ -346,7 +345,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     def pull_log(self, csv_path):
         d = self.get_variable_value('block', 'validRecordCount')
-        # d.addCallback(lambda v: print('block.validRecordCount: {}'.format(v)))
 
         cache = self.create_cache()
 
