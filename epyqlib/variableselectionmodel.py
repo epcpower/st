@@ -437,12 +437,13 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 ])
 
                 def update(data, variable):
-                    row[variable.name] = variable.unpack(data)
+                    path = '.'.join(variable.path())
+                    row[path] = variable.variable.unpack(data)
 
                 for variable, chunk in variables_and_chunks.items():
                     partial = functools.partial(
                         update,
-                        variable=variable.variable
+                        variable=variable
                     )
                     cache.subscribe(partial, chunk)
 
