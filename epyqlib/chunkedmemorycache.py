@@ -49,6 +49,13 @@ class Cache:
     def unsubscribe(self, subscriber, chunk):
         self._subscribers[chunk].discard(subscriber)
 
+    def unsubscribe_all(self, *chunks):
+        if len(chunks) == 0:
+            chunks = self._chunks
+
+        for chunk in chunks:
+            self._subscribers[chunk] = set()
+
     def update(self, update_chunk):
 
         intersected_chunks = set()
