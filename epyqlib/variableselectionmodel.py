@@ -409,6 +409,20 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         variable_list = []
         self.root.traverse(collect_variables, variable_list)
 
+        # TODO: since this is a variable like $P$T0$2 we probably shouldn't
+        #       be using it so find another way to handle this
+        record_header_node = next(
+            self.get_variable_nodes_by_type('DataLogger_RecordHeader'))
+        record_header_nodes = [c for c in record_header_node.children]
+        variable_list = record_header_nodes + variable_list
+        record_header_chunk = cache.new_chunk(
+                address=int(record_header_node.fields.address, 16),
+                bytes=b'\x00' * record_header_node.fields.size
+                      * (self.bits_per_byte // 8)
+            )
+
+        chunks.insert(0, record_header_chunk)
+
         variables_and_chunks = {
             variable: cache.new_chunk(
                 address=int(variable.fields.address, 16),
@@ -423,18 +437,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         rows = []
 
         try:
-            while True:
-                header = bytearray(
-                    data_stream.read(self.record_header_length()))
-                if len(header) == 0:
-                    break
-
-                print('record_header: {}'.format(header))
-
-                row = collections.OrderedDict([
-                    # TODO: actually decode the record header
-                    ('Record Header', int.from_bytes(header, byteorder='big'))
-                ])
+            while data_stream.tell() < len(data):
+                row = collections.OrderedDict()
 
                 def update(data, variable):
                     path = '.'.join(variable.path())
@@ -503,6 +507,10 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                             if v.fields.name == name)
 
         return variable
+
+    def get_variable_nodes_by_type(self, type_name):
+        return (node for node in self.root.children
+                if node.fields.type == type_name)
 
     @twisted.internet.defer.inlineCallbacks
     def get_variable_value(self, *variable_path):

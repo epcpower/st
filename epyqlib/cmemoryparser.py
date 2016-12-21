@@ -116,8 +116,6 @@ class Type:
         else:
             bits = data
 
-        total_bit_count = self.bytes * bits_per_byte
-
         # TODO: the % seems fishy
         if self.bytes > 1 and len(bits) % bits_per_byte == 0:
             # TODO: CAMPid 08793287728743824372437983526631513679
@@ -129,15 +127,24 @@ class Type:
                 pad = '0'
                 type = 'u'
             else:
-                pad = bits[-1]
+                pad = bits[0]
                 type = 's'
 
-            return bitstruct.unpack('>' + type + str(total_bit_count),
-                                    int(bits, 2).to_bytes(
-                                        self.bytes * bits_per_byte // 8,
-                                        byteorder='big'))[0]
-            # bits.extend(pad * (total_bit_count - len(bits)))
+            padding = pad * (self.bytes * bits_per_byte - len(bits))
 
+            padded_bits = padding + bits
+
+            format = '>{}{}'.format(type, str(len(bits)))
+
+            if len(padding) > 0:
+                format = '>u{}{}'.format(str(len(padding)), format)
+
+            return bitstruct.unpack(
+                format,
+                int(padded_bits, 2).to_bytes(
+                    self.bytes * bits_per_byte // 8,
+                    byteorder='big')
+            )[-1]
 
         elif self.format.is_floating_point():
             # TODO: CAMPid 097897541967932453154321546542175421549
@@ -511,7 +518,15 @@ class StructMember:
     def bytes(self):
         return base_type(self).bytes
 
-    def unpack(self, bits):
+    def unpack(self, data):
+        if isinstance(data, bytearray):
+            bits = bytearray_to_bits(data)
+        else:
+            bits = data
+
+        if self.bit_size is not None:
+            bits = bits[self.bit_offset:]
+            bits = bits[:self.bit_size]
         return base_type(self).unpack(bits)
 
 @attr.s
