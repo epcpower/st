@@ -78,7 +78,8 @@ class Cache:
         addresses = set()
         for chunk in self._chunks:
             addresses.update(chunk._address + offset
-                             for offset in range(len(chunk._bytes)))
+                             for offset in range(len(chunk._bytes) //
+                                                 (self._bits_per_byte // 8)))
 
         addresses = sorted(list(addresses))
 

@@ -345,30 +345,47 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         twisted.internet.defer.returnValue(data)
 
     def pull_log(self, csv_path):
-        # TODO: figure out how many need to be read
-        d = self.read_range(
-            address_extension=ccp.AddressExtension.data_logger,
-            address=0,
-            octets=2000
-        )
-
-        d.addCallback(self.parse_log, csv_path=csv_path)
-        d.addErrback(print)
-
-    def parse_log(self, data, csv_path):
-        print('about to parse: {}'.format(data))
+        d = self.get_variable_value('block', 'validRecordCount')
+        # d.addCallback(lambda v: print('block.validRecordCount: {}'.format(v)))
 
         cache = self.create_cache()
 
         chunks = cache.contiguous_chunks()
 
-        data_stream = io.BytesIO(data)
+        record_length = self.record_header_length()
+        for chunk in chunks:
+            record_length += len(chunk)
 
+        # TODO: add download progress indicator
+
+        d.addCallback(lambda n: self.read_range(
+            address_extension=ccp.AddressExtension.data_logger,
+            address=0,
+            octets=self.block_header_length() + n * record_length
+        ))
+
+        d.addCallback(self.parse_log, cache=cache, chunks=chunks,
+                      csv_path=csv_path)
+        d.addErrback(print)
+
+    def record_header_length(self):
         # TODO: hardcoded, either add a global header or figure it out
         #       from the already parsed variables (need to get structure
         #       definitions directly?)
-        octets_per_byte = self.bits_per_byte // 8
-        record_header_byte_length = 1 * octets_per_byte
+        return 1 * (self.bits_per_byte // 8)
+
+    def block_header_length(self):
+        # TODO: hardcoded, either add a global header or figure it out
+        #       from the already parsed variables (need to get structure
+        #       definitions directly?)
+        return 0 * (self.bits_per_byte // 8)
+
+    def parse_log(self, data, cache, chunks, csv_path):
+        print('about to parse: {}'.format(data))
+
+        data_stream = io.BytesIO(data)
+
+        # TODO: what about the (for now empty) block header?
 
         variables = {}
         for node in self.root.children:
@@ -381,7 +398,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         try:
             while True:
                 header = bytearray(
-                    data_stream.read(record_header_byte_length))
+                    data_stream.read(self.record_header_length()))
                 if len(header) == 0:
                     break
 
@@ -400,6 +417,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
                     chunk.set_bytes(chunk_bytes)
                     variable = variables[chunk]
+                    print(variable.name, chunk, chunk_bytes)
                     unpacked = variable.unpack(chunk_bytes)
                     print('{} was updated: {} -> {}'.format(
                         variable.name,
@@ -445,6 +463,34 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     address=child_address,
                     node=child_node
                 )
+
+    def get_variable_node(self, *variable_path):
+        variable = self.root
+
+        for name in variable_path:
+            variable = next(v for v in variable.children
+                            if v.fields.name == name)
+
+        return variable
+
+    @twisted.internet.defer.inlineCallbacks
+    def get_variable_value(self, *variable_path):
+        variable = self.get_variable_node(*variable_path)
+        value = yield self._read(variable)
+
+        twisted.internet.defer.returnValue(value)
+
+    @twisted.internet.defer.inlineCallbacks
+    def _read(self, variable):
+        data = yield self.read_range(
+            address_extension=ccp.AddressExtension.raw,
+            address=variable.address(),
+            octets=variable.fields.size * (self.bits_per_byte // 8)
+        )
+
+        value = variable.variable.unpack(data)
+
+        twisted.internet.defer.returnValue(value)
 
     def read(self, variable):
         chunk = self.cache.new_chunk(
