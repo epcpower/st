@@ -41,7 +41,7 @@ class Cache:
             self.address_to_chunks[address].add(chunk)
 
     def subscribe(self, subscriber, chunk):
-        if chunk not in self._chunks:
+        if not any(chunk is c for c in self._chunks):
             raise ChunkNotFoundError(chunk)
 
         self._subscribers[chunk].add(subscriber)
