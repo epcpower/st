@@ -241,14 +241,27 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             internal_nodes=True
         )
 
-    def create_cache(self, only_checked=True, subscribe=False):
+    def create_cache(self, only_checked=True, subscribe=False,
+                     include_partially_checked=False):
         cache = cmc.Cache(bits_per_byte=self.bits_per_byte)
 
         def update_parameter(node, cache):
             if node is self.root:
                 return
 
-            if not only_checked or node.checked() == Qt.Checked:
+            acceptable_states = {
+                Qt.Unchecked,
+                Qt.PartiallyChecked,
+                Qt.Checked
+            }
+
+            if only_checked:
+                acceptable_states.discard(Qt.Unchecked)
+
+                if not include_partially_checked:
+                    acceptable_states.discard(Qt.PartiallyChecked)
+
+            if node.checked() in acceptable_states:
                 chunk = cache.new_chunk(
                     address=int(node.fields.address, 16),
                     bytes=b'\x00' * node.fields.size * (self.bits_per_byte // 8)
@@ -354,6 +367,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         for chunk in chunks:
             record_length += len(chunk)
 
+        # TODO: check against block.recordLength from module
+
         # TODO: add download progress indicator
 
         d.addCallback(lambda n: self.read_range(
@@ -385,11 +400,22 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         # TODO: what about the (for now empty) block header?
 
-        variables = {}
-        for node in self.root.children:
-            for chunk in chunks:
-                if node.variable.address == chunk._address:
-                    variables[chunk] = node.variable
+        acceptable_states = {Qt.Checked, Qt.PartiallyChecked}
+
+        def collect_variables(node, payload):
+            if node.checked() in acceptable_states:
+                payload.append(node)
+
+        variable_list = []
+        self.root.traverse(collect_variables, variable_list)
+
+        variables_and_chunks = {
+            variable: cache.chunk_from_variable(variable.variable)
+            for variable in variable_list
+        }
+
+        for chunk in variables_and_chunks.values():
+            cache.add(chunk)
 
         rows = []
 
@@ -406,6 +432,17 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     # TODO: actually decode the record header
                     ('Record Header', int.from_bytes(header, byteorder='big'))
                 ])
+
+                def update(data, variable):
+                    row[variable.name] = variable.unpack(data)
+
+                for variable, chunk in variables_and_chunks.items():
+                    partial = functools.partial(
+                        update,
+                        variable=variable.variable
+                    )
+                    cache.subscribe(partial, chunk)
+
                 for chunk in chunks:
                     chunk_bytes = bytearray(
                         data_stream.read(len(chunk)))
@@ -414,17 +451,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                             'Unexpected EOF found in the middle of a record')
 
                     chunk.set_bytes(chunk_bytes)
-                    variable = variables[chunk]
-                    print(variable.name, chunk, chunk_bytes)
-                    unpacked = variable.unpack(chunk_bytes)
-                    print('{} was updated: {} -> {}'.format(
-                        variable.name,
-                        chunk_bytes,
-                        unpacked)
-                    )
                     cache.update(chunk)
-                    row[variable.name] = unpacked
 
+                cache.unsubscribe_all()
                 rows.append(row)
         except EOFError:
             message_box = QMessageBox()
