@@ -15,6 +15,7 @@ import epyqlib.variableselectionmodel
 import functools
 import importlib.util
 import io
+import itertools
 import json
 import math
 import os
@@ -433,7 +434,7 @@ class Device:
         self.dash_connected_signals = set()
         self.dash_missing_signals = set()
         self.dash_missing_defaults = set()
-        for dash in flat:
+        for dash in itertools.chain(flat, (self.ui.variable_selection,)):
             # TODO: CAMPid 99457281212789437474299
             children = dash.findChildren(QObject)
             widgets = [c for c in children if
