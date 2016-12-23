@@ -10,6 +10,8 @@ import functools
 import io
 import itertools
 import json
+import queue
+import threading
 import twisted
 
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
@@ -146,6 +148,8 @@ class Variables(epyqlib.treenode.TreeNode):
 
 
 class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
+    binary_loaded = pyqtSignal()
+
     def __init__(self, root, nvs, parent=None):
         checkbox_columns = Columns.fill(False)
         checkbox_columns.name = True
@@ -171,6 +175,14 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.cache = None
 
+        self.load_binary_timer = QTimer()
+        self.load_binary_timer.setSingleShot(True)
+        self.load_binary_timer.setInterval(200)
+        self.load_binary_timer.timeout.connect(self.load_binary_post)
+
+        self.load_binary_thread = None
+        self.load_binary_queue = None
+
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
             if role == Qt.CheckStateRole:
@@ -187,8 +199,29 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 return True
 
     def load_binary(self, filename):
-        names, variables, bits_per_byte =\
-            epyqlib.cmemoryparser.process_file(filename)
+        self.load_binary_queue = queue.Queue(1)
+
+        self.load_binary_thread = threading.Thread(
+            target=epyqlib.cmemoryparser.process_file,
+            kwargs={
+                'filename': filename,
+                'queue': self.load_binary_queue
+            }
+        )
+
+        self.load_binary_timer.start()
+        self.load_binary_thread.start()
+
+    def load_binary_post(self):
+        try:
+            names, variables, bits_per_byte = (
+                self.load_binary_queue.get_nowait())
+        except queue.Empty:
+            self.load_binary_timer.start()
+            return
+
+        self.load_binary_thread = None
+        self.load_binary_queue = None
 
         self.beginResetModel()
 
@@ -205,6 +238,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.endResetModel()
 
         self.cache = self.create_cache(only_checked=False, subscribe=True)
+
+        self.binary_loaded.emit()
 
     def save_selection(self, filename):
         selected = []

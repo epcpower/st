@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets, uic
 # from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QSortFilterProxyModel,
                           Qt)
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QProgressDialog
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -72,6 +72,8 @@ class VariableSelection(QtWidgets.QWidget):
             self.context_menu
         )
 
+        self.progress = None
+
     def set_model(self, model):
         self.ui.view.set_model(model)
 
@@ -118,7 +120,24 @@ class VariableSelection(QtWidgets.QWidget):
         filename = file_dialog(filters)
 
         if filename is not None:
+            # TODO: CAMPid 9632763567954321696542754261546
+            self.progress = QProgressDialog(self)
+            flags = self.progress.windowFlags()
+            flags &= ~Qt.WindowContextHelpButtonHint
+            self.progress.setWindowFlags(flags)
+            self.progress.setWindowModality(Qt.WindowModal)
+            self.progress.setAutoReset(False)
+            self.progress.setCancelButton(None)
+            self.progress.setMinimumDuration(0)
+            # Uncertain duration so use a busy indicator
+            self.progress.setMinimum(0)
+            self.progress.setMaximum(0)
+            self.progress.setLabelText('Loading binary...')
+
             model = self.nonproxy_model()
+            model.binary_loaded.connect(self.progress.close)
+
+            self.progress.show()
             model.load_binary(filename)
 
     def update_parameters(self):

@@ -690,7 +690,7 @@ def fake_section(filename, section_name):
         global_offset=0,
         size=len(debug_bytes))
 
-def process_file(filename):
+def process_file(filename, queue=None):
     print('Processing file:', filename)
     print('Working directory:', os.getcwd())
 
@@ -1120,7 +1120,12 @@ def process_file(filename):
                 # names[item.name].append(item)
                 names[item.name] = item
 
-    return names, variables, bits_per_byte
+    result = names, variables, bits_per_byte
+
+    if queue is not None:
+        queue.put(result)
+
+    return result
 
 def testit(names, variables):
     def nonesorter(a):
