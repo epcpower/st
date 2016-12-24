@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class Flasher(QObject):
+    # TODO: CAMPid 7531968542136967546542452
     progress_messages = pyqtSignal(int)
     completed = pyqtSignal()
     done = pyqtSignal()

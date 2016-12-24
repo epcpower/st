@@ -15,7 +15,7 @@ import threading
 import twisted
 
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
-                          QTimer)
+                          QTimer, QObject)
 from PyQt5.QtWidgets import QMessageBox
 
 # See file COPYING in this source tree
@@ -147,6 +147,49 @@ class Variables(epyqlib.treenode.TreeNode):
         return id(self)
 
 
+class Progress(QObject):
+    # TODO: CAMPid 7531968542136967546542452
+    updated = pyqtSignal(int)
+    completed = pyqtSignal()
+    done = pyqtSignal()
+    failed = pyqtSignal()
+    canceled = pyqtSignal()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.completed.connect(self.done)
+        self.failed.connect(self.done)
+        self.canceled.connect(self.done)
+
+        self.done.connect(self._done)
+
+        self.progress = None
+
+    def _done(self):
+        self.updated.disconnect(self.progress.setValue)
+        self.progress = None
+
+    def connect(self, progress):
+        self.progress = progress
+
+        self.progress.setMinimumDuration(0)
+        # Default to a busy indicator, progress maximum can be set later
+        self.progress.setMinimum(0)
+        self.progress.setMaximum(0)
+        self.updated.connect(self.progress.setValue)
+
+    def configure(self, minimum=0, maximum=0):
+        self.progress.setMinimum(minimum)
+        self.progress.setMaximum(maximum)
+
+    def complete(self):
+        self.completed.emit()
+
+    def update(self, value):
+        self.updated.emit(value)
+
+
 class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     binary_loaded = pyqtSignal()
 
@@ -182,6 +225,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.load_binary_thread = None
         self.load_binary_queue = None
+
+        self.pull_log_progress = Progress()
 
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
@@ -367,7 +412,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 len(chunk._bytes) // (self.bits_per_byte // 8))
 
     @twisted.internet.defer.inlineCallbacks
-    def read_range(self, address_extension, address, octets):
+    def read_range(self, address_extension, address, octets, progress=None):
         protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
         from twisted.internet import reactor
         transport = epyqlib.twisted.busproxy.BusProxy(
@@ -391,6 +436,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             block = yield protocol.upload(number_of_bytes=number_of_bytes)
             remaining -= number_of_bytes
 
+            if progress is not None:
+                progress.update(octets - remaining)
+
             data.extend(block)
 
         twisted.internet.defer.returnValue(data)
@@ -410,14 +458,27 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         # TODO: add download progress indicator
 
-        d.addCallback(lambda n: self.read_range(
+        def octets_and_configure(n):
+            octets = self.block_header_length() + n * record_length
+            self.pull_log_progress.configure(maximum=octets)
+            return octets
+
+        d.addCallback(octets_and_configure)
+        d.addCallback(lambda octets: self.read_range(
             address_extension=ccp.AddressExtension.data_logger,
             address=0,
-            octets=self.block_header_length() + n * record_length
+            octets=octets,
+            progress=self.pull_log_progress
         ))
 
+        def pass_first(result, function, *args, **kwargs):
+            function(*args, **kwargs)
+            return result
+
+        d.addCallback(pass_first, self.pull_log_progress.configure)
         d.addCallback(self.parse_log, cache=cache, chunks=chunks,
                       csv_path=csv_path)
+        d.addCallback(lambda _: self.pull_log_progress.complete())
         d.addErrback(print)
 
     def record_header_length(self):

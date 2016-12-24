@@ -152,7 +152,18 @@ class VariableSelection(QtWidgets.QWidget):
         filename = file_dialog(filters, save=True)
 
         if filename is not None:
+            # TODO: CAMPid 9632763567954321696542754261546
+            self.progress = QProgressDialog(self)
+            flags = self.progress.windowFlags()
+            flags &= ~Qt.WindowContextHelpButtonHint
+            self.progress.setWindowFlags(flags)
+            self.progress.setWindowModality(Qt.WindowModal)
+            self.progress.setAutoReset(False)
+            self.progress.setCancelButton(None)
+            self.progress.setLabelText('Pulling log...')
+
             model = self.nonproxy_model()
+            model.pull_log_progress.connect(self.progress)
             model.pull_log(csv_path=filename)
 
     def context_menu(self, position):
