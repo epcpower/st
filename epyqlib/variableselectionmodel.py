@@ -220,6 +220,10 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             self.load_binary_timer.start()
             return
 
+        self.load_binary_thread.join(timeout=2)
+        if self.load_binary_thread.is_alive():
+            # TODO: notify someone?
+            pass
         self.load_binary_thread = None
         self.load_binary_queue = None
 
