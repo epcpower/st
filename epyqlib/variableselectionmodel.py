@@ -1,3 +1,4 @@
+import attr
 import collections
 import csv
 import epyqlib.abstractcolumns
@@ -10,8 +11,10 @@ import functools
 import io
 import itertools
 import json
+import math
 import queue
 import threading
+import time
 import twisted
 
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
@@ -147,6 +150,56 @@ class Variables(epyqlib.treenode.TreeNode):
         return id(self)
 
 
+@attr.s
+class AverageValueRate:
+    _seconds = attr.ib(convert=float)
+    _deque = attr.ib(default=attr.Factory(collections.deque))
+
+    @attr.s
+    class Event:
+        time = attr.ib()
+        value = attr.ib()
+        delta = attr.ib()
+
+    def add(self, value):
+        now = time.monotonic()
+
+        if len(self._deque) > 0:
+            delta = now - self._deque[-1].time
+
+            cutoff_time = now - self._seconds
+
+            while self._deque[0].time < cutoff_time:
+                self._deque.popleft()
+        else:
+            delta = 0
+
+        event = self.Event(time=now, value=value, delta=delta)
+        self._deque.append(event)
+
+    def rate(self):
+        if len(self._deque) > 0:
+            dv = self._deque[-1].value - self._deque[0].value
+            dt = self._deque[-1].time - self._deque[0].time
+        else:
+            dv = -1
+            dt = 0
+
+        if dv <= 0:
+            return 0
+        elif dt == 0:
+            return math.inf
+
+        return dv / dt
+
+    def remaining_time(self, final_value):
+        rate = self.rate()
+        if rate <= 0:
+            return math.inf
+        else:
+            return (final_value - self._deque[-1].value) / rate
+
+
 class Progress(QObject):
     # TODO: CAMPid 7531968542136967546542452
     updated = pyqtSignal(int)
@@ -165,10 +218,27 @@ class Progress(QObject):
         self.done.connect(self._done)
 
         self.progress = None
+        self.average = None
+        self.average_timer = QTimer()
+        self.average_timer.setInterval(200)
+        self.average_timer.timeout.connect(self._update_time_estimate)
 
     def _done(self):
+        self._update_time_estimate.disconnect(self.average_timer.timeout)
+        self.average_timer = None
+        self.average = None
+
         self.updated.disconnect(self.progress.setValue)
+        self.progress.close()
         self.progress = None
+
+    def _update_time_estimate(self):
+        remaining = self.average.remaining_time(self.progress.maximum())
+        try:
+            remaining = round(remaining)
+        except:
+            pass
+        self.progress.setLabelText(str(remaining))
 
     def connect(self, progress):
         self.progress = progress
@@ -179,6 +249,9 @@ class Progress(QObject):
         self.progress.setMaximum(0)
         self.updated.connect(self.progress.setValue)
 
+        self.average = AverageValueRate(seconds=30)
+        self.average_timer.start()
+
     def configure(self, minimum=0, maximum=0):
         self.progress.setMinimum(minimum)
         self.progress.setMaximum(maximum)
@@ -187,6 +260,7 @@ class Progress(QObject):
         self.completed.emit()
 
     def update(self, value):
+        self.average.add(value)
         self.updated.emit(value)
 
 
