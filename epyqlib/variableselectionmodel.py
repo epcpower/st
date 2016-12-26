@@ -208,6 +208,10 @@ class Progress(QObject):
     failed = pyqtSignal()
     canceled = pyqtSignal()
 
+    default_progress_label = (
+        '{elapsed} seconds elapsed, {remaining} seconds remaining'
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -222,6 +226,8 @@ class Progress(QObject):
         self.average_timer = QTimer()
         self.average_timer.setInterval(200)
         self.average_timer.timeout.connect(self._update_time_estimate)
+        self._label_text_replace = None
+        self._start_time = None
 
     def _done(self):
         self._update_time_estimate.disconnect(self.average_timer.timeout)
@@ -232,22 +238,35 @@ class Progress(QObject):
         self.progress.close()
         self.progress = None
 
+        self._start_time = None
+
     def _update_time_estimate(self):
         remaining = self.average.remaining_time(self.progress.maximum())
         try:
             remaining = round(remaining)
         except:
             pass
-        self.progress.setLabelText(str(remaining))
+        self.progress.setLabelText(self._label_text_replace.format(
+                elapsed=round(time.monotonic() - self._start_time),
+                remaining=remaining
+            )
+        )
 
-    def connect(self, progress):
+    def connect(self, progress, label_text=None):
         self.progress = progress
+
+        if label_text is None:
+            label_text = self.default_progress_label
+        self._label_text_replace = label_text
 
         self.progress.setMinimumDuration(0)
         # Default to a busy indicator, progress maximum can be set later
         self.progress.setMinimum(0)
         self.progress.setMaximum(0)
         self.updated.connect(self.progress.setValue)
+
+        if self._start_time is None:
+            self._start_time = time.monotonic()
 
         self.average = AverageValueRate(seconds=30)
         self.average_timer.start()
