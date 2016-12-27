@@ -635,6 +635,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         try:
             while data_stream.tell() < len(data):
+                QCoreApplication.processEvents()
                 row = collections.OrderedDict()
 
                 def update(data, variable):
