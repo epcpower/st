@@ -18,7 +18,7 @@ import time
 import twisted
 
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
-                          QTimer, QObject)
+                          QTimer, QObject, QCoreApplication)
 from PyQt5.QtWidgets import QMessageBox
 
 # See file COPYING in this source tree
@@ -369,6 +369,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.root.children = []
         for variable in variables:
+            QCoreApplication.processEvents()
+
             node = VariableNode(variable=variable)
             self.root.append_child(node)
             self.add_struct_members(
@@ -423,6 +425,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         cache = cmc.Cache(bits_per_byte=self.bits_per_byte)
 
         def update_parameter(node, cache):
+            QCoreApplication.processEvents()
+
             if node is self.root:
                 return
 
