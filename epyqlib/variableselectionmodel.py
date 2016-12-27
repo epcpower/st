@@ -541,7 +541,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         twisted.internet.defer.returnValue(data)
 
     def pull_log(self, csv_path):
-        d = self.get_variable_value('block', 'validRecordCount')
+        d = self.get_variable_value('dataLogger_block', 'validRecordCount')
 
         cache = self.create_cache()
 
