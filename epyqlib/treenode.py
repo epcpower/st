@@ -54,6 +54,16 @@ class TreeNode:
         if internal_nodes or child is None:
             call_this(self, payload)
 
+    def leaves(self):
+        leaves = []
+        self.traverse(
+            call_this=lambda node, payload: payload.append(node),
+            payload=leaves,
+            internal_nodes=False
+        )
+
+        return leaves
+
     def __len__(self):
         return len(self.children)
 
