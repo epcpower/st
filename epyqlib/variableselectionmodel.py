@@ -590,8 +590,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         return 0 * (self.bits_per_byte // 8)
 
     def parse_log(self, data, cache, chunks, csv_path):
-        print('about to parse: {}'.format(data))
-
         data_stream = io.BytesIO(data)
 
         # TODO: what about the (for now empty) block header?
