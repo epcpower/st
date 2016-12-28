@@ -147,7 +147,20 @@ class Chunk:
 
         self._bytes = bytearray(new_bytes)
 
+    def overlaps_address_length(self, address, length):
+        # TODO: CAMPid 4317784316796754167954114314396
+        my_bounds = self.bounds()
+        address_bounds = (address, address + length)
+
+        start = max(my_bounds[0], address_bounds[0])
+        end = min(my_bounds[1], address_bounds[1])
+
+        _length = end - start
+
+        return _length >= 1
+
     def update(self, chunk):
+        # TODO: CAMPid 4317784316796754167954114314396
         my_bounds = self.bounds()
         chunk_bounds = chunk.bounds()
 
