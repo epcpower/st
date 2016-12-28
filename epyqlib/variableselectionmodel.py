@@ -230,8 +230,7 @@ class Progress(QObject):
         self._start_time = None
 
     def _done(self):
-        self.average_timer.timeout.disconnect(self._update_time_estimate)
-        self.average_timer = None
+        self.average_timer.stop()
         self.average = None
 
         self.updated.disconnect(self.progress.setValue)
