@@ -68,16 +68,20 @@ class Cache:
             for subscriber in self._subscribers[chunk]:
                 subscriber(chunk._bytes)
 
-    def chunk_from_variable(self, variable):
+    def chunk_from_variable(self, variable, reference=None):
         data = bytearray([0] * variable.type.bytes * (self._bits_per_byte // 8))
+        if reference is None:
+            reference = variable
         return Chunk(address=variable.address,
                      bytes=data,
-                     bits_per_byte=self._bits_per_byte)
+                     bits_per_byte=self._bits_per_byte,
+                     reference=reference)
 
-    def new_chunk(self, address, bytes):
+    def new_chunk(self, address, bytes, reference=None):
         return Chunk(address=address,
                      bytes=bytes,
-                     bits_per_byte=self._bits_per_byte)
+                     bits_per_byte=self._bits_per_byte,
+                     reference=reference)
 
     def contiguous_chunks(self):
         chunks = []
@@ -118,6 +122,7 @@ class Chunk:
     _address = attr.ib()
     _bytes = attr.ib(convert=bytearray)
     _bits_per_byte = attr.ib(default=8)
+    reference = attr.ib(cmp=False, default=None)
 
     def __len__(self):
         # TODO: maybe...
