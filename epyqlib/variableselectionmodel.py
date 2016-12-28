@@ -123,7 +123,7 @@ class VariableNode(epyqlib.treenode.TreeNode):
     def path(self):
         path = []
         node = self
-        while node.tree_parent is not None:
+        while isinstance(node, type(self)):
             path.insert(0, node.fields.name)
             node = node.tree_parent
 
@@ -305,8 +305,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.root = root
         self.nvs = nvs
 
-        # TODO: quit hardcoding bits per byte
-        self.bits_per_byte = 16
+        self.bits_per_byte = None
 
         self.cache = None
 
@@ -356,6 +355,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         except queue.Empty:
             self.load_binary_timer.start()
             return
+
+        self.bits_per_byte = bits_per_byte
+        self.names = names
 
         self.load_binary_thread.join(timeout=2)
         if self.load_binary_thread.is_alive():
@@ -517,8 +519,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             bus=self.nvs.bus.bus)
         # TODO: whoa! cheater!  stealing a bus like that
 
+        # TODO: hardcoded station address, tsk-tsk
         yield protocol.connect(station_address=0)
-        # TODO: hardcoded extension, tsk-tsk
         yield protocol.set_mta(
             address=address,
             address_extension=address_extension
@@ -552,8 +554,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         # TODO: check against block.recordLength from module
 
-        # TODO: add download progress indicator
-
         def octets_and_configure(n):
             octets = self.block_header_length() + n * record_length
             self.pull_log_progress.configure(maximum=octets)
@@ -578,21 +578,25 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         d.addErrback(print)
 
     def record_header_length(self):
-        # TODO: hardcoded, either add a global header or figure it out
-        #       from the already parsed variables (need to get structure
-        #       definitions directly?)
-        return 1 * (self.bits_per_byte // 8)
+        return (self.names['DataLogger_RecordHeader'].type.bytes
+                * (self.bits_per_byte // 8))
 
     def block_header_length(self):
-        # TODO: hardcoded, either add a global header or figure it out
-        #       from the already parsed variables (need to get structure
-        #       definitions directly?)
-        return 0 * (self.bits_per_byte // 8)
+        try:
+            block_header = self.names['DataLogger_BlockHeader']
+        except KeyError:
+            block_header_bytes = 0
+        else:
+            block_header_bytes = block_header.type.bytes
+
+        return block_header_bytes * (self.bits_per_byte // 8)
 
     def parse_log(self, data, cache, chunks, csv_path):
         data_stream = io.BytesIO(data)
 
-        # TODO: what about the (for now empty) block header?
+        if self.block_header_length() > 0:
+            raise Exception('Code needs to be updated to handle a non-empty '
+                            'block header.')
 
         acceptable_states = {Qt.Checked, Qt.PartiallyChecked}
 
@@ -603,12 +607,21 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         variable_list = []
         self.root.traverse(collect_variables, variable_list)
 
-        # TODO: since this is a variable like $P$T0$2 we probably shouldn't
-        #       be using it so find another way to handle this
-        record_header_node = next(
-            self.get_variable_nodes_by_type('DataLogger_RecordHeader'))
-        record_header_nodes = [c for c in record_header_node.children]
-        variable_list = record_header_nodes + variable_list
+        # TODO: hardcoded 32-bit addressing and offset assumption
+        #       intended to avoid collision
+        record_header_address = 2**32 + 100
+        record_header = epyqlib.cmemoryparser.Variable(
+            name='.record_header',
+            type=self.names['DataLogger_RecordHeader'],
+            address=record_header_address
+        )
+        record_header_node = VariableNode(variable=record_header)
+        self.add_struct_members(
+            base_type=epyqlib.cmemoryparser.base_type(record_header),
+            address=record_header.address,
+            node=record_header_node
+        )
+        variable_list = record_header_node.leaves() + variable_list
         record_header_chunk = cache.new_chunk(
                 address=int(record_header_node.fields.address, 16),
                 bytes=b'\x00' * record_header_node.fields.size
@@ -670,7 +683,10 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             message_box.exec()
 
         with open(csv_path, 'w') as f:
-            writer = csv.DictWriter(f, fieldnames=rows[0].keys())
+            writer = csv.DictWriter(
+                f,
+                fieldnames=sorted(rows[0].keys(), key=str.casefold)
+            )
             writer.writeheader()
 
             for row in rows:
