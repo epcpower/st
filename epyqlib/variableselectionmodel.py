@@ -374,7 +374,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
             node = VariableNode(variable=variable)
             self.root.append_child(node)
-            self.add_struct_members(
+            self.add_members(
                 base_type=epyqlib.cmemoryparser.base_type(variable),
                 address=variable.address,
                 node=node
@@ -616,7 +616,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             address=record_header_address
         )
         record_header_node = VariableNode(variable=record_header)
-        self.add_struct_members(
+        self.add_members(
             base_type=epyqlib.cmemoryparser.base_type(record_header),
             address=record_header.address,
             node=record_header_node
@@ -692,6 +692,17 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             for row in rows:
                 writer.writerow(row)
 
+    def add_members(self, base_type, address, node):
+        self.add_struct_members(base_type, address, node)
+        self.add_array_members(base_type, address, node)
+
+        for child in node.children:
+            self.add_members(
+                base_type=epyqlib.cmemoryparser.base_type(child.variable),
+                address=child.address(),
+                node=child
+            )
+
     def add_struct_members(self, base_type, address, node):
         if isinstance(base_type, epyqlib.cmemoryparser.Struct):
             for name, member in base_type.members.items():
@@ -704,11 +715,18 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 )
                 node.append_child(child_node)
 
-                self.add_struct_members(
-                    base_type=epyqlib.cmemoryparser.base_type(member),
-                    address=child_address,
-                    node=child_node
+    def add_array_members(self, base_type, address, node):
+        if isinstance(base_type, epyqlib.cmemoryparser.ArrayType):
+            format = '{{:0{}}}'.format(len(str(base_type.length())))
+            for index in range(base_type.length()):
+                child_address = address + base_type.offset_of(index)
+                variable = epyqlib.cmemoryparser.Variable(
+                    name=format.format(index),
+                    type=base_type.type,
+                    address=child_address
                 )
+                child_node = VariableNode(variable=variable)
+                node.append_child(child_node)
 
     def get_variable_node(self, *variable_path):
         variable = self.root

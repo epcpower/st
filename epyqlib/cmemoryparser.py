@@ -243,6 +243,9 @@ class ArrayType:
     def array_markup(self):
         return '[{}]'.format(self.length())
 
+    def offset_of(self, index):
+        return index * self.type.bytes
+
     def unpack(self, data):
         # TODO: CAMPid 078587996542145215432667431535465465421
         if isinstance(data, bytes):
