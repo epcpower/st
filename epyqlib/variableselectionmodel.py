@@ -528,7 +528,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         remaining = octets
         while remaining > 0:
-            number_of_bytes = min(4, remaining)
+            number_of_bytes = min(5, remaining)
             block = yield protocol.upload(number_of_bytes=number_of_bytes)
             remaining -= number_of_bytes
 
