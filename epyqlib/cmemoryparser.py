@@ -319,6 +319,10 @@ def base_type(type):
 def type_name(type):
     name = None
     while type is not None:
+        if not hasattr(type, 'type'):
+            name = type.name
+            break
+
         type = type.type
 
         if hasattr(type, 'name'):

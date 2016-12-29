@@ -1,3 +1,5 @@
+from re import _expand
+
 import attr
 import collections
 import csv
@@ -452,6 +454,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 return
 
             if test(node):
+                # TODO: CAMPid 0457543543696754329525426
                 chunk = cache.new_chunk(
                     address=int(node.fields.address, 16),
                     bytes=b'\x00' * node.fields.size * (self.bits_per_byte // 8),
@@ -728,18 +731,26 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             for row in rows:
                 writer.writerow(row)
 
-    def add_members(self, base_type, address, node):
-        self.add_struct_members(base_type, address, node)
-        self.add_array_members(base_type, address, node)
+    def add_members(self, base_type, address, node, expand_pointer=False):
+        new_members = []
+        new_members.extend(self.add_struct_members(base_type, address, node))
+        new_members.extend(self.add_array_members(base_type, address, node))
+        if expand_pointer:
+            new_members.extend(self.add_pointer_members(base_type, address, node))
 
         for child in node.children:
-            self.add_members(
+            new_members.extend(self.add_members(
                 base_type=epyqlib.cmemoryparser.base_type(child.variable),
                 address=child.address(),
                 node=child
-            )
+                # do not expand child pointers since we won't have their values
+            ))
 
-    def add_struct_members(self, base_type, address, node):
+        return new_members
+
+    @staticmethod
+    def add_struct_members(base_type, address, node):
+        new_members = []
         if isinstance(base_type, epyqlib.cmemoryparser.Struct):
             for name, member in base_type.members.items():
                 child_address = address + base_type.offset_of([name])
@@ -750,8 +761,13 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     bits=member.bit_size
                 )
                 node.append_child(child_node)
+                new_members.append(child_node)
 
-    def add_array_members(self, base_type, address, node):
+        return new_members
+
+    @staticmethod
+    def add_array_members(base_type, address, node):
+        new_members = []
         if isinstance(base_type, epyqlib.cmemoryparser.ArrayType):
             format = '{{:0{}}}'.format(len(str(base_type.length())))
             for index in range(base_type.length()):
@@ -764,6 +780,24 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 child_node = VariableNode(variable=variable,
                                           comparison_value=index)
                 node.append_child(child_node)
+                new_members.append(child_node)
+
+        return new_members
+
+    @staticmethod
+    def add_pointer_members(base_type, address, node):
+        new_members = []
+        if isinstance(base_type, epyqlib.cmemoryparser.PointerType):
+            variable = epyqlib.cmemoryparser.Variable(
+                name='*{}'.format(node.fields.name),
+                type=base_type.type,
+                address=node.fields.value
+            )
+            child_node = VariableNode(variable=variable)
+            node.append_child(child_node)
+            new_members.append(child_node)
+
+        return new_members
 
     def get_variable_node(self, *variable_path):
         variable = self.root
@@ -784,12 +818,12 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     @twisted.internet.defer.inlineCallbacks
     def get_variable_value(self, *variable_path):
         variable = self.get_variable_node(*variable_path)
-        value = yield self._read(variable)
+        value = yield self._get_variable_value(variable)
 
         twisted.internet.defer.returnValue(value)
 
     @twisted.internet.defer.inlineCallbacks
-    def _read(self, variable):
+    def _get_variable_value(self, variable):
         data = yield self.read_range(
             address_extension=ccp.AddressExtension.raw,
             address=variable.address(),
@@ -801,17 +835,52 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         twisted.internet.defer.returnValue(value)
 
     def read(self, variable):
+        d = self._read(variable)
+        d.addErrback(print)
+
+    @twisted.internet.defer.inlineCallbacks
+    def _read(self, variable):
+        # TODO: just call get_variable_value()?
         chunk = self.cache.new_chunk(
             address=int(variable.fields.address, 16),
             bytes=b'\x00' * variable.fields.size * (self.bits_per_byte // 8)
         )
 
-        d = self.read_range(
+        data = yield self.read_range(
             address_extension=ccp.AddressExtension.raw,
             address=variable.address(),
             octets=variable.fields.size * (self.bits_per_byte // 8)
         )
 
-        d.addCallback(chunk.set_bytes)
-        d.addCallback(lambda _: self.cache.update(update_chunk=chunk))
-        d.addErrback(print)
+        chunk.set_bytes(data)
+        self.cache.update(update_chunk=chunk)
+        # http://doc.qt.io/qt-5/qabstractitemmodel.html#layoutChanged
+        # TODO: review other uses of layoutChanged and possibly 'correct' them
+        self.layoutAboutToBeChanged.emit()
+        index = self.index_from_node(variable)
+        new_members = self.add_members(
+            base_type=epyqlib.cmemoryparser.base_type(variable.variable.type),
+            address=variable.address(),
+            node=variable,
+            expand_pointer=True
+        )
+        self.changePersistentIndex(
+            index,
+            self.index_from_node(variable)
+        )
+        self.layoutChanged.emit()
+
+        for node in new_members:
+            # TODO: CAMPid 0457543543696754329525426
+            chunk = self.cache.new_chunk(
+                address=int(node.fields.address, 16),
+                bytes=b'\x00' * node.fields.size * (self.bits_per_byte // 8),
+                reference=node
+            )
+            self.cache.add(chunk)
+
+            callback = functools.partial(
+                self.update_chunk,
+                node=node,
+            )
+            self.cache.subscribe(callback, chunk)
