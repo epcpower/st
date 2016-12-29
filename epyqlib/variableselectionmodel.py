@@ -15,7 +15,7 @@ import math
 import queue
 import threading
 import time
-import twisted
+import twisted.internet.defer
 
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
                           QTimer, QObject, QCoreApplication)
@@ -36,7 +36,7 @@ Columns.indexes = Columns.indexes()
 
 class VariableNode(epyqlib.treenode.TreeNode):
     def __init__(self, variable, name=None, address=None, bits=None,
-                 tree_parent=None):
+                 tree_parent=None, comparison_value=None):
         epyqlib.treenode.TreeNode.__init__(self, parent=tree_parent)
 
         self.variable = variable
@@ -54,6 +54,8 @@ class VariableNode(epyqlib.treenode.TreeNode):
                               size=base_type.bytes,
                               bits=bits,
                               value=None)
+
+        self.comparison_value = comparison_value
 
         self._checked = Columns.fill(Qt.Unchecked)
 
@@ -422,15 +424,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         )
 
     def create_cache(self, only_checked=True, subscribe=False,
-                     include_partially_checked=False):
-        cache = cmc.Cache(bits_per_byte=self.bits_per_byte)
-
-        def update_parameter(node, cache):
-            QCoreApplication.processEvents()
-
-            if node is self.root:
-                return
-
+                     include_partially_checked=False, test=None):
+        def default_test(node):
             acceptable_states = {
                 Qt.Unchecked,
                 Qt.PartiallyChecked,
@@ -443,10 +438,24 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 if not include_partially_checked:
                     acceptable_states.discard(Qt.PartiallyChecked)
 
-            if node.checked() in acceptable_states:
+            return node.checked() in acceptable_states
+
+        if test is None:
+            test = default_test
+
+        cache = cmc.Cache(bits_per_byte=self.bits_per_byte)
+
+        def update_parameter(node, cache):
+            QCoreApplication.processEvents()
+
+            if node is self.root:
+                return
+
+            if test(node):
                 chunk = cache.new_chunk(
                     address=int(node.fields.address, 16),
-                    bytes=b'\x00' * node.fields.size * (self.bits_per_byte // 8)
+                    bytes=b'\x00' * node.fields.size * (self.bits_per_byte // 8),
+                    reference=node
                 )
                 cache.add(chunk)
 
@@ -541,10 +550,45 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         twisted.internet.defer.returnValue(data)
 
-    def pull_log(self, csv_path):
-        d = self.get_variable_value('dataLogger_block', 'validRecordCount')
+    @twisted.internet.defer.inlineCallbacks
+    def get_chunks(self):
+        chunks_path = ['dataLoggerParams', 'chunks']
+        chunks_node = self.get_variable_node(*chunks_path)
+        chunks = []
+        for chunk_node in chunks_node.children:
+            index_path = chunks_path + [chunk_node.fields.name]
+            chunk_address = (
+                yield self.get_variable_value(*index_path, 'address')
+            )
+            chunk_bytes = yield self.get_variable_value(*index_path, 'bytes')
+            chunks.append((chunk_address, chunk_bytes))
 
-        cache = self.create_cache()
+        twisted.internet.defer.returnValue(chunks)
+
+    def pull_log(self, csv_path):
+        d = self._pull_log(csv_path)
+        d.addErrback(print)
+
+    @twisted.internet.defer.inlineCallbacks
+    def _pull_log(self, csv_path):
+        record_count = yield self.get_variable_value('dataLogger_block', 'validRecordCount')
+        chunk_ranges = yield self.get_chunks()
+
+        def overlaps_a_chunk(node):
+            if len(node.children) > 0:
+                return False
+
+            node_lower = int(node.fields.address, 16)
+            node_upper = node_lower + node.fields.size - 1
+
+            for lower, upper in chunk_ranges:
+                upper = lower + upper - 1
+                if lower <= node_upper and upper >= node_lower:
+                    return True
+
+            return False
+
+        cache = self.create_cache(test=overlaps_a_chunk)
 
         chunks = cache.contiguous_chunks()
 
@@ -554,28 +598,24 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         # TODO: check against block.recordLength from module
 
-        def octets_and_configure(n):
-            octets = self.block_header_length() + n * record_length
-            self.pull_log_progress.configure(maximum=octets)
-            return octets
+        octets = self.block_header_length() + record_count * record_length
+        self.pull_log_progress.configure(maximum=octets)
 
-        d.addCallback(octets_and_configure)
-        d.addCallback(lambda octets: self.read_range(
+        data = yield self.read_range(
             address_extension=ccp.AddressExtension.data_logger,
             address=0,
             octets=octets,
             progress=self.pull_log_progress
-        ))
+        )
 
-        def pass_first(result, function, *args, **kwargs):
-            function(*args, **kwargs)
-            return result
-
-        d.addCallback(pass_first, self.pull_log_progress.configure)
-        d.addCallback(self.parse_log, cache=cache, chunks=chunks,
-                      csv_path=csv_path)
-        d.addCallback(lambda _: self.pull_log_progress.complete())
-        d.addErrback(print)
+        self.pull_log_progress.configure()
+        yield self.parse_log(
+            data=data,
+            cache=cache,
+            chunks=chunks,
+            csv_path=csv_path
+        )
+        self.pull_log_progress.complete()
 
     def record_header_length(self):
         return (self.names['DataLogger_RecordHeader'].type.bytes
@@ -604,9 +644,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             if node.checked() in acceptable_states:
                 payload.append(node)
 
-        variable_list = []
-        self.root.traverse(collect_variables, variable_list)
-
         # TODO: hardcoded 32-bit addressing and offset assumption
         #       intended to avoid collision
         record_header_address = 2**32 + 100
@@ -621,7 +658,14 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             address=record_header.address,
             node=record_header_node
         )
-        variable_list = record_header_node.leaves() + variable_list
+        for node in record_header_node.leaves():
+            chunk = cache.new_chunk(
+                address=int(node.fields.address, 16),
+                bytes=b'\x00' * node.fields.size
+                      * (self.bits_per_byte // 8),
+                reference=node
+            )
+            cache.add(chunk)
         record_header_chunk = cache.new_chunk(
                 address=int(record_header_node.fields.address, 16),
                 bytes=b'\x00' * record_header_node.fields.size
@@ -630,16 +674,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         chunks.insert(0, record_header_chunk)
 
-        variables_and_chunks = {
-            variable: cache.new_chunk(
-                address=int(variable.fields.address, 16),
-                bytes=b'\x00' * variable.fields.size * (self.bits_per_byte // 8)
-            )
-            for variable in variable_list
-        }
-
-        for chunk in variables_and_chunks.values():
-            cache.add(chunk)
+        variables_and_chunks = {chunk.reference: chunk
+                                for chunk in cache._chunks}
 
         rows = []
 
@@ -725,15 +761,19 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     type=base_type.type,
                     address=child_address
                 )
-                child_node = VariableNode(variable=variable)
+                child_node = VariableNode(variable=variable,
+                                          comparison_value=index)
                 node.append_child(child_node)
 
     def get_variable_node(self, *variable_path):
         variable = self.root
 
         for name in variable_path:
+            if name is None:
+                raise TypeError('Unable to search by None')
+
             variable = next(v for v in variable.children
-                            if v.fields.name == name)
+                            if name in (v.fields.name, v.comparison_value))
 
         return variable
 
