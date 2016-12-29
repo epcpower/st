@@ -173,23 +173,30 @@ class UnspecifiedType:
     name = attr.ib()
 
 
+# consider https://repl.it/EyFY/26
 @attr.s
 class SubroutineType:
     return_type = attr.ib(default=None)
-    name = attr.ib(default=None)
+    name = attr.ib(
+        default=None,
+        convert=lambda v: str(v) if v is not None else '<subroutine>'
+    )
     parameters = members = attr.ib(default=attr.Factory(list))
 
 
 @attr.s
 class PointerType:
     type = attr.ib()
-    name = attr.ib(default='<pointer>')
     modifier = '*'
 
     # note that this is hardcoded and should be detected
     # DW_AT_address_class happens to be 32 but the definition
     # doesn't seem to suggest that means 32-bits
     bytes = 32 // bits_per_byte
+
+    @property
+    def name(self):
+        return '{}*'.format(type_name(self))
 
     def format_string(self):
         return '<u{}'.format(self.bytes * bits_per_byte)
@@ -1113,6 +1120,8 @@ def process_file(filename, queue=None):
             elif is_modifier(item):
                 pass
             elif item.name.startswith('$'):
+                pass
+            elif isinstance(item, SubroutineType):
                 pass
             else:
                 if item.name in names:
