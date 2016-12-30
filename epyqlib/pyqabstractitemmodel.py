@@ -187,11 +187,11 @@ class PyQAbstractItemModel(QAbstractItemModel):
             if node is self.root:
                 index = QModelIndex()
             else:
-                index = self.match(self.index(0, 0, QModelIndex()),
-                                   unique_role,
-                                   node.unique(),
-                                   1,
-                                   Qt.MatchRecursive)[0]
+                index = self.index(
+                    row=node.tree_parent.row_of_child(node),
+                    column=0,
+                    parent=self.index_from_node(node.tree_parent)
+                )
 
                 self.index_from_node_cache[node] = index
 
