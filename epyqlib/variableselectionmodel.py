@@ -876,32 +876,35 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         chunk.set_bytes(data)
         self.cache.update(update_chunk=chunk)
-        # http://doc.qt.io/qt-5/qabstractitemmodel.html#layoutChanged
-        # TODO: review other uses of layoutChanged and possibly 'correct' them
-        self.layoutAboutToBeChanged.emit()
-        index = self.index_from_node(variable)
-        for row, child in enumerate(variable.children):
-            self.unsubscribe(node=child, recurse=True)
-            variable.remove_child(row=row)
-        new_members = self.add_members(
-            base_type=epyqlib.cmemoryparser.base_type(variable.variable.type),
-            address=variable.address(),
-            node=variable,
-            expand_pointer=True
-        )
-        self.changePersistentIndex(
-            index,
-            self.index_from_node(variable)
-        )
-        self.layoutChanged.emit()
 
-        for node in new_members:
-            # TODO: CAMPid 0457543543696754329525426
-            chunk = self.cache.new_chunk(
-                address=int(node.fields.address, 16),
-                bytes=b'\x00' * node.fields.size * (self.bits_per_byte // 8),
-                reference=node
+        if isinstance(variable.variable.type,
+                      epyqlib.cmemoryparser.PointerType):
+            # http://doc.qt.io/qt-5/qabstractitemmodel.html#layoutChanged
+            # TODO: review other uses of layoutChanged and possibly 'correct' them
+            self.layoutAboutToBeChanged.emit()
+            index = self.index_from_node(variable)
+            for row, child in enumerate(variable.children):
+                self.unsubscribe(node=child, recurse=True)
+                variable.remove_child(row=row)
+            new_members = self.add_members(
+                base_type=epyqlib.cmemoryparser.base_type(variable.variable.type),
+                address=variable.address(),
+                node=variable,
+                expand_pointer=True
             )
-            self.cache.add(chunk)
+            self.changePersistentIndex(
+                index,
+                self.index_from_node(variable)
+            )
+            self.layoutChanged.emit()
 
-            self.subscribe(node=node, chunk=chunk)
+            for node in new_members:
+                # TODO: CAMPid 0457543543696754329525426
+                chunk = self.cache.new_chunk(
+                    address=int(node.fields.address, 16),
+                    bytes=b'\x00' * node.fields.size * (self.bits_per_byte // 8),
+                    reference=node
+                )
+                self.cache.add(chunk)
+
+                self.subscribe(node=node, chunk=chunk)
