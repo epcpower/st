@@ -742,10 +742,19 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     def add_members(self, base_type, address, node, expand_pointer=False):
         new_members = []
-        new_members.extend(self.add_struct_members(base_type, address, node))
-        new_members.extend(self.add_array_members(base_type, address, node))
-        if expand_pointer:
-            new_members.extend(self.add_pointer_members(base_type, address, node))
+
+        if isinstance(base_type, epyqlib.cmemoryparser.Struct):
+            new_members.extend(
+                self.add_struct_members(base_type, address, node))
+
+        if isinstance(base_type, epyqlib.cmemoryparser.ArrayType):
+            new_members.extend(
+                self.add_array_members(base_type, address, node))
+
+        if (expand_pointer and
+                isinstance(base_type, epyqlib.cmemoryparser.PointerType)):
+            new_members.extend(
+                self.add_pointer_members(base_type, address, node))
 
         for child in node.children:
             new_members.extend(self.add_members(
@@ -760,53 +769,50 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     @staticmethod
     def add_struct_members(base_type, address, node):
         new_members = []
-        if isinstance(base_type, epyqlib.cmemoryparser.Struct):
-            for name, member in base_type.members.items():
-                child_address = address + base_type.offset_of([name])
-                child_node = VariableNode(
-                    variable=member,
-                    name=name,
-                    address=child_address,
-                    bits=member.bit_size
-                )
-                node.append_child(child_node)
-                new_members.append(child_node)
+        for name, member in base_type.members.items():
+            child_address = address + base_type.offset_of([name])
+            child_node = VariableNode(
+                variable=member,
+                name=name,
+                address=child_address,
+                bits=member.bit_size
+            )
+            node.append_child(child_node)
+            new_members.append(child_node)
 
         return new_members
 
     @staticmethod
     def add_array_members(base_type, address, node):
         new_members = []
-        if isinstance(base_type, epyqlib.cmemoryparser.ArrayType):
-            format = '{{:0{}}}'.format(len(str(base_type.length())))
-            for index in range(base_type.length()):
-                child_address = address + base_type.offset_of(index)
-                variable = epyqlib.cmemoryparser.Variable(
-                    name=format.format(index),
-                    type=base_type.type,
-                    address=child_address
-                )
-                child_node = VariableNode(variable=variable,
-                                          comparison_value=index)
-                node.append_child(child_node)
-                new_members.append(child_node)
+        format = '[{{:0{}}}]'.format(len(str(base_type.length())))
+        for index in range(base_type.length()):
+            child_address = address + base_type.offset_of(index)
+            variable = epyqlib.cmemoryparser.Variable(
+                name=format.format(index),
+                type=base_type.type,
+                address=child_address
+            )
+            child_node = VariableNode(variable=variable,
+                                      comparison_value=index)
+            node.append_child(child_node)
+            new_members.append(child_node)
 
         return new_members
 
     @staticmethod
     def add_pointer_members(base_type, address, node):
         new_members = []
-        if isinstance(base_type, epyqlib.cmemoryparser.PointerType):
-            target_type = epyqlib.cmemoryparser.base_type(base_type.type)
-            if not isinstance(target_type, epyqlib.cmemoryparser.UnspecifiedType):
-                variable = epyqlib.cmemoryparser.Variable(
-                    name='*{}'.format(node.fields.name),
-                    type=base_type.type,
-                    address=node.fields.value
-                )
-                child_node = VariableNode(variable=variable)
-                node.append_child(child_node)
-                new_members.append(child_node)
+        target_type = epyqlib.cmemoryparser.base_type(base_type.type)
+        if not isinstance(target_type, epyqlib.cmemoryparser.UnspecifiedType):
+            variable = epyqlib.cmemoryparser.Variable(
+                name='*{}'.format(node.fields.name),
+                type=base_type.type,
+                address=node.fields.value
+            )
+            child_node = VariableNode(variable=variable)
+            node.append_child(child_node)
+            new_members.append(child_node)
 
         return new_members
 
