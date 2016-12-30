@@ -286,13 +286,6 @@ class Progress(QObject):
         self.updated.emit(value)
 
 
-@attr.s
-class Subscription:
-    node = attr.ib()
-    callback = attr.ib()
-    chunk = attr.ib()
-
-
 class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     binary_loaded = pyqtSignal()
 
@@ -329,8 +322,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.load_binary_queue = None
 
         self.pull_log_progress = Progress()
-
-        self.subscriptions = collections.defaultdict(set)
 
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
@@ -856,16 +847,10 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             self.update_chunk,
             node=node,
         )
-        self.cache.subscribe(callback, chunk)
-
-        self.subscriptions[node].add(Subscription(node, callback, chunk))
+        self.cache.subscribe(callback, chunk, reference=node)
 
     def unsubscribe(self, node, recurse=True):
-        for subscription in self.subscriptions[node]:
-            self.cache.unsubscribe(
-                subscriber=subscription.callback,
-                chunk=subscription.chunk
-            )
+        self.cache.unsubscribe_by_reference(reference=node)
 
         if recurse:
             for child in node.children:

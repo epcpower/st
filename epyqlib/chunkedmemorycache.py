@@ -16,6 +16,12 @@ class ByteLengthError(Exception):
 
 
 @attr.s
+class Subscriber:
+    callback = attr.ib()
+    reference = attr.ib()
+
+
+@attr.s
 class Cache:
     _chunks = attr.ib(init=False, default=attr.Factory(list))
     _subscribers = attr.ib(init=False, default=attr.Factory(dict))
@@ -40,14 +46,32 @@ class Cache:
         for address in chunk.addresses():
             self.address_to_chunks[address].add(chunk)
 
-    def subscribe(self, subscriber, chunk):
+    def subscribe(self, subscriber, chunk, reference=None):
         if not any(chunk is c for c in self._chunks):
             raise ChunkNotFoundError(chunk)
 
-        self._subscribers[chunk].add(subscriber)
+        s = Subscriber(callback=subscriber, reference=reference)
+        self._subscribers[chunk].add(s)
 
-    def unsubscribe(self, subscriber, chunk):
-        self._subscribers[chunk].discard(subscriber)
+    # def unsubscribe(self, subscriber, chunk, reference=None):
+    #     to_discard = []
+    #     for subscriber in self._subscribers[chunk]:
+    #         if
+    #         .discard(subscriber)
+
+    def unsubscribe_by_reference(self, reference, chunk=None):
+        chunks = (self._subscribers.items()
+                  if chunk is None
+                  else [chunk])
+
+        to_discard = set()
+        for chunk, subscribers in chunks:
+            for subscriber in subscribers:
+                # TODO: perhaps should be `is` not `==`?
+                if subscriber.reference == reference:
+                    to_discard.add(subscriber)
+
+            self._subscribers[chunk] -= to_discard
 
     def unsubscribe_all(self, *chunks):
         if len(chunks) == 0:
@@ -66,7 +90,7 @@ class Cache:
             chunk.update(update_chunk)
 
             for subscriber in self._subscribers[chunk]:
-                subscriber(chunk._bytes)
+                subscriber.callback(chunk._bytes)
 
     def chunk_from_variable(self, variable, reference=None):
         data = bytearray([0] * variable.type.bytes * (self._bits_per_byte // 8))
