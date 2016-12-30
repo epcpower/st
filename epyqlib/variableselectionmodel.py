@@ -286,6 +286,13 @@ class Progress(QObject):
         self.updated.emit(value)
 
 
+@attr.s
+class Subscription:
+    node = attr.ib()
+    callback = attr.ib()
+    chunk = attr.ib()
+
+
 class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     binary_loaded = pyqtSignal()
 
@@ -322,6 +329,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.load_binary_queue = None
 
         self.pull_log_progress = Progress()
+
+        self.subscriptions = collections.defaultdict(set)
 
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
@@ -788,14 +797,16 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     def add_pointer_members(base_type, address, node):
         new_members = []
         if isinstance(base_type, epyqlib.cmemoryparser.PointerType):
-            variable = epyqlib.cmemoryparser.Variable(
-                name='*{}'.format(node.fields.name),
-                type=base_type.type,
-                address=node.fields.value
-            )
-            child_node = VariableNode(variable=variable)
-            node.append_child(child_node)
-            new_members.append(child_node)
+            target_type = epyqlib.cmemoryparser.base_type(base_type.type)
+            if not isinstance(target_type, epyqlib.cmemoryparser.UnspecifiedType):
+                variable = epyqlib.cmemoryparser.Variable(
+                    name='*{}'.format(node.fields.name),
+                    type=base_type.type,
+                    address=node.fields.value
+                )
+                child_node = VariableNode(variable=variable)
+                node.append_child(child_node)
+                new_members.append(child_node)
 
         return new_members
 
@@ -834,6 +845,26 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         twisted.internet.defer.returnValue(value)
 
+    def subscribe(self, node, chunk):
+        callback = functools.partial(
+            self.update_chunk,
+            node=node,
+        )
+        self.cache.subscribe(callback, chunk)
+
+        self.subscriptions[node].add(Subscription(node, callback, chunk))
+
+    def unsubscribe(self, node, recurse=True):
+        for subscription in self.subscriptions[node]:
+            self.cache.unsubscribe(
+                subscriber=subscription.callback,
+                chunk=subscription.chunk
+            )
+
+        if recurse:
+            for child in node.children:
+                self.unsubscribe(node=child, recurse=recurse)
+
     def read(self, variable):
         d = self._read(variable)
         d.addErrback(print)
@@ -858,6 +889,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         # TODO: review other uses of layoutChanged and possibly 'correct' them
         self.layoutAboutToBeChanged.emit()
         index = self.index_from_node(variable)
+        for row, child in enumerate(variable.children):
+            self.unsubscribe(node=child, recurse=True)
+            variable.remove_child(row=row)
         new_members = self.add_members(
             base_type=epyqlib.cmemoryparser.base_type(variable.variable.type),
             address=variable.address(),
@@ -879,8 +913,4 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             )
             self.cache.add(chunk)
 
-            callback = functools.partial(
-                self.update_chunk,
-                node=node,
-            )
-            self.cache.subscribe(callback, chunk)
+            self.subscribe(node=node, chunk=chunk)
