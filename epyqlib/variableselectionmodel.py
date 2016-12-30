@@ -484,6 +484,38 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                      node, Columns.indexes.value,
                      roles=[Qt.DisplayRole])
 
+        if isinstance(node.variable.type,
+                      epyqlib.cmemoryparser.PointerType):
+            # http://doc.qt.io/qt-5/qabstractitemmodel.html#layoutChanged
+            # TODO: review other uses of layoutChanged and possibly 'correct' them
+            self.layoutAboutToBeChanged.emit()
+            index = self.index_from_node(node)
+            for row, child in enumerate(node.children):
+                self.unsubscribe(node=child, recurse=True)
+                node.remove_child(row=row)
+            new_members = self.add_members(
+                base_type=epyqlib.cmemoryparser.base_type(node.variable.type),
+                address=node.address(),
+                node=node,
+                expand_pointer=True
+            )
+            self.changePersistentIndex(
+                index,
+                self.index_from_node(node)
+            )
+            self.layoutChanged.emit()
+
+            for node in new_members:
+                # TODO: CAMPid 0457543543696754329525426
+                chunk = self.cache.new_chunk(
+                    address=int(node.fields.address, 16),
+                    bytes=b'\x00' * node.fields.size * (self.bits_per_byte // 8),
+                    reference=node
+                )
+                self.cache.add(chunk)
+
+                self.subscribe(node=node, chunk=chunk)
+
     def update_parameters(self):
         cache = self.create_cache()
 
@@ -876,35 +908,3 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         chunk.set_bytes(data)
         self.cache.update(update_chunk=chunk)
-
-        if isinstance(variable.variable.type,
-                      epyqlib.cmemoryparser.PointerType):
-            # http://doc.qt.io/qt-5/qabstractitemmodel.html#layoutChanged
-            # TODO: review other uses of layoutChanged and possibly 'correct' them
-            self.layoutAboutToBeChanged.emit()
-            index = self.index_from_node(variable)
-            for row, child in enumerate(variable.children):
-                self.unsubscribe(node=child, recurse=True)
-                variable.remove_child(row=row)
-            new_members = self.add_members(
-                base_type=epyqlib.cmemoryparser.base_type(variable.variable.type),
-                address=variable.address(),
-                node=variable,
-                expand_pointer=True
-            )
-            self.changePersistentIndex(
-                index,
-                self.index_from_node(variable)
-            )
-            self.layoutChanged.emit()
-
-            for node in new_members:
-                # TODO: CAMPid 0457543543696754329525426
-                chunk = self.cache.new_chunk(
-                    address=int(node.fields.address, 16),
-                    bytes=b'\x00' * node.fields.size * (self.bits_per_byte // 8),
-                    reference=node
-                )
-                self.cache.add(chunk)
-
-                self.subscribe(node=node, chunk=chunk)
