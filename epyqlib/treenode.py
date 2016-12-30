@@ -42,6 +42,7 @@ class TreeNode:
         if child is None:
             child = self.children[row]
 
+        child.parent = None
         self.children.remove(child)
 
         return True
