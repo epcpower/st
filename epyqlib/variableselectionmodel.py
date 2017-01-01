@@ -279,7 +279,10 @@ class Progress(QObject):
         self.progress.setMinimum(minimum)
         self.progress.setMaximum(maximum)
 
-    def complete(self):
+    def complete(self, message=None):
+        if message is not None:
+            QMessageBox.information(self.progress, 'EPyQ', message)
+
         self.completed.emit()
 
     def update(self, value):
@@ -669,9 +672,10 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             bytes=octets,
             bps=octets / seconds
         )
+
         print(message)
 
-        self.pull_log_progress.complete()
+        self.pull_log_progress.complete(message=message)
 
     def record_header_length(self):
         return (self.names['DataLogger_RecordHeader'].type.bytes
