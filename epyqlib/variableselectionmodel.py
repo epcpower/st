@@ -15,6 +15,7 @@ import itertools
 import json
 import math
 import queue
+import textwrap
 import threading
 import time
 import twisted.internet.defer
@@ -323,6 +324,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.pull_log_progress = Progress()
 
+        self.protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
+        self.transport = None
+
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
             if role == Qt.CheckStateRole:
@@ -555,17 +559,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     @twisted.internet.defer.inlineCallbacks
     def read_range(self, address_extension, address, octets, progress=None):
-        protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
-        from twisted.internet import reactor
-        transport = epyqlib.twisted.busproxy.BusProxy(
-            protocol=protocol,
-            reactor=reactor,
-            bus=self.nvs.bus.bus)
-        # TODO: whoa! cheater!  stealing a bus like that
-
         # TODO: hardcoded station address, tsk-tsk
-        yield protocol.connect(station_address=0)
-        yield protocol.set_mta(
+        yield self.protocol.connect(station_address=0)
+        yield self.protocol.set_mta(
             address=address,
             address_extension=address_extension
         )
@@ -575,7 +571,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         remaining = octets
         while remaining > 0:
             number_of_bytes = min(5, remaining)
-            block = yield protocol.upload(number_of_bytes=number_of_bytes)
+            block = yield self.protocol.upload(number_of_bytes=number_of_bytes)
             remaining -= number_of_bytes
 
             if progress is not None:
@@ -583,6 +579,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
             data.extend(block)
 
+        yield self.protocol.disconnect()
         twisted.internet.defer.returnValue(data)
 
     @twisted.internet.defer.inlineCallbacks
@@ -606,6 +603,16 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     @twisted.internet.defer.inlineCallbacks
     def _pull_log(self, csv_path):
+        if self.transport is None:
+            from twisted.internet import reactor
+            self.transport = epyqlib.twisted.busproxy.BusProxy(
+                protocol=self.protocol,
+                reactor=reactor,
+                bus=self.nvs.bus.bus)
+
+            # TODO: whoa! cheater!  stealing a bus like that
+
+
         record_count = yield self.get_variable_value('dataLogger_block', 'validRecordCount')
         chunk_ranges = yield self.get_chunks()
 
@@ -643,6 +650,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             progress=self.pull_log_progress
         )
 
+        seconds = time.monotonic() - self.pull_log_progress._start_time
+
         self.pull_log_progress.configure()
         yield self.parse_log(
             data=data,
@@ -650,6 +659,18 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             chunks=chunks,
             csv_path=csv_path
         )
+
+        completed_format = textwrap.dedent('''\
+        Log successfully pulled
+
+        Data time: {seconds:.3f} seconds for {bytes} bytes or {bps:.0f} bytes/second''')
+        message = completed_format.format(
+            seconds=seconds,
+            bytes=octets,
+            bps=octets / seconds
+        )
+        print(message)
+
         self.pull_log_progress.complete()
 
     def record_header_length(self):
