@@ -379,7 +379,8 @@ class Device:
 
             variable_model = epyqlib.variableselectionmodel.VariableModel(
                 root=variables,
-                nvs=self.nvs
+                nvs=self.nvs,
+                bus=self.bus
             )
 
             proxy = QSortFilterProxyModel()

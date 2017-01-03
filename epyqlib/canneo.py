@@ -287,7 +287,7 @@ class QtCanListener(QObject, can.Listener):
             self.receiver(receiver)
 
     def receiver(self, slot):
-        self.message_received_signal.connect(slot, Qt.QueuedConnection)
+        self.message_received_signal.connect(slot)
 
     def on_message_received(self, msg):
         # TODO: Be careful since this is no longer being deep copied.

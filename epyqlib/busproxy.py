@@ -7,6 +7,7 @@ import can.interfaces.pcan
 import time
 
 from epyqlib.canneo import QtCanListener
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QObject, pyqtSignal
 
 # See file COPYING in this source tree
@@ -154,6 +155,11 @@ class BusProxy(QObject):
 
         if was_online and self.bus is None:
             self.went_offline.emit()
+
+        if isinstance(self.bus, can.BusABC):
+            self.notifier.moveToThread(None)
+        else:
+            self.notifier.moveToThread(QApplication.instance().thread())
 
     def reset(self):
         if self.bus is not None:

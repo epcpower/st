@@ -1,4 +1,5 @@
-from re import _expand
+import logging
+logger = logging.getLogger(__name__)
 
 import attr
 import collections
@@ -293,7 +294,7 @@ class Progress(QObject):
 class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     binary_loaded = pyqtSignal()
 
-    def __init__(self, root, nvs, parent=None):
+    def __init__(self, root, nvs, bus, parent=None):
         checkbox_columns = Columns.fill(False)
         checkbox_columns.name = True
 
@@ -312,6 +313,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.root = root
         self.nvs = nvs
+        self.bus = bus
 
         self.bits_per_byte = None
 
@@ -572,14 +574,18 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         data = bytearray()
 
         remaining = octets
+        update_period = octets // 100  # 1%
+        since_update = 0
         while remaining > 0:
             number_of_bytes = min(5, remaining)
             block = yield self.protocol.upload(number_of_bytes=number_of_bytes)
             remaining -= number_of_bytes
 
             if progress is not None:
-                progress.update(octets - remaining)
-
+                since_update += number_of_bytes
+                if since_update >= update_period:
+                    progress.update(octets - remaining)
+                    since_update = 0
             data.extend(block)
 
         yield self.protocol.disconnect()
@@ -611,9 +617,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             self.transport = epyqlib.twisted.busproxy.BusProxy(
                 protocol=self.protocol,
                 reactor=reactor,
-                bus=self.nvs.bus.bus)
-
-            # TODO: whoa! cheater!  stealing a bus like that
+                bus=self.bus)
 
 
         record_count = yield self.get_variable_value('dataLogger_block', 'validRecordCount')
