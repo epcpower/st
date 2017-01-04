@@ -2,6 +2,8 @@
 
 #TODO: """DocString if there is one"""
 
+import weakref
+
 from epyqlib.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QAbstractItemModel, QVariant,
                           QModelIndex, pyqtSignal, pyqtSlot)
@@ -30,7 +32,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
         else:
             self.alignment = Qt.AlignTop | Qt.AlignLeft
 
-        self.index_from_node_cache = {}
+        self.index_from_node_cache = weakref.WeakKeyDictionary()
 
         self.role_functions = {
             Qt.DisplayRole: self.data_display,
@@ -224,7 +226,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
 
     @pyqtSlot()
     def end_insert_rows(self):
-        self.index_from_node_cache = {}
+        self.index_from_node_cache.clear()
         self.endInsertRows()
 
     @pyqtSlot(TreeNode, int, int)
@@ -233,7 +235,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
 
     @pyqtSlot()
     def end_remove_rows(self):
-        self.index_from_node_cache = {}
+        self.index_from_node_cache.clear()
         self.endRemoveRows()
 
     @pyqtSlot()
