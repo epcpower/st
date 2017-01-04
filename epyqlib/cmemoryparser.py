@@ -704,7 +704,7 @@ def fake_section(filename, section_name):
         global_offset=0,
         size=len(debug_bytes))
 
-def process_file(filename, queue=None):
+def process_file(filename):
     print('Processing file:', filename)
     print('Working directory:', os.getcwd())
 
@@ -1137,9 +1137,6 @@ def process_file(filename, queue=None):
                 names[item.name] = item
 
     result = names, variables, bits_per_byte
-
-    if queue is not None:
-        queue.put(result)
 
     return result
 

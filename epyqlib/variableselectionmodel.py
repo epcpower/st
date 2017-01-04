@@ -15,11 +15,10 @@ import io
 import itertools
 import json
 import math
-import queue
 import textwrap
-import threading
 import time
 import twisted.internet.defer
+import twisted.internet.threads
 
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
                           QTimer, QObject, QCoreApplication)
@@ -319,14 +318,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.cache = None
 
-        self.load_binary_timer = QTimer()
-        self.load_binary_timer.setSingleShot(True)
-        self.load_binary_timer.setInterval(200)
-        self.load_binary_timer.timeout.connect(self.load_binary_post)
-
-        self.load_binary_thread = None
-        self.load_binary_queue = None
-
         self.pull_log_progress = Progress()
 
         self.protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
@@ -348,36 +339,18 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 return True
 
     def load_binary(self, filename):
-        self.load_binary_queue = queue.Queue(1)
-
-        self.load_binary_thread = threading.Thread(
-            target=epyqlib.cmemoryparser.process_file,
-            kwargs={
-                'filename': filename,
-                'queue': self.load_binary_queue
-            }
+        d = twisted.internet.threads.deferToThread(
+            epyqlib.cmemoryparser.process_file,
+            filename=filename
         )
+        d.addCallback(self.load_binary_post)
+        d.addErrback(print)
 
-        self.load_binary_timer.start()
-        self.load_binary_thread.start()
-
-    def load_binary_post(self):
-        try:
-            names, variables, bits_per_byte = (
-                self.load_binary_queue.get_nowait())
-        except queue.Empty:
-            self.load_binary_timer.start()
-            return
+    def load_binary_post(self, result):
+        names, variables, bits_per_byte = result
 
         self.bits_per_byte = bits_per_byte
         self.names = names
-
-        self.load_binary_thread.join(timeout=2)
-        if self.load_binary_thread.is_alive():
-            # TODO: notify someone?
-            pass
-        self.load_binary_thread = None
-        self.load_binary_queue = None
 
         self.beginResetModel()
 
