@@ -321,7 +321,11 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.pull_log_progress = Progress()
 
         self.protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
-        self.transport = None
+        from twisted.internet import reactor
+        self.transport = epyqlib.twisted.busproxy.BusProxy(
+            protocol=self.protocol,
+            reactor=reactor,
+            bus=self.bus)
 
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
@@ -585,14 +589,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     @twisted.internet.defer.inlineCallbacks
     def _pull_log(self, csv_path):
-        if self.transport is None:
-            from twisted.internet import reactor
-            self.transport = epyqlib.twisted.busproxy.BusProxy(
-                protocol=self.protocol,
-                reactor=reactor,
-                bus=self.bus)
-
-
         record_count = yield self.get_variable_value('dataLogger_block', 'validRecordCount')
         chunk_ranges = yield self.get_chunks()
 
