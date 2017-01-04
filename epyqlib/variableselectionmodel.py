@@ -342,16 +342,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
                 return True
 
-    def load_binary(self, filename):
-        d = twisted.internet.threads.deferToThread(
-            epyqlib.cmemoryparser.process_file,
-            filename=filename
-        )
-        d.addCallback(self.load_binary_post)
-        d.addErrback(print)
-
-    def load_binary_post(self, result):
-        names, variables, bits_per_byte = result
+    def update_from_loaded_binary(self, binary_info):
+        names, variables, bits_per_byte = binary_info
 
         self.bits_per_byte = bits_per_byte
         self.names = names

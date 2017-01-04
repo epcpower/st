@@ -1,5 +1,6 @@
 # import epyqlib.delegates
 # import epyqlib.txrx
+import epyqlib.cmemoryparser
 import io
 import os
 from PyQt5 import QtWidgets, uic
@@ -7,6 +8,7 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QSortFilterProxyModel,
                           Qt)
 from PyQt5.QtWidgets import QFileDialog, QProgressDialog
+import twisted.internet.threads
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -138,7 +140,13 @@ class VariableSelection(QtWidgets.QWidget):
             model.binary_loaded.connect(self.progress.close)
 
             self.progress.show()
-            model.load_binary(filename)
+
+            d = twisted.internet.threads.deferToThread(
+                epyqlib.cmemoryparser.process_file,
+                filename=filename
+            )
+            d.addCallback(model.update_from_loaded_binary)
+            d.addErrback(print)
 
     def update_parameters(self):
         model = self.nonproxy_model()
