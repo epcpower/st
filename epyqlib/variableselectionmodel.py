@@ -782,7 +782,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
             message_box.exec()
 
-        with open(csv_path, 'w') as f:
+        with open(csv_path, 'w', newline='') as f:
             writer = csv.DictWriter(
                 f,
                 fieldnames=sorted(rows[0].keys(), key=str.casefold)
