@@ -502,6 +502,32 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         # deferred.callback('Oh so smelly...')
         # return self._internal_deferred
 
+    @twisted.internet.defer.inlineCallbacks
+    def upload_block(self, address_extension, address, octets, progress=None):
+        yield self.set_mta(
+            address=address,
+            address_extension=address_extension
+        )
+
+        data = bytearray()
+
+        remaining = octets
+        update_period = octets // 100  # 1%
+        since_update = 0
+        while remaining > 0:
+            number_of_bytes = min(5, remaining)
+            block = yield self.upload(number_of_bytes=number_of_bytes)
+            remaining -= number_of_bytes
+
+            if progress is not None:
+                since_update += number_of_bytes
+                if since_update >= update_period:
+                    progress.update(octets - remaining)
+                    since_update = 0
+            data.extend(block)
+
+        twisted.internet.defer.returnValue(data)
+
     def _send(self, packet, state, count_towards_total=True):
         if self._send_counter < 255:
             self._send_counter += 1

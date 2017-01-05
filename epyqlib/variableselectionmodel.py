@@ -532,35 +532,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 len(chunk._bytes) // (self.bits_per_byte // 8))
 
     @twisted.internet.defer.inlineCallbacks
-    def read_range(self, address_extension, address, octets, progress=None):
-        # TODO: hardcoded station address, tsk-tsk
-        yield self.protocol.connect(station_address=0)
-        yield self.protocol.set_mta(
-            address=address,
-            address_extension=address_extension
-        )
-
-        data = bytearray()
-
-        remaining = octets
-        update_period = octets // 100  # 1%
-        since_update = 0
-        while remaining > 0:
-            number_of_bytes = min(5, remaining)
-            block = yield self.protocol.upload(number_of_bytes=number_of_bytes)
-            remaining -= number_of_bytes
-
-            if progress is not None:
-                since_update += number_of_bytes
-                if since_update >= update_period:
-                    progress.update(octets - remaining)
-                    since_update = 0
-            data.extend(block)
-
-        yield self.protocol.disconnect()
-        twisted.internet.defer.returnValue(data)
-
-    @twisted.internet.defer.inlineCallbacks
     def get_chunks(self):
         chunks_path = ['dataLoggerParams', 'chunks']
         chunks_node = self.get_variable_node(*chunks_path)
@@ -611,12 +582,15 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         octets = self.block_header_length() + record_count * record_length
         self.pull_log_progress.configure(maximum=octets)
 
-        data = yield self.read_range(
+        # TODO: hardcoded station address, tsk-tsk
+        yield self.protocol.connect(station_address=0)
+        data = yield self.protocol.upload_block(
             address_extension=ccp.AddressExtension.data_logger,
             address=0,
             octets=octets,
             progress=self.pull_log_progress
         )
+        yield self.protocol.disconnect()
 
         seconds = time.monotonic() - self.pull_log_progress._start_time
 
@@ -854,11 +828,14 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     @twisted.internet.defer.inlineCallbacks
     def _get_variable_value(self, variable):
-        data = yield self.read_range(
+        # TODO: hardcoded station address, tsk-tsk
+        yield self.protocol.connect(station_address=0)
+        data = yield self.protocol.upload_block(
             address_extension=ccp.AddressExtension.raw,
             address=variable.address(),
             octets=variable.fields.size * (self.bits_per_byte // 8)
         )
+        yield self.protocol.disconnect()
 
         value = variable.variable.unpack(data)
 
@@ -890,11 +867,14 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             bytes=b'\x00' * variable.fields.size * (self.bits_per_byte // 8)
         )
 
-        data = yield self.read_range(
+        # TODO: hardcoded station address, tsk-tsk
+        yield self.protocol.connect(station_address=0)
+        data = yield self.protocol.upload_block(
             address_extension=ccp.AddressExtension.raw,
             address=variable.address(),
             octets=variable.fields.size * (self.bits_per_byte // 8)
         )
+        yield self.protocol.disconnect()
 
         chunk.set_bytes(data)
         self.cache.update(update_chunk=chunk)
