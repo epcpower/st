@@ -7,7 +7,9 @@
 # Eli Bendersky (eliben@gmail.com)
 # This code is in the public domain
 #-------------------------------------------------------------------------------
-from __future__ import print_function
+import logging
+logger = logging.getLogger(__name__)
+
 import sys
 
 # If pyelftools is not installed, the example can also run from the root or
@@ -705,8 +707,8 @@ def fake_section(filename, section_name):
         size=len(debug_bytes))
 
 def process_file(filename):
-    print('Processing file:', filename)
-    print('Working directory:', os.getcwd())
+    logging.debug('Processing file:', filename)
+    logging.debug('Working directory:', os.getcwd())
 
     coff = epyqlib.ticoff.Coff()
     coff.from_file(filename)
@@ -775,7 +777,7 @@ def process_file(filename):
     #         break
     #     except elftools.common.exceptions.DWARFError:
     #         traceback.print_exc()
-    #         print('Skipping current CU')
+    #         logging.debug('Skipping current CU')
     #         next
 
         # DWARFInfo allows to iterate over the compile units contained in
@@ -783,19 +785,19 @@ def process_file(filename):
         # computed attributes (such as its offset in the section) and
         # a header which conforms to the DWARF standard. The access to
         # header elements is, as usual, via item-lookup.
-        print('  Found a compile unit at offset %s, length %s' % (
+        logging.debug('  Found a compile unit at offset %s, length %s' % (
             CU.cu_offset, CU['unit_length']))
 
         # Start with the top DIE, the root for this CU's DIE tree
         top_DIE = CU.get_top_DIE()
-        print('    Top DIE with tag=%s' % top_DIE.tag)
+        logging.debug('    Top DIE with tag=%s' % top_DIE.tag)
 
         path = top_DIE.get_full_path()
         # We're interested in the filename...
-        print('    name=%s' % path)
+        logging.debug('    name=%s' % path)
 
         if path.endswith('__TI_internal'):
-            print('__TI_internal found, terminating DWARF parsing')
+            logging.debug('__TI_internal found, terminating DWARF parsing')
             break
         else:
             # Display DIEs recursively starting with top_DIE
@@ -804,11 +806,11 @@ def process_file(filename):
 
     def die_info_rec_structure_type(die, indent_level):
         for child in die.iter_children():
-            # print(indent_level + str(child.attributes['DW_AT_name'].value.decode('utf-8')))
+            # logging.debug(indent_level + str(child.attributes['DW_AT_name'].value.decode('utf-8')))
             location = str(child.attributes['DW_AT_data_member_location'].value)
             name = str(child.attributes['DW_AT_name'].value.decode('utf-8'))
-            print(indent_level + name + ': ' + location)
-            # print(indent_level + str(child.attributes['DW_AT_name'].value.decode('utf-8')) + ': ' + str(child.attributes['DW_AT_data_member_location'].value.decode('utf-u')))
+            logging.debug(indent_level + name + ': ' + location)
+            # logging.debug(indent_level + str(child.attributes['DW_AT_name'].value.decode('utf-8')) + ': ' + str(child.attributes['DW_AT_data_member_location'].value.decode('utf-u')))
 
     # this is yucky but the embedded system is weird with two bytes
     # per address and even sizeof() responds in units of addressable units
@@ -826,7 +828,7 @@ def process_file(filename):
         )
         types.append(type)
         offsets[die.offset] = type
-        print('{: 10d} {}'.format(die.offset, type))
+        logging.debug('{: 10d} {}'.format(die.offset, type))
 
     variables = []
     for die in objects['DW_TAG_variable']:
@@ -843,7 +845,7 @@ def process_file(filename):
         )
         variables.append(variable)
         offsets[die.offset] = variable
-        print('{: 10d} {}'.format(die.offset, variable))
+        logging.debug('{: 10d} {}'.format(die.offset, variable))
 
     lo_users = []
     for die in objects['DW_TAG_lo_user']:
@@ -855,7 +857,7 @@ def process_file(filename):
         )
         lo_users.append(lo_user)
         offsets[die.offset] = lo_user
-        print('{: 10d} {}'.format(die.offset, lo_user))
+        logging.debug('{: 10d} {}'.format(die.offset, lo_user))
 
     hi_users = []
     for die in objects['DW_TAG_hi_user']:
@@ -867,7 +869,7 @@ def process_file(filename):
         )
         hi_users.append(hi_user)
         offsets[die.offset] = hi_user
-        print('{: 10d} {}'.format(die.offset, hi_user))
+        logging.debug('{: 10d} {}'.format(die.offset, hi_user))
 
     subroutine_types = []
     for die in objects['DW_TAG_subroutine_type']:
@@ -886,7 +888,7 @@ def process_file(filename):
                 parameter.attributes['DW_AT_type'].value)
         subroutine_types.append(subroutine_type)
         offsets[die.offset] = subroutine_type
-        print('{: 10d} {}'.format(die.offset, subroutine_type))
+        logging.debug('{: 10d} {}'.format(die.offset, subroutine_type))
 
     unspecified_types = []
     for die in objects['DW_TAG_unspecified_type']:
@@ -898,7 +900,7 @@ def process_file(filename):
         )
         unspecified_types.append(unspecified_type)
         offsets[die.offset] = unspecified_type
-        print('{: 10d} {}'.format(die.offset, unspecified_type))
+        logging.debug('{: 10d} {}'.format(die.offset, unspecified_type))
 
     pointer_types = []
     for die in objects['DW_TAG_pointer_type']:
@@ -911,7 +913,7 @@ def process_file(filename):
             pointer_type = PointerType(type=type)
         pointer_types.append(pointer_type)
         offsets[die.offset] = pointer_type
-        print('{: 10d} {}'.format(die.offset, pointer_type))
+        logging.debug('{: 10d} {}'.format(die.offset, pointer_type))
 
     volatile_types = []
     for die in objects['DW_TAG_volatile_type']:
@@ -924,7 +926,7 @@ def process_file(filename):
         )
         volatile_types.append(volatile_type)
         offsets[die.offset] = volatile_type
-        print('{: 10d} {}'.format(die.offset, volatile_type))
+        logging.debug('{: 10d} {}'.format(die.offset, volatile_type))
 
     array_types = []
     for die in objects['DW_TAG_array_type']:
@@ -941,7 +943,7 @@ def process_file(filename):
         )
         array_types.append(array_type)
         offsets[die.offset] = array_type
-        print('{: 10d} {}'.format(die.offset, array_type))
+        logging.debug('{: 10d} {}'.format(die.offset, array_type))
 
     const_types = []
     for die in objects['DW_TAG_const_type']:
@@ -954,7 +956,7 @@ def process_file(filename):
         )
         const_types.append(const_type)
         offsets[die.offset] = const_type
-        print('{: 10d} {}'.format(die.offset, const_type))
+        logging.debug('{: 10d} {}'.format(die.offset, const_type))
 
     restrict_types = []
     for die in objects['DW_TAG_restrict_type']:
@@ -967,7 +969,7 @@ def process_file(filename):
         )
         restrict_types.append(restrict_type)
         offsets[die.offset] = restrict_type
-        print('{: 10d} {}'.format(die.offset, restrict_type))
+        logging.debug('{: 10d} {}'.format(die.offset, restrict_type))
 
     structure_types = []
     for die in objects['DW_TAG_structure_type']:
@@ -997,8 +999,8 @@ def process_file(filename):
                 bit_offset=bit_offset,
                 bit_size=bit_size
             )
-        print(list(die.iter_children()))
-        print('{: 10d} {}'.format(die.offset, struct))
+        logging.debug(list(die.iter_children()))
+        logging.debug('{: 10d} {}'.format(die.offset, struct))
 
     union_types = []
     for die in objects['DW_TAG_union_type']:
@@ -1011,7 +1013,7 @@ def process_file(filename):
         )
         union_types.append(union)
         offsets[die.offset] = union
-        print('{: 10d} {}'.format(die.offset, union))
+        logging.debug('{: 10d} {}'.format(die.offset, union))
 
     pointer_to_member_types = []
     for die in objects['DW_TAG_ptr_to_member_type']:
@@ -1021,7 +1023,7 @@ def process_file(filename):
         pointer_to_member = PointerToMember(name=name)
         pointer_to_member_types.append(pointer_to_member)
         offsets[die.offset] = pointer_to_member
-        print('{: 10d} {}'.format(die.offset, pointer_to_member))
+        logging.debug('{: 10d} {}'.format(die.offset, pointer_to_member))
 
     enumeration_types = []
     for die in objects['DW_TAG_enumeration_type']:
@@ -1045,7 +1047,7 @@ def process_file(filename):
             )
         enumeration_types.append(enumeration)
         offsets[die.offset] = enumeration
-        print('{: 10d} {}'.format(die.offset, enumeration))
+        logging.debug('{: 10d} {}'.format(die.offset, enumeration))
     
     typedefs = []
     for die in objects['DW_TAG_typedef']:
@@ -1057,19 +1059,19 @@ def process_file(filename):
         offsets[die.offset] = typedef
 
     offset_values = sorted(offsets.keys())
-    print(len(offset_values))
-    print(offset_values)
+    logging.debug(len(offset_values))
+    logging.debug(offset_values)
     fails = 0
     for typedef in typedefs:
         offset = typedef.type[0]
         try:
             typedef.type = offsets[typedef.type[1]]
         except KeyError:
-            print('Failed to find type for {}'.format(typedef))
+            logging.debug('Failed to find type for {}'.format(typedef))
             fails += 1
         else:
-            print('{: 10d} {}'.format(offset, typedef))
-    print(fails)
+            logging.debug('{: 10d} {}'.format(offset, typedef))
+    logging.debug(fails)
 
     for structure in structure_types:
         for member in structure.members.values():
@@ -1077,7 +1079,7 @@ def process_file(filename):
 
     passes = 0
     while True:
-        print('Starting pass {}'.format(passes))
+        logging.debug('Starting pass {}'.format(passes))
         pass_again = False
         for item in subroutine_types:
             if isinstance(item.return_type, int):
@@ -1092,7 +1094,7 @@ def process_file(filename):
                     item.type = offsets[item.type]
                 except KeyError:
                     if passes >= 10:
-                        print(item)
+                        logging.debug(item)
                         raise
                     pass_again = True
 
@@ -1102,19 +1104,19 @@ def process_file(filename):
             break
 
     # for pointer_type in pointer_types:
-    #     print(pointer_type)
+    #     logging.debug(pointer_type)
     #     pointer_type.type = offsets[pointer_type.type]
-    #     print(pointer_type)
+    #     logging.debug(pointer_type)
     #
     # for array_type in array_types:
-    #     print(array_type)
+    #     logging.debug(array_type)
     #     array_type.type = offsets[array_type.type]
-    #     print(array_type)
+    #     logging.debug(array_type)
     #
     # for volatile_type in volatile_types:
-    #     print(volatile_type)
+    #     logging.debug(volatile_type)
     #     volatile_type.type = offsets[volatile_type.type]
-    #     print(volatile_type)
+    #     logging.debug(volatile_type)
 
     names = {None: []}
     for item in offsets.values():
@@ -1149,38 +1151,38 @@ def testit(names, variables):
     with open('output.txt', 'w') as f:
         for name, item in sorted(names.items(), key=nonesorter):
             i = item
-            print('{}: {}'.format(name, i), file=f)
+            logging.debug('{}: {}'.format(name, i), file=f)
 
     import operator
-    print('\n'.join(str(v) for v in sorted(variables, key=operator.attrgetter('name'))))
-    print(names['Vholdoff'].render())
-    print(names['ozFpga'].render())
-    print(names['FpgaRegs'].render())
-    print(names['writingEE'].render())
-    print(names['rxStart'].render())
-    print(dereference(names['rxStart']).render())
-    print(names['POR_Flags'].render())
-    print(names['IEEE_1547_FreqLimit'].render())
-    # print(base_type(names['IEEE_1547_FreqLimit']).format_string())
+    logging.debug('\n'.join(str(v) for v in sorted(variables, key=operator.attrgetter('name'))))
+    logging.debug(names['Vholdoff'].render())
+    logging.debug(names['ozFpga'].render())
+    logging.debug(names['FpgaRegs'].render())
+    logging.debug(names['writingEE'].render())
+    logging.debug(names['rxStart'].render())
+    logging.debug(dereference(names['rxStart']).render())
+    logging.debug(names['POR_Flags'].render())
+    logging.debug(names['IEEE_1547_FreqLimit'].render())
+    # logging.debug(base_type(names['IEEE_1547_FreqLimit']).format_string())
     a = b'\x01\x02\x03\x04'
     b = b'\x05\x06\x07\x08'
     c = a + b
-    # print(base_type(names['IEEE_1547_FreqLimit']).unpack(c))
-    print((int.from_bytes(a, byteorder='little'),
+    # logging.debug(base_type(names['IEEE_1547_FreqLimit']).unpack(c))
+    logging.debug((int.from_bytes(a, byteorder='little'),
            int.from_bytes(b, byteorder='little')))
 
 
     data = b'\x00\xd1\x01\x44\x00\x06\x00\x00\x00\x07\x00\x08\x28\x09\x00\xb0'
     # data = bytes(ccp.endianness_swap_2byte(data_raw))#b'\xd1\x00\x44\x01\x06\x00\x00\x00'
-    # print(data)
-    # print(''.join(['{:08b}'.format(b) for b in data]))
-    print(names['TestStruct'].render())
+    # logging.debug(data)
+    # logging.debug(''.join(['{:08b}'.format(b) for b in data]))
+    logging.debug(names['TestStruct'].render())
     import pprint
     pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(base_type(names['TestStruct']).padded_members())
-    # print(base_type(names['TestStruct']).format_string())
-    print(bytearray_to_bits(data))
-    pp.pprint(base_type(names['TestStruct']).unpack(data))
+    logging.debug(pp.pformat(base_type(names['TestStruct']).padded_members()))
+    # logging.debug(base_type(names['TestStruct']).format_string())
+    logging.debug(bytearray_to_bits(data))
+    logging.debug(pp.pformat(base_type(names['TestStruct']).unpack(data)))
 
     data = bytearray(data)
     for member in base_type(names['TestStruct']).padded_members():
@@ -1188,19 +1190,19 @@ def testit(names, variables):
         if member.bit_offset is None:
             byte = member.location * bits_per_byte // 8
             s = slice(byte, byte + type.bytes * bits_per_byte // 8)
-            # print('slice: {}'.format(s))
-            # print(data)
+            # logging.debug('slice: {}'.format(s))
+            # logging.debug(data)
             data[s] = ccp.endianness_swap_2byte(data[s])
-            # print(data)
+            # logging.debug(data)
 
     #                              |  |  |     |  |         |
-    pp.pprint(bitstruct.unpack('<p4>u6>u3>u3<p4>u6>u6<u32<p6>u10<u16<p2>u10<u10<u10',
-                               data))
+    logging.debug(pp.pformat(bitstruct.unpack('<p4>u6>u3>u3<p4>u6>u6<u32<p6>u10<u16<p2>u10<u10<u10',
+                               data)))
 
 
-    print('-----------------------------')
-    print('-----------------------------')
-    print('-----------------------------')
+    logging.debug('-----------------------------')
+    logging.debug('-----------------------------')
+    logging.debug('-----------------------------')
 
     data = collections.OrderedDict()
     data['TestStruct1'] = b'\x03\xFF\x00\x00'
@@ -1219,13 +1221,13 @@ def testit(names, variables):
     data['testArray1'] = b'\x00\x0B\x00\x00\x00\x16\x00\x00\x00\x21\x00\x00\x00\x2C\x00\x00\x00\x37\x00\x00'#\x00\x05\x35\x4A'
 
     for name in data.keys():#['TestStruct{}'.format(i) for i in [1,2,3,4,5,6,7,8,9,10,11]]:
-        print(names[name].render())
+        logging.debug(names[name].render())
         base = base_type(names[name])
         if hasattr(base, 'padded_members'):
-            pp.pprint(base.padded_members())
-        # print(base_type(names[name]).format_string())
-        print(bytearray_to_bits(data[name]))
-        pp.pprint(base.unpack(data[name]))
+            logging.debug(pp.pformat(base.padded_members()))
+        # logging.debug(base_type(names[name]).format_string())
+        logging.debug(bytearray_to_bits(data[name]))
+        logging.debug(pp.pformat(base.unpack(data[name])))
 
         # data = bytearray(data)
         # for member in base_type(names[name]).padded_members():
@@ -1233,99 +1235,99 @@ def testit(names, variables):
         #     if member.bit_offset is None:
         #         byte = member.location * bits_per_byte // 8
         #         s = slice(byte, byte + type.bytes * bits_per_byte // 8)
-        #         # print('slice: {}'.format(s))
-        #         # print(data)
+        #         # logging.debug('slice: {}'.format(s))
+        #         # logging.debug(data)
         #         data[s] = ccp.endianness_swap_2byte(data[s])
-        #         # print(data)
+        #         # logging.debug(data)
         #
-        # pp.pprint(bitstruct.unpack('<p2<u10<u10<u10',
-        #                            data))
-        print('\n\n-----------------------------\n\n')
+        # logging.debug(pp.pformat(bitstruct.unpack('<p2<u10<u10<u10',
+        #                            data)))
+        logging.debug('\n\n-----------------------------\n\n')
 
 
 
 
-    print('-----------------------------')
-    print('-----------------------------')
-    print('-----------------------------')
+    logging.debug('-----------------------------')
+    logging.debug('-----------------------------')
+    logging.debug('-----------------------------')
     return
 
 
-    print(names['Relay'].render())
-    # print(base_type(names['Relay']).bytes)
-    # print(base_type(names['Relay']).format_string())
+    logging.debug(names['Relay'].render())
+    # logging.debug(base_type(names['Relay']).bytes)
+    # logging.debug(base_type(names['Relay']).format_string())
     data = b'\x00\x48\x00\x00\xd5\x13\x00\x00'
-    pp.pprint(data)
+    logging.debug(pp.pformat(data))
     # data = bytes(ccp.endianness_swap_2byte(data))
     # <u2<u1<u2<u1<u1<p9<s16<u32
     # <u1<u1<u2<u1<u2<p9<s16<u32
-    # print(''.join(['{:08b}'.format(b) for b in data]))
-    # print(bitstruct.unpack('<p1<u1<u1<u2<u1<u2<p8<s16<u32', data))
-    # print(bitstruct.unpack('<u1<u2<u1<u2<u1<p9<s16<u32', data))
-    # print(bitstruct.unpack('<p9<u1<u1<u2<u1<u2<s16<u32', data))
-    # pp.pprint(base_type(names['Relay']).padded_members())
-    pp.pprint(base_type(names['Relay']).unpack(data))
+    # logging.debug(''.join(['{:08b}'.format(b) for b in data]))
+    # logging.debug(bitstruct.unpack('<p1<u1<u1<u2<u1<u2<p8<s16<u32', data))
+    # logging.debug(bitstruct.unpack('<u1<u2<u1<u2<u1<p9<s16<u32', data))
+    # logging.debug(bitstruct.unpack('<p9<u1<u1<u2<u1<u2<s16<u32', data))
+    # logging.debug(pp.pformat(base_type(names['Relay']).padded_members()))
+    logging.debug(pp.pformat(base_type(names['Relay']).unpack(data)))
 
     return
 
     indent_level = '    '
     for tag, items in objects.items():
         for die in items:
-            print('{}: {}'.format(tag, die.attributes['DW_AT_name'].value.decode('utf-8')))
+            logging.debug('{}: {}'.format(tag, die.attributes['DW_AT_name'].value.decode('utf-8')))
 
             if die.tag == 'DW_TAG_structure_type':
-                print(indent_level + 'DIE tag=%s' % die.tag)
+                logging.debug(indent_level + 'DIE tag=%s' % die.tag)
                 try:
-                    print(indent_level + '  Sibling: ' + str(
+                    logging.debug(indent_level + '  Sibling: ' + str(
                         die.attributes['DW_AT_sibling'].value))
                 except KeyError:
-                    print(indent_level + '  KeyError on DW_AT_sibling')
+                    logging.debug(indent_level + '  KeyError on DW_AT_sibling')
                     pass
-                print(indent_level + '  Offset: ' + str(die.offset))
-                print(indent_level + '  File: ' + str(
+                logging.debug(indent_level + '  Offset: ' + str(die.offset))
+                logging.debug(indent_level + '  File: ' + str(
                     die.attributes['DW_AT_decl_file'].value))
-                print(indent_level + '  Line: ' + str(
+                logging.debug(indent_level + '  Line: ' + str(
                     die.attributes['DW_AT_decl_line'].value))
-                print(indent_level + '  Attributes: ' + str(die.attributes))
-                print(indent_level + '  DIE: ' + str(dir(die)))
+                logging.debug(indent_level + '  Attributes: ' + str(die.attributes))
+                logging.debug(indent_level + '  DIE: ' + str(dir(die)))
                 die_info_rec_structure_type(die, indent_level + '    ')
             # else:
-            # print(indent_level + 'DIE tag=%s' % die.tag)
+            # logging.debug(indent_level + 'DIE tag=%s' % die.tag)
             elif die.tag == 'DW_TAG_typedef':
-                print(indent_level + 'DIE tag=%s' % die.tag)
+                logging.debug(indent_level + 'DIE tag=%s' % die.tag)
                 try:
-                    print(indent_level + '  Name: ' + str(
+                    logging.debug(indent_level + '  Name: ' + str(
                         die.attributes['DW_AT_name'].value.decode('utf-8')))
                 except KeyError:
-                    print(indent_level + '  KeyError on DW_AT_name')
+                    logging.debug(indent_level + '  KeyError on DW_AT_name')
                     pass
-                print(indent_level + '  Offset: ' + str(die.offset))
+                logging.debug(indent_level + '  Offset: ' + str(die.offset))
                 file = die.attributes.get('DW_AT_decl_file', None)
                 if file is not None:
                     file = file.value
                 else:
                     file = 'not found'
-                print(indent_level + '  File: ' + str(file))
+                logging.debug(indent_level + '  File: ' + str(file))
                 line = die.attributes.get('DW_AT_decl_line', None)
                 if line is not None:
                     line = line.value
                 else:
                     line = 'not found'
-                print(indent_level + '  Line: ' + str(line))
-                print(indent_level + '  Type: ' + str(die.attributes['DW_AT_type'].value))
-                print(indent_level + '  describe_attr_value(Type): ' +
+                logging.debug(indent_level + '  Line: ' + str(line))
+                logging.debug(indent_level + '  Type: ' + str(die.attributes['DW_AT_type'].value))
+                logging.debug(indent_level + '  describe_attr_value(Type): ' +
                       describe_attr_value(die.attributes['DW_AT_type'],
                                           die,
                                           die.cu.cu_offset))
-                print(indent_level + '  Attributes: ' + str(die.attributes))
-                print(indent_level + '  DIE: ' + str(dir(die)))
+                logging.debug(indent_level + '  Attributes: ' + str(die.attributes))
+                logging.debug(indent_level + '  DIE: ' + str(dir(die)))
             elif die.tag == 'DW_TAG_variable':
-                print(indent_level + 'DIE tag=%s' % die.tag)
+                logging.debug(indent_level + 'DIE tag=%s' % die.tag)
             else:
-                print(indent_level + 'DIE tag=%s' % die.tag)
-                print(indent_level + '  Offset: ' + str(die.offset))
+                logging.debug(indent_level + 'DIE tag=%s' % die.tag)
+                logging.debug(indent_level + '  Offset: ' + str(die.offset))
                 for attribute, value in die.attributes.items():
-                    print(indent_level + '  {}: {}'
+                    logging.debug(indent_level + '  {}: {}'
                           .format(attribute,
                                   describe_attr_value(die.attributes[attribute],
                                                       die,
@@ -1336,7 +1338,7 @@ def die_info_rec(die, indent_level='    ', objects=None):
     """ A recursive function for showing information about a DIE and its
         children.
     """
-    print(indent_level + 'DIE tag=%s, name=%s' % (die.tag, die.attributes.get('DW_AT_name', None)))
+    logging.debug(indent_level + 'DIE tag=%s, name=%s' % (die.tag, die.attributes.get('DW_AT_name', None)))
     if objects is not None and die.tag in objects.keys():
         objects[die.tag].append(die)
     child_indent = indent_level + '  '
