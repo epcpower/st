@@ -2,6 +2,9 @@
 
 # TODO: get some docstrings in here!
 
+import logging
+logger = logging.getLogger(__name__)
+
 import can
 import canmatrix.importany as importany
 import epyqlib.canneo
@@ -502,14 +505,14 @@ class Device:
             frame_signals = list(set(frame_signals) - set(nv_frame_signals))
 
         if len(frame_signals) > 0:
-            print('\n === Signals not referenced by a widget')
+            logger.warning('\n === Signals not referenced by a widget')
             for frame_signal in sorted(frame_signals):
-                print(frame_signal)
+                logger.warning(frame_signal)
 
         if len(self.dash_missing_signals) > 0:
-            print('\n === Signals referenced by a widget but not defined')
+            logger.error('\n === Signals referenced by a widget but not defined')
             undefined_signals = '\n'.join(sorted(self.dash_missing_signals))
-            print(undefined_signals)
+            logger.error(undefined_signals)
 
             box = QMessageBox()
             box.setWindowTitle("EPyQ")
