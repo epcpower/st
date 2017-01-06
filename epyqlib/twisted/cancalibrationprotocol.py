@@ -153,6 +153,9 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         self._previous_state = self._state
         self._state = new_state
 
+    def _new_deferred(self):
+        self._new_deferred()
+
     def makeConnection(self, transport):
         self._transport = transport
         logger.debug('Handler.makeConnection(): {}'.format(transport))
@@ -163,7 +166,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             raise Exception('self._active is True')
         self._active = True
 
-        self._deferred = twisted.internet.defer.Deferred()
+        self._new_deferred()
 
         if self.state is not HandlerState.idle:
             self.errback(HandlerBusy(
@@ -186,7 +189,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             raise Exception('self._active is True')
         self._active = True
 
-        self._deferred = twisted.internet.defer.Deferred()
+        self._new_deferred()
 
         if self.state is not HandlerState.connected:
             self.errback(HandlerBusy(
@@ -206,7 +209,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             raise Exception('self._active is True')
         self._active = True
 
-        self._deferred = twisted.internet.defer.Deferred()
+        self._new_deferred()
 
         if not isinstance(address_extension, AddressExtension):
             self.errback(TypeError(
@@ -237,7 +240,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             raise Exception('self._active is True')
         self._active = True
 
-        self._deferred = twisted.internet.defer.Deferred()
+        self._new_deferred()
 
         if not isinstance(section, Password):
             self.errback(InvalidSection(
@@ -261,7 +264,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             raise Exception('self._active is True')
         self._active = True
 
-        self._deferred = twisted.internet.defer.Deferred()
+        self._new_deferred()
 
         # TODO: figure out the correct way to handle endianness, especially
         #       in regard to odd-length data
@@ -295,7 +298,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             raise Exception('self._active is True')
         self._active = True
 
-        self._deferred = twisted.internet.defer.Deferred()
+        self._new_deferred()
 
         if len(data) != 6:
             self.errback(TypeError(
@@ -324,7 +327,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             raise Exception('self._active is True')
         self._active = True
 
-        self._deferred = twisted.internet.defer.Deferred()
+        self._new_deferred()
 
         if not 1 <= number_of_bytes <= 5:
             self.errback(TypeError(
@@ -354,7 +357,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             raise Exception('self._active is True')
         self._active = True
 
-        self._deferred = twisted.internet.defer.Deferred()
+        self._new_deferred()
 
         if self.state is not HandlerState.connected:
             self.errback(HandlerBusy(
@@ -381,7 +384,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             raise Exception('self._active is True')
         self._active = True
 
-        self._deferred = twisted.internet.defer.Deferred()
+        self._new_deferred()
 
         if self.state is not HandlerState.connected:
             self.errback(HandlerBusy(
