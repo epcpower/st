@@ -275,6 +275,8 @@ def main(args=None):
     app.setApplicationName('EPyQ')
 
     qt5reactor.install()
+    from twisted.internet import reactor
+    reactor.getThreadPool().start()
 
     if args is None:
         import argparse
