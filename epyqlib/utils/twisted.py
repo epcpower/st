@@ -6,3 +6,9 @@ __license__ = 'GPLv2+'
 
 def errbackhook(error):
     sys.excepthook(message=str(error))
+
+
+def detour_result(result, f, *args, **kwargs):
+    f(*args, **kwargs)
+
+    return result

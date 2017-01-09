@@ -359,6 +359,9 @@ class Progress(QObject):
 
         self.completed.emit()
 
+    def fail(self):
+        self.failed.emit()
+
     def update(self, value):
         self.average.add(value)
         self.updated.emit(value)
@@ -620,6 +623,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     def pull_log(self, csv_path):
         d = self._pull_log(csv_path)
+
+        d.addErrback(epyqlib.utils.twisted.detour_result,
+                     self.pull_log_progress.fail)
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     @twisted.internet.defer.inlineCallbacks
