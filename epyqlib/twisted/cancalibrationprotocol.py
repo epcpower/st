@@ -154,7 +154,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         self._state = new_state
 
     def _new_deferred(self):
-        self._new_deferred()
+        self._deferred = twisted.internet.defer.Deferred()
 
     def makeConnection(self, transport):
         self._transport = transport
