@@ -10,11 +10,13 @@ import epyqlib.cmemoryparser
 import epyqlib.pyqabstractitemmodel
 import epyqlib.treenode
 import epyqlib.twisted.cancalibrationprotocol as ccp
+import epyqlib.utils.twisted
 import functools
 import io
 import itertools
 import json
 import math
+import sys
 import textwrap
 import time
 import twisted.internet.defer
@@ -618,7 +620,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     def pull_log(self, csv_path):
         d = self._pull_log(csv_path)
-        d.addErrback(print)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     @twisted.internet.defer.inlineCallbacks
     def _pull_log(self, csv_path):
@@ -850,7 +852,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     def read(self, variable):
         d = self._read(variable)
-        d.addErrback(print)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     @twisted.internet.defer.inlineCallbacks
     def _read(self, variable):

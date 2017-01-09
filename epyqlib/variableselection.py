@@ -1,6 +1,7 @@
 # import epyqlib.delegates
 # import epyqlib.txrx
 import epyqlib.cmemoryparser
+import epyqlib.utils.twisted
 import io
 import os
 from PyQt5 import QtWidgets, uic
@@ -146,7 +147,7 @@ class VariableSelection(QtWidgets.QWidget):
                 filename=filename
             )
             d.addCallback(model.update_from_loaded_binary)
-            d.addErrback(print)
+            d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def update_parameters(self):
         model = self.nonproxy_model()
