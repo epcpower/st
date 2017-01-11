@@ -104,6 +104,28 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="0">
+      <widget class="Led" name="led_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>DataloggerConfigurationIsValid</string>
+       </property>
+       <property name="label_override" stdset="0">
+        <string>Configuration Is Valid</string>
+       </property>
+       <property name="label_from_enumeration" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
