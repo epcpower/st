@@ -4,7 +4,7 @@ import sys
 import time
 import traceback
 
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -50,12 +50,13 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *, mes
         sections = [separator, timeString, separator, errmsg, separator, tbinfo]
         message = '\n'.join(sections)
 
-    errorbox = QMessageBox()
+    errorbox = QtWidgets.QMessageBox()
     errorbox.setWindowTitle("EPyQ")
-    errorbox.setIcon(QMessageBox.Critical)
+    errorbox.setIcon(QtWidgets.QMessageBox.Critical)
 
     # TODO: CAMPid 980567566238416124867857834291346779
-    ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
+    ico_file = os.path.join(
+        QtCore.QFileInfo.absolutePath(QtCore.QFileInfo(__file__)), 'icon.ico')
     ico = QtGui.QIcon(ico_file)
     errorbox.setWindowIcon(ico)
 
