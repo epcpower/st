@@ -381,7 +381,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             eliot.Message.log(message=(length.to_bytes(4, 'big'), checksum.to_bytes(2, 'big')))
             packet.payload[:4] = length.to_bytes(4, 'big')
             packet.payload[4:] = checksum.to_bytes(2, 'big')
-            eliot.Message.log(packet=packet)
+            eliot.Message.log(packet=str(packet))
 
             self._send(packet=packet, state=HandlerState.building_checksum)
 
@@ -559,7 +559,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             self.state = state
 
             # TODO: create a packet field
-            eliot.Message.log(packet=packet)
+            eliot.Message.log(packet=str(packet))
             self._transport.write(packet)
 
             if count_towards_total:
@@ -567,7 +567,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                 self.messages_sent.emit(self._messages_sent)
 
             self.setTimeout(packet.command_code.timeout)
-            eliot.Message.log(message='Timeout set to {}'.format(packet.command_code.timeout))
+            eliot.Message.log(timeout=packet.command_code.timeout)
 
     def dataReceived(self, msg):
         if not (msg.arbitration_id == self._rx_id and
@@ -579,7 +579,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         with self._eliot_action.context():
             with eliot.start_action(action_type='dataReceived'):
-                eliot.Message.log(message=msg)
+                eliot.Message.log(message=str(msg))
 
                 self.setTimeout(None)
 
