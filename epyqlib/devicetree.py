@@ -3,6 +3,7 @@
 #TODO: """DocString if there is one"""
 
 import can
+import eliot as e
 import epyqlib.pyqabstractitemmodel
 import functools
 import sys
@@ -71,8 +72,10 @@ def available_buses():
                     valid.append({'interface': interface,
                                   'channel': channel})
         else:
-            print('Availability check not implemented for {}'
-                  .format(interface), file=sys.stderr)
+            e.Message.log(
+                message='Availability check not implemented',
+                interface=interface
+            )
 
     return valid
 
