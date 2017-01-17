@@ -4,7 +4,6 @@ logger = logging.getLogger(__name__)
 import attr
 import collections
 import csv
-import eliot
 import epyqlib.abstractcolumns
 import epyqlib.chunkedmemorycache as cmc
 import epyqlib.cmemoryparser
@@ -858,14 +857,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 self.unsubscribe(node=child, recurse=recurse)
 
     def read(self, variable):
-        action = eliot.start_task(action_type='Read variable')
-        with action.context():
-            d = eliot.twisted.DeferredContext(self._read(variable))
-            # ?? epyqlib.utils.twisted.errbackhook
-            d.addErrback(eliot.write_failure)
-            d.addActionFinish()
-
-            return d.result
+        d = self._read(variable)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     @twisted.internet.defer.inlineCallbacks
     def _read(self, variable):

@@ -1,7 +1,6 @@
 import logging
 import can
 import collections
-import eliot.twisted
 import enum
 import functools
 import itertools
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def logit(it):
-    eliot.Message.log(message='logit(): ({}) {}'.format(type(it), it))
+    logger.debug('logit(): ({}) {}'.format(type(it), it))
 
     if isinstance(it, twisted.python.failure.Failure):
         it.printDetailedTraceback()
@@ -58,8 +57,11 @@ def retry(function, times, acceptable=None):
             result = yield function()
         except Exception as e:
             if type(e) not in acceptable:
+                logger.debug('green')
                 raise
+            logger.debug('blue')
         else:
+            logger.debug('red')
             twisted.internet.defer.returnValue(result)
 
         remaining -= 1
@@ -141,599 +143,572 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         self.request_memory = None
 
-        self._eliot_action = None
-
     @property
     def state(self):
         return self._state
 
     @state.setter
     def state(self, new_state):
-        eliot.Message.log(message='Entering state {}'.format(new_state))
+        logger.debug('Entering state {}'.format(new_state))
         self._previous_state = self._state
         self._state = new_state
 
-    def _new_deferred(self, action):
-        self._deferred = eliot.twisted.DeferredContext(
-            twisted.internet.defer.Deferred()
-        )
-        self._deferred.addActionFinish()
-
-        self._eliot_action = action
+    def _new_deferred(self):
+        self._deferred = twisted.internet.defer.Deferred()
 
     def makeConnection(self, transport):
         self._transport = transport
-        eliot.Message.log(message='Handler.makeConnection(): {}'.format(transport))
+        logger.debug('Handler.makeConnection(): {}'.format(transport))
 
     def connect(self, station_address=1):
-        action = eliot.start_action(action_type='connect')
-        with action.context():
-            if self._active:
-                raise Exception('self._active is True')
-            self._active = True
+        logger.debug('Entering connect()')
+        if self._active:
+            raise Exception('self._active is True')
+        self._active = True
 
-            self._new_deferred(action)
+        self._new_deferred()
 
-            if self.state is not HandlerState.idle:
-                self.errback(HandlerBusy(
-                    'Connect requested while {}'.format(self.state.name)))
-                return self._deferred.result
+        if self.state is not HandlerState.idle:
+            self.errback(HandlerBusy(
+                'Connect requested while {}'.format(self.state.name)))
+            return self._deferred
 
-            packet = HostCommand(code=CommandCode.connect,
-                                 arbitration_id=self._tx_id)
-            # TODO: shouldn't be needed, just makes it agree with oz
-            #       for cleaner diff
-            packet.payload[0] = station_address
-            self._send(packet, state=HandlerState.connecting,
-                       count_towards_total=False)
+        packet = HostCommand(code=CommandCode.connect,
+                             arbitration_id=self._tx_id)
+        # TODO: shouldn't be needed, just makes it agree with oz
+        #       for cleaner diff
+        packet.payload[0] = station_address
+        self._send(packet, state=HandlerState.connecting,
+                   count_towards_total=False)
 
-            return self._deferred.result
+        return self._deferred
 
     def disconnect(self):
-        action = eliot.start_action(action_type='disconnect')
-        with action.context():
-            if self._active:
-                raise Exception('self._active is True')
-            self._active = True
+        logger.debug('Entering disconnect()')
+        if self._active:
+            raise Exception('self._active is True')
+        self._active = True
 
-            self._new_deferred(action)
+        self._new_deferred()
 
-            if self.state is not HandlerState.connected:
-                self.errback(HandlerBusy(
-                    'Disconnect requested while {}'.format(self.state.name)))
-                return self._deferred.result
+        if self.state is not HandlerState.connected:
+            self.errback(HandlerBusy(
+                'Disconnect requested while {}'.format(self.state.name)))
+            return self._deferred
 
-            packet = HostCommand(code=CommandCode.disconnect,
-                                 arbitration_id=self._tx_id)
-            self._send(packet, state=HandlerState.disconnecting)
+        packet = HostCommand(code=CommandCode.disconnect,
+                             arbitration_id=self._tx_id)
+        self._send(packet, state=HandlerState.disconnecting)
 
-            eliot.Message.log(message='disconnecting')
-            return self._deferred.result
+        logger.debug('disconnecting')
+        return self._deferred
 
     def set_mta(self, address_extension, address):
-        action = eliot.start_action(action_type='set_mta')
-        with action.context():
-            eliot.Message.log(repr=object.__repr__(self), message='hmm')
+        logger.debug('Entering set_mta()')
+        if self._active:
+            raise Exception('self._active is True')
+        self._active = True
 
-            if self._active:
-                raise Exception('self._active is True')
-            self._active = True
+        self._new_deferred()
 
-            self._new_deferred(action)
+        if not isinstance(address_extension, AddressExtension):
+            self.errback(TypeError(
+                'Expected AddressExtension, got: {}'
+                    .format(type(address_extension))
+            ))
+            return self._deferred
 
-            if not isinstance(address_extension, AddressExtension):
-                self.errback(TypeError(
-                    'Expected AddressExtension, got: {}'
-                        .format(type(address_extension))
-                ))
-                return self._deferred.result
+        if self.state is not HandlerState.connected:
+            self.errback(HandlerBusy(
+                'Set MTA requested while {}'.format(self.state.name)))
+            return self._deferred
 
-            if self.state is not HandlerState.connected:
-                self.errback(HandlerBusy(
-                    'Set MTA requested while {}'.format(self.state.name)))
-                return self._deferred.result
+        packet = HostCommand(code=CommandCode.set_mta,
+                             arbitration_id=self._tx_id)
+        # always zero for Oz bootloader
+        packet.payload[0] = 0
+        packet.payload[1] = address_extension
+        packet.payload[2:6] = address.to_bytes(4, 'big')
 
-            packet = HostCommand(code=CommandCode.set_mta,
-                                 arbitration_id=self._tx_id)
-            # always zero for Oz bootloader
-            packet.payload[0] = 0
-            packet.payload[1] = address_extension
-            packet.payload[2:6] = address.to_bytes(4, 'big')
+        self._send(packet=packet, state=HandlerState.setting_mta)
 
-            self._send(packet=packet, state=HandlerState.setting_mta)
-
-            return self._deferred.result
+        return self._deferred
 
     def unlock(self, section):
-        action = eliot.start_action(action_type='unlock')
-        with action.context():
-            if self._active:
-                raise Exception('self._active is True')
-            self._active = True
- 
-            self._new_deferred(action)
+        logger.debug('Entering unlock()')
+        if self._active:
+            raise Exception('self._active is True')
+        self._active = True
 
-            if not isinstance(section, Password):
-                self.errback(InvalidSection(
-                    'Invalid section password specified: {} - {}'.format(
-                        section.name, section.value)))
-                return self._deferred.result
+        self._new_deferred()
 
-            packet = HostCommand(code=CommandCode.unlock,
-                                 arbitration_id=self._tx_id)
-            packet.payload[0] = 2
-            packet.payload[1:3] = section.value.to_bytes(2, 'big')
+        if not isinstance(section, Password):
+            self.errback(InvalidSection(
+                'Invalid section password specified: {} - {}'.format(
+                    section.name, section.value)))
+            return self._deferred
 
-            self._send(packet=packet, state=HandlerState.unlocking)
+        packet = HostCommand(code=CommandCode.unlock,
+                             arbitration_id=self._tx_id)
+        packet.payload[0] = 2
+        packet.payload[1:3] = section.value.to_bytes(2, 'big')
 
-            return self._deferred.result
+        self._send(packet=packet, state=HandlerState.unlocking)
+
+        return self._deferred
 
     def download(self, data):
-        action = eliot.start_action(action_type='download')
-        with action.context():
-            if self._active:
-                raise Exception('self._active is True')
-            self._active = True
+        logger.debug('Entering download()')
 
-            self._new_deferred(action)
+        if self._active:
+            raise Exception('self._active is True')
+        self._active = True
 
-            # TODO: figure out the correct way to handle endianness, especially
-            #       in regard to odd-length data
-            length = len(data)
-            if length > 5 or length % 2 != 0:
-                self.errback(TypeError(
-                    'Invalid data length {}'
-                        .format(length)
-                ))
-                return self._deferred.result
+        self._new_deferred()
 
-            if self.state is not HandlerState.connected:
-                self.errback(HandlerBusy(
-                    'Download requested while {}'.format(self.state.name)))
-                return self._deferred.result
+        # TODO: figure out the correct way to handle endianness, especially
+        #       in regard to odd-length data
+        length = len(data)
+        if length > 5 or length % 2 != 0:
+            self.errback(TypeError(
+                'Invalid data length {}'
+                    .format(length)
+            ))
+            return self._deferred
 
-            packet = HostCommand(code=CommandCode.download,
-                                 arbitration_id=self._tx_id)
-            swapped_data = tuple(endianness_swap_2byte(data))
-            packet.payload[0] = len(swapped_data)
-            packet.payload[1:len(swapped_data)+1] = swapped_data
+        if self.state is not HandlerState.connected:
+            self.errback(HandlerBusy(
+                'Download requested while {}'.format(self.state.name)))
+            return self._deferred
 
-            self._send(packet=packet, state=HandlerState.downloading)
+        packet = HostCommand(code=CommandCode.download,
+                             arbitration_id=self._tx_id)
+        swapped_data = tuple(endianness_swap_2byte(data))
+        packet.payload[0] = len(swapped_data)
+        packet.payload[1:len(swapped_data)+1] = swapped_data
 
-            return self._deferred.result
+        self._send(packet=packet, state=HandlerState.downloading)
+
+        return self._deferred
 
     def download_6(self, data):
-        action = eliot.start_action(action_type='download_6')
-        with action.context():
-            if self._active:
-                raise Exception('self._active is True')
-            self._active = True
+        logger.debug('Entering download_6()')
 
-            self._new_deferred(action)
+        if self._active:
+            raise Exception('self._active is True')
+        self._active = True
 
-            if len(data) != 6:
-                self.errback(TypeError(
-                    'Invalid data length {}'
-                        .format(len(bytes))
-                ))
-                return self._deferred.result
+        self._new_deferred()
 
-            if self.state is not HandlerState.connected:
-                self.errback(HandlerBusy(
-                    'Download requested while {}'.format(self.state.name)))
-                return self._deferred.result
+        if len(data) != 6:
+            self.errback(TypeError(
+                'Invalid data length {}'
+                    .format(len(bytes))
+            ))
+            return self._deferred
 
-            packet = HostCommand(code=CommandCode.download_6,
-                                 arbitration_id=self._tx_id)
-            packet.payload[:] = endianness_swap_2byte(data)
+        if self.state is not HandlerState.connected:
+            self.errback(HandlerBusy(
+                'Download requested while {}'.format(self.state.name)))
+            return self._deferred
 
-            self._send(packet=packet, state=HandlerState.download_6ing)
+        packet = HostCommand(code=CommandCode.download_6,
+                             arbitration_id=self._tx_id)
+        packet.payload[:] = endianness_swap_2byte(data)
 
-            return self._deferred.result
+        self._send(packet=packet, state=HandlerState.download_6ing)
+
+        return self._deferred
 
     def upload(self, number_of_bytes=4):
-        action = eliot.start_action(action_type='upload')
-        with action.context():
-            if self._active:
-                raise Exception('self._active is True')
-            self._active = True
+        logger.debug('Entering upload()')
 
-            self._new_deferred(action)
+        if self._active:
+            raise Exception('self._active is True')
+        self._active = True
 
-            if not 1 <= number_of_bytes <= 5:
-                self.errback(TypeError(
-                    'Invalid byte count requested: {}'
-                        .format(number_of_bytes)
-                ))
+        self._new_deferred()
+
+        if not 1 <= number_of_bytes <= 5:
+            self.errback(TypeError(
+                'Invalid byte count requested: {}'
+                    .format(number_of_bytes)
+            ))
+        else:
+            if self.state is not HandlerState.connected:
+                self.errback(HandlerBusy(
+                    'Upload requested while {}'.format(self.state.name)))
             else:
-                if self.state is not HandlerState.connected:
-                    self.errback(HandlerBusy(
-                        'Upload requested while {}'.format(self.state.name)))
-                else:
-                    packet = HostCommand(code=CommandCode.upload,
-                                         arbitration_id=self._tx_id)
-                    packet.payload[0] = number_of_bytes
-                    self.request_memory = number_of_bytes
+                packet = HostCommand(code=CommandCode.upload,
+                                     arbitration_id=self._tx_id)
+                packet.payload[0] = number_of_bytes
+                self.request_memory = number_of_bytes
 
-                    self._send(packet=packet, state=HandlerState.uploading)
+                self._send(packet=packet, state=HandlerState.uploading)
 
-            return self._deferred.result
+        return self._deferred
 
     def build_checksum(self, checksum, length):
         # length is in bytes, not addresses
 
-        action = eliot.start_action(action_type='build_checksum')
-        with action.context():
-            if self._active:
-                raise Exception('self._active is True')
-            self._active = True
+        logger.debug('Entering build_checksum()')
 
-            self._new_deferred(action)
+        if self._active:
+            raise Exception('self._active is True')
+        self._active = True
 
-            if self.state is not HandlerState.connected:
-                self.errback(HandlerBusy(
-                    'Build checksum requested while {}'.format(self.state.name)))
-                return self._deferred.result
+        self._new_deferred()
 
-            packet = HostCommand(code=CommandCode.build_checksum,
-                                 arbitration_id=self._tx_id)
-            eliot.Message.log(message='{}, {}'.format(type(length), type(checksum)))
-            eliot.Message.log(message=(length.to_bytes(4, 'big'), checksum.to_bytes(2, 'big')))
-            packet.payload[:4] = length.to_bytes(4, 'big')
-            packet.payload[4:] = checksum.to_bytes(2, 'big')
-            eliot.Message.log(packet=packet)
+        if self.state is not HandlerState.connected:
+            self.errback(HandlerBusy(
+                'Build checksum requested while {}'.format(self.state.name)))
+            return self._deferred
 
-            self._send(packet=packet, state=HandlerState.building_checksum)
+        packet = HostCommand(code=CommandCode.build_checksum,
+                             arbitration_id=self._tx_id)
+        logger.debug('{}, {}'.format(type(length), type(checksum)))
+        logger.debug((length.to_bytes(4, 'big'), checksum.to_bytes(2, 'big')))
+        packet.payload[:4] = length.to_bytes(4, 'big')
+        packet.payload[4:] = checksum.to_bytes(2, 'big')
+        logger.debug(packet)
 
-            return self._deferred.result
+        self._send(packet=packet, state=HandlerState.building_checksum)
+
+        return self._deferred
 
     def clear_memory(self):
-        action = eliot.start_action(action_type='clear_memory')
-        with action.context():
-            length = 0xFF
+        logger.debug('Entering clear_memory()')
+        length = 0xFF
 
-            if self._active:
-                raise Exception('self._active is True')
-            self._active = True
+        if self._active:
+            raise Exception('self._active is True')
+        self._active = True
 
-            self._new_deferred(action)
+        self._new_deferred()
 
-            if self.state is not HandlerState.connected:
-                self.errback(HandlerBusy(
-                    'Clear memory requested while {}'.format(self.state.name)))
-                return self._deferred.result
+        if self.state is not HandlerState.connected:
+            self.errback(HandlerBusy(
+                'Clear memory requested while {}'.format(self.state.name)))
+            return self._deferred
 
-            packet = HostCommand(code=CommandCode.clear_memory,
-                                 arbitration_id=self._tx_id)
-            packet.payload[:4] = length.to_bytes(4, 'big')
+        packet = HostCommand(code=CommandCode.clear_memory,
+                             arbitration_id=self._tx_id)
+        packet.payload[:4] = length.to_bytes(4, 'big')
 
-            self._send(packet=packet, state=HandlerState.clearing_memory)
+        self._send(packet=packet, state=HandlerState.clearing_memory)
 
-            return self._deferred.result
+        return self._deferred
 
     def download_block(self, address_extension, address, data):
-        action = eliot.start_action(action_type='download_block')
-        with action.context():
-            # print('download_block(address_extension={}, address=0x{:08X})'.format(address_extension, address))
-            if self._active:
-                raise Exception('self._active is True')
+        logger.debug('Entering download_block()')
+        # print('download_block(address_extension={}, address=0x{:08X})'.format(address_extension, address))
+        if self._active:
+            raise Exception('self._active is True')
 
-            # self._stream_deferred = twisted.internet.defer.Deferred()
+        # self._stream_deferred = twisted.internet.defer.Deferred()
 
-            self._chunkit = chunkit(it=data, n=6)
+        self._chunkit = chunkit(it=data, n=6)
 
-            # TODO: OOP this
-            self._crc = None
-            self._crc_length = 0
-            self._download_block_counter = 0
+        # TODO: OOP this
+        self._crc = None
+        self._crc_length = 0
+        self._download_block_counter = 0
 
-            self._internal_deferred = self.set_mta(address_extension, address)
-            self._internal_deferred.addCallback(
-                lambda _, address=address, address_extension=address_extension:
-                self._download_chunk(address=address,
-                                     address_extension=address_extension))
-            # self._internal_deferred.addCallback(self._stream_deferred.callback)
-            self._internal_deferred.addErrback(logit)
+        self._internal_deferred = self.set_mta(address_extension, address)
+        self._internal_deferred.addCallback(
+            lambda _, address=address, address_extension=address_extension:
+            self._download_chunk(address=address,
+                                 address_extension=address_extension))
+        # self._internal_deferred.addCallback(self._stream_deferred.callback)
+        self._internal_deferred.addErrback(logit)
 
-            # return self._stream_deferred
-            return self._internal_deferred
+        # return self._stream_deferred
+        return self._internal_deferred
 
     def _download_chunk(self, address, address_extension):
-        action = eliot.start_action(action_type='_download_chunk')
-        with action.context():
-            try:
-                chunk = next(self._chunkit)
-            except StopIteration:
-                chunk = ()
-            else:
-                chunk = tuple(chunk)
+        logger.debug('Entering _download_chunk()')
+        try:
+            chunk = next(self._chunkit)
+        except StopIteration:
+            chunk = ()
+        else:
+            chunk = tuple(chunk)
 
-            length = len(chunk)
+        length = len(chunk)
 
-            download = None
-            if length == 6:
-                download = self.download_6
-            elif length > 0:
-                download = self.download
+        download = None
+        if length == 6:
+            download = self.download_6
+        elif length > 0:
+            download = self.download
 
-            deferred = None
+        deferred = None
 
-            if download is not None:
-                # TODO: OOP this
-                self._crc = crc(
-                    data=endianness_swap_2byte(chunk), crc=self._crc)
-                self.continuous_crc = crc(data=endianness_swap_2byte(chunk),
-                                          crc=self.continuous_crc)
-                eliot.Message.log(continuous_crc=self.continuous_crc)
-                self._crc_length += len(chunk)
+        if download is not None:
+            # TODO: OOP this
+            self._crc = crc(data=endianness_swap_2byte(chunk), crc=self._crc)
+            self.continuous_crc = crc(data=endianness_swap_2byte(chunk),
+                                      crc=self.continuous_crc)
+            logger.debug('Continuous CRC: {:04X}'.format(self.continuous_crc))
+            self._crc_length += len(chunk)
 
-                self._download_block_counter += 1
-                if self._download_block_counter >= 5:
-                    self._download_block_counter = 0
+            self._download_block_counter += 1
+            if self._download_block_counter >= 5:
+                self._download_block_counter = 0
 
-                deferred = download(data=chunk)
-                address += length / 2
-                if int(address) != address:
-                    # TODO: do this better or at least a unique exception
-                    raise Exception('ack')
-                address = int(address)
-                if self._download_block_counter == 0:
-                    deferred.addCallback(
-                        lambda _, crc=self._crc, length=self._crc_length:
-                        self.build_checksum(checksum=crc, length=length))
-                    self._crc = None
-                    self._crc_length = 0
-                    deferred.addCallback(
-                        lambda _, address=address,
-                               address_extension=address_extension:
-                        self.set_mta(address=address,
-                                     address_extension=address_extension)
-                    )
-                # TODO: this just doesn't feel like good structure
-                if download is not self.download:
-                    deferred.addCallback(
-                        lambda _, address=address,
-                               address_extension=address_extension:
-                        self._download_chunk(address=address,
-                                     address_extension=address_extension)
-                    )
-            else:
-                eliot.Message.log(our_crc=self._crc, their_crc=self._crc)
-                # l = lambda _: self._internal_deferred.callback(
-                #         'Done downloading stream')
-                if self._crc is not None:
-                    deferred = self.build_checksum(checksum=self._crc,
-                                                   length=self._crc_length)
-                #     deferred.addCallback(l)
-                # else:
-                #     l()
+            deferred = download(data=chunk)
+            address += length / 2
+            if int(address) != address:
+                # TODO: do this better or at least a unique exception
+                raise Exception('ack')
+            address = int(address)
+            if self._download_block_counter == 0:
+                deferred.addCallback(
+                    lambda _, crc=self._crc, length=self._crc_length:
+                    self.build_checksum(checksum=crc, length=length))
+                self._crc = None
+                self._crc_length = 0
+                deferred.addCallback(
+                    lambda _, address=address,
+                           address_extension=address_extension:
+                    self.set_mta(address=address,
+                                 address_extension=address_extension)
+                )
+            # TODO: this just doesn't feel like good structure
+            if download is not self.download:
+                deferred.addCallback(
+                    lambda _, address=address,
+                           address_extension=address_extension:
+                    self._download_chunk(address=address,
+                                 address_extension=address_extension)
+                )
+        else:
+            logger.debug('crc: {} {}'.format(type(self._crc), self._crc))
+            # l = lambda _: self._internal_deferred.callback(
+            #         'Done downloading stream')
+            if self._crc is not None:
+                deferred = self.build_checksum(checksum=self._crc,
+                                               length=self._crc_length)
+            #     deferred.addCallback(l)
+            # else:
+            #     l()
 
-            if deferred is not None:
-                deferred.addErrback(logit)#self._stream_deferred.errback)
-            else:
-                deferred = twisted.internet.defer.Deferred()
-                deferred.callback(None)
+        if deferred is not None:
+            deferred.addErrback(logit)#self._stream_deferred.errback)
+        else:
+            deferred = twisted.internet.defer.Deferred()
+            deferred.callback(None)
 
-            return deferred
+        return deferred
 
-                # # TODO: this smells...  really bad
-            # deferred.callback('Oh so smelly...')
-            # return self._internal_deferred
+            # # TODO: this smells...  really bad
+        # deferred.callback('Oh so smelly...')
+        # return self._internal_deferred
 
     @twisted.internet.defer.inlineCallbacks
     def upload_block(self, address_extension, address, octets, progress=None):
-        with eliot.start_action(action_type='upload_block'):
-            yield self.set_mta(
-                address=address,
-                address_extension=address_extension
-            )
+        yield self.set_mta(
+            address=address,
+            address_extension=address_extension
+        )
 
-            data = bytearray()
+        data = bytearray()
 
-            remaining = octets
-            update_period = octets // 100  # 1%
-            since_update = 0
-            while remaining > 0:
-                number_of_bytes = min(5, remaining)
-                block = yield self.upload(number_of_bytes=number_of_bytes)
-                remaining -= number_of_bytes
+        remaining = octets
+        update_period = octets // 100  # 1%
+        since_update = 0
+        while remaining > 0:
+            number_of_bytes = min(5, remaining)
+            block = yield self.upload(number_of_bytes=number_of_bytes)
+            remaining -= number_of_bytes
 
-                if progress is not None:
-                    since_update += number_of_bytes
-                    if since_update >= update_period:
-                        progress.update(octets - remaining)
-                        since_update = 0
-                data.extend(block)
+            if progress is not None:
+                since_update += number_of_bytes
+                if since_update >= update_period:
+                    progress.update(octets - remaining)
+                    since_update = 0
+            data.extend(block)
 
         twisted.internet.defer.returnValue(data)
 
     def _send(self, packet, state, count_towards_total=True):
-        with eliot.start_action(action_type='_send'):
-            if self._send_counter < 255:
-                self._send_counter += 1
-            else:
-                self._send_counter = 0
+        if self._send_counter < 255:
+            self._send_counter += 1
+        else:
+            self._send_counter = 0
 
-            packet.command_counter = self._send_counter
+        packet.command_counter = self._send_counter
 
-            self.state = state
+        self.state = state
 
-            # TODO: create a packet field
-            eliot.Message.log(packet=packet)
-            self._transport.write(packet)
+        logger.debug('Message to be sent: {}'.format(packet))
+        self._transport.write(packet)
 
-            if count_towards_total:
-                self._messages_sent += 1
-                self.messages_sent.emit(self._messages_sent)
+        if count_towards_total:
+            self._messages_sent += 1
+            self.messages_sent.emit(self._messages_sent)
 
-            self.setTimeout(packet.command_code.timeout)
-            eliot.Message.log(message='Timeout set to {}'.format(packet.command_code.timeout))
+        self.setTimeout(packet.command_code.timeout)
+        logger.debug('Timeout set to {}'.format(packet.command_code.timeout))
 
     def dataReceived(self, msg):
+        logger.debug('Message received: {}'.format(msg))
         if not (msg.arbitration_id == self._rx_id and
-                        bool(msg.id_type) == self._extended):
+                    bool(msg.id_type) == self._extended):
             return
 
         if not self._active:
             return
 
-        with self._eliot_action.context():
-            with eliot.start_action(action_type='dataReceived'):
-                eliot.Message.log(message=msg)
+        self.setTimeout(None)
 
-                self.setTimeout(None)
+        packet = Packet.from_message(message=msg)
 
-                packet = Packet.from_message(message=msg)
+        if not isinstance(packet, BootloaderReply):
+            self.errback(UnexpectedMessageReceived(
+                'Not a bootloader reply: {}'.format(packet)))
+            return
 
-                if not isinstance(packet, BootloaderReply):
-                    self.errback(UnexpectedMessageReceived(
-                        'Not a bootloader reply: {}'.format(packet)))
-                    return
+        if self.state not in [HandlerState.connecting, HandlerState.connected]:
+            if packet.command_counter != self._send_counter:
+                self.errback(UnexpectedMessageReceived(
+                    'Reply out of sequence: expected {} but got {} - {}'
+                        .format(self._send_counter, packet.command_counter,
+                                packet)))
+                return
 
-                if self.state not in [HandlerState.connecting, HandlerState.connected]:
-                    if packet.command_counter != self._send_counter:
-                        self.errback(UnexpectedMessageReceived(
-                            'Reply out of sequence: expected {} but got {} - {}'
-                                .format(self._send_counter, packet.command_counter,
-                                        packet)))
-                        return
+        logger.debug('packet received: {}'.format(packet.command_return_code.name))
 
-                eliot.Message.log(command_return_code=packet.command_return_code.name)
+        if self.state is HandlerState.connected:
+            logger.debug('Unexpected message received in state connected: {}'
+                         .format(packet))
+        elif self.state is HandlerState.connecting:
+            if packet.command_return_code is not CommandStatus.acknowledge:
+                self.errback(UnexpectedMessageReceived(
+                    'Bootloader should ack when trying to connect, instead: {}'
+                        .format(packet)))
+                return
 
-                if self.state is HandlerState.connected:
-                    eliot.Message.log(unexpected_message=packet)
-                elif self.state is HandlerState.connecting:
-                    if packet.command_return_code is not CommandStatus.acknowledge:
-                        self.errback(UnexpectedMessageReceived(
-                            'Bootloader should ack when trying to connect, instead: {}'
-                                .format(packet)))
-                        return
+            logger.debug('Bootloader version: {major}.{minor}'.format(
+                major=packet.payload[0],
+                minor=packet.payload[1]
+            ))
 
-                    eliot.Message.log(bootloader_major=packet.payload[0], bootloader_minor=packet.payload[1])
+            dsp_code = (int(packet.payload[2]) << 8) + int(packet.payload[3])
 
-                    dsp_code = (int(packet.payload[2]) << 8) + int(packet.payload[3])
+            try:
+                dsp_code = DspCode(dsp_code)
+            except ValueError:
+                pass
+            else:
+                logger.debug('DSP Part ID: {}'.format(dsp_code.name))
 
-                    try:
-                        dsp_code = DspCode(dsp_code)
-                    except ValueError:
-                        pass
-                    else:
-                        eliot.Message.log(dsp_part_id=dsp_code.name)
+            self.state = HandlerState.connected
+            self.callback('successfully connected')
+        elif self.state is HandlerState.disconnecting:
+            if packet.command_return_code is not CommandStatus.acknowledge:
+                self.errback(UnexpectedMessageReceived(
+                    'Bootloader should ack when trying to disconnect, instead: {}'
+                        .format(packet)))
+                return
 
-                    self.state = HandlerState.connected
-                    self.callback('successfully connected')
-                elif self.state is HandlerState.disconnecting:
-                    if packet.command_return_code is not CommandStatus.acknowledge:
-                        self.errback(UnexpectedMessageReceived(
-                            'Bootloader should ack when trying to disconnect, instead: {}'
-                                .format(packet)))
-                        return
+            self.state = HandlerState.idle
+            self.callback('successfully disconnected')
+        elif self.state is HandlerState.setting_mta:
+            if packet.command_return_code is not CommandStatus.acknowledge:
+                self.errback(UnexpectedMessageReceived(
+                    'Bootloader should ack when trying to set MTA, instead: {}'
+                        .format(packet)))
+                return
 
-                    self.state = HandlerState.idle
-                    self.callback('successfully disconnected')
-                elif self.state is HandlerState.setting_mta:
-                    if packet.command_return_code is not CommandStatus.acknowledge:
-                        self.errback(UnexpectedMessageReceived(
-                            'Bootloader should ack when trying to set MTA, instead: {}'
-                                .format(packet)))
-                        return
+            self.state = HandlerState.connected
+            self.callback('successfully set MTA')
+        elif self.state is HandlerState.downloading:
+            if packet.command_return_code is not CommandStatus.acknowledge:
+                self.errback(UnexpectedMessageReceived(
+                    'Bootloader should ack when trying to download, instead: {} - {}'
+                        .format(packet.command_return_code.name, packet)))
+                return
 
-                    self.state = HandlerState.connected
-                    self.callback('successfully set MTA')
-                elif self.state is HandlerState.downloading:
-                    if packet.command_return_code is not CommandStatus.acknowledge:
-                        self.errback(UnexpectedMessageReceived(
-                            'Bootloader should ack when trying to download, instead: {} - {}'
-                                .format(packet.command_return_code.name, packet)))
-                        return
+            self.state = HandlerState.connected
+            self.callback('successfully downloaded')
+        elif self.state is HandlerState.download_6ing:
+            if packet.command_return_code is not CommandStatus.acknowledge:
+                self.errback(UnexpectedMessageReceived(
+                    'Bootloader should ack when trying to download_6, instead: {}'
+                        .format(packet)))
+                return
 
-                    self.state = HandlerState.connected
-                    self.callback('successfully downloaded')
-                elif self.state is HandlerState.download_6ing:
-                    if packet.command_return_code is not CommandStatus.acknowledge:
-                        self.errback(UnexpectedMessageReceived(
-                            'Bootloader should ack when trying to download_6, instead: {}'
-                                .format(packet)))
-                        return
+            self.state = HandlerState.connected
+            self.callback('successfully download_6ed')
+        elif self.state is HandlerState.unlocking:
+            if packet.command_return_code is not CommandStatus.acknowledge:
+                self.errback(UnexpectedMessageReceived(
+                    'Bootloader should ack when trying to unlock, instead: {}'
+                        .format(packet)))
+                return
 
-                    self.state = HandlerState.connected
-                    self.callback('successfully download_6ed')
-                elif self.state is HandlerState.unlocking:
-                    if packet.command_return_code is not CommandStatus.acknowledge:
-                        self.errback(UnexpectedMessageReceived(
-                            'Bootloader should ack when trying to unlock, instead: {}'
-                                .format(packet)))
-                        return
+            self.state = HandlerState.connected
+            self.callback('successfully unlocked {}'.format(packet.payload[1]))
+        elif self.state is HandlerState.building_checksum:
+            if packet.command_return_code is not CommandStatus.acknowledge:
+                self.errback(UnexpectedMessageReceived(
+                    'Bootloader should ack when trying to build checksum, instead: {}'
+                        .format(packet)))
+                return
 
-                    self.state = HandlerState.connected
-                    self.callback('successfully unlocked {}'.format(packet.payload[1]))
-                elif self.state is HandlerState.building_checksum:
-                    if packet.command_return_code is not CommandStatus.acknowledge:
-                        self.errback(UnexpectedMessageReceived(
-                            'Bootloader should ack when trying to build checksum, instead: {}'
-                                .format(packet)))
-                        return
+            # TODO: consider verifying returned CRC data beyond just
+            #       accepting the embedded side's decision to ack
 
-                    # TODO: consider verifying returned CRC data beyond just
-                    #       accepting the embedded side's decision to ack
+            self.state = HandlerState.connected
+            self.callback('successfully unlocked {}'.format(packet.payload[1]))
+        elif self.state is HandlerState.clearing_memory:
+            if packet.command_return_code is not CommandStatus.acknowledge:
+                self.errback(UnexpectedMessageReceived(
+                    'Bootloader should ack when trying to clear memory, instead: {} {}'
+                        .format(packet.command_return_code.name, packet)))
+                return
 
-                    self.state = HandlerState.connected
-                    self.callback('successfully unlocked {}'.format(packet.payload[1]))
-                elif self.state is HandlerState.clearing_memory:
-                    if packet.command_return_code is not CommandStatus.acknowledge:
-                        self.errback(UnexpectedMessageReceived(
-                            'Bootloader should ack when trying to clear memory, instead: {} {}'
-                                .format(packet.command_return_code.name, packet)))
-                        return
+            self.state = HandlerState.connected
+            self.callback('successfully unlocked {}'.format(packet.payload[1]))
+        elif self.state is HandlerState.uploading:
+            if packet.command_return_code is not CommandStatus.acknowledge:
+                self.errback(UnexpectedMessageReceived(
+                    'Module should ack when trying to upload, instead: {} {}'
+                        .format(packet.command_return_code.name, packet)))
+                return
 
-                    self.state = HandlerState.connected
-                    self.callback('successfully unlocked {}'.format(packet.payload[1]))
-                elif self.state is HandlerState.uploading:
-                    if packet.command_return_code is not CommandStatus.acknowledge:
-                        self.errback(UnexpectedMessageReceived(
-                            'Module should ack when trying to upload, instead: {} {}'
-                                .format(packet.command_return_code.name, packet)))
-                        return
-
-                    self.state = HandlerState.connected
-                    number_of_bytes = self.request_memory
-                    self.callback(packet.payload[0:number_of_bytes])
-                else:
-                    self.errback(HandlerUnknownState(
-                        'Handler in unknown state: {}'.format(self.state)))
-                    return
+            self.state = HandlerState.connected
+            number_of_bytes = self.request_memory
+            self.callback(packet.payload[0:number_of_bytes])
+        else:
+            self.errback(HandlerUnknownState(
+                'Handler in unknown state: {}'.format(self.state)))
+            return
 
     def timeoutConnection(self):
         message = 'Handler timed out while in state: {}'.format(self.state)
+        logger.debug(message)
         self._active = False
-        eliot.Message.log(message='timeout', deferred=str(self._deferred))
         if self._previous_state in [HandlerState.idle]:
             self.state = self._previous_state
-        self._eliot_action.finish()
-        self._eliot_action = None
-        self._deferred.result.errback(RequestTimeoutError(message))
+        self._deferred.errback(RequestTimeoutError(message))
 
     def callback(self, payload):
         self._active = False
-        eliot.Message.log(repr=object.__repr__(self), message='calling back', deferred=str(self._deferred.result))
-        self._eliot_action.finish()
-        self._eliot_action = None
-        self._deferred.result.callback(payload)
+        logger.debug('calling back for {}'.format(self._deferred))
+        self._deferred.callback(payload)
 
     def errback(self, payload):
         self._active = False
-        eliot.Message.log(message='erring back', deferred=str(self._deferred.result), payload=str(payload))
-        self._eliot_action.finish()
-        self._eliot_action = None
-        self._deferred.result.errback(payload)
+        logger.debug('erring back for {}'.format(self._deferred))
+        logger.debug('with payload {}'.format(payload))
+        self._deferred.errback(payload)
 
     def cancel(self):
         self._active = False
-        eliot.Message.log(message='cancelling', deferred=str(self._deferred.result))
         self.setTimeout(None)
-        self._eliot_action.finish()
-        self._eliot_action = None
-        self._deferred.result.cancel()
+        self._deferred.cancel()
 
 
 def crc(data, crc=None):
@@ -1115,7 +1090,7 @@ if __name__ == '__main__':
     import traceback
 
     def excepthook(excType, excValue, tracebackobj):
-        eliot.Message.log(message='Uncaught exception hooked')
+        logger.debug('Uncaught exception hooked:')
         traceback.print_exception(excType, excValue, tracebackobj)
 
     sys.excepthook = excepthook
