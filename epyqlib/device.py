@@ -101,14 +101,7 @@ class Device:
         if self.bus is not None:
             self.bus.set_bus()
 
-    def _init_from_file(self, file, bus=None, elements=None,
-                        tabs=None, rx_interval=0, edit_actions=None,
-                        only_for_files=False):
-        if elements is None:
-            elements = set(Elements)
-        if tabs is None:
-            tabs = Tabs.defaults()
-
+    def _init_from_file(self, file, only_for_files=False, **kwargs):
         try:
             zip_file = zipfile.ZipFile(file)
         except zipfile.BadZipFile:
@@ -118,32 +111,29 @@ class Device:
             except TypeError:
                 return
             else:
-                self._load_config(file=file, bus=bus, elements=elements,
-                                  tabs=tabs, rx_interval=rx_interval,
-                                  edit_actions=edit_actions,
-                                  only_for_files=only_for_files)
+                self._load_config(file=file, only_for_files=only_for_files,
+                                  **kwargs)
         else:
-            self._init_from_zip(zip_file, bus=bus, elements=elements,
-                                tabs=tabs, rx_interval=rx_interval,
-                                edit_actions=edit_actions)
+            self._init_from_zip(zip_file, **kwargs)
 
-    def _load_config(self, file, bus=None, elements=None,
+    def _load_config(self, file, elements=None,
                      tabs=None, rx_interval=0, edit_actions=None,
-                     only_for_files=False):
+                     only_for_files=False, **kwargs):
         if tabs is None:
             tabs = Tabs.defaults()
 
-        if elements is None:
-            elements = set(Elements)
-            if Tabs.txrx not in tabs:
-                self.elements.discard(Elements.tx)
-                self.elements.discard(Elements.rx)
+        self.elements = Elements if elements == None else elements
 
-            if Tabs.variables not in tabs:
-                self.elements.discard(Elements.variables)
+        self.elements = set(Elements)
+        if Tabs.txrx not in tabs:
+            self.elements.discard(Elements.tx)
+            self.elements.discard(Elements.rx)
 
-            if Tabs.nv not in tabs:
-                self.elements.discard(Elements.nv)
+        if Tabs.variables not in tabs:
+            self.elements.discard(Elements.variables)
+
+        if Tabs.nv not in tabs:
+            self.elements.discard(Elements.nv)
 
         s = file.read()
         d = json.loads(s, object_pairs_hook=OrderedDict)
@@ -192,7 +182,6 @@ class Device:
 
         self.can_path = os.path.join(path, d['can_path'])
 
-        self.bus = BusProxy(bus=bus)
         self.node_id_type = d.get('node_id_type',
                                   next(iter(node_id_types))).lower()
         self.node_id = int(d.get('node_id', 0))
@@ -215,18 +204,12 @@ class Device:
                 uis=self.ui_paths,
                 serial_number=d.get('serial_number', ''),
                 name=d.get('name', ''),
-                elements=elements,
                 tabs=tabs,
                 rx_interval=rx_interval,
-                edit_actions=edit_actions)
+                edit_actions=edit_actions,
+                **kwargs)
 
-    def _init_from_zip(self, zip_file, bus=None, elements=None,
-                       tabs=None, rx_interval=0, edit_actions=None):
-        if elements is None:
-            elements = set(Elements)
-        if tabs is None:
-            tabs = Tabs.defaults()
-
+    def _init_from_zip(self, zip_file, rx_interval=0, **kwargs):
         path = tempfile.mkdtemp()
         zip_file.extractall(path=path)
         # TODO error dialog if no .epc found in zip file
@@ -235,20 +218,16 @@ class Device:
                 file = os.path.join(path, f)
         self.config_path = os.path.abspath(file)
         with open(file, 'r') as file:
-            self._load_config(file, bus=bus, elements=elements, tabs=tabs,
-                              rx_interval=rx_interval, edit_actions=edit_actions)
+            self._load_config(file, rx_interval=rx_interval, **kwargs)
 
         shutil.rmtree(path)
 
     def _init_from_parameters(self, uis, serial_number, name, bus=None,
-                              elements=None, tabs=None,
-                              rx_interval=0, edit_actions=None):
-        self.elements = set(Elements) if elements == None else set(elements)
+                              tabs=None, rx_interval=0, edit_actions=None):
         if tabs is None:
             tabs = Tabs.defaults()
 
-        if not hasattr(self, 'bus'):
-            self.bus = BusProxy(bus=bus)
+        self.bus = BusProxy(bus=bus)
 
         self.rx_interval = rx_interval
         self.serial_number = serial_number
