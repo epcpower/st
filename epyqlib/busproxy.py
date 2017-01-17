@@ -159,7 +159,9 @@ class BusProxy(QObject):
         if isinstance(self.bus, can.BusABC):
             self.notifier.moveToThread(None)
         else:
-            self.notifier.moveToThread(QApplication.instance().thread())
+            app = QApplication.instance()
+            if app is not None:
+                self.notifier.moveToThread(app.thread())
 
     def reset(self):
         if self.bus is not None:
