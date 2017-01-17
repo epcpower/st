@@ -58,7 +58,12 @@ def load_device(bus=None, file=None):
         if file is None:
             return
 
-    return epyqlib.device.Device(file=file, bus=bus)
+    try:
+        return epyqlib.device.Device(file=file, bus=bus)
+    except epyqlib.device.CancelError:
+        pass
+
+    return
 
 
 class DeviceTreeView(QtWidgets.QWidget):

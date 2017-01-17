@@ -34,11 +34,15 @@ from epyqlib.widgets.abstractwidget import AbstractWidget
 from PyQt5 import uic
 from PyQt5.QtCore import (pyqtSlot, Qt, QFile, QFileInfo, QTextStream, QObject,
                           QSortFilterProxyModel)
-from PyQt5.QtWidgets import QWidget, QMessageBox
+from PyQt5.QtWidgets import QWidget, QMessageBox, QInputDialog, QLineEdit
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
+
+
+class CancelError(Exception):
+    pass
 
 
 @unique
@@ -211,7 +215,25 @@ class Device:
 
     def _init_from_zip(self, zip_file, rx_interval=0, **kwargs):
         path = tempfile.mkdtemp()
-        zip_file.extractall(path=path)
+
+        password = None
+        while True:
+            try:
+                zip_file.extractall(path=path, pwd=password)
+            except RuntimeError:
+                password, ok = QInputDialog.getText(
+                    None,
+                    '.epz Password',
+                    '.epz Password',
+                    QLineEdit.Password)
+
+                if not ok:
+                    raise CancelError('User canceled password dialog')
+
+                password = password.encode('ascii')
+            else:
+                break
+
         # TODO error dialog if no .epc found in zip file
         for f in os.listdir(path):
             if f.endswith(".epc"):
