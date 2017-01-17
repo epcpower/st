@@ -13,13 +13,6 @@ log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', bufferi
 import logging
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 
-import eliot
-eliot.to_file(open('epyq.eliot.log', 'wb'))
-
-class EliotHandler(logging.Handler):
-    def emit(self, record):
-        return eliot.Message.log(message=self.format(record))
-
 if sys.stdout is None:
     sys.stdout = log
 else:
@@ -223,10 +216,8 @@ def main(args=None):
         parser.add_argument('--verbose', '-v', action='count', default=0)
         args = parser.parse_args()
 
-    logger = logging.getLogger(__name__)
-    logging.getLogger().addHandler(EliotHandler())
-
     if args.verbose >= 1:
+        logger = logging.getLogger(__name__)
         logger.setLevel(logging.DEBUG)
 
     if args.verbose >= 2:
