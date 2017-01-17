@@ -203,8 +203,6 @@ def main(args=None):
     app.setApplicationName('EPyQ')
 
     qt5reactor.install()
-    from twisted.internet import reactor
-    reactor.getThreadPool().start()
 
     if args is None:
         import argparse
@@ -229,7 +227,19 @@ def main(args=None):
     window = Window(ui_file=args.ui)
 
     window.show()
+    from twisted.internet import reactor
+    reactor.getThreadPool().start()
+
+    # TODO: reactor.run() would avoid the need for thread pool starting
+    #       and stopping but it acts differently.  Let's see if we can
+    #       get a response.
+    #
+    #       https://github.com/sunu/qt5reactor/issues/12
+
+    # result = reactor.run()
     result = app.exec()
+    reactor._stopThreadPool()
+
     return result
 
 
