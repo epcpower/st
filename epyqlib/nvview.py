@@ -72,7 +72,8 @@ class NvView(QtWidgets.QWidget):
 
         self.ui.tree_view.setItemDelegateForColumn(
             epyqlib.nv.Columns.indexes.value,
-            epyqlib.delegates.Combo(model=model, parent=self))
+            epyqlib.delegates.ByFunction(model=model, parent=self)
+        )
 
     @pyqtSlot(str)
     def set_status_string(self, string):

@@ -3,74 +3,74 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import QMouseEvent
 
 
-class Combo(QtWidgets.QStyledItemDelegate):
-    def __init__(self, model, parent):
+def default(node):
+    if hasattr(node, 'enumeration_strings'):
+        if len(node.enumeration_strings()) > 0:
+            return create_combo, None
+
+    return None, None
+
+
+class ByFunction(QtWidgets.QStyledItemDelegate):
+    def __init__(self, model, parent, function=default):
         QtWidgets.QStyledItemDelegate.__init__(self, parent=parent)
 
         self.model = model
+        self.function = function
 
     def createEditor(self, parent, option, index):
         # TODO: way too particular
         node = self.model.node_from_index(index)
 
-        try:
-            items = node.enumeration_strings()
-        except AttributeError:
-            pass
+        creator, modifier = self.function(node=node)
+
+        if creator is None:
+            widget = QtWidgets.QStyledItemDelegate.createEditor(
+                self, parent, option, index)
         else:
-            if len(items) > 0:
-                combo = QtWidgets.QComboBox(parent=parent)
+            widget = creator(index=index, node=node, parent=parent)
+            widget.currentIndexChanged.connect(self.current_index_changed)
 
-                # TODO: use the userdata to make it easier to get in and out
-                combo.addItems(items)
+        if modifier is not None:
+            modifier(widget=widget)
 
-                present_string = str(node.fields[index.column()])
-                index = combo.findText(present_string)
-                if index == -1:
-                    combo.setCurrentIndex(0)
-                else:
-                    combo.setCurrentIndex(index)
-
-                combo.currentIndexChanged.connect(self.current_index_changed)
-                event = QMouseEvent(QEvent.MouseButtonPress,
-                                    QPoint(),
-                                    Qt.LeftButton,
-                                    Qt.LeftButton,
-                                    Qt.NoModifier)
-                QCoreApplication.postEvent(combo, event)
-
-                return combo
-
-        return QtWidgets.QStyledItemDelegate.createEditor(
-            self, parent, option, index)
+        return widget
 
     @pyqtSlot()
     def current_index_changed(self):
         self.commitData.emit(self.sender())
 
 
-class Button(QtWidgets.QStyledItemDelegate):
-    def __init__(self, model, parent):
-        QtWidgets.QStyledItemDelegate.__init__(self, parent=parent)
+def create_combo(index, node, parent):
+    widget = QtWidgets.QComboBox(parent=parent)
 
-        self.model = model
+    # TODO: use the userdata to make it easier to get in and out
+    widget.addItems(node.enumeration_strings())
 
-    def createEditor(self, parent, option, index):
-        # TODO: way too particular
-        node = self.model.node_from_index(index)
+    present_string = str(node.fields[index.column()])
+    index = widget.findText(present_string)
+    if index == -1:
+        widget.setCurrentIndex(0)
+    else:
+        widget.setCurrentIndex(index)
 
-        try:
-            text = node.button_text(index.column())
-        except AttributeError:
-            pass
-        else:
-            button = QtWidgets.QPushButton(parent=parent)
-            button.setText(text)
-            return button
+    event = QMouseEvent(QEvent.MouseButtonPress,
+                        QPoint(),
+                        Qt.LeftButton,
+                        Qt.LeftButton,
+                        Qt.NoModifier)
+    QCoreApplication.postEvent(widget, event)
 
-        return QtWidgets.QStyledItemDelegate.createEditor(
-            self, parent, option, index)
+    return widget
 
-    @pyqtSlot()
-    def current_index_changed(self):
-        self.commitData.emit(self.sender())
+
+def create_button(index, node, parent):
+    text = node.button_text(index.column())
+    widget = QtWidgets.QPushButton(parent=parent)
+    widget.setText(text)
+
+    return widget
+
+
+def modify_password(widget):
+    widget.setEchoMode(QtWidgets.QLineEdit.Password)

@@ -293,7 +293,8 @@ class DeviceTreeView(QtWidgets.QWidget):
 
         self.ui.tree_view.setItemDelegateForColumn(
             epyqlib.devicetree.Columns.indexes.bitrate,
-            epyqlib.delegates.Combo(model=model, parent=self))
+            epyqlib.delegates.ByFunction(model=model, parent=self)
+        )
 
         self.ui.tree_view.selectionModel().currentChanged.connect(
             self._current_changed)
