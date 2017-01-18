@@ -50,6 +50,11 @@ class PyQAbstractItemModel(QAbstractItemModel):
     def data_display(self, index):
         node = index.internalPointer()
 
+        # TODO: maybe do this in the signal itself?
+        if hasattr(node, 'secret') and hasattr(node.fields, 'value'):
+            if node.secret and index.column() == node.fields.indexes.value:
+                return '<secret>'
+
         try:
             return node.fields[index.column()]
         except IndexError:

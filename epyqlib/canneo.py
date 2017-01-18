@@ -84,6 +84,9 @@ class Signal(QObject):
                                       'format': '[{v}] {s}',
                                       'no_value_format': '{s}'}
 
+        # TODO: make this configurable in the .sym?
+        self.secret = self.name == 'FactoryAccess'
+
         if connect is not None:
             self.connect(connect)
 

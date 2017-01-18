@@ -8,6 +8,10 @@ def default(node):
         if len(node.enumeration_strings()) > 0:
             return create_combo, None
 
+    if hasattr(node, 'secret'):
+        if node.secret:
+            return None, modify_password
+
     return None, None
 
 

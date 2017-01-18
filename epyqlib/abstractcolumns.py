@@ -61,13 +61,6 @@ class AbstractColumns:
             index += len(self)
         return setattr(self, self.index_from_attribute(index), value)
 
-    def __getattr__(self, name, value):
-        if name in self._members:
-            object.__getattr__(self, name, value)
-        else:
-            raise TypeError("Attempted to get attribute {}"
-                            .format(name))
-
     def __setattr__(self, name, value):
         if name in self._members:
             object.__setattr__(self, name, value)
