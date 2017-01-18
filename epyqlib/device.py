@@ -127,17 +127,7 @@ class Device:
             tabs = Tabs.defaults()
 
         self.elements = Elements if elements == None else elements
-
         self.elements = set(Elements)
-        if Tabs.txrx not in tabs:
-            self.elements.discard(Elements.tx)
-            self.elements.discard(Elements.rx)
-
-        if Tabs.variables not in tabs:
-            self.elements.discard(Elements.variables)
-
-        if Tabs.nv not in tabs:
-            self.elements.discard(Elements.nv)
 
         s = file.read()
         d = json.loads(s, object_pairs_hook=OrderedDict)
@@ -176,6 +166,16 @@ class Device:
                     tabs.add(tab)
                 else:
                     tabs.discard(tab)
+
+        if Tabs.txrx not in tabs:
+            self.elements.discard(Elements.tx)
+            self.elements.discard(Elements.rx)
+
+        if Tabs.variables not in tabs:
+            self.elements.discard(Elements.variables)
+
+        if Tabs.nv not in tabs:
+            self.elements.discard(Elements.nv)
 
         self.ui_paths = OrderedDict()
         try:
