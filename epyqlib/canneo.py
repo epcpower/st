@@ -237,6 +237,9 @@ class Signal(QObject):
         self.value_changed.emit(value)
 
     def format_float(self, value=None, decimal_places=None, for_file=False):
+        if self.secret:
+            return '<secret>'
+
         # TODO: ack fix this since it's getting called with an actual None value...
         if value is None:
             value = self.scaled_value
@@ -257,6 +260,9 @@ class Signal(QObject):
         return formatted
 
     def format(self):
+        if self.secret:
+            return '<secret>'
+
         if self.float:
             # TODO: CAMPid 097897541967932453154321546542175421549
             types = {
