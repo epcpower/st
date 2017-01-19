@@ -766,10 +766,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     def parse_log(self, data, cache, chunks, csv_path):
         data_stream = io.BytesIO(data)
-
-        if self.block_header_length() > 0:
-            raise Exception('Code needs to be updated to handle a non-empty '
-                            'block header.')
+        data_stream.seek(self.block_header_length())
 
         acceptable_states = {Qt.Checked, Qt.PartiallyChecked}
 
