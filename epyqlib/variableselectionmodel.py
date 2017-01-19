@@ -686,7 +686,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     @twisted.internet.defer.inlineCallbacks
     def _pull_log(self, csv_path):
-        record_count = yield self.get_variable_value('dataLogger_block', 'validRecordCount')
         chunk_ranges = yield self.get_chunks()
 
         def overlaps_a_chunk(node):
@@ -707,48 +706,14 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         chunks = cache.contiguous_chunks()
 
-        record_length = self.record_header_length()
-        for chunk in chunks:
-            record_length += len(chunk)
+        data = yield self._pull_raw_log()
 
-        # TODO: check against block.recordLength from module
-
-        octets = self.block_header_length() + record_count * record_length
-        self.pull_log_progress.configure(maximum=octets)
-
-        # TODO: hardcoded station address, tsk-tsk
-        yield self.protocol.connect(station_address=0)
-        data = yield self.protocol.upload_block(
-            address_extension=ccp.AddressExtension.data_logger,
-            address=0,
-            octets=octets,
-            progress=self.pull_log_progress
-        )
-        yield self.protocol.disconnect()
-
-        seconds = time.monotonic() - self.pull_log_progress._start_time
-
-        self.pull_log_progress.configure()
         yield self.parse_log(
             data=data,
             cache=cache,
             chunks=chunks,
             csv_path=csv_path
         )
-
-        completed_format = textwrap.dedent('''\
-        Log successfully pulled
-
-        Data time: {seconds:.3f} seconds for {bytes} bytes or {bps:.0f} bytes/second''')
-        message = completed_format.format(
-            seconds=seconds,
-            bytes=octets,
-            bps=octets / seconds
-        )
-
-        print(message)
-
-        self.pull_log_progress.complete(message=message)
 
     def record_header_length(self):
         return (self.names['DataLogger_RecordHeader'].type.bytes
