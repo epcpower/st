@@ -69,6 +69,7 @@ class VariableSelection(QtWidgets.QWidget):
         self.ui.load_selection_button.clicked.connect(self.load_selection)
         self.ui.update_parameters_button.clicked.connect(self.update_parameters)
         self.ui.pull_log_button.clicked.connect(self.pull_log)
+        self.ui.pull_raw_log_button.clicked.connect(self.pull_raw_log)
 
         self.ui.view.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui.view.tree_view.customContextMenuRequested.connect(
@@ -177,6 +178,31 @@ class VariableSelection(QtWidgets.QWidget):
                             + model.pull_log_progress.default_progress_label)
             )
             model.pull_log(csv_path=filename)
+
+    def pull_raw_log(self):
+        filters = [
+            ('Raw', ['raw']),
+            ('All Files', ['*'])
+        ]
+        filename = file_dialog(filters, save=True)
+
+        if filename is not None:
+            # TODO: CAMPid 9632763567954321696542754261546
+            self.progress = QProgressDialog(self)
+            flags = self.progress.windowFlags()
+            flags &= ~Qt.WindowContextHelpButtonHint
+            self.progress.setWindowFlags(flags)
+            self.progress.setWindowModality(Qt.WindowModal)
+            self.progress.setAutoReset(False)
+            self.progress.setCancelButton(None)
+
+            model = self.nonproxy_model()
+            model.pull_log_progress.connect(
+                progress=self.progress,
+                label_text=('Pulling log...\n\n'
+                            + model.pull_log_progress.default_progress_label)
+            )
+            model.pull_raw_log(path=filename)
 
     def context_menu(self, position):
         index = self.ui.view.tree_view.indexAt(position)

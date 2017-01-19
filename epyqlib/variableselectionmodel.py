@@ -10,6 +10,7 @@ import epyqlib.cmemoryparser
 import epyqlib.pyqabstractitemmodel
 import epyqlib.treenode
 import epyqlib.twisted.cancalibrationprotocol as ccp
+import epyqlib.twisted.nvs as nv_protocol
 import epyqlib.utils.twisted
 import functools
 import io
@@ -404,6 +405,12 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             reactor=reactor,
             bus=self.bus)
 
+        self.nv_protocol = nv_protocol.Protocol()
+        self.transport = epyqlib.twisted.busproxy.BusProxy(
+            protocol=self.nv_protocol,
+            reactor=reactor,
+            bus=self.bus)
+
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
             if role == Qt.CheckStateRole:
@@ -620,6 +627,55 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             chunks.append((chunk_address, chunk_bytes))
 
         twisted.internet.defer.returnValue(chunks)
+
+    def pull_raw_log(self, path):
+        d = self._pull_raw_log()
+        d.addCallback(self._write_raw_log, path=path)
+
+        d.addErrback(epyqlib.utils.twisted.detour_result,
+                     self.pull_log_progress.fail)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
+
+    @twisted.internet.defer.inlineCallbacks
+    def _pull_raw_log(self):
+        frame, = [f for f  in self.nvs.set_frames.values()
+                  if f.mux_name == 'LoggerStatus01']
+        signal, = [s for s in frame.signals
+                   if s.name == 'ReadableOctets']
+        readable_octets = yield self.nv_protocol.read(signal)
+        readable_octets = int(readable_octets)
+
+        self.pull_log_progress.configure(maximum=readable_octets)
+
+        # TODO: hardcoded station address, tsk-tsk
+        yield self.protocol.connect(station_address=0)
+        data = yield self.protocol.upload_block(
+            address_extension=ccp.AddressExtension.data_logger,
+            address=0,
+            octets=readable_octets,
+            progress=self.pull_log_progress
+        )
+        yield self.protocol.disconnect()
+
+        seconds = time.monotonic() - self.pull_log_progress._start_time
+
+        completed_format = textwrap.dedent('''\
+        Log successfully pulled
+
+        Data time: {seconds:.3f} seconds for {bytes} bytes or {bps:.0f} bytes/second''')
+        message = completed_format.format(
+            seconds=seconds,
+            bytes=readable_octets,
+            bps=readable_octets / seconds
+        )
+
+        self.pull_log_progress.complete(message=message)
+
+        twisted.internet.defer.returnValue(data)
+
+    def _write_raw_log(self, data, path):
+        with open(path, 'wb') as f:
+            f.write(data)
 
     def pull_log(self, csv_path):
         d = self._pull_log(csv_path)

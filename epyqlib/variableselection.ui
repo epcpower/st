@@ -19,6 +19,42 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="4">
+      <widget class="Led" name="led">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frame" stdset="0">
+        <string>StatusBits</string>
+       </property>
+       <property name="signal" stdset="0">
+        <string>DataloggerRecording</string>
+       </property>
+       <property name="label_override" stdset="0">
+        <string>Logging</string>
+       </property>
+       <property name="label_from_enumeration" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="update_parameters_button">
+       <property name="text">
+        <string>Update Parameters</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="save_selection_button">
+       <property name="text">
+        <string>Save Selection</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QPushButton" name="load_binary_button">
        <property name="text">
@@ -58,51 +94,8 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="save_selection_button">
-       <property name="text">
-        <string>Save Selection</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="update_parameters_button">
-       <property name="text">
-        <string>Update Parameters</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QPushButton" name="pull_log_button">
-       <property name="text">
-        <string>Pull Log</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0" colspan="4">
+     <item row="2" column="0" colspan="5">
       <widget class="VariableSelectionView" name="view"/>
-     </item>
-     <item row="0" column="3">
-      <widget class="Led" name="led">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>DataloggerRecording</string>
-       </property>
-       <property name="label_override" stdset="0">
-        <string>Logging</string>
-       </property>
-       <property name="label_from_enumeration" stdset="0">
-        <bool>true</bool>
-       </property>
-      </widget>
      </item>
      <item row="1" column="0">
       <widget class="Led" name="led_2">
@@ -123,6 +116,20 @@
        </property>
        <property name="label_from_enumeration" stdset="0">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="pull_raw_log_button">
+       <property name="text">
+        <string>Pull Raw Log</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QPushButton" name="pull_log_button">
+       <property name="text">
+        <string>Pull Log</string>
        </property>
       </widget>
      </item>

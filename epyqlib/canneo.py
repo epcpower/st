@@ -461,7 +461,7 @@ class Frame(QtCanListener):
 
         return bitstruct.pack(self.format(), *data)
 
-    def unpack(self, data, report_error=True):
+    def unpack(self, data, report_error=True, only_return=False):
         rx_length = len(data)
         if rx_length != self.size and report_error:
             print('Received message 0x{self.id:08X} with length {rx_length}, expected {self.size}'.format(**locals()))
@@ -475,6 +475,10 @@ class Frame(QtCanListener):
                 self.bitstruct_fmt = bitstruct_fmt
 
             unpacked = bitstruct.unpack(bitstruct_fmt, data)
+
+            if only_return:
+                return dict(zip(self.signals, unpacked))
+
             for s, v in zip(self.signals, unpacked):
                 s.set_value(v)
 
