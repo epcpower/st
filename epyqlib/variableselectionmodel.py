@@ -212,6 +212,21 @@ class VariableNode(epyqlib.treenode.TreeNode):
 
         return new_members
 
+    def get_node(self, *variable_path, root=None):
+        if root is None:
+            root = self
+
+        variable = root
+
+        for name in variable_path:
+            if name is None:
+                raise TypeError('Unable to search by None')
+
+            variable, = (v for v in variable.children
+                         if name in (v.fields.name, v.comparison_value))
+
+        return variable
+
 
 class Variables(epyqlib.treenode.TreeNode):
     # TODO: just Rx?
@@ -613,21 +628,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             bytes_signal.set_value(
                 len(chunk._bytes) // (self.bits_per_byte // 8))
 
-    @twisted.internet.defer.inlineCallbacks
-    def get_chunks(self):
-        chunks_path = ['dataLoggerParams', 'chunks']
-        chunks_node = self.get_variable_node(*chunks_path)
-        chunks = []
-        for chunk_node in chunks_node.children:
-            index_path = chunks_path + [chunk_node.fields.name]
-            chunk_address = (
-                yield self.get_variable_value(*index_path, 'address')
-            )
-            chunk_bytes = yield self.get_variable_value(*index_path, 'bytes')
-            chunks.append((chunk_address, chunk_bytes))
-
-        twisted.internet.defer.returnValue(chunks)
-
     def pull_raw_log(self, path):
         d = self._pull_raw_log()
         d.addCallback(self._write_raw_log, path=path)
@@ -753,11 +753,11 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         chunk_ranges = []
 
-        chunks_node = self.get_variable_node('chunks', root=block_header_node)
+        chunks_node = block_header_node.get_variable_node('chunks')
         for chunk in chunks_node.children:
-            address = self.get_variable_node('address', root=chunk)
+            address = chunk('address')
             address = address.fields.value
-            size = self.get_variable_node('bytes', root=chunk)
+            size = chunk('bytes')
             size = size.fields.value
             chunk_ranges.append((address, size))
 
@@ -861,21 +861,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
             for row in rows:
                 writer.writerow(row)
-
-    def get_variable_node(self, *variable_path, root=None):
-        if root is None:
-            root = self.root
-
-        variable = root
-
-        for name in variable_path:
-            if name is None:
-                raise TypeError('Unable to search by None')
-
-            variable, = (v for v in variable.children
-                         if name in (v.fields.name, v.comparison_value))
-
-        return variable
 
     def get_variable_nodes_by_type(self, type_name):
         return (node for node in self.root.children
