@@ -684,9 +684,82 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                      self.pull_log_progress.fail)
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
-    @twisted.internet.defer.inlineCallbacks
     def _pull_log(self, csv_path):
-        chunk_ranges = yield self.get_chunks()
+        d = self._pull_raw_log()
+        d.addCallback(self.parse_log, csv_path=csv_path)
+
+        return d
+
+    def record_header_length(self):
+        return (self.names['DataLogger_RecordHeader'].type.bytes
+                * (self.bits_per_byte // 8))
+
+    def block_header_length(self):
+        try:
+            block_header = self.names['DataLogger_BlockHeader']
+        except KeyError:
+            block_header_bytes = 0
+        else:
+            block_header_bytes = block_header.type.bytes
+
+        return block_header_bytes * (self.bits_per_byte // 8)
+
+    def parse_log(self, data, csv_path):
+        data_stream = io.BytesIO(data)
+        raw_header = data_stream.read(self.block_header_length())
+
+        # TODO: hardcoded 32-bit addressing and offset assumption
+        #       intended to avoid collision
+        block_header_cache = cmc.Cache(bits_per_byte=self.bits_per_byte)
+        block_header = epyqlib.cmemoryparser.Variable(
+            name='.block_header',
+            type=self.names['DataLogger_BlockHeader'],
+            address=0
+        )
+        block_header_node = VariableNode(variable=block_header)
+        block_header_node.add_members(
+            base_type=epyqlib.cmemoryparser.base_type(block_header),
+            address=block_header.address
+        )
+
+        for node in block_header_node.leaves():
+            def update(data, node):
+                node.fields.value = node.variable.unpack(data)
+
+            chunk = block_header_cache.new_chunk(
+                address=int(node.fields.address, 16),
+                bytes=b'\x00' * node.fields.size
+                      * (self.bits_per_byte // 8),
+                reference=node
+            )
+            block_header_cache.add(chunk)
+
+            partial = functools.partial(
+                update,
+                node=node
+            )
+            block_header_cache.subscribe(partial, chunk)
+
+        block_header_chunk = block_header_cache.new_chunk(
+                address=int(block_header_node.fields.address, 16),
+                bytes=b'\x00' * block_header_node.fields.size
+                      * (self.bits_per_byte // 8)
+            )
+        block_header_chunk.set_bytes(raw_header)
+        block_header_cache.update(block_header_chunk)
+
+        for node in block_header_node.leaves():
+            print('{}: {}'.format('.'.join(node.path()), node.fields.value))
+
+        chunk_ranges = []
+
+        chunks_node = self.get_variable_node('chunks', root=block_header_node)
+        for chunk in chunks_node.children:
+            address = self.get_variable_node('address', root=chunk)
+            address = address.fields.value
+            size = self.get_variable_node('bytes', root=chunk)
+            size = size.fields.value
+            chunk_ranges.append((address, size))
 
         def overlaps_a_chunk(node):
             if len(node.children) > 0:
@@ -705,39 +778,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         cache = self.create_cache(test=overlaps_a_chunk)
 
         chunks = cache.contiguous_chunks()
-
-        data = yield self._pull_raw_log()
-
-        yield self.parse_log(
-            data=data,
-            cache=cache,
-            chunks=chunks,
-            csv_path=csv_path
-        )
-
-    def record_header_length(self):
-        return (self.names['DataLogger_RecordHeader'].type.bytes
-                * (self.bits_per_byte // 8))
-
-    def block_header_length(self):
-        try:
-            block_header = self.names['DataLogger_BlockHeader']
-        except KeyError:
-            block_header_bytes = 0
-        else:
-            block_header_bytes = block_header.type.bytes
-
-        return block_header_bytes * (self.bits_per_byte // 8)
-
-    def parse_log(self, data, cache, chunks, csv_path):
-        data_stream = io.BytesIO(data)
-        data_stream.seek(self.block_header_length())
-
-        acceptable_states = {Qt.Checked, Qt.PartiallyChecked}
-
-        def collect_variables(node, payload):
-            if node.checked() in acceptable_states:
-                payload.append(node)
 
         # TODO: hardcoded 32-bit addressing and offset assumption
         #       intended to avoid collision
@@ -822,15 +862,18 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             for row in rows:
                 writer.writerow(row)
 
-    def get_variable_node(self, *variable_path):
-        variable = self.root
+    def get_variable_node(self, *variable_path, root=None):
+        if root is None:
+            root = self.root
+
+        variable = root
 
         for name in variable_path:
             if name is None:
                 raise TypeError('Unable to search by None')
 
-            variable = next(v for v in variable.children
-                            if name in (v.fields.name, v.comparison_value))
+            variable, = (v for v in variable.children
+                         if name in (v.fields.name, v.comparison_value))
 
         return variable
 

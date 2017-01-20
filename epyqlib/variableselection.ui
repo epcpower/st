@@ -62,6 +62,20 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="4">
+      <widget class="QPushButton" name="pull_log_button">
+       <property name="text">
+        <string>Pull Log</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="pull_raw_log_button">
+       <property name="text">
+        <string>Pull Raw Log</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="2">
       <widget class="Button" name="reset_button">
        <property name="sizePolicy">
@@ -119,17 +133,10 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
-      <widget class="QPushButton" name="pull_raw_log_button">
+     <item row="1" column="3">
+      <widget class="QPushButton" name="process_raw_log_button">
        <property name="text">
-        <string>Pull Raw Log</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="4">
-      <widget class="QPushButton" name="pull_log_button">
-       <property name="text">
-        <string>Pull Log</string>
+        <string>Process Raw Log</string>
        </property>
       </widget>
      </item>

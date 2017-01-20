@@ -70,6 +70,7 @@ class VariableSelection(QtWidgets.QWidget):
         self.ui.update_parameters_button.clicked.connect(self.update_parameters)
         self.ui.pull_log_button.clicked.connect(self.pull_log)
         self.ui.pull_raw_log_button.clicked.connect(self.pull_raw_log)
+        self.ui.process_raw_log_button.clicked.connect(self.process_raw_log)
 
         self.ui.view.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui.view.tree_view.customContextMenuRequested.connect(
@@ -203,6 +204,28 @@ class VariableSelection(QtWidgets.QWidget):
                             + model.pull_log_progress.default_progress_label)
             )
             model.pull_raw_log(path=filename)
+
+    def process_raw_log(self):
+        filters = [
+            ('Raw', ['raw']),
+            ('All Files', ['*'])
+        ]
+        raw_filename = file_dialog(filters)
+
+        if raw_filename is not None:
+            filters = [
+                ('CSV', ['csv']),
+                ('All Files', ['*'])
+            ]
+            csv_filename = file_dialog(filters, save=True)
+
+            if csv_filename is not None:
+                with open(raw_filename, 'rb') as f:
+                    data = f.read()
+
+                model = self.nonproxy_model()
+
+                model.parse_log(data=data, csv_path=csv_filename)
 
     def context_menu(self, position):
         index = self.ui.view.tree_view.indexAt(position)
