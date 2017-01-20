@@ -114,6 +114,7 @@ class DeviceTreeView(QtWidgets.QWidget):
 
         add_device_action = None
         remove_device_action = None
+        flash_action = None
 
         menu = QMenu()
         if isinstance(node, epyqlib.devicetree.Device):
