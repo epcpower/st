@@ -11,6 +11,7 @@ import epyqlib.pyqabstractitemmodel
 import epyqlib.treenode
 import epyqlib.twisted.cancalibrationprotocol as ccp
 import epyqlib.twisted.nvs as nv_protocol
+import epyqlib.utils.qt
 import epyqlib.utils.twisted
 import functools
 import io
@@ -245,144 +246,6 @@ class Variables(epyqlib.treenode.TreeNode):
         return id(self)
 
 
-@attr.s
-class AverageValueRate:
-    _seconds = attr.ib(convert=float)
-    _deque = attr.ib(default=attr.Factory(collections.deque))
-
-    @attr.s
-    class Event:
-        time = attr.ib()
-        value = attr.ib()
-        delta = attr.ib()
-
-    def add(self, value):
-        now = time.monotonic()
-
-        if len(self._deque) > 0:
-            delta = now - self._deque[-1].time
-
-            cutoff_time = now - self._seconds
-
-            while self._deque[0].time < cutoff_time:
-                self._deque.popleft()
-        else:
-            delta = 0
-
-        event = self.Event(time=now, value=value, delta=delta)
-        self._deque.append(event)
-
-    def rate(self):
-        if len(self._deque) > 0:
-            dv = self._deque[-1].value - self._deque[0].value
-            dt = self._deque[-1].time - self._deque[0].time
-        else:
-            dv = -1
-            dt = 0
-
-        if dv <= 0:
-            return 0
-        elif dt == 0:
-            return math.inf
-
-        return dv / dt
-
-    def remaining_time(self, final_value):
-        rate = self.rate()
-        if rate <= 0:
-            return math.inf
-        else:
-            return (final_value - self._deque[-1].value) / rate
-
-
-class Progress(QObject):
-    # TODO: CAMPid 7531968542136967546542452
-    updated = pyqtSignal(int)
-    completed = pyqtSignal()
-    done = pyqtSignal()
-    failed = pyqtSignal()
-    canceled = pyqtSignal()
-
-    default_progress_label = (
-        '{elapsed} seconds elapsed, {remaining} seconds remaining'
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.completed.connect(self.done)
-        self.failed.connect(self.done)
-        self.canceled.connect(self.done)
-
-        self.done.connect(self._done)
-
-        self.progress = None
-        self.average = None
-        self.average_timer = QTimer()
-        self.average_timer.setInterval(200)
-        self.average_timer.timeout.connect(self._update_time_estimate)
-        self._label_text_replace = None
-        self._start_time = None
-
-    def _done(self):
-        self.average_timer.stop()
-        self.average = None
-
-        self.updated.disconnect(self.progress.setValue)
-        self.progress.close()
-        self.progress = None
-
-        self._start_time = None
-
-    def _update_time_estimate(self):
-        remaining = self.average.remaining_time(self.progress.maximum())
-        try:
-            remaining = round(remaining)
-        except:
-            pass
-        self.progress.setLabelText(self._label_text_replace.format(
-                elapsed=round(time.monotonic() - self._start_time),
-                remaining=remaining
-            )
-        )
-
-    def connect(self, progress, label_text=None):
-        self.progress = progress
-
-        if label_text is None:
-            label_text = self.default_progress_label
-        self._label_text_replace = label_text
-
-        self.progress.setMinimumDuration(0)
-        # Default to a busy indicator, progress maximum can be set later
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(0)
-        self.updated.connect(self.progress.setValue)
-
-        if self._start_time is None:
-            self._start_time = time.monotonic()
-
-        self.average = AverageValueRate(seconds=30)
-        self.average_timer.start()
-
-    def configure(self, minimum=0, maximum=0):
-        self.progress.setMinimum(minimum)
-        self.progress.setMaximum(maximum)
-
-    def complete(self, message=None):
-        if message is not None:
-            QMessageBox.information(self.progress, 'EPyQ', message)
-
-        self.completed.emit()
-
-    def fail(self):
-        self.failed.emit()
-
-    def update(self, value):
-        self.average.add(value)
-        self.updated.emit(value)
-
-
 class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     binary_loaded = pyqtSignal()
 
@@ -411,7 +274,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.cache = None
 
-        self.pull_log_progress = Progress()
+        self.pull_log_progress = epyqlib.utils.qt.Progress()
 
         self.protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
         from twisted.internet import reactor
@@ -627,55 +490,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             address_signal.set_value(chunk._address)
             bytes_signal.set_value(
                 len(chunk._bytes) // (self.bits_per_byte // 8))
-
-    def pull_raw_log(self, path):
-        d = self._pull_raw_log()
-        d.addCallback(self._write_raw_log, path=path)
-
-        d.addErrback(epyqlib.utils.twisted.detour_result,
-                     self.pull_log_progress.fail)
-        d.addErrback(epyqlib.utils.twisted.errbackhook)
-
-    @twisted.internet.defer.inlineCallbacks
-    def _pull_raw_log(self):
-        frame, = [f for f  in self.nvs.set_frames.values()
-                  if f.mux_name == 'LoggerStatus01']
-        signal, = [s for s in frame.signals
-                   if s.name == 'ReadableOctets']
-        readable_octets = yield self.nv_protocol.read(signal)
-        readable_octets = int(readable_octets)
-
-        self.pull_log_progress.configure(maximum=readable_octets)
-
-        # TODO: hardcoded station address, tsk-tsk
-        yield self.protocol.connect(station_address=0)
-        data = yield self.protocol.upload_block(
-            address_extension=ccp.AddressExtension.data_logger,
-            address=0,
-            octets=readable_octets,
-            progress=self.pull_log_progress
-        )
-        yield self.protocol.disconnect()
-
-        seconds = time.monotonic() - self.pull_log_progress._start_time
-
-        completed_format = textwrap.dedent('''\
-        Log successfully pulled
-
-        Data time: {seconds:.3f} seconds for {bytes} bytes or {bps:.0f} bytes/second''')
-        message = completed_format.format(
-            seconds=seconds,
-            bytes=readable_octets,
-            bps=readable_octets / seconds
-        )
-
-        self.pull_log_progress.complete(message=message)
-
-        twisted.internet.defer.returnValue(data)
-
-    def _write_raw_log(self, data, path):
-        with open(path, 'wb') as f:
-            f.write(data)
 
     def pull_log(self, csv_path):
         d = self._pull_log(csv_path)

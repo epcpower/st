@@ -3,9 +3,11 @@
 #TODO: """DocString if there is one"""
 
 import can
+import epyqlib.datalogger
 import epyqlib.device
 import epyqlib.devicetree
 import epyqlib.flash
+import epyqlib.utils.qt
 import functools
 import io
 import math
@@ -18,32 +20,8 @@ from PyQt5.QtCore import (Qt, pyqtSignal, pyqtSlot, QFile, QFileInfo,
                           QTextStream, QModelIndex, QItemSelectionModel)
 
 # See file COPYING in this source tree
-__copyright__ = 'Copyright 2016, EPC Power Corp.'
+__copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
-
-
-# TODO: CAMPid 097347143788543453113499349316
-def file_dialog(filters, default=0):
-    # TODO: CAMPid 9857216134675885472598426718023132
-    # filters = [
-    #     ('EPC Packages', ['epc', 'epz']),
-    #     ('All Files', ['*'])
-    # ]
-    # TODO: CAMPid 97456612391231265743713479129
-
-    filter_strings = ['{} ({})'.format(f[0],
-                                       ' '.join(['*.'+e for e in f[1]])
-                                       ) for f in filters]
-    filter_string = ';;'.join(filter_strings)
-
-    file = QFileDialog.getOpenFileName(
-            filter=filter_string,
-            initialFilter=filter_strings[default])[0]
-
-    if len(file) == 0:
-        file = None
-
-    return file
 
 
 def load_device(bus=None, file=None):
@@ -53,7 +31,7 @@ def load_device(bus=None, file=None):
             ('EPC Packages', ['epc', 'epz']),
             ('All Files', ['*'])
         ]
-        file = file_dialog(filters)
+        file = epyqlib.utils.qt.file_dialog(filters)
 
         if file is None:
             return
@@ -115,9 +93,11 @@ class DeviceTreeView(QtWidgets.QWidget):
         add_device_action = None
         remove_device_action = None
         flash_action = None
+        pull_raw_log_action = None
 
         menu = QMenu()
         if isinstance(node, epyqlib.devicetree.Device):
+            pull_raw_log_action = menu.addAction('Pull Raw Log...')
             remove_device_action = menu.addAction('Close')
         if isinstance(node, epyqlib.devicetree.Bus):
             add_device_action = menu.addAction('Load device...')
@@ -140,6 +120,8 @@ class DeviceTreeView(QtWidgets.QWidget):
         elif action is flash_action:
             self.flash(interface=node.interface,
                        channel=node.channel)
+        elif action is pull_raw_log_action:
+            epyqlib.datalogger.pull_raw_log(device=node.device)
 
     def add_device(self, bus):
         device = load_device()
@@ -159,7 +141,7 @@ class DeviceTreeView(QtWidgets.QWidget):
             ('TICOFF Binaries', ['out']),
             ('All Files', ['*'])
         ]
-        file = file_dialog(filters)
+        file = epyqlib.utils.qt.file_dialog(filters)
 
         if file is not None:
             message_box = QMessageBox(self)

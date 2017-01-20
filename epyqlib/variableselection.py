@@ -1,6 +1,8 @@
 # import epyqlib.delegates
 # import epyqlib.txrx
 import epyqlib.cmemoryparser
+import epyqlib.datalogger
+import epyqlib.utils.qt
 import epyqlib.utils.twisted
 import io
 import os
@@ -12,37 +14,8 @@ from PyQt5.QtWidgets import QFileDialog, QProgressDialog
 import twisted.internet.threads
 
 # See file COPYING in this source tree
-__copyright__ = 'Copyright 2016, EPC Power Corp.'
+__copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
-
-
-# TODO: CAMPid 097347143788543453113499349316
-def file_dialog(filters, default=0, save=False):
-    # TODO: CAMPid 9857216134675885472598426718023132
-    # filters = [
-    #     ('EPC Packages', ['epc', 'epz']),
-    #     ('All Files', ['*'])
-    # ]
-    # TODO: CAMPid 97456612391231265743713479129
-
-    filter_strings = ['{} ({})'.format(f[0],
-                                       ' '.join(['*.'+e for e in f[1]])
-                                       ) for f in filters]
-    filter_string = ';;'.join(filter_strings)
-
-    if save:
-        dialog = QFileDialog.getSaveFileName
-    else:
-        dialog = QFileDialog.getOpenFileName
-
-    file = dialog(
-            filter=filter_string,
-            initialFilter=filter_strings[default])[0]
-
-    if len(file) == 0:
-        file = None
-
-    return file
 
 
 class VariableSelection(QtWidgets.QWidget):
@@ -50,6 +23,8 @@ class VariableSelection(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent=parent)
 
         self.in_designer = in_designer
+
+        self.device = None
 
         ui = 'variableselection.ui'
         # TODO: CAMPid 9549757292917394095482739548437597676742
@@ -93,7 +68,7 @@ class VariableSelection(QtWidgets.QWidget):
             ('EPC Variable Selection', ['epv']),
             ('All Files', ['*'])
         ]
-        filename = file_dialog(filters, save=True)
+        filename = epyqlib.utils.qt.file_dialog(filters, save=True)
 
         if filename is not None:
             model = self.nonproxy_model()
@@ -104,7 +79,7 @@ class VariableSelection(QtWidgets.QWidget):
             ('EPC Variable Selection', ['epv']),
             ('All Files', ['*'])
         ]
-        filename = file_dialog(filters)
+        filename = epyqlib.utils.qt.file_dialog(filters)
 
         if filename is not None:
             model = self.nonproxy_model()
@@ -122,7 +97,7 @@ class VariableSelection(QtWidgets.QWidget):
             ('TICOFF Binaries', ['out']),
             ('All Files', ['*'])
         ]
-        filename = file_dialog(filters)
+        filename = epyqlib.utils.qt.file_dialog(filters)
 
         if filename is not None:
             # TODO: CAMPid 9632763567954321696542754261546
@@ -160,7 +135,7 @@ class VariableSelection(QtWidgets.QWidget):
             ('CSV', ['csv']),
             ('All Files', ['*'])
         ]
-        filename = file_dialog(filters, save=True)
+        filename = epyqlib.utils.qt.file_dialog(filters, save=True)
 
         if filename is not None:
             # TODO: CAMPid 9632763567954321696542754261546
@@ -181,43 +156,21 @@ class VariableSelection(QtWidgets.QWidget):
             model.pull_log(csv_path=filename)
 
     def pull_raw_log(self):
-        filters = [
-            ('Raw', ['raw']),
-            ('All Files', ['*'])
-        ]
-        filename = file_dialog(filters, save=True)
-
-        if filename is not None:
-            # TODO: CAMPid 9632763567954321696542754261546
-            self.progress = QProgressDialog(self)
-            flags = self.progress.windowFlags()
-            flags &= ~Qt.WindowContextHelpButtonHint
-            self.progress.setWindowFlags(flags)
-            self.progress.setWindowModality(Qt.WindowModal)
-            self.progress.setAutoReset(False)
-            self.progress.setCancelButton(None)
-
-            model = self.nonproxy_model()
-            model.pull_log_progress.connect(
-                progress=self.progress,
-                label_text=('Pulling log...\n\n'
-                            + model.pull_log_progress.default_progress_label)
-            )
-            model.pull_raw_log(path=filename)
+        epyqlib.datalogger.pull_raw_log(device=self.device)
 
     def process_raw_log(self):
         filters = [
             ('Raw', ['raw']),
             ('All Files', ['*'])
         ]
-        raw_filename = file_dialog(filters)
+        raw_filename = epyqlib.utils.qt.file_dialog(filters)
 
         if raw_filename is not None:
             filters = [
                 ('CSV', ['csv']),
                 ('All Files', ['*'])
             ]
-            csv_filename = file_dialog(filters, save=True)
+            csv_filename = epyqlib.utils.qt.file_dialog(filters, save=True)
 
             if csv_filename is not None:
                 with open(raw_filename, 'rb') as f:
