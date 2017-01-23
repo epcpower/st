@@ -491,19 +491,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             bytes_signal.set_value(
                 len(chunk._bytes) // (self.bits_per_byte // 8))
 
-    def pull_log(self, csv_path):
-        d = self._pull_log(csv_path)
-
-        d.addErrback(epyqlib.utils.twisted.detour_result,
-                     self.pull_log_progress.fail)
-        d.addErrback(epyqlib.utils.twisted.errbackhook)
-
-    def _pull_log(self, csv_path):
-        d = self._pull_raw_log()
-        d.addCallback(self.parse_log, csv_path=csv_path)
-
-        return d
-
     def record_header_length(self):
         return (self.names['DataLogger_RecordHeader'].type.bytes
                 * (self.bits_per_byte // 8))

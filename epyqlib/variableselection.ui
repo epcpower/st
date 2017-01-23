@@ -62,13 +62,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="4">
-      <widget class="QPushButton" name="pull_log_button">
-       <property name="text">
-        <string>Pull Log</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="3">
       <widget class="QPushButton" name="pull_raw_log_button">
        <property name="text">

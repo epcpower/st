@@ -43,7 +43,6 @@ class VariableSelection(QtWidgets.QWidget):
         self.ui.save_selection_button.clicked.connect(self.save_selection)
         self.ui.load_selection_button.clicked.connect(self.load_selection)
         self.ui.update_parameters_button.clicked.connect(self.update_parameters)
-        self.ui.pull_log_button.clicked.connect(self.pull_log)
         self.ui.pull_raw_log_button.clicked.connect(self.pull_raw_log)
         self.ui.process_raw_log_button.clicked.connect(self.process_raw_log)
 
@@ -129,31 +128,6 @@ class VariableSelection(QtWidgets.QWidget):
     def update_parameters(self):
         model = self.nonproxy_model()
         model.update_parameters()
-
-    def pull_log(self):
-        filters = [
-            ('CSV', ['csv']),
-            ('All Files', ['*'])
-        ]
-        filename = epyqlib.utils.qt.file_dialog(filters, save=True)
-
-        if filename is not None:
-            # TODO: CAMPid 9632763567954321696542754261546
-            self.progress = QProgressDialog(self)
-            flags = self.progress.windowFlags()
-            flags &= ~Qt.WindowContextHelpButtonHint
-            self.progress.setWindowFlags(flags)
-            self.progress.setWindowModality(Qt.WindowModal)
-            self.progress.setAutoReset(False)
-            self.progress.setCancelButton(None)
-
-            model = self.nonproxy_model()
-            model.pull_log_progress.connect(
-                progress=self.progress,
-                label_text=('Pulling log...\n\n'
-                            + model.pull_log_progress.default_progress_label)
-            )
-            model.pull_log(csv_path=filename)
 
     def pull_raw_log(self):
         epyqlib.datalogger.pull_raw_log(device=self.device)
