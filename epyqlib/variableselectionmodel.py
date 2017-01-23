@@ -567,11 +567,11 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         chunk_ranges = []
 
-        chunks_node = block_header_node.get_variable_node('chunks')
+        chunks_node = block_header_node.get_node('chunks')
         for chunk in chunks_node.children:
-            address = chunk('address')
+            address = chunk.get_node('address')
             address = address.fields.value
-            size = chunk('bytes')
+            size = chunk.get_node('bytes')
             size = size.fields.value
             chunk_ranges.append((address, size))
 
@@ -682,7 +682,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     @twisted.internet.defer.inlineCallbacks
     def get_variable_value(self, *variable_path):
-        variable = self.get_variable_node(*variable_path)
+        variable = self.root.get_node(*variable_path)
         value = yield self._get_variable_value(variable)
 
         twisted.internet.defer.returnValue(value)

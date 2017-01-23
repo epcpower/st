@@ -190,6 +190,8 @@ class NotifierProxy(QtCanListener):
     def __init__(self, bus, listeners=[], filtered_ids=None, parent=None):
         QtCanListener.__init__(self, receiver=self.message_received, parent=parent)
 
+        # TODO: consider a WeakSet, though this may presently
+        #       be keeping objects alive
         self.listeners = set(listeners)
         if filtered_ids is None:
             self.filtered_ids = None
