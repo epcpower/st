@@ -320,7 +320,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         return self._deferred
 
-    def upload(self, number_of_bytes=4):
+    # TODO: magic number 5!
+    def upload(self, number_of_bytes=5, block_transfer=False):
         logger.debug('Entering upload()')
 
         if self._active:
@@ -329,7 +330,10 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         self._new_deferred()
 
-        if not 1 <= number_of_bytes <= 5:
+        # TODO: magic number 5! and 255!
+        maximum = 5 if not block_transfer else 255
+
+        if not 1 <= number_of_bytes <= maximum:
             self.errback(TypeError(
                 'Invalid byte count requested: {}'
                     .format(number_of_bytes)
@@ -342,7 +346,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                 packet = HostCommand(code=CommandCode.upload,
                                      arbitration_id=self._tx_id)
                 packet.payload[0] = number_of_bytes
-                self.request_memory = number_of_bytes
+                self.request_memory = number_of_bytes, bytearray()
 
                 self._send(packet=packet, state=HandlerState.uploading)
 
@@ -518,8 +522,10 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         update_period = octets // 100  # 1%
         since_update = 0
         while remaining > 0:
-            number_of_bytes = min(5, remaining)
-            block = yield self.upload(number_of_bytes=number_of_bytes)
+            # TODO: magic number 255!
+            number_of_bytes = min(255, remaining)
+            block = yield self.upload(number_of_bytes=number_of_bytes,
+                                      block_transfer=True)
             remaining -= number_of_bytes
 
             if progress is not None:
@@ -678,9 +684,20 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                         .format(packet.command_return_code.name, packet)))
                 return
 
-            self.state = HandlerState.connected
-            number_of_bytes = self.request_memory
-            self.callback(packet.payload[0:number_of_bytes])
+            number_of_bytes, data = self.request_memory
+            # TODO: magic number 5!
+            bytes_received = min(number_of_bytes, 5)
+
+            data.extend(packet.payload[0:bytes_received])
+            number_of_bytes -= bytes_received
+
+            if number_of_bytes == 0:
+                self.state = HandlerState.connected
+                self.callback(data)
+            else:
+                self.request_memory = number_of_bytes, data
+                self.setTimeout(
+                    _command_code_properties[CommandCode.upload].timeout)
         else:
             self.errback(HandlerUnknownState(
                 'Handler in unknown state: {}'.format(self.state)))
