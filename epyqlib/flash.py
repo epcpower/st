@@ -129,7 +129,7 @@ class Flasher(QObject):
         d.addCallback(lambda _: epyqlib.utils.twisted.retry(
             function=lambda: self.protocol.connect(timeout=0.2),
             times=self.retries,
-            acceptable=[ccp.RequestTimeoutError])
+            acceptable=[epyqlib.utils.twisted.RequestTimeoutError])
         )
 
         d.addCallback(lambda _: self.set_progress_label('Clearing...'))

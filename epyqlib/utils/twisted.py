@@ -10,6 +10,10 @@ __license__ = 'GPLv2+'
 logger = logging.getLogger(__name__)
 
 
+class RequestTimeoutError(TimeoutError):
+    pass
+
+
 def errbackhook(error):
     epyqlib.utils.qt.exception_message_box(message=str(error))
 

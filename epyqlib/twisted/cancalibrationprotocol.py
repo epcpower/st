@@ -52,9 +52,6 @@ class UnexpectedMessageReceived(ValueError):
 class InvalidSection(ValueError):
     pass
 
-class RequestTimeoutError(TimeoutError):
-    pass
-
 bootloader_can_id = 0x0B081880
 
 
@@ -677,7 +674,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         self._active = False
         if self._previous_state in [HandlerState.idle]:
             self.state = self._previous_state
-        self._deferred.errback(RequestTimeoutError(message))
+        self._deferred.errback(
+            epyqlib.utils.twisted.RequestTimeoutError(message))
 
     def callback(self, payload):
         self._active = False
