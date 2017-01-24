@@ -181,6 +181,7 @@ class Flasher(QObject):
 
         d.addCallback(lambda _: self.protocol.build_checksum(
             checksum=self.protocol.continuous_crc, length=0))
+        d.addCallback(lambda _: epyqlib.utils.twisted.sleep(1))
         d.addCallback(lambda _: self.protocol.disconnect())
         d.addCallback(lambda _: self._completed())
         d.addErrback(self._failed)
