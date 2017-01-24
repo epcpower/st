@@ -181,6 +181,7 @@ class Flasher(QObject):
             logger.debug('0x{:08X}'.format(section.virt_addr))
             d.addCallback(lambda _, cb=callback: cb())
 
+        d.addCallback(lambda _: epyqlib.utils.twisted.sleep(1))
         d.addCallback(lambda _: self.protocol.build_checksum(
             checksum=self.protocol.continuous_crc, length=0))
         d.addCallback(lambda _: epyqlib.utils.twisted.sleep(1))
