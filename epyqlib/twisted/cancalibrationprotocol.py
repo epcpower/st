@@ -124,7 +124,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         self._transport = transport
         logger.debug('Handler.makeConnection(): {}'.format(transport))
 
-    def connect(self, station_address=1):
+    def connect(self, station_address=1, timeout=None):
         logger.debug('Entering connect()')
         if self._active:
             raise Exception('self._active is True')
@@ -142,8 +142,10 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         # TODO: shouldn't be needed, just makes it agree with oz
         #       for cleaner diff
         packet.payload[0] = station_address
-        self._send(packet, state=HandlerState.connecting,
-                   count_towards_total=False)
+        self._send(packet=packet,
+                   state=HandlerState.connecting,
+                   count_towards_total=False,
+                   timeout=timeout)
 
         return self._deferred
 
@@ -501,7 +503,9 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         twisted.internet.defer.returnValue(data)
 
-    def _send(self, packet, state, count_towards_total=True):
+    def _send(self, packet, state, count_towards_total=True, timeout=None):
+        if timeout is None:
+            timeout = packet.command_code.timeout
         if self._send_counter < 255:
             self._send_counter += 1
         else:
@@ -518,7 +522,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             self._messages_sent += 1
             self.messages_sent.emit(self._messages_sent)
 
-        self.setTimeout(packet.command_code.timeout)
+        self.setTimeout(timeout)
         logger.debug('Timeout set to {}'.format(packet.command_code.timeout))
 
     def dataReceived(self, msg):

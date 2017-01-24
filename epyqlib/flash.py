@@ -127,7 +127,8 @@ class Flasher(QObject):
         d = epyqlib.utils.twisted.sleep(0.5)
         self.deferred = d
         d.addCallback(lambda _: epyqlib.utils.twisted.retry(
-            function=self.protocol.connect, times=self.retries,
+            function=lambda: self.protocol.connect(timeout=0.2),
+            times=self.retries,
             acceptable=[ccp.RequestTimeoutError])
         )
 
