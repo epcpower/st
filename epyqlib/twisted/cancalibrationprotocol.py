@@ -2,6 +2,7 @@ import logging
 import can
 import collections
 import enum
+import epyqlib.utils.twisted
 import functools
 import itertools
 import twisted.internet.defer
@@ -11,13 +12,6 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 
 logger = logging.getLogger(__name__)
-
-
-def logit(it):
-    logger.debug('logit(): ({}) {}'.format(type(it), it))
-
-    if isinstance(it, twisted.python.failure.Failure):
-        it.printDetailedTraceback()
 
 
 def endianness_swap_2byte(b):
@@ -44,36 +38,6 @@ def chunkit(it, n):
         except StopIteration:
             return
         yield itertools.chain((first_el,), chunk_it)
-
-
-@twisted.internet.defer.inlineCallbacks
-def retry(function, times, acceptable=None):
-    if acceptable is None:
-        acceptable = []
-
-    remaining = times
-    while remaining > 0:
-        try:
-            result = yield function()
-        except Exception as e:
-            if type(e) not in acceptable:
-                logger.debug('green')
-                raise
-            logger.debug('blue')
-        else:
-            logger.debug('red')
-            twisted.internet.defer.returnValue(result)
-
-        remaining -= 1
-
-    raise Exception('out of retries')
-
-
-def sleep(seconds):
-    d = twisted.internet.defer.Deferred()
-    from twisted.internet import reactor
-    reactor.callLater(seconds, d.callback, None)
-    return d
 
 
 class HandlerBusy(RuntimeError):
@@ -424,7 +388,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             self._download_chunk(address=address,
                                  address_extension=address_extension))
         # self._internal_deferred.addCallback(self._stream_deferred.callback)
-        self._internal_deferred.addErrback(logit)
+        self._internal_deferred.addErrback(epyqlib.utils.twisted.logit)
 
         # return self._stream_deferred
         return self._internal_deferred
@@ -498,7 +462,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
             #     l()
 
         if deferred is not None:
-            deferred.addErrback(logit)#self._stream_deferred.errback)
+            deferred.addErrback(epyqlib.utils.twisted.logit)
         else:
             deferred = twisted.internet.defer.Deferred()
             deferred.callback(None)

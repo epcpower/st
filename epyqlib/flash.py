@@ -6,6 +6,7 @@ import epyqlib.canneo
 import epyqlib.ticoff
 import epyqlib.twisted.busproxy
 import epyqlib.twisted.cancalibrationprotocol as ccp
+import epyqlib.utils.twisted
 import functools
 import itertools
 import math
@@ -123,9 +124,9 @@ class Flasher(QObject):
         self.show_progress()
 
         # let any buffered/old messages get dumped
-        d = ccp.sleep(0.5)
+        d = epyqlib.utils.twisted.sleep(0.5)
         self.deferred = d
-        d.addCallback(lambda _: ccp.retry(
+        d.addCallback(lambda _: epyqlib.utils.twisted.retry(
             function=self.protocol.connect, times=self.retries,
             acceptable=[ccp.RequestTimeoutError])
         )
@@ -134,7 +135,9 @@ class Flasher(QObject):
 
         # Since we will send multiple connects in most cases we should give
         # the bootloader a chance to respond to all of them before moving on.
-        d.addCallback(lambda _: ccp.sleep(min(1, 0.01 * self.retries)))
+        d.addCallback(
+            lambda _: epyqlib.utils.twisted.sleep(min(1, 0.01 * self.retries))
+        )
         # unlock
         d.addCallback(
             lambda _: self.protocol.set_mta(
@@ -193,7 +196,7 @@ class Flasher(QObject):
         self.completed.emit()
 
     def _failed(self, result):
-        ccp.logit(result)
+        epyqlib.utils.twisted.logit(result)
         if self._canceled:
             self.canceled.emit()
         else:
