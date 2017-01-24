@@ -51,24 +51,12 @@ class DataLogger:
 
     @twisted.internet.defer.inlineCallbacks
     def _pull_raw_log(self):
-        frame = [f for f in self.nvs.set_frames.values()
-                 if f.mux_name == 'LoggerStatus01']
-
-        unsupported_exception = UnsupportedError(
-            'Pull of raw log is not supported for this device')
-
         try:
-            frame, = frame
-        except ValueError as e:
-            raise unsupported_exception from e
-
-        signal = [s for s in frame.signals
-                   if s.name == 'ReadableOctets']
-
-        try:
-            signal, = signal
-        except ValueError as e:
-            raise unsupported_exception from e
+            signal = self.nvs.signal_from_names(
+                'LoggerStatus01', 'ReadableOctets')
+        except epyqlib.nv.NotFoundError as e:
+            raise UnsupportedError(
+                'Pull of raw log is not supported for this device') from e
 
         readable_octets = yield self.nv_protocol.read(signal)
         readable_octets = int(readable_octets)

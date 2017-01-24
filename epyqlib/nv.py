@@ -27,6 +27,10 @@ class NoNv(Exception):
     pass
 
 
+class NotFoundError(Exception):
+    pass
+
+
 class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
     set_status_string = pyqtSignal(str)
@@ -231,6 +235,27 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         frames.sort(key=lambda frame: frame.mux_name)
 
         return frames
+
+    def signal_from_names(self, frame_name, value_name):
+        frame = [f for f in self.set_frames.values()
+                 if f.mux_name == frame_name]
+
+        try:
+            frame, = frame
+        except ValueError as e:
+            raise NotFoundError(
+                'Frame not found: {}'.format(frame_name)) from e
+
+        signal = [s for s in frame.signals
+                   if s.name == value_name]
+
+        try:
+            signal, = signal
+        except ValueError as e:
+            raise NotFoundError(
+                'Signal not found: {}'.format(signal_name)) from e
+
+        return signal
 
 
 class Nv(epyqlib.canneo.Signal, TreeNode):
