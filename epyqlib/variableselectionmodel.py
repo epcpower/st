@@ -283,12 +283,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             reactor=reactor,
             bus=self.bus)
 
-        self.nv_protocol = nv_protocol.Protocol()
-        self.transport = epyqlib.twisted.busproxy.BusProxy(
-            protocol=self.nv_protocol,
-            reactor=reactor,
-            bus=self.bus)
-
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
             if role == Qt.CheckStateRole:
