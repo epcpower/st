@@ -54,6 +54,16 @@ def retry(function, times, acceptable=None):
     raise Exception('out of retries')
 
 
+def timeout_retry(function, times=3, acceptable=None):
+    if acceptable is None:
+        acceptable = [RequestTimeoutError]
+
+    # d = twisted.internet.defer.Deferred()
+    # d.addCallback(retry(function=function, times=times, acceptable=acceptable))
+
+    return retry(function=function, times=times, acceptable=acceptable)
+
+
 def sleep(seconds):
     d = twisted.internet.defer.Deferred()
     from twisted.internet import reactor

@@ -140,22 +140,24 @@ class Flasher(QObject):
             lambda _: epyqlib.utils.twisted.sleep(min(1, 0.01 * self.retries))
         )
         # unlock
-        d.addCallback(
-            lambda _: self.protocol.set_mta(
+
+        d.addCallback(lambda _: epyqlib.utils.twisted.timeout_retry(
+            lambda : self.protocol.set_mta(
                 address_extension=ccp.AddressExtension.configuration_registers,
                 address=0)
-        )
-        d.addCallback(
-            lambda _: self.protocol.unlock(section=ccp.Password.dsp_flash),
-        )
-        d.addCallback(
-            lambda _: self.protocol.set_mta(
+        ))
+        d.addCallback(lambda _: epyqlib.utils.twisted.timeout_retry(
+            lambda : self.protocol.unlock(section=ccp.Password.dsp_flash)
+        ))
+        d.addCallback(lambda _: epyqlib.utils.twisted.timeout_retry(
+            lambda : self.protocol.set_mta(
                 address_extension=ccp.AddressExtension.flash_memory,
                 address=0)
-        )
-        d.addCallbacks(
-            lambda _: self.protocol.clear_memory()
-        )
+        ))
+        d.addCallbacks(lambda _: epyqlib.utils.twisted.timeout_retry(
+            self.protocol.clear_memory,
+            times=2
+        ))
 
         d.addCallback(lambda _: self.set_progress_label('Flashing...'))
         d.addCallback(lambda _: self.set_progress_range())
