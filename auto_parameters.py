@@ -61,9 +61,24 @@ class DeviceExtension:
         self.nvs.from_dict(self.parameter_dict)
         sent_frames = set()
 
-        for name in self.parameter_dict:
-            frame, signal = name.split(':')
+        parameter_names = [k.split(':') for k in self.parameter_dict.keys()]
 
+        factory_signal_name = 'FactoryAccess'
+        try:
+            (frame, signal), = (
+                (f, s)
+                for f, s in parameter_names
+                if s == factory_signal_name
+            )
+        except ValueError:
+            pass
+        else:
+            sent_frames.add(frame)
+
+            signal = self.nvs.signal_from_names(frame, signal)
+            yield self.nv_protocol.write(nv_signal=signal)
+
+        for frame, signal in parameter_names:
             if frame not in sent_frames:
                 sent_frames.add(frame)
 

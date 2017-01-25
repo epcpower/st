@@ -31,5 +31,6 @@
     "LoggerChunk15:Bytes": "0",
     "LoggerChunk16:Address": "0",
     "LoggerChunk16:Bytes": "0",
-    "LoggerConf01:PostTriggerDuration_s": "0.050"
+    "LoggerConf01:PostTriggerDuration_s": "0.050",
+    "FactoryAccess:FactoryAccess": "1234"
 }
