@@ -29,8 +29,6 @@ from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot,
 from PyQt5.QtWidgets import QMessageBox
 
 # See file COPYING in this source tree
-from _pytest.junitxml import record_xml_property
-
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
