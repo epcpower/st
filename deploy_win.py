@@ -23,7 +23,6 @@ import epyqlib.tee
 import glob
 import json
 import os
-import requests
 import stat
 import sys
 
@@ -103,7 +102,7 @@ import shutil
 import tempfile
 import zipfile
 
-from subprocess import Popen
+import subprocess
 
 default_sysroot = os.path.abspath(
     os.path.join('..', '..', 'sysroot')
@@ -117,7 +116,7 @@ parser.add_argument('--sysroot', '-s', type=str)
 args = parser.parse_args()
 
 def runit(args, cwd=None, env=None):
-    proc = Popen(
+    proc = subprocess.Popen(
         args=args,
         cwd=cwd,
         shell=True,
@@ -130,6 +129,8 @@ def runit(args, cwd=None, env=None):
         sys.stdout.write(str(line, 'UTF-8'))
 
     proc.wait()
+    if proc.returncode != 0:
+        raise CalledProcessError('return: {}   -   called: {}'.format(proc.returncode, args))
 
 runit(
     args=[
@@ -180,7 +181,7 @@ if os.path.isdir('build'):
     shutil.rmtree('build', onerror=del_rw)
 
 # TODO: CAMPid 9811163648546549994313612126896
-def pip_install(package, no_ssl_verify, site=False):
+def pip_install(package, no_ssl_verify, site=False, parameters=[]):
     pip_parameters = ['install']
     if no_ssl_verify:
         pip_parameters.append('--index-url=http://pypi.python.org/simple/')
@@ -188,10 +189,22 @@ def pip_install(package, no_ssl_verify, site=False):
         pip_parameters.append('pypi.python.org')
     if not site:
         pip_parameters.append('--user')
+    pip_parameters.extend(parameters)
     pip_parameters.append(package)
     return pip.main(pip_parameters)
 
-pip_install('hg+http://www.riverbankcomputing.com/hg/pyqtdeploy@bef6017b100c#egg=pyqtdeploy', no_ssl_verify=False, site=True)
+pip_install('hg+http://www.riverbankcomputing.com/hg/pyqtdeploy@bef6017b100c#egg=pyqtdeploy', no_ssl_verify=False, site=True, parameters=['--upgrade'])
+
+resource_files = glob.glob(os.path.join('sub', 'epyqlib', 'epyqlib', 'resources', '*.qrc'))
+for f in resource_files:
+    print('Starting pyrcc5')
+    runit(
+        args=[
+            'pyrcc5',
+            '-o', os.path.splitext(f)[0] + '.py',
+            f
+        ]
+    )
 
 print('Starting pyqtdeploycli')
 runit(
@@ -296,6 +309,9 @@ def write_license(name, contents, url, collapse_double_newlines):
             contents = contents.replace('\n\n', '\n')
         out.write(contents)
         out.write('\n\n\n')
+
+pip_install('requests', no_ssl_verify=False, site=True)
+import requests
 
 # The Qt Installer Framework (QtIFW) likes to do a few things to license files...
 #  * '\n' -> '\r\n'
