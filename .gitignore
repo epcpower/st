@@ -1,3 +1,6 @@
+/epyqlib/resources/code
+/epyqlib/resources/*.py
+
 # Conflicts
 *.rej
 *.orig

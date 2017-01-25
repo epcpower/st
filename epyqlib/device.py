@@ -9,6 +9,10 @@ import can
 import canmatrix.importany as importany
 import epyqlib.canneo
 import epyqlib.deviceextension
+try:
+    import epyqlib.resources.code
+except ImportError:
+    pass # we will catch the failure to open the file
 import epyqlib.nv
 import epyqlib.nvview
 import epyqlib.overlaylabel
@@ -33,7 +37,7 @@ from epyqlib.busproxy import BusProxy
 from epyqlib.widgets.abstractwidget import AbstractWidget
 from PyQt5 import uic
 from PyQt5.QtCore import (pyqtSlot, Qt, QFile, QFileInfo, QTextStream, QObject,
-                          QSortFilterProxyModel)
+                          QSortFilterProxyModel, QIODevice)
 from PyQt5.QtWidgets import QWidget, QMessageBox, QInputDialog, QLineEdit
 
 # See file COPYING in this source tree
@@ -217,6 +221,13 @@ class Device:
         path = tempfile.mkdtemp()
 
         password = None
+
+        code = QFile(':/code')
+        if code.open(QIODevice.ReadOnly):
+            password = bytes(code.readAll())
+            password = password.decode('utf-8').strip().encode('ascii')
+            code.close()
+
         while True:
             try:
                 zip_file.extractall(path=path, pwd=password)
