@@ -71,6 +71,16 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
         return self._deferred
 
+    def write(self, nv_signal):
+        self._start_transaction()
+
+        nv_signal.frame.send_write()
+        self.setTimeout(0.05)
+
+        self._request_memory = nv_signal.status_signal
+
+        return self._deferred
+
     def dataReceived(self, msg):
         logger.debug('Message received: {}'.format(msg))
         if not (msg.arbitration_id == self._rx_id and
