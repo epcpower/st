@@ -24,6 +24,9 @@ class DeviceExtension:
         self.parameter_dict = None
 
     def post(self):
+        self.device.referenced_files.append(
+            self.device.raw_dict['auto_parameters'])
+
         self.ui = self.device.uis['Factory']
         self.ui.load_parameters_button.clicked.connect(
             self.load_parameters)
