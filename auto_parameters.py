@@ -67,8 +67,10 @@ class DeviceExtension:
         parameter_names = [k.split(':') for k in self.parameter_dict.keys()]
 
         factory_signal_name = 'FactoryAccess'
+        factory_frame = None
+        factory_signal = None
         try:
-            (frame, signal), = (
+            (factory_frame, factory_signal), = (
                 (f, s)
                 for f, s in parameter_names
                 if s == factory_signal_name
@@ -76,10 +78,11 @@ class DeviceExtension:
         except ValueError:
             pass
         else:
-            sent_frames.add(frame)
+            sent_frames.add(factory_frame)
 
-            signal = self.nvs.signal_from_names(frame, signal)
-            yield self.nv_protocol.write(nv_signal=signal)
+            factory_signal = self.nvs.signal_from_names(
+                factory_frame, factory_signal)
+            yield self.nv_protocol.write(nv_signal=factory_signal)
 
         for frame, signal in parameter_names:
             if frame not in sent_frames:
@@ -87,3 +90,8 @@ class DeviceExtension:
 
                 signal = self.nvs.signal_from_names(frame, signal)
                 yield self.nv_protocol.write(nv_signal=signal)
+
+        if factory_frame is not None and factory_signal is not None:
+            # don't pick zero as a code...
+            factory_signal.set_value(value=0)
+            yield self.nv_protocol.write(nv_signal=factory_signal)
