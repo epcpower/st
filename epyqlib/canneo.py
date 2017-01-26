@@ -260,9 +260,6 @@ class Signal(QObject):
         return formatted
 
     def format(self):
-        if self.secret:
-            return '<secret>'
-
         if self.float:
             # TODO: CAMPid 097897541967932453154321546542175421549
             types = {
