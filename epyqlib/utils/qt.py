@@ -205,3 +205,15 @@ def file_dialog(filters, default=0, save=False):
         file = None
 
     return file
+
+
+def get_code():
+    code = None
+
+    code_file = QtCore.QFile(':/code')
+    if code_file.open(QtCore.QIODevice.ReadOnly):
+        code = bytes(code_file.readAll())
+        code = code.decode('utf-8').strip().encode('ascii')
+        code_file.close()
+
+    return code

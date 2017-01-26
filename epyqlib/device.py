@@ -18,6 +18,7 @@ import epyqlib.nvview
 import epyqlib.overlaylabel
 import epyqlib.txrx
 import epyqlib.txrxview
+import epyqlib.utils.qt
 import epyqlib.variableselectionmodel
 import functools
 import importlib.util
@@ -97,6 +98,7 @@ def load(file):
 class Device:
     def __init__(self, *args, **kwargs):
         self.bus = None
+        self.from_zip = False
 
         if kwargs.get('file', None) is not None:
             constructor = self._init_from_file
@@ -218,21 +220,16 @@ class Device:
                 **kwargs)
 
     def _init_from_zip(self, zip_file, rx_interval=0, **kwargs):
+        self.from_zip = True
         path = tempfile.mkdtemp()
 
-        password = None
-
-        code = QFile(':/code')
-        if code.open(QIODevice.ReadOnly):
-            password = bytes(code.readAll())
-            password = password.decode('utf-8').strip().encode('ascii')
-            code.close()
+        code = epyqlib.utils.qt.get_code()
 
         while True:
             try:
-                zip_file.extractall(path=path, pwd=password)
+                zip_file.extractall(path=path, pwd=code)
             except RuntimeError:
-                password, ok = QInputDialog.getText(
+                code, ok = QInputDialog.getText(
                     None,
                     '.epz Password',
                     '.epz Password',
@@ -241,7 +238,7 @@ class Device:
                 if not ok:
                     raise CancelError('User canceled password dialog')
 
-                password = password.encode('ascii')
+                code = code.encode('ascii')
             else:
                 break
 

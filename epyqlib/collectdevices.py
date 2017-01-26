@@ -3,6 +3,7 @@
 import argparse
 import collections
 import epyqlib.device
+import epyqlib.utils.general
 try:
     import git
 except ImportError as e:
@@ -102,21 +103,13 @@ def collect(devices, output_directory, dry_run, groups=None):
                                      zip_file_name))
 
             if not dry_run:
-                with zipfile.ZipFile(file=zip_path, mode='w') as zip:
-                    for device_path in referenced_files:
-                        filename = os.path.join(device_dir, device_path)
-                        zip.write(filename=filename,
-                                  arcname=os.path.relpath(filename, start=device_dir)
-                                  )
-
-                    sha_file_name = 'sha'
-                    sha_file_path = os.path.join(checkout_dir, sha_file_name)
-                    with open(sha_file_path, 'w') as sha_file:
-                        sha_file.write(sha + '\n')
-                    zip.write(
-                        filename=sha_file_path,
-                        arcname=sha_file_name
-                    )
+                epyqlib.utils.general.write_device_to_zip(
+                    zip_path=zip_path,
+                    checkout_dir=checkout_dir,
+                    epc_dir=device_dir,
+                    referenced_files=referenced_files,
+                    sha=sha
+                )
 
         all_devices_strings = ['{}:{}:{}'.format(url, branch, file) for url, branch, file in all_devices]
 

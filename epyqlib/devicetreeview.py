@@ -7,6 +7,7 @@ import epyqlib.datalogger
 import epyqlib.device
 import epyqlib.devicetree
 import epyqlib.flash
+import epyqlib.utils.general
 import epyqlib.utils.qt
 import functools
 import io
@@ -98,6 +99,13 @@ class DeviceTreeView(QtWidgets.QWidget):
         menu = QMenu()
         if isinstance(node, epyqlib.devicetree.Device):
             pull_raw_log_action = menu.addAction('Pull Raw Log...')
+
+            write_to_epz = menu.addAction('Write To Epz...')
+            write_to_epz.setEnabled(not node.device.from_zip)
+            # TODO: stdlib zipfile can't create an encrypted .zip
+            #       make a good solution that will...
+            write_to_epz.setVisible(False)
+
             remove_device_action = menu.addAction('Close')
         if isinstance(node, epyqlib.devicetree.Bus):
             add_device_action = menu.addAction('Load device...')
@@ -122,6 +130,8 @@ class DeviceTreeView(QtWidgets.QWidget):
                        channel=node.channel)
         elif action is pull_raw_log_action:
             epyqlib.datalogger.pull_raw_log(device=node.device)
+        elif action is write_to_epz:
+            self.write_to_epz(device=node.device)
 
     def add_device(self, bus):
         device = load_device()
@@ -262,6 +272,23 @@ class DeviceTreeView(QtWidgets.QWidget):
     def remove_device(self, device):
         self.ui.tree_view.clearSelection()
         self.model.remove_device(device)
+
+    def write_to_epz(self, device):
+        print(device.referenced_files)
+
+        filters = [
+            ('EPZ', ['epz']),
+            ('All Files', ['*'])
+        ]
+        filename = epyqlib.utils.qt.file_dialog(filters, save=True)
+
+        if filename is not None:
+            epyqlib.utils.general.write_device_to_zip(
+                zip_path=filename,
+                epc_dir='',
+                referenced_files=device.referenced_files,
+                code=epyqlib.utils.qt.get_code()
+            )
 
     def setModel(self, model):
         self.model = model

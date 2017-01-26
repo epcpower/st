@@ -1,6 +1,8 @@
 import collections
 import math
+import os
 import time
+import zipfile
 
 import attr
 
@@ -58,3 +60,22 @@ class AverageValueRate:
             return (final_value - self._deque[-1].value) / rate
 
 
+def write_device_to_zip(zip_path, epc_dir, referenced_files, code=None,
+                        sha=None, checkout_dir=None):
+    # TODO: stdlib zipfile can't create an encrypted .zip
+    #       make a good solution that will...
+    with zipfile.ZipFile(file=zip_path, mode='w') as zip:
+        for device_path in referenced_files:
+            filename = os.path.join(epc_dir, device_path)
+            zip.write(filename=filename,
+                      arcname=os.path.relpath(filename, start=epc_dir))
+
+        if sha is not None:
+            sha_file_name = 'sha'
+            sha_file_path = os.path.join(checkout_dir, sha_file_name)
+            with open(sha_file_path, 'w') as sha_file:
+                sha_file.write(sha + '\n')
+            zip.write(
+                filename=sha_file_path,
+                arcname=sha_file_name
+            )
