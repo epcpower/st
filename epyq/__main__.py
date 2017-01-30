@@ -10,9 +10,6 @@ import sys
 # TODO: CAMPid 953295425421677545429542967596754
 log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', buffering=1)
 
-import logging
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
-
 if sys.stdout is None:
     sys.stdout = log
 else:
@@ -22,6 +19,9 @@ if sys.stderr is None:
     sys.stderr = log
 else:
     sys.stderr = epyqlib.tee.Tee([sys.stderr, log])
+
+import logging
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 
 try:
     import epyq.revision
