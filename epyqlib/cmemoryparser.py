@@ -1140,6 +1140,8 @@ def process_file(filename):
 
     result = names, variables, bits_per_byte
 
+    logging.debug('Finished processing file: {}'.format(filename))
+
     return result
 
 def testit(names, variables):

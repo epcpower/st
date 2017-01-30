@@ -320,6 +320,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.beginResetModel()
 
+        logger.debug('Updating from binary, {} variables'.format(len(variables)))
+
         self.root.children = []
         for variable in variables:
             QCoreApplication.processEvents()
@@ -333,7 +335,11 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.endResetModel()
 
+        logger.debug('Creating cache')
+
         self.cache = self.create_cache(only_checked=False, subscribe=True)
+
+        logger.debug('Done creating cache')
 
         self.binary_loaded.emit()
 
