@@ -182,7 +182,10 @@ class VariableNode(epyqlib.treenode.TreeNode):
     def add_array_members(self, base_type, address):
         new_members = []
         format = '[{{:0{}}}]'.format(len(str(base_type.length())))
-        for index in range(base_type.length()):
+
+        maximum_children = 256
+
+        for index in range(base_type.length())[:maximum_children]:
             child_address = address + base_type.offset_of(index)
             variable = epyqlib.cmemoryparser.Variable(
                 name=format.format(index),
@@ -193,6 +196,19 @@ class VariableNode(epyqlib.treenode.TreeNode):
                                       comparison_value=index)
             self.append_child(child_node)
             new_members.append(child_node)
+
+        if base_type.length() > maximum_children:
+            message = ('Arrays over {} elements are truncated.\n'
+                       'This has happened to `{}`.'.format(
+                maximum_children, self.fields.name
+            ))
+            QMessageBox.information(
+                None,
+                'EPyQ',
+                message
+            )
+
+            # TODO: add a marker showing visually that it has been truncated
 
         return new_members
 
