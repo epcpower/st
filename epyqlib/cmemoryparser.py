@@ -707,8 +707,8 @@ def fake_section(filename, section_name):
         size=len(debug_bytes))
 
 def process_file(filename):
-    logging.debug('Processing file:', filename)
-    logging.debug('Working directory:', os.getcwd())
+    logging.debug('Processing file: {}'.format(filename))
+    logging.debug('Working directory: {}'.format(os.getcwd()))
 
     coff = epyqlib.ticoff.Coff()
     coff.from_file(filename)
