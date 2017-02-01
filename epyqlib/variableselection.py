@@ -43,8 +43,8 @@ class VariableSelection(QtWidgets.QWidget):
         self.ui.save_selection_button.clicked.connect(self.save_selection)
         self.ui.load_selection_button.clicked.connect(self.load_selection)
         self.ui.update_parameters_button.clicked.connect(self.update_parameters)
-        self.ui.pull_raw_log_button.clicked.connect(self.pull_raw_log)
         self.ui.process_raw_log_button.clicked.connect(self.process_raw_log)
+        self.ui.process_raw_log_button.setEnabled(False)
 
         self.ui.view.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui.view.tree_view.customContextMenuRequested.connect(
@@ -123,14 +123,13 @@ class VariableSelection(QtWidgets.QWidget):
                 filename=filename
             )
             d.addCallback(model.update_from_loaded_binary)
+            d.addCallback(epyqlib.utils.twisted.detour_result,
+                          self.ui.process_raw_log_button.setEnabled, True)
             d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def update_parameters(self):
         model = self.nonproxy_model()
         model.update_parameters()
-
-    def pull_raw_log(self):
-        epyqlib.datalogger.pull_raw_log(device=self.device)
 
     def process_raw_log(self):
         filters = [
