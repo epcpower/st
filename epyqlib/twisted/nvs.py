@@ -22,7 +22,8 @@ class State(enum.Enum):
 
 
 class Protocol(twisted.protocols.policies.TimeoutMixin):
-    def __init__(self, tx_id=0x0CFFAA41, rx_id=0x1CFFA9F7, extended=True):
+    def __init__(self, tx_id=0x0CFFAA41, rx_id=0x1CFFA9F7, extended=True,
+                 timeout=1):
         self._deferred = None
 
         self._state = State.idle
@@ -35,6 +36,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._extended = extended
 
         self._request_memory = None
+        self._timeout = timeout
 
     @property
     def state(self):
@@ -72,7 +74,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         nv_signal.frame.update_from_signals()
 
         self._transport.write(nv_signal.frame.to_message())
-        self.setTimeout(0.05)
+        self.setTimeout(self._timeout)
 
         self._request_memory = nv_signal.status_signal
 
@@ -89,7 +91,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         nv_signal.frame.update_from_signals()
 
         self._transport.write(nv_signal.frame.to_message())
-        self.setTimeout(0.05)
+        self.setTimeout(self._timeout)
 
         self._request_memory = nv_signal.status_signal
 
