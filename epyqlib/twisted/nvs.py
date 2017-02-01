@@ -64,7 +64,14 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
     def read(self, nv_signal):
         self._start_transaction()
 
-        nv_signal.frame.send_read()
+        read_write, = (k for k, v
+                       in nv_signal.frame.read_write.enumeration.items()
+                       if v == 'Read')
+
+        nv_signal.frame.read_write.set_data(read_write)
+        nv_signal.frame.update_from_signals()
+
+        self._transport.write(nv_signal.frame.to_message())
         self.setTimeout(0.05)
 
         self._request_memory = nv_signal.status_signal
@@ -74,7 +81,14 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
     def write(self, nv_signal):
         self._start_transaction()
 
-        nv_signal.frame.send_write()
+        read_write, = (k for k, v
+                       in nv_signal.frame.read_write.enumeration.items()
+                       if v == 'Write')
+
+        nv_signal.frame.read_write.set_data(read_write)
+        nv_signal.frame.update_from_signals()
+
+        self._transport.write(nv_signal.frame.to_message())
         self.setTimeout(0.05)
 
         self._request_memory = nv_signal.status_signal
