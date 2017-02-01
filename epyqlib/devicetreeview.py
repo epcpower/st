@@ -9,6 +9,7 @@ import epyqlib.devicetree
 import epyqlib.flash
 import epyqlib.utils.general
 import epyqlib.utils.qt
+import epyqlib.utils.twisted
 import functools
 import io
 import math
@@ -99,6 +100,10 @@ class DeviceTreeView(QtWidgets.QWidget):
         menu = QMenu()
         if isinstance(node, epyqlib.devicetree.Device):
             pull_raw_log_action = menu.addAction('Pull Raw Log...')
+            pull_raw_log_action.setEnabled(
+                not node.tree_parent._checked.name
+                and not node.tree_parent.fields.name == 'Offline'
+            )
 
             write_to_epz = menu.addAction('Write To Epz...')
             write_to_epz.setEnabled(not node.device.from_zip)
@@ -110,8 +115,10 @@ class DeviceTreeView(QtWidgets.QWidget):
         if isinstance(node, epyqlib.devicetree.Bus):
             add_device_action = menu.addAction('Load device...')
             flash_action = menu.addAction('Flash...')
-            flash_action.setEnabled(not node._checked.name
-                                    and not node.fields.name == 'Offline')
+            flash_action.setEnabled(
+                not node._checked.name
+                and not node.fields.name == 'Offline'
+            )
 
         action = menu.exec_(self.ui.tree_view.viewport().mapToGlobal(position))
 
@@ -129,9 +136,20 @@ class DeviceTreeView(QtWidgets.QWidget):
             self.flash(interface=node.interface,
                        channel=node.channel)
         elif action is pull_raw_log_action:
-            epyqlib.datalogger.pull_raw_log(device=node.device)
+            self.pull_raw_log(node=node)
         elif action is write_to_epz:
             self.write_to_epz(device=node.device)
+
+    def pull_raw_log(self, node):
+        bus_node = node.tree_parent
+        real_bus = can.interface.Bus(bustype=bus_node.interface,
+                                     channel=bus_node.channel,
+                                     bitrate=bus_node.bitrate)
+        bus = epyqlib.busproxy.BusProxy(bus=real_bus,
+                                        auto_disconnect=False)
+
+        d = epyqlib.datalogger.pull_raw_log(device=node.device, bus=bus)
+        d.addBoth(epyqlib.utils.twisted.detour_result, bus.set_bus)
 
     def add_device(self, bus):
         device = load_device()

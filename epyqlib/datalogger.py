@@ -22,6 +22,7 @@ class UnsupportedError(Exception):
 class DataLogger:
     nvs = attr.ib()
     bus = attr.ib()
+    device = attr.ib()
     progress = attr.ib(default=attr.Factory(epyqlib.utils.qt.Progress))
     ccp_protocol = attr.ib(init=False)
     tx_id = attr.ib(default=0x1FFFFFFF)
@@ -30,13 +31,13 @@ class DataLogger:
     def __attrs_post_init__(self):
         self.ccp_protocol = ccp.Handler(tx_id=self.tx_id, rx_id=self.rx_id)
         from twisted.internet import reactor
-        self.transport = epyqlib.twisted.busproxy.BusProxy(
+        self.ccp_transport = epyqlib.twisted.busproxy.BusProxy(
             protocol=self.ccp_protocol,
             reactor=reactor,
             bus=self.bus)
     
         self.nv_protocol = epyqlib.twisted.nvs.Protocol()
-        self.transport = epyqlib.twisted.busproxy.BusProxy(
+        self.nv_transport = epyqlib.twisted.busproxy.BusProxy(
             protocol=self.nv_protocol,
             reactor=reactor,
             bus=self.bus)
@@ -48,6 +49,8 @@ class DataLogger:
         d.addErrback(epyqlib.utils.twisted.detour_result,
                      self.progress.fail)
         d.addErrback(epyqlib.utils.twisted.errbackhook)
+
+        return d
 
     @twisted.internet.defer.inlineCallbacks
     def _pull_raw_log(self):
@@ -95,31 +98,39 @@ def write_to_file(data, path):
         f.write(data)
 
 
-def pull_raw_log(device):
+def pull_raw_log(device, bus=None):
+    if bus is None:
+        bus = device.bus
+
     filters = [
         ('Raw', ['raw']),
         ('All Files', ['*'])
     ]
     filename = epyqlib.utils.qt.file_dialog(filters, save=True)
 
-    if filename is not None:
-        # TODO: CAMPid 9632763567954321696542754261546
-        progress = QtWidgets.QProgressDialog(device.ui)
-        flags = progress.windowFlags()
-        flags &= ~QtCore.Qt.WindowContextHelpButtonHint
-        progress.setWindowFlags(flags)
-        progress.setWindowModality(QtCore.Qt.WindowModal)
-        progress.setAutoReset(False)
-        progress.setCancelButton(None)
+    # TODO: perhaps an exception for cancelation?  let caller ignore it?
+    if filename is None:
+        d = twisted.internet.defer.Deferred()
+        d.callback(None)
+        return d
 
-        logger = epyqlib.datalogger.DataLogger(
-            nvs=device.nvs,
-            bus=device.bus)
+    # TODO: CAMPid 9632763567954321696542754261546
+    progress = QtWidgets.QProgressDialog(device.ui)
+    flags = progress.windowFlags()
+    flags &= ~QtCore.Qt.WindowContextHelpButtonHint
+    progress.setWindowFlags(flags)
+    progress.setWindowModality(QtCore.Qt.WindowModal)
+    progress.setAutoReset(False)
+    progress.setCancelButton(None)
 
-        logger.progress.connect(
-            progress=progress,
-            label_text=('Pulling log...\n\n'
-                        + logger.progress.default_progress_label)
-        )
-        logger.pull_raw_log(path=filename)
+    logger = epyqlib.datalogger.DataLogger(
+        nvs=device.nvs,
+        bus=bus,
+        device=device)
 
+    logger.progress.connect(
+        progress=progress,
+        label_text=('Pulling log...\n\n'
+                    + logger.progress.default_progress_label)
+    )
+    return logger.pull_raw_log(path=filename)
