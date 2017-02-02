@@ -1,7 +1,8 @@
 import enum
 import logging
 import sys
-import twisted
+import twisted.internet.defer
+import twisted.protocols.policies
 
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -103,6 +104,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
                         bool(msg.id_type) == self._extended):
             return
 
+        # TODO: check the mux value!
         if not self._active:
             return
 

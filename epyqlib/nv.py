@@ -5,12 +5,17 @@
 import can
 from epyqlib.abstractcolumns import AbstractColumns
 import epyqlib.canneo
+import epyqlib.twisted.busproxy
+import epyqlib.twisted.nvs
+import epyqlib.utils.twisted
 import json
 import epyqlib.pyqabstractitemmodel
 from epyqlib.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot)
 from PyQt5.QtWidgets import QFileDialog
 import time
+import twisted.internet.defer
+import twisted.internet.task
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -38,6 +43,13 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     def __init__(self, neo, bus, parent=None):
         TreeNode.__init__(self)
         epyqlib.canneo.QtCanListener.__init__(self, parent=parent)
+
+        from twisted.internet import reactor
+        self.protocol = epyqlib.twisted.nvs.Protocol()
+        self.transport = epyqlib.twisted.busproxy.BusProxy(
+            protocol=self.protocol,
+            reactor=reactor,
+            bus=bus)
 
         self.bus = bus
         self.neo = neo
@@ -95,11 +107,10 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             signals = [s for s in frame.signals]
             signals = [s for s in signals if s.multiplex is not 'Multiplexor']
             signals = [s for s in signals if s.name not in
-                       ['SaveToEE_command', 'ReadParam_command',
-                        'CommandSetNVParam_MUX']]
-            frame.send.connect(self.send)
+                       ['ReadParam_command', 'CommandSetNVParam_MUX']]
             for nv in signals:
-                self.append_child(nv)
+                if nv.name not in ['SaveToEE_command']:
+                    self.append_child(nv)
 
                 nv.frame.status_frame = self.status_frames[value]
                 self.status_frames[value].set_frame = nv.frame
@@ -128,18 +139,55 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
     def write_all_to_device(self):
         self.set_status_string.emit('Writing to device...')
-        self.traverse(
-            call_this=lambda node, batch_set: node.write_to_device(batch_set),
-            payload=set())
-        self.set_status_string.emit('Finished writing to device...')
+        d = twisted.internet.defer.Deferred()
+        d.callback(None)
+
+        already_set_frames = set()
+
+        def write_node(node, _):
+            if node.frame not in already_set_frames:
+                already_set_frames.add(node.frame)
+                node.frame.update_from_signals()
+                d.addCallback(lambda _: self.protocol.write(node))
+
+        self.traverse(call_this=write_node)
+
+        d.addCallback(epyqlib.utils.twisted.detour_result,
+                      self.set_status_string.emit,
+                      'Finished writing to device...')
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
+        d.addErrback(epyqlib.utils.twisted.detour_result,
+                     self.set_status_string.emit,
+                     'Failed while writing to device...')
 
     def read_all_from_device(self):
         self.set_status_string.emit('Reading from device...')
-        self.traverse(
-            call_this=lambda node, batch_set: node.read_from_device(batch_set),
-            payload=set())
-        self.all_changed()
-        self.set_status_string.emit('Finished reading from device...')
+        d = twisted.internet.defer.Deferred()
+        d.callback(None)
+
+        already_read_frames = set()
+
+        from twisted.internet import reactor
+
+        def read_node(node, _):
+            if node.frame not in already_read_frames:
+                already_read_frames.add(node.frame)
+                node.frame.update_from_signals()
+
+                d.addCallback(lambda _:
+                              twisted.internet.task.deferLater(
+                                  reactor, 0.02,
+                                  self.protocol.read, node))
+
+        self.traverse(call_this=read_node)
+
+        d.addCallback(epyqlib.utils.twisted.detour_result,
+                      self.set_status_string.emit,
+                      'Finished reading from device...')
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
+        d.addErrback(epyqlib.utils.twisted.detour_result,
+                     self.set_status_string.emit,
+                     'Failed while reading from device...')
 
     def all_changed(self):
         # TODO: CAMPid 99854759326728959578972453876695627489
@@ -150,36 +198,12 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                 [Qt.DisplayRole])
 
     @pyqtSlot(can.Message)
-    def send(self, message):
-        self.bus.send(message, passive=True)
-        time.sleep(0.02)
-
-    @pyqtSlot(can.Message)
     def message_received(self, msg):
         multiplex_message, multiplex_value =\
             self.neo.get_multiplex(msg)
 
         if multiplex_message is None:
             return
-
-        if multiplex_message is self.confirm_save_frame:
-            if multiplex_value is self.confirm_save_multiplex_value:
-                # TODO: might be unnecessary since same frame as
-                #       unpacked for multiplex info
-                self.confirm_save_frame.unpack(msg.data)
-
-                status = self.confirm_save_signal.value
-
-                if status == 1:
-                    feedback = 'Save to NV confirmed'
-                else:
-                    feedback = 'Save to NV failed ({})'.format(
-                        self.confirm_save_signal.full_string
-                    )
-
-                self.set_status_string.emit(feedback)
-
-                return
 
         if multiplex_value is not None and multiplex_message in self.status_frames.values():
             multiplex_message.unpack(msg.data)
@@ -226,8 +250,19 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         self.set_status_string.emit('Requested save to NV...')
         self.save_signal.set_value(self.save_value)
         self.save_frame.update_from_signals()
-        self.send(self.save_frame.to_message())
-        # TODO: is there a response from device to confirm?
+        d = self.protocol.write(self.save_signal)
+        d.addCallback(self._module_to_nv_response)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
+
+    def _module_to_nv_response(self, result):
+        if result == 1:
+            feedback = 'Save to NV confirmed'
+        else:
+            feedback = 'Save to NV failed ({})'.format(
+                self.confirm_save_signal.full_string
+            )
+
+        self.set_status_string.emit(feedback)
 
     def logger_set_frames(self):
         frames = [frame for frame in self.set_frames.values()
@@ -280,28 +315,6 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         # self.fields.value = value
         self.set_human_value(data)
 
-    def write_to_device(self, batch_set=None):
-        if batch_set is None:
-            batch_set = set()
-        # TODO: this is going to be repetitive since there are multiple
-        #       values in many of the frames
-        frame = self.frame
-        if frame not in batch_set:
-            frame.send_write()
-            batch_set.add(frame)
-
-    def read_from_device(self, batch_set=None):
-        if batch_set is None:
-            batch_set = set()
-        # TODO: this is going to be repetitive since there are multiple
-        #       values in many of the frames
-        frame = self.frame
-        self.clear()
-        if frame not in batch_set:
-            frame.send_read()
-            batch_set.add(frame)
-        # TODO: then we'll have to receive them too...
-
     def clear(self):
         self.set_value(float('nan'))
         try:
@@ -333,30 +346,6 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
             if child.name == "ReadParam_command":
                 self.read_write = child
                 break
-
-    def send_write(self):
-        try:
-            read_write = self.read_write
-        except AttributeError:
-            pass
-        else:
-            # TODO: magic number
-            read_write.set_data(0)
-
-        self.update_from_signals()
-        self._send()
-
-    def send_read(self):
-        try:
-            read_write = self.read_write
-        except AttributeError:
-            # TODO: custom exception? push the skipping to callee?
-            pass
-        else:
-            # TODO: magic number
-            read_write.set_data(1)
-            self.update_from_signals(function=ufs)
-            self._send()
 
     def update_from_signals(self, for_read=False, function=None):
         epyqlib.canneo.Frame.update_from_signals(self, function=function)
