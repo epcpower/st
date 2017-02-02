@@ -84,6 +84,22 @@ class DoubleClickSignal(QtCore.QObject):
         return False
 
 
+class ModifierKeySignal(QtCore.QObject):
+    triggered = QtCore.pyqtSignal(int, int)
+    keys = (QtCore.Qt.Key_Control,
+            QtCore.Qt.Key_Shift,
+            QtCore.Qt.Key_Alt)
+
+    def eventFilter(self, _, event):
+        if isinstance(event, QtGui.QKeyEvent) and event.key() in self.keys:
+            self.triggered.emit(
+                event.key(),
+                event.type() == QtCore.QEvent.KeyPress
+            )
+
+        return False
+
+
 class CheckableChart:
     def __init__(self):
         self.check_box = QtWidgets.QCheckBox()
@@ -99,6 +115,9 @@ class CheckableChart:
         self.f = DoubleClickSignal()
         self.f.triggered.connect(self._zoom_reset)
         self.view.installEventFilter(self.f)
+        self.g = ModifierKeySignal()
+        self.g.triggered.connect(self._keyboard_modifier)
+        self.view.installEventFilter(self.g)
 
         self._name = None
         self.name = '<unnamed>'
@@ -128,6 +147,17 @@ class CheckableChart:
 
     def _zoom_reset(self):
         QtCore.QTimer.singleShot(0.2 * 1000, self.chart.zoomReset)
+
+    def _keyboard_modifier(self, key, pressed):
+        mode = QtChart.QChartView.HorizontalRubberBand
+
+        if pressed:
+            if key == QtCore.Qt.Key_Shift:
+                mode = QtChart.QChartView.VerticalRubberBand
+            elif key == QtCore.Qt.Key_Control:
+                mode = QtChart.QChartView.RectangleRubberBand
+
+        self.view.setRubberBand(mode)
 
 
 class QtChartWindow(QtWidgets.QMainWindow):
