@@ -100,36 +100,37 @@ class ModifierKeySignal(QtCore.QObject):
         return False
 
 
-class ChartView(QtChart.QChartView):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+def make_chart_view_zoomable(chart):
+    filters = []
 
-        self.filters = []
+    f = DoubleClickSignal()
+    f.triggered.connect(lambda: _zoom_reset(chart))
+    filters.append(f)
 
-        f = DoubleClickSignal()
-        f.triggered.connect(self._zoom_reset)
-        self.filters.append(f)
+    f = ModifierKeySignal()
+    f.triggered.connect(lambda *args: _keyboard_modifier(chart, *args))
+    filters.append(f)
 
-        f = ModifierKeySignal()
-        f.triggered.connect(self._keyboard_modifier)
-        self.filters.append(f)
+    for f in filters:
+        chart.installEventFilter(f)
 
-        for f in self.filters:
-            self.installEventFilter(f)
+    return filters
 
-    def _zoom_reset(self):
-        QtCore.QTimer.singleShot(0.2 * 1000, self.chart().zoomReset)
 
-    def _keyboard_modifier(self, key, pressed):
-        mode = QtChart.QChartView.HorizontalRubberBand
+def _zoom_reset(chart):
+    QtCore.QTimer.singleShot(0.2 * 1000, chart.chart().zoomReset)
 
-        if pressed:
-            if key == QtCore.Qt.Key_Shift:
-                mode = QtChart.QChartView.VerticalRubberBand
-            elif key == QtCore.Qt.Key_Control:
-                mode = QtChart.QChartView.RectangleRubberBand
 
-        self.setRubberBand(mode)
+def _keyboard_modifier(chart, key, pressed):
+    mode = QtChart.QChartView.HorizontalRubberBand
+
+    if pressed:
+        if key == QtCore.Qt.Key_Shift:
+            mode = QtChart.QChartView.VerticalRubberBand
+        elif key == QtCore.Qt.Key_Control:
+            mode = QtChart.QChartView.RectangleRubberBand
+
+    chart.setRubberBand(mode)
 
 
 class CheckableChart:
@@ -142,7 +143,8 @@ class CheckableChart:
         # self.chart.plotAreaChanged.connect(self._plot_area_changed)
         self.original_area = None
 
-        self.view = ChartView(self.chart)
+        self.view = QtChart.QChartView(self.chart)
+        self.view_filters = make_chart_view_zoomable(self.view)
 
         self._name = None
         self.name = '<unnamed>'
