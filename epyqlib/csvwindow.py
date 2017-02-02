@@ -100,6 +100,38 @@ class ModifierKeySignal(QtCore.QObject):
         return False
 
 
+class ChartView(QtChart.QChartView):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.filters = []
+
+        f = DoubleClickSignal()
+        f.triggered.connect(self._zoom_reset)
+        self.filters.append(f)
+
+        f = ModifierKeySignal()
+        f.triggered.connect(self._keyboard_modifier)
+        self.filters.append(f)
+
+        for f in self.filters:
+            self.installEventFilter(f)
+
+    def _zoom_reset(self):
+        QtCore.QTimer.singleShot(0.2 * 1000, self.chart().zoomReset)
+
+    def _keyboard_modifier(self, key, pressed):
+        mode = QtChart.QChartView.HorizontalRubberBand
+
+        if pressed:
+            if key == QtCore.Qt.Key_Shift:
+                mode = QtChart.QChartView.VerticalRubberBand
+            elif key == QtCore.Qt.Key_Control:
+                mode = QtChart.QChartView.RectangleRubberBand
+
+        self.setRubberBand(mode)
+
+
 class CheckableChart:
     def __init__(self):
         self.check_box = QtWidgets.QCheckBox()
@@ -110,14 +142,7 @@ class CheckableChart:
         # self.chart.plotAreaChanged.connect(self._plot_area_changed)
         self.original_area = None
 
-        self.view = QtChart.QChartView(self.chart)
-        # self.view = ChartView(self.chart)
-        self.f = DoubleClickSignal()
-        self.f.triggered.connect(self._zoom_reset)
-        self.view.installEventFilter(self.f)
-        self.g = ModifierKeySignal()
-        self.g.triggered.connect(self._keyboard_modifier)
-        self.view.installEventFilter(self.g)
+        self.view = ChartView(self.chart)
 
         self._name = None
         self.name = '<unnamed>'
@@ -144,20 +169,6 @@ class CheckableChart:
 
     def _check_changed(self, state):
         self.view.setVisible(state == QtCore.Qt.Checked)
-
-    def _zoom_reset(self):
-        QtCore.QTimer.singleShot(0.2 * 1000, self.chart.zoomReset)
-
-    def _keyboard_modifier(self, key, pressed):
-        mode = QtChart.QChartView.HorizontalRubberBand
-
-        if pressed:
-            if key == QtCore.Qt.Key_Shift:
-                mode = QtChart.QChartView.VerticalRubberBand
-            elif key == QtCore.Qt.Key_Control:
-                mode = QtChart.QChartView.RectangleRubberBand
-
-        self.view.setRubberBand(mode)
 
 
 class QtChartWindow(QtWidgets.QMainWindow):
