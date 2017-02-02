@@ -20,6 +20,7 @@ setup(
     entry_points={'gui_scripts': ['epyq = epyq.__main__:main']},
     install_requires=[
         'PyQt5==5.7.0',
+        'PyQtChart==5.7.0',
         'SIP==4.18.1',
         *conditional_requires
     ]
