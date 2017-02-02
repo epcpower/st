@@ -17,6 +17,8 @@ class RequestTimeoutError(TimeoutError):
 def errbackhook(error):
     epyqlib.utils.qt.exception_message_box(message=str(error))
 
+    return error
+
 
 def detour_result(result, f, *args, **kwargs):
     f(*args, **kwargs)
