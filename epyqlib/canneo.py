@@ -111,6 +111,8 @@ class Signal(QObject):
         locale.setlocale(locale.LC_ALL, '')
         atof = locale.atof
         try:
+            value = float(self.enumeration_strings().index(value))
+        except ValueError:
             # TODO: not the best for integers?
             try:
                 try:
@@ -123,8 +125,6 @@ class Signal(QObject):
                     value = 0
                 else:
                     raise
-        except ValueError:
-            value = float(self.enumeration_strings().index(value))
 
         self.set_value(value=self.from_human(value),
                        force=force,
