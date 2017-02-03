@@ -223,10 +223,11 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         # TODO: actually identify the object
         return '-'
 
-    def to_dict(self):
+    def to_dict(self, include_secrets=False):
         d = {}
         for child in self.children:
-            d[child.fields.name] = child.get_human_value(for_file=True)
+            if include_secrets or not child.secret:
+                d[child.fields.name] = child.get_human_value(for_file=True)
 
         return d
 
