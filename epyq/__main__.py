@@ -33,6 +33,7 @@ else:
 import can
 import copy
 import epyqlib.canneo
+import epyqlib.csvwindow
 import epyqlib.nv
 from epyqlib.svgwidget import SvgWidget
 import epyqlib.txrx
@@ -91,6 +92,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.action_license.triggered.connect(self.license_dialog)
         self.ui.action_third_party_licenses.triggered.connect(
             self.third_party_licenses_dialog)
+
+        self.ui.action_chart_log.triggered.connect(self.chart_log)
 
         device_tree = epyqlib.devicetree.Tree()
         device_tree_model = epyqlib.devicetree.Model(root=device_tree)
@@ -179,6 +182,17 @@ class Window(QtWidgets.QMainWindow):
         box.setWindowIcon(ico)
 
         box.exec_()
+
+    def chart_log(self):
+        filters = [
+            ('CSV', ['csv']),
+            ('All Files', ['*'])
+        ]
+        filename = epyqlib.utils.qt.file_dialog(filters)
+
+        if filename is not None:
+            data = epyqlib.csvwindow.read_csv(filename)
+            epyqlib.csvwindow.QtChartWindow(data=data, parent=self).show()
 
     @pyqtSlot(epyqlib.device.Device)
     def _remove_device(self, device):

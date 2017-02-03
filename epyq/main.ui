@@ -48,6 +48,13 @@
     <addaction name="action_about"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="action_chart_log"/>
+   </widget>
+   <addaction name="menu_Tools"/>
    <addaction name="menuAbout"/>
   </widget>
   <action name="bus__select">
@@ -68,6 +75,11 @@
   <action name="action_third_party_licenses">
    <property name="text">
     <string>Third Party Licenses...</string>
+   </property>
+  </action>
+  <action name="action_chart_log">
+   <property name="text">
+    <string>&amp;Chart Log...</string>
    </property>
   </action>
  </widget>
