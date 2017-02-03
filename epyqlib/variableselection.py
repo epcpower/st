@@ -1,7 +1,6 @@
 # import epyqlib.delegates
 # import epyqlib.txrx
 import epyqlib.cmemoryparser
-import epyqlib.csvwindow
 import epyqlib.datalogger
 import epyqlib.utils.qt
 import epyqlib.utils.twisted
@@ -46,7 +45,6 @@ class VariableSelection(QtWidgets.QWidget):
         self.ui.update_parameters_button.clicked.connect(self.update_parameters)
         self.ui.process_raw_log_button.clicked.connect(self.process_raw_log)
         self.ui.process_raw_log_button.setEnabled(False)
-        self.ui.chart_log_button.clicked.connect(self.chart_log)
 
         self.ui.view.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui.view.tree_view.customContextMenuRequested.connect(
@@ -174,14 +172,3 @@ class VariableSelection(QtWidgets.QWidget):
             pass
         elif action is read_action:
             self.nonproxy_model().read(variable=node)
-
-    def chart_log(self):
-        filters = [
-            ('CSV', ['csv']),
-            ('All Files', ['*'])
-        ]
-        filename = epyqlib.utils.qt.file_dialog(filters)
-
-        if filename is not None:
-            data = epyqlib.csvwindow.read_csv(filename)
-            epyqlib.csvwindow.QtChartWindow(data=data, parent=self).show()
