@@ -49,6 +49,21 @@ def available_buses():
                     bus.shutdown()
                     valid.append({'interface': interface,
                                   'channel': channel})
+        elif interface == 'kvaser':
+            # TODO: get the actual number of available devices rather
+            #       than hard coding?
+            #
+            #       can.interfaces.kvaser.canGetNumberOfChannels())
+            for channel in range(0, 8):
+                try:
+                    bus = can.interface.Bus(bustype=interface,
+                                            channel=channel)
+                except:
+                    pass
+                else:
+                    bus.shutdown()
+                    valid.append({'interface': interface,
+                                  'channel': channel})
         elif interface == 'socketcan':
             for n in range(9):
                 channel = 'can{}'.format(n)
