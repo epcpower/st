@@ -130,7 +130,7 @@ def runit(args, cwd=None, env=None):
 
     proc.wait()
     if proc.returncode != 0:
-        raise CalledProcessError('return: {}   -   called: {}'.format(proc.returncode, args))
+        raise subprocess.CalledProcessError(proc.returncode, args)
 
 runit(
     args=[
