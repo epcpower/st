@@ -407,32 +407,44 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
     @pyqtSlot()
     def write_to_file(self):
-        file_path = QFileDialog.getSaveFileName(
-                filter='JSON (*.json);; All File (*)',
-                initialFilter='JSON (*.json)')[0]
-        if len(file_path) > 0:
-            with open(file_path, 'w') as file:
+        filters = [
+            ('EPC Parameters', ['epp']),
+            ('All Files', ['*'])
+        ]
+        filename = epyqlib.utils.qt.file_dialog(filters, save=True)
+
+        if filename is None:
+            return
+
+        if len(filename) > 0:
+            with open(filename, 'w') as file:
                 d = self.root.to_dict()
                 s = json.dumps(d, sort_keys=True, indent=4)
                 file.write(s)
 
                 self.set_status_string.emit(
-                    'Saved to "{}"'.format(file_path)
+                    'Saved to "{}"'.format(filename)
                 )
 
     @pyqtSlot()
     def read_from_file(self):
-        file_path = QFileDialog.getOpenFileName(
-                filter='JSON (*.json);; All File (*)',
-                initialFilter='JSON (*.json)')[0]
-        if len(file_path) > 0:
-            with open(file_path, 'r') as file:
+        filters = [
+            ('EPC Parameters', ['epp']),
+            ('All Files', ['*'])
+        ]
+        filename = epyqlib.utils.qt.file_dialog(filters)
+
+        if filename is None:
+            return
+
+        if len(filename) > 0:
+            with open(filename, 'r') as file:
                 s = file.read()
                 d = json.loads(s)
                 self.root.from_dict(d)
 
                 self.set_status_string.emit(
-                    'Loaded from "{}"'.format(file_path)
+                    'Loaded from "{}"'.format(filename)
                 )
 
 
