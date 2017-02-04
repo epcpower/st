@@ -1,3 +1,6 @@
+import collections
+import csv
+import functools
 import textwrap
 
 import attr
@@ -134,3 +137,78 @@ def pull_raw_log(device, bus=None):
                     + logger.progress.default_progress_label)
     )
     return logger.pull_raw_log(path=filename)
+
+
+def generate_records(cache, chunks, data, data_stream, variables_and_chunks):
+    try:
+        scaling_cache = {}
+        while data_stream.tell() < len(data):
+            QtCore.QCoreApplication.processEvents()
+            row = collections.OrderedDict()
+
+            def update(data, variable, scaling_cache):
+                path = '.'.join(variable.path())
+                value = variable.variable.unpack(data)
+                type_ = variable.fields.type
+                scaling = 1
+                if type_ in scaling_cache:
+                    scaling = scaling_cache[type_]
+                else:
+                    if type_.startswith('_iq'):
+                        n = type_.lstrip('_iq')
+                        if n == '':
+                            n = 24
+                        else:
+                            n = int(n)
+                        scaling = 1 << n
+                    scaling_cache[type_] = scaling
+
+                row[path] = value / scaling
+
+            for variable, chunk in variables_and_chunks.items():
+                partial = functools.partial(
+                    update,
+                    variable=variable,
+                    scaling_cache=scaling_cache
+                )
+                cache.subscribe(partial, chunk)
+
+            for chunk in chunks:
+                chunk_bytes = bytearray(
+                    data_stream.read(len(chunk)))
+                if len(chunk_bytes) != len(chunk):
+                    raise EOFError(
+                        'Unexpected EOF found in the middle of a record')
+
+                chunk.set_bytes(chunk_bytes)
+                cache.update(chunk)
+
+            cache.unsubscribe_all()
+            yield row
+    except EOFError:
+        message_box = QMessageBox()
+        message_box.setStandardButtons(QMessageBox.Ok)
+
+        text = ("Unexpected EOF found in the middle of a record.  "
+                "Continuing with partially extracted log.")
+
+        message_box.setText(text)
+
+        message_box.exec()
+
+
+def parse_log(cache, chunks, csv_path, data, data_stream,
+                variables_and_chunks):
+    with open(csv_path, 'w', newline='') as f:
+        writer = None
+
+        for row in generate_records(cache, chunks, data, data_stream,
+                                    variables_and_chunks):
+            if writer is None:
+                writer = csv.DictWriter(
+                    f,
+                    fieldnames=sorted(row.keys(), key=str.casefold)
+                )
+                writer.writeheader()
+
+            writer.writerow(row)

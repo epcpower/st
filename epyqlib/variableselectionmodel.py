@@ -2,8 +2,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import attr
-import collections
-import csv
 import epyqlib.abstractcolumns
 import epyqlib.chunkedmemorycache as cmc
 import epyqlib.cmemoryparser
@@ -623,74 +621,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         variables_and_chunks = {chunk.reference: chunk
                                 for chunk in cache._chunks}
 
-        rows = []
-
-        try:
-            scaling_cache = {}
-
-            while data_stream.tell() < len(data):
-                QCoreApplication.processEvents()
-                row = collections.OrderedDict()
-
-                def update(data, variable, scaling_cache):
-                    path = '.'.join(variable.path())
-                    value = variable.variable.unpack(data)
-                    type_ = variable.fields.type
-                    scaling = 1
-                    if type_ in scaling_cache:
-                        scaling = scaling_cache[type_]
-                    else:
-                        if type_.startswith('_iq'):
-                            n = type_.lstrip('_iq')
-                            if n == '':
-                                n = 24
-                            else:
-                                n = int(n)
-                            scaling = 1 << n
-                        scaling_cache[type_] = scaling
-
-                    row[path] = value / scaling
-
-                for variable, chunk in variables_and_chunks.items():
-                    partial = functools.partial(
-                        update,
-                        variable=variable,
-                        scaling_cache=scaling_cache
-                    )
-                    cache.subscribe(partial, chunk)
-
-                for chunk in chunks:
-                    chunk_bytes = bytearray(
-                        data_stream.read(len(chunk)))
-                    if len(chunk_bytes) != len(chunk):
-                        raise EOFError(
-                            'Unexpected EOF found in the middle of a record')
-
-                    chunk.set_bytes(chunk_bytes)
-                    cache.update(chunk)
-
-                cache.unsubscribe_all()
-                rows.append(row)
-        except EOFError:
-            message_box = QMessageBox()
-            message_box.setStandardButtons(QMessageBox.Ok)
-
-            text = ("Unexpected EOF found in the middle of a record.  "
-                    "Continuing with partially extracted log.")
-
-            message_box.setText(text)
-
-            message_box.exec()
-
-        with open(csv_path, 'w', newline='') as f:
-            writer = csv.DictWriter(
-                f,
-                fieldnames=sorted(rows[0].keys(), key=str.casefold)
-            )
-            writer.writeheader()
-
-            for row in rows:
-                writer.writerow(row)
+        epyqlib.datalogger.parse_log(cache, chunks, csv_path, data,
+                                     data_stream, variables_and_chunks)
 
     def get_variable_nodes_by_type(self, type_name):
         return (node for node in self.root.children
