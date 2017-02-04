@@ -151,7 +151,26 @@ class VariableSelection(QtWidgets.QWidget):
 
                 model = self.nonproxy_model()
 
+                # TODO: CAMPid 9632763567954321696542754261546
+                progress = QProgressDialog(self)
+                flags = self.progress.windowFlags()
+                flags &= ~Qt.WindowContextHelpButtonHint
+                progress.setWindowFlags(flags)
+                progress.setWindowModality(Qt.WindowModal)
+                progress.setAutoReset(False)
+                progress.setCancelButton(None)
+                progress.setMinimumDuration(0)
+                # Uncertain duration so use a busy indicator
+                # TODO: we could actually count records so do that someday
+                progress.setMinimum(0)
+                progress.setMaximum(0)
+                progress.setLabelText('Processing Raw Log...')
+
+                progress.show()
+
                 model.parse_log(data=data, csv_path=csv_filename)
+
+                progress.close()
 
     def context_menu(self, position):
         index = self.ui.view.tree_view.indexAt(position)
