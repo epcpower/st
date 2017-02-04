@@ -563,9 +563,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         block_header_chunk.set_bytes(raw_header)
         block_header_cache.update(block_header_chunk)
 
-        for node in block_header_node.leaves():
-            print('{}: {}'.format('.'.join(node.path()), node.fields.value))
-
         chunk_ranges = []
 
         chunks_node = block_header_node.get_node('chunks')
@@ -629,18 +626,36 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         rows = []
 
         try:
+            scaling_cache = {}
+
             while data_stream.tell() < len(data):
                 QCoreApplication.processEvents()
                 row = collections.OrderedDict()
 
-                def update(data, variable):
+                def update(data, variable, scaling_cache):
                     path = '.'.join(variable.path())
-                    row[path] = variable.variable.unpack(data)
+                    value = variable.variable.unpack(data)
+                    type_ = variable.fields.type
+                    scaling = 1
+                    if type_ in scaling_cache:
+                        scaling = scaling_cache[type_]
+                    else:
+                        if type_.startswith('_iq'):
+                            n = type_.lstrip('_iq')
+                            if n == '':
+                                n = 24
+                            else:
+                                n = int(n)
+                            scaling = 1 << n
+                        scaling_cache[type_] = scaling
+
+                    row[path] = value / scaling
 
                 for variable, chunk in variables_and_chunks.items():
                     partial = functools.partial(
                         update,
-                        variable=variable
+                        variable=variable,
+                        scaling_cache=scaling_cache
                     )
                     cache.subscribe(partial, chunk)
 
