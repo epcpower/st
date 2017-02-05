@@ -178,11 +178,24 @@ class QtChartWindow(QtWidgets.QMainWindow):
         super().__init__(parent=parent)
 
         self.central_widget = QtWidgets.QWidget()
+        self.central_widget_layout = QtWidgets.QVBoxLayout()
+        self.scroll_area = QtWidgets.QScrollArea()
+        # http://stackoverflow.com/a/27840674/228539
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOn)
+        self.central_widget.setLayout(self.central_widget_layout)
+        self.central_widget_layout.addWidget(self.scroll_area)
+        self.scroll_widget = QtWidgets.QWidget()
+        self.scroll_area.setWidget(self.scroll_widget)
+
         self.grid_layout = QtWidgets.QGridLayout()
         # self.b1 = QtWidgets.QPushButton()
         # self.b2 = QtWidgets.QPushButton()
         # self.vlayout.addWidget()
-        self.central_widget.setLayout(self.grid_layout)
+        self.scroll_widget.setLayout(self.grid_layout)
         self.setCentralWidget(self.central_widget)
 
         width = QtWidgets.QApplication.desktop().screenGeometry().width()
