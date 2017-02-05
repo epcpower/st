@@ -202,6 +202,8 @@ class QtChartWindow(QtWidgets.QMainWindow):
         size = self.size()
         size.setWidth(QtWidgets.QDesktopWidget()
                       .availableGeometry(self).size().width() * 0.7)
+        size.setHeight(QtWidgets.QDesktopWidget()
+                      .availableGeometry(self).size().height() * 0.9)
         self.resize(size)
 
         # self.charts = []
