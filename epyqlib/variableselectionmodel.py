@@ -601,11 +601,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 reference=node
             )
             cache.add(chunk)
-        record_header_chunk = cache.new_chunk(
-                address=int(record_header_node.fields.address, 16),
-                bytes=b'\x00' * record_header_node.fields.size
-                      * (self.bits_per_byte // 8)
-            )
 
         chunks = sorted(
             cache.contiguous_chunks(),
