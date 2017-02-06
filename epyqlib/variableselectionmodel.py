@@ -580,8 +580,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         cache = self.create_cache(test=overlaps_a_chunk)
 
-        chunks = cache.contiguous_chunks()
-
         # TODO: hardcoded 32-bit addressing and offset assumption
         #       intended to avoid collision
         record_header_address = 2**32 + 100
@@ -609,7 +607,10 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                       * (self.bits_per_byte // 8)
             )
 
-        chunks.insert(0, record_header_chunk)
+        chunks = sorted(
+            cache.contiguous_chunks(),
+            key=lambda c: (c._address != record_header_address, c)
+        )
 
         variables_and_chunks = {chunk.reference: chunk
                                 for chunk in cache._chunks}
