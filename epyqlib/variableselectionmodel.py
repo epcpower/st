@@ -527,31 +527,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             block_header_type=self.names['DataLogger_BlockHeader']
         )
 
-        chunk_ranges = []
-
-        chunks_node = block_header_node.get_node('chunks')
-        for chunk in chunks_node.children:
-            address = chunk.get_node('address')
-            address = address.fields.value
-            size = chunk.get_node('bytes')
-            size = size.fields.value
-            chunk_ranges.append((address, size))
-
-        def overlaps_a_chunk(node):
-            if len(node.children) > 0:
-                return False
-
-            node_lower = int(node.fields.address, 16)
-            node_upper = node_lower + node.fields.size - 1
-
-            for lower, upper in chunk_ranges:
-                upper = lower + upper - 1
-                if lower <= node_upper and upper >= node_lower:
-                    return True
-
-            return False
-
-        cache = self.create_cache(test=overlaps_a_chunk)
+        cache = self.create_log_cache(block_header_node)
 
         # TODO: hardcoded 32-bit addressing and offset assumption
         #       intended to avoid collision
@@ -585,6 +561,33 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         epyqlib.datalogger.parse_log(cache, chunks, csv_path, data,
                                      data_stream, variables_and_chunks)
+
+    def create_log_cache(self, block_header_node):
+        chunk_ranges = []
+        chunks_node = block_header_node.get_node('chunks')
+        for chunk in chunks_node.children:
+            address = chunk.get_node('address')
+            address = address.fields.value
+            size = chunk.get_node('bytes')
+            size = size.fields.value
+            chunk_ranges.append((address, size))
+
+        def overlaps_a_chunk(node):
+            if len(node.children) > 0:
+                return False
+
+            node_lower = int(node.fields.address, 16)
+            node_upper = node_lower + node.fields.size - 1
+
+            for lower, upper in chunk_ranges:
+                upper = lower + upper - 1
+                if lower <= node_upper and upper >= node_lower:
+                    return True
+
+            return False
+
+        cache = self.create_cache(test=overlaps_a_chunk)
+        return cache
 
     def parse_block_header_into_node(self, raw_header, bits_per_byte, block_header_type):
         # TODO: hardcoded 32-bit addressing and offset assumption
