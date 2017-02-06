@@ -1,6 +1,9 @@
 import attr
 import bisect
 import collections
+import itertools
+
+import epyqlib.utils.general
 
 
 class ChunkExistsError(Exception):
@@ -116,28 +119,15 @@ class Cache:
                              for offset in range(len(chunk._bytes) //
                                                  (self._bits_per_byte // 8)))
 
-        addresses = sorted(list(addresses))
-
-        addresses.append(None)
-
-        if len(addresses) > 0:
-            start = None
-            for address in addresses:
-                if start is None:
-                    start = address
-                    end = start
-                elif address == end + 1:
-                    end = address
-                else:
-                    chunk = self.new_chunk(
-                        address=start,
-                        bytes=b'\x00'
-                              * (end - start + 1)
-                              * (self._bits_per_byte // 8)
-                    )
-                    chunks.append(chunk)
-                    start = address
-                    end = start
+        gen = epyqlib.utils.general.generate_ranges(sorted(addresses))
+        for start, end in gen:
+            print(start, end)
+            chunks.append(self.new_chunk(
+                address=start,
+                bytes=b'\x00'
+                      * (end - start + 1)
+                      * (self._bits_per_byte // 8)
+            ))
 
         return chunks
 

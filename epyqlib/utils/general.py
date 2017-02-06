@@ -1,4 +1,5 @@
 import collections
+import itertools
 import math
 import os
 import time
@@ -79,3 +80,21 @@ def write_device_to_zip(zip_path, epc_dir, referenced_files, code=None,
                 filename=sha_file_path,
                 arcname=sha_file_name
             )
+
+
+# https://docs.python.org/3/library/itertools.html
+def pairwise(iterable):
+    's -> (s0,s1), (s1,s2), (s2, s3), ...'
+    a, b = itertools.tee(iterable)
+    next(b, None)
+    return zip(a, b)
+
+
+def generate_ranges(ids):
+    start = ids[0]
+
+    for previous, next in pairwise(itertools.chain(ids, (None,))):
+        if previous + 1 != next:
+            yield (start, previous)
+
+            start = next

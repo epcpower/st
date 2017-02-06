@@ -140,6 +140,7 @@ def pull_raw_log(device, bus=None):
 
 
 def generate_records(cache, chunks, data, data_stream, variables_and_chunks):
+    chunk_list = list(chunks)
     try:
         scaling_cache = {}
         while data_stream.tell() < len(data):
@@ -173,7 +174,7 @@ def generate_records(cache, chunks, data, data_stream, variables_and_chunks):
                 )
                 cache.subscribe(partial, chunk)
 
-            for chunk in chunks:
+            for chunk in chunk_list:
                 chunk_bytes = bytearray(
                     data_stream.read(len(chunk)))
                 if len(chunk_bytes) != len(chunk):
