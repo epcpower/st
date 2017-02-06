@@ -536,9 +536,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         )
 
         for node in block_header_node.leaves():
-            def update(data, node):
-                node.fields.value = node.variable.unpack(data)
-
             chunk = block_header_cache.new_chunk(
                 address=int(node.fields.address, 16),
                 bytes=b'\x00' * node.fields.size
@@ -547,11 +544,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             )
             block_header_cache.add(chunk)
 
-            partial = functools.partial(
-                update,
-                node=node
-            )
-            block_header_cache.subscribe(partial, chunk)
+            block_header_cache.subscribe(node.chunk_updated, chunk)
 
         block_header_chunk = block_header_cache.new_chunk(
                 address=int(block_header_node.fields.address, 16),
