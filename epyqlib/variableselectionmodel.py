@@ -521,38 +521,11 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         data_stream = io.BytesIO(data)
         raw_header = data_stream.read(self.block_header_length())
 
-        # TODO: hardcoded 32-bit addressing and offset assumption
-        #       intended to avoid collision
-        block_header_cache = cmc.Cache(bits_per_byte=self.bits_per_byte)
-        block_header = epyqlib.cmemoryparser.Variable(
-            name='.block_header',
-            type=self.names['DataLogger_BlockHeader'],
-            address=0
+        block_header_node = self.parse_block_header_into_node(
+            raw_header=raw_header,
+            bits_per_byte=self.bits_per_byte,
+            block_header_type=self.names['DataLogger_BlockHeader']
         )
-        block_header_node = VariableNode(variable=block_header)
-        block_header_node.add_members(
-            base_type=epyqlib.cmemoryparser.base_type(block_header),
-            address=block_header.address
-        )
-
-        for node in block_header_node.leaves():
-            chunk = block_header_cache.new_chunk(
-                address=int(node.fields.address, 16),
-                bytes=b'\x00' * node.fields.size
-                      * (self.bits_per_byte // 8),
-                reference=node
-            )
-            block_header_cache.add(chunk)
-
-            block_header_cache.subscribe(node.chunk_updated, chunk)
-
-        block_header_chunk = block_header_cache.new_chunk(
-                address=int(block_header_node.fields.address, 16),
-                bytes=b'\x00' * block_header_node.fields.size
-                      * (self.bits_per_byte // 8)
-            )
-        block_header_chunk.set_bytes(raw_header)
-        block_header_cache.update(block_header_chunk)
 
         chunk_ranges = []
 
@@ -612,6 +585,39 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         epyqlib.datalogger.parse_log(cache, chunks, csv_path, data,
                                      data_stream, variables_and_chunks)
+
+    def parse_block_header_into_node(self, raw_header, bits_per_byte, block_header_type):
+        # TODO: hardcoded 32-bit addressing and offset assumption
+        #       intended to avoid collision
+        block_header_cache = cmc.Cache(bits_per_byte=bits_per_byte)
+        block_header = epyqlib.cmemoryparser.Variable(
+            name='.block_header',
+            type=block_header_type,
+            address=0
+        )
+        block_header_node = VariableNode(variable=block_header)
+        block_header_node.add_members(
+            base_type=epyqlib.cmemoryparser.base_type(block_header),
+            address=block_header.address
+        )
+        for node in block_header_node.leaves():
+            chunk = block_header_cache.new_chunk(
+                address=int(node.fields.address, 16),
+                bytes=b'\x00' * node.fields.size
+                      * (bits_per_byte // 8),
+                reference=node
+            )
+            block_header_cache.add(chunk)
+
+            block_header_cache.subscribe(node.chunk_updated, chunk)
+        block_header_chunk = block_header_cache.new_chunk(
+            address=int(block_header_node.fields.address, 16),
+            bytes=b'\x00' * block_header_node.fields.size
+                  * (bits_per_byte // 8)
+        )
+        block_header_chunk.set_bytes(raw_header)
+        block_header_cache.update(block_header_chunk)
+        return block_header_node
 
     def get_variable_nodes_by_type(self, type_name):
         return (node for node in self.root.children
