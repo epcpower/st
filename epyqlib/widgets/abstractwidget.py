@@ -246,29 +246,29 @@ class AbstractWidget(QtWidgets.QWidget):
 
     # TODO: CAMPid 943989817913241236127998452684328
     def set_label(self, new_signal=None):
-        label = None
-        if len(self.label_override) > 0:
-            label = self.label_override
-
-        if label is None:
-            label = self.set_label_custom(new_signal=new_signal)
-
-        if label is None:
-            try:
-                label = new_signal.long_name
-            except AttributeError:
-                pass
-
-        if label is None:
-            try:
-                label = new_signal.name
-            except AttributeError:
-                pass
-
-        if label is None:
-            label = '-'
-
         if self.ui is not None:
+            if len(self.label_override) > 0:
+                override = self.label_override
+            else:
+                override = None
+
+            custom = self.set_label_custom(new_signal=new_signal)
+
+            label_choices = [
+                override,
+                custom
+            ]
+
+            if new_signal is not None:
+                label_choices.extend([
+                    new_signal.long_name,
+                    new_signal.name
+                ])
+
+            label_choices.append('-')
+
+            label = next(l for l in label_choices if l is not None)
+
             self.ui.label.setText(label)
 
             if not self.label_visible:
