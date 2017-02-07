@@ -559,8 +559,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         variables_and_chunks = {chunk.reference: chunk
                                 for chunk in cache._chunks}
 
-        epyqlib.datalogger.parse_log(cache, chunks, csv_path, data,
-                                     data_stream, variables_and_chunks)
+        epyqlib.datalogger.parse_log(cache, chunks, csv_path, data_stream,
+                                     variables_and_chunks)
 
     def create_log_cache(self, block_header_node):
         chunk_ranges = []

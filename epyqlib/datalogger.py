@@ -1,6 +1,7 @@
 import collections
 import csv
 import functools
+import io
 import textwrap
 
 import attr
@@ -139,11 +140,13 @@ def pull_raw_log(device, bus=None):
     return logger.pull_raw_log(path=filename)
 
 
-def generate_records(cache, chunks, data, data_stream, variables_and_chunks):
+def generate_records(cache, chunks, data_stream, variables_and_chunks):
     chunk_list = list(chunks)
     try:
         scaling_cache = {}
-        while data_stream.tell() < len(data):
+        while len(data_stream.read(1)) == 1:
+            data_stream.seek(-1, io.SEEK_CUR)
+
             QtCore.QCoreApplication.processEvents()
             row = collections.OrderedDict()
 
@@ -198,12 +201,11 @@ def generate_records(cache, chunks, data, data_stream, variables_and_chunks):
         message_box.exec()
 
 
-def parse_log(cache, chunks, csv_path, data, data_stream,
-                variables_and_chunks):
+def parse_log(cache, chunks, csv_path, data_stream, variables_and_chunks):
     with open(csv_path, 'w', newline='') as f:
         writer = None
 
-        for row in generate_records(cache, chunks, data, data_stream,
+        for row in generate_records(cache, chunks, data_stream,
                                     variables_and_chunks):
             if writer is None:
                 writer = csv.DictWriter(
