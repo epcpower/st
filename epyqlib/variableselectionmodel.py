@@ -261,9 +261,11 @@ class Variables(epyqlib.treenode.TreeNode):
 class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     binary_loaded = pyqtSignal()
 
-    def __init__(self, root, nvs, bus, parent=None):
+    def __init__(self, nvs, bus, parent=None):
         checkbox_columns = Columns.fill(False)
         checkbox_columns.name = True
+
+        root = epyqlib.variableselectionmodel.Variables()
 
         epyqlib.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
                 self, root=root, checkbox_columns=checkbox_columns,
@@ -278,7 +280,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             value='Value'
         )
 
-        self.root = root
         self.nvs = nvs
         self.bus = bus
 

@@ -387,10 +387,7 @@ class Device:
                     view.setModel(nv_model)
 
         if Elements.variables in self.elements:
-            variables = epyqlib.variableselectionmodel.Variables()
-
             variable_model = epyqlib.variableselectionmodel.VariableModel(
-                root=variables,
                 nvs=self.nvs,
                 bus=self.bus
             )
