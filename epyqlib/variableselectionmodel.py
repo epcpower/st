@@ -311,6 +311,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
                 return True
 
+    @twisted.internet.defer.inlineCallbacks
     def update_from_loaded_binary(self, binary_info):
         names, variables, bits_per_byte = binary_info
 
@@ -318,29 +319,36 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.names = names
 
         self.beginResetModel()
-
         logger.debug('Updating from binary, {} variables'.format(len(variables)))
 
-        self.root.children = []
-        for variable in variables:
-            QCoreApplication.processEvents()
+        self.root = yield twisted.internet.threads.deferToThread(
+            self.build_node_tree,
+           variables=variables
+        )
 
+        self.endResetModel()
+
+        logger.debug('Creating cache')
+        self.cache = self.create_cache(only_checked=False, subscribe=True)
+
+        logger.debug('Done creating cache')
+        self.binary_loaded.emit()
+
+    def build_node_tree(self, variables):
+        root = epyqlib.variableselectionmodel.Variables()
+
+        for variable in variables:
             node = VariableNode(variable=variable)
-            self.root.append_child(node)
+            root.append_child(node)
             node.add_members(
                 base_type=epyqlib.cmemoryparser.base_type(variable),
                 address=variable.address
             )
 
-        self.endResetModel()
+        return root
 
-        logger.debug('Creating cache')
-
-        self.cache = self.create_cache(only_checked=False, subscribe=True)
-
-        logger.debug('Done creating cache')
-
-        self.binary_loaded.emit()
+    def assign_root(self, root):
+        self.root = root
 
     def save_selection(self, filename):
         selected = []
