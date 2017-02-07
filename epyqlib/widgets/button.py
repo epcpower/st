@@ -79,12 +79,9 @@ class Button(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
     def calculate_text(self, value):
         if self.label_visible:
             # TODO: CAMPid 85478672616219005471279
-            try:
-                enum_string = self.signal_object.enumeration[value]
-                text = self.signal_object.enumeration_format_re['format'].format(
-                    s=enum_string, v=value)
-            except (AttributeError, KeyError):
-                text = str(value)
+            enum_string = self.signal_object.enumeration[value]
+            text = self.signal_object.enumeration_format_re['format'].format(
+                s=enum_string, v=value)
 
             return text
         else:
