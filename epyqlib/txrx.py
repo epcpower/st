@@ -363,12 +363,10 @@ class TxRxModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         node = self.node_from_index(index)
         if node.tx:
             if index.column() == Columns.indexes.value:
-                try:
-                    multiplex = node.signal._multiplex
-                except AttributeError:
-                    allow = isinstance(node, SignalNode)
+                if isinstance(node, SignalNode):
+                    allow = node.multiplex is not True
                 else:
-                    allow = multiplex != 'Multiplexor'
+                    allow = False
 
                 if allow:
                     flags |= Qt.ItemIsEditable

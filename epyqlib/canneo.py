@@ -57,7 +57,7 @@ class Signal(QObject):
             self.offset = 0
 
         if signal._multiplex == 'Multiplexor':
-            self.multiplex = None
+            self.multiplex = True
         else:
             self.multiplex = signal._multiplex # {NoneType} None
 
