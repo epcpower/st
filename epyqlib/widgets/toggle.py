@@ -85,6 +85,9 @@ class Toggle(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
     def signal_value_changed(self, value):
         self.ui.value.setSliderPosition(bool(value))
 
+    def set_unit_text(self, units):
+        pass
+
 
 if __name__ == '__main__':
     import sys

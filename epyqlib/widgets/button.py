@@ -100,6 +100,9 @@ class Button(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
         # TODO  exception?
         pass
 
+    def set_unit_text(self, units):
+        pass
+
     def showEvent(self, event):
         epyqlib.widgets.abstracttxwidget.AbstractTxWidget.showEvent(self, event)
         self.set(self.off_value)

@@ -345,12 +345,7 @@ class AbstractWidget(QtWidgets.QWidget):
                             self.right = right
 
     def set_unit_text(self, units):
-        try:
-            widget = self.ui.units
-        except AttributeError:
-            pass
-        else:
-            widget.setText(units)
+        self.ui.units.setText(units)
 
     def set_full_string(self, string):
         pass

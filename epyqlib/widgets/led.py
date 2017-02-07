@@ -228,6 +228,9 @@ class Led(epyqlib.widgets.abstractwidget.AbstractWidget):
 
         return result
 
+    def set_unit_text(self, units):
+        pass
+
 
 if __name__ == '__main__':
     import sys
