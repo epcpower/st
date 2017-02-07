@@ -212,14 +212,8 @@ class Led(epyqlib.widgets.abstractwidget.AbstractWidget):
         label = None
 
         if new_signal is not None:
-            try:
-                label_from_enumeration = self.label_from_enumeration
-            except AttributeError:
-                pass
-            else:
-                if (label_from_enumeration
-                        and new_signal is not None):
-                    label = new_signal.enumeration[self.on_value]
+            if self.label_from_enumeration and new_signal is not None:
+                label = new_signal.enumeration[self.on_value]
 
         return label
 
