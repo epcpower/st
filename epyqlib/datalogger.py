@@ -147,7 +147,6 @@ def generate_records(cache, chunks, data_stream, variables_and_chunks):
         while len(data_stream.read(1)) == 1:
             data_stream.seek(-1, io.SEEK_CUR)
 
-            QtCore.QCoreApplication.processEvents()
             row = collections.OrderedDict()
 
             def update(data, variable, scaling_cache):

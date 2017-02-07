@@ -168,9 +168,10 @@ class VariableSelection(QtWidgets.QWidget):
 
                 progress.show()
 
-                model.parse_log(data=data, csv_path=csv_filename)
-
-                progress.close()
+                d = model.parse_log(data=data, csv_path=csv_filename)
+                d.addBoth(epyqlib.utils.twisted.detour_result,
+                          progress.close)
+                d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def context_menu(self, position):
         index = self.ui.view.tree_view.indexAt(position)

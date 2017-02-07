@@ -559,8 +559,16 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         variables_and_chunks = {chunk.reference: chunk
                                 for chunk in cache._chunks}
 
-        epyqlib.datalogger.parse_log(cache, chunks, csv_path, data_stream,
-                                     variables_and_chunks)
+        d = twisted.internet.threads.deferToThread(
+            epyqlib.datalogger.parse_log,
+            cache=cache,
+            chunks=chunks,
+            csv_path=csv_path,
+            data_stream=data_stream,
+            variables_and_chunks=variables_and_chunks
+        )
+
+        return d
 
     def create_log_cache(self, block_header_node):
         chunk_ranges = []
@@ -586,7 +594,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
             return False
 
-        cache = self.create_cache(test=overlaps_a_chunk)
+        cache = self.create_cache(test=overlaps_a_chunk, subscribe=False)
         return cache
 
     def parse_block_header_into_node(self, raw_header, bits_per_byte, block_header_type):
