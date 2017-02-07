@@ -170,6 +170,8 @@ class MessageNode(epyqlib.canneo.Frame, TreeNode):
         epyqlib.canneo.Frame.message_received(self, message)
 
     def _sent(self):
+        super()._sent()
+
         self.count['tx'] += 1
 
         if self.tx:

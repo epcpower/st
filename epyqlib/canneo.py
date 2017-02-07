@@ -87,6 +87,8 @@ class Signal(QObject):
         # TODO: make this configurable in the .sym?
         self.secret = self.name == 'FactoryAccess'
 
+        self.decimal_places = None
+
         if connect is not None:
             self.connect(connect)
 
@@ -105,26 +107,20 @@ class Signal(QObject):
 
         return self.format_float(value, for_file=for_file)
 
-    def set_human_value(self, value, force=False, check_range=False):
+    def set_human_value(self, raw_value, force=False, check_range=False):
         # TODO: handle offset
-        value = copy.deepcopy(value)
         locale.setlocale(locale.LC_ALL, '')
-        atof = locale.atof
-        try:
-            value = float(self.enumeration_strings().index(value))
-        except ValueError:
-            # TODO: not the best for integers?
-            try:
-                try:
-                    value = atof(value)
-                except AttributeError:
-                    # probably a float already...
-                    pass
-            except ValueError:
-                if len(value) == 0:
-                    value = 0
-                else:
-                    raise
+
+        if isinstance(raw_value, str):
+            enumeration_strings = self.enumeration_strings()
+            if len(enumeration_strings) > 0:
+                value = float(enumeration_strings.index(raw_value))
+            elif len(raw_value) == 0:
+                value = 0
+            else:
+                value = locale.atof(raw_value)
+        else:
+            value = float(raw_value)
 
         self.set_value(value=self.from_human(value),
                        force=force,
@@ -146,9 +142,7 @@ class Signal(QObject):
         return items
 
     def get_decimal_places(self):
-        try:
-            return self.decimal_places
-        except AttributeError:
+        if self.decimal_places is None:
             if self.float:
                 # TODO: these signals probably ought to have decimal places
                 #       specified in the .sym, but that isn't supported yet
@@ -337,6 +331,10 @@ class Frame(QtCanListener):
         _update_and_send = functools.partial(self._send, update=True)
         self.timer.timeout.connect(_update_and_send)
 
+        self.format_str = None
+        self.bitstruct_fmt = None
+        self.data = None
+
         self.signals = []
         for signal in frame._signals:
             if signal._comment is not None and '<summary>' in signal._comment:
@@ -425,14 +423,10 @@ class Frame(QtCanListener):
             self.padded = True
 
     def format(self):
-        try:
-            fmt = self.format_str
-        except AttributeError:
-            fmt = [s.format() for s in self.signals]
-            fmt = ''.join(fmt)
-            self.format_str = fmt
+        if self.format_str is None:
+            self.format_str = ''.join([s.format() for s in self.signals])
 
-        return fmt
+        return self.format_str
 
     def update_from_signals(self, function=None):
         self.data = self.pack(self, function=function)
@@ -465,13 +459,10 @@ class Frame(QtCanListener):
         else:
             self.pad()
 
-            try:
-                bitstruct_fmt = self.bitstruct_fmt
-            except AttributeError:
-                bitstruct_fmt = bitstruct._parse_format(self.format())
-                self.bitstruct_fmt = bitstruct_fmt
+            if self.bitstruct_fmt is None:
+                self.bitstruct_fmt = bitstruct._parse_format(self.format())
 
-            unpacked = bitstruct.unpack(bitstruct_fmt, data)
+            unpacked = bitstruct.unpack(self.bitstruct_fmt, data)
 
             if only_return:
                 return dict(zip(self.signals, unpacked))
@@ -486,12 +477,10 @@ class Frame(QtCanListener):
 
         self.send.emit(self.to_message())
 
-        try:
-            sent = self._sent
-        except AttributeError:
-            pass
-        else:
-            sent()
+        self._sent()
+
+    def _sent(self):
+        pass
 
     def send_now(self):
         self._send(update=True)
@@ -527,17 +516,10 @@ class Frame(QtCanListener):
                     self.timer.start()
 
     def to_message(self):
-        try:
-            data = self.data
-        except AttributeError:
-            data = [0] * self.size
-
         return can.Message(extended_id=self.extended,
                            arbitration_id=self.id,
                            dlc=self.size,
-                           data=data)
-
-        return None
+                           data=self.data)
 
     @pyqtSlot(can.Message)
     def message_received(self, msg):
