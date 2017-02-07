@@ -154,13 +154,19 @@ class Device:
         self.extension = extension_class(device=self)
 
         path = os.path.dirname(file.name)
-        json_ui_paths = {}
         for ui_path_name in ['ui_path', 'ui_paths', 'menu']:
             try:
                 json_ui_paths = d[ui_path_name]
                 break
             except KeyError:
                 pass
+        else:
+            json_ui_paths = {}
+
+        if not isinstance(json_ui_paths, dict):
+            json_ui_paths = {"Dash": json_ui_paths}
+
+        self.ui_paths = json_ui_paths
 
         for tab in Tabs:
             try:
@@ -183,13 +189,6 @@ class Device:
         if Tabs.nv not in tabs:
             self.elements.discard(Elements.nv)
 
-        self.ui_paths = OrderedDict()
-        try:
-            for name, ui_path in json_ui_paths.items():
-                self.ui_paths[name] = ui_path
-        except AttributeError:
-            self.ui_paths["Dash"] = json_ui_paths
-
         self.can_path = os.path.join(path, d['can_path'])
 
         self.node_id_type = d.get('node_id_type',
@@ -204,7 +203,7 @@ class Device:
             f for f in [
                 d.get('module', None),
                 d.get('can_path', None),
-                *json_ui_paths.values()
+                *self.ui_paths.values()
             ]
             if f is not None
         ]
