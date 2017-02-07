@@ -413,12 +413,12 @@ class Device:
             self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.variables))
         if Tabs.nv not in tabs:
             self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.nv))
-        if tabs:
-            self.ui.offline_overlay = epyqlib.overlaylabel.OverlayLabel(parent=self.ui)
-            self.ui.offline_overlay.label.setText('offline')
 
-            self.ui.name.setText(self.name)
-            self.ui.tabs.setCurrentIndex(0)
+        self.ui.offline_overlay = epyqlib.overlaylabel.OverlayLabel(parent=self.ui)
+        self.ui.offline_overlay.label.setText('offline')
+
+        self.ui.name.setText(self.name)
+        self.ui.tabs.setCurrentIndex(0)
 
 
 
@@ -565,14 +565,9 @@ class Device:
         else:
             text = 'offline'
 
-        try:
-            offline_overlay = self.ui.offline_overlay
-        except AttributeError:
-            pass
-        else:
-            offline_overlay.label.setText(text)
-            offline_overlay.setVisible(len(text) > 0)
-            offline_overlay.setStyleSheet(style)
+        self.ui.offline_overlay.label.setText(text)
+        self.ui.offline_overlay.setVisible(len(text) > 0)
+        self.ui.offline_overlay.setStyleSheet(style)
 
 
 if __name__ == '__main__':
