@@ -3,7 +3,7 @@
 /activate.bat
 generated/
 *.stats
-EPyQ-*.exe
+*.exe
 designer*
 
 # PyCharm
