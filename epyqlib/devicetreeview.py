@@ -26,14 +26,14 @@ __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-def load_device(bus=None, file=None):
+def load_device(bus=None, file=None, parent=None):
     # TODO  CAMPid 9561616237195401795426778
     if file is None:
         filters = [
             ('EPC Packages', ['epc', 'epz']),
             ('All Files', ['*'])
         ]
-        file = epyqlib.utils.qt.file_dialog(filters)
+        file = epyqlib.utils.qt.file_dialog(filters, parent=parent)
 
         if file is None:
             return
@@ -148,11 +148,12 @@ class DeviceTreeView(QtWidgets.QWidget):
         bus = epyqlib.busproxy.BusProxy(bus=real_bus,
                                         auto_disconnect=False)
 
-        d = epyqlib.datalogger.pull_raw_log(device=node.device, bus=bus)
+        d = epyqlib.datalogger.pull_raw_log(
+            device=node.device, bus=bus, parent=self)
         d.addBoth(epyqlib.utils.twisted.detour_result, bus.set_bus)
 
     def add_device(self, bus):
-        device = load_device()
+        device = load_device(parent=self)
         if device is not None:
             device = epyqlib.devicetree.Device(device=device)
 
@@ -169,7 +170,7 @@ class DeviceTreeView(QtWidgets.QWidget):
             ('TICOFF Binaries', ['out']),
             ('All Files', ['*'])
         ]
-        file = epyqlib.utils.qt.file_dialog(filters)
+        file = epyqlib.utils.qt.file_dialog(filters, parent=self)
 
         if file is not None:
             message_box = QMessageBox(self)
@@ -298,7 +299,8 @@ class DeviceTreeView(QtWidgets.QWidget):
             ('EPZ', ['epz']),
             ('All Files', ['*'])
         ]
-        filename = epyqlib.utils.qt.file_dialog(filters, save=True)
+        filename = epyqlib.utils.qt.file_dialog(
+            filters, save=True, parent=self)
 
         if filename is not None:
             epyqlib.utils.general.write_device_to_zip(

@@ -67,7 +67,8 @@ class VariableSelection(QtWidgets.QWidget):
             ('EPC Variable Selection', ['epv']),
             ('All Files', ['*'])
         ]
-        filename = epyqlib.utils.qt.file_dialog(filters, save=True)
+        filename = epyqlib.utils.qt.file_dialog(
+            filters, save=True, parent=self)
 
         if filename is not None:
             model = self.nonproxy_model()
@@ -78,7 +79,7 @@ class VariableSelection(QtWidgets.QWidget):
             ('EPC Variable Selection', ['epv']),
             ('All Files', ['*'])
         ]
-        filename = epyqlib.utils.qt.file_dialog(filters)
+        filename = epyqlib.utils.qt.file_dialog(filters, parent=self)
 
         if filename is not None:
             model = self.nonproxy_model()
@@ -96,7 +97,7 @@ class VariableSelection(QtWidgets.QWidget):
             ('TICOFF Binaries', ['out']),
             ('All Files', ['*'])
         ]
-        filename = epyqlib.utils.qt.file_dialog(filters)
+        filename = epyqlib.utils.qt.file_dialog(filters, parent=self)
 
         if filename is not None:
             # TODO: CAMPid 9632763567954321696542754261546
@@ -136,14 +137,15 @@ class VariableSelection(QtWidgets.QWidget):
             ('Raw', ['raw']),
             ('All Files', ['*'])
         ]
-        raw_filename = epyqlib.utils.qt.file_dialog(filters)
+        raw_filename = epyqlib.utils.qt.file_dialog(filters, parent=self)
 
         if raw_filename is not None:
             filters = [
                 ('CSV', ['csv']),
                 ('All Files', ['*'])
             ]
-            csv_filename = epyqlib.utils.qt.file_dialog(filters, save=True)
+            csv_filename = epyqlib.utils.qt.file_dialog(
+                filters, save=True, parent=self)
 
             if csv_filename is not None:
                 with open(raw_filename, 'rb') as f:

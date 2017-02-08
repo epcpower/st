@@ -102,7 +102,7 @@ def write_to_file(data, path):
         f.write(data)
 
 
-def pull_raw_log(device, bus=None):
+def pull_raw_log(device, bus=None, parent=None):
     if bus is None:
         bus = device.bus
 
@@ -110,7 +110,7 @@ def pull_raw_log(device, bus=None):
         ('Raw', ['raw']),
         ('All Files', ['*'])
     ]
-    filename = epyqlib.utils.qt.file_dialog(filters, save=True)
+    filename = epyqlib.utils.qt.file_dialog(filters, save=True, parent=parent)
 
     # TODO: perhaps an exception for cancelation?  let caller ignore it?
     if filename is None:

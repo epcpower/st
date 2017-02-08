@@ -3,6 +3,7 @@
 #TODO: """DocString if there is one"""
 
 import epyqlib.nv
+import functools
 import io
 import os
 from PyQt5 import QtWidgets, uic
@@ -57,8 +58,18 @@ class NvView(QtWidgets.QWidget):
         self.ui.module_to_nv.connect(model.module_to_nv)
         self.ui.read_from_module.connect(model.read_from_module)
         self.ui.write_to_module.connect(model.write_to_module)
-        self.ui.read_from_file.connect(model.read_from_file)
-        self.ui.write_to_file.connect(model.write_to_file)
+
+        read_from_file = functools.partial(
+            model.read_from_file,
+            parent=self
+        )
+        self.ui.read_from_file.connect(read_from_file)
+
+        write_to_file = functools.partial(
+            model.write_to_file,
+            parent=self
+        )
+        self.ui.write_to_file.connect(write_to_file)
 
         self.ui.tree_view.header().setStretchLastSection(False)
 

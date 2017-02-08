@@ -179,7 +179,7 @@ class Progress(QtCore.QObject):
         self.updated.emit(value)
 
 
-def file_dialog(filters, default=0, save=False):
+def file_dialog(filters, default=0, save=False, parent=None):
     # TODO: CAMPid 9857216134675885472598426718023132
     # filters = [
     #     ('EPC Packages', ['epc', 'epz']),
@@ -198,6 +198,7 @@ def file_dialog(filters, default=0, save=False):
         dialog = QtWidgets.QFileDialog.getOpenFileName
 
     file = dialog(
+            parent=parent,
             filter=filter_string,
             initialFilter=filter_strings[default])[0]
 

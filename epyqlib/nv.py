@@ -407,12 +407,13 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.root.read_all_from_device()
 
     @pyqtSlot()
-    def write_to_file(self):
+    def write_to_file(self, parent=None):
         filters = [
             ('EPC Parameters', ['epp']),
             ('All Files', ['*'])
         ]
-        filename = epyqlib.utils.qt.file_dialog(filters, save=True)
+        filename = epyqlib.utils.qt.file_dialog(
+            filters, save=True, parent=parent)
 
         if filename is None:
             return
@@ -428,12 +429,12 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 )
 
     @pyqtSlot()
-    def read_from_file(self):
+    def read_from_file(self, parent=None):
         filters = [
             ('EPC Parameters', ['epp']),
             ('All Files', ['*'])
         ]
-        filename = epyqlib.utils.qt.file_dialog(filters)
+        filename = epyqlib.utils.qt.file_dialog(filters, parent=parent)
 
         if filename is None:
             return
