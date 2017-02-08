@@ -2,11 +2,8 @@
 
 #TODO: """DocString if there is one"""
 
-import canmatrix.importany as importany
-import epyqlib.canneo
 import io
 import os
-import textwrap
 
 from collections import OrderedDict
 from PyQt5 import QtWidgets, uic
