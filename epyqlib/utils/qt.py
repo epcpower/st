@@ -18,7 +18,8 @@ log = os.path.join(os.getcwd(), 'epyq.log')
 # TODO: Consider updating from...
 #       http://die-offenbachs.homelinux.org:48888/hg/eric/file/a1e53a9ffcf3/eric6.py#l134
 
-def exception_message_box(excType=None, excValue=None, tracebackobj=None, *, message=None):
+def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
+                          message=None, parent=None):
     """
     Global function to catch unhandled exceptions.
 
@@ -52,7 +53,7 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *, mes
         sections = [separator, timeString, separator, errmsg, separator, tbinfo]
         message = '\n'.join(sections)
 
-    errorbox = QtWidgets.QMessageBox()
+    errorbox = QtWidgets.QMessageBox(parent=parent)
     errorbox.setWindowTitle("EPyQ")
     errorbox.setIcon(QtWidgets.QMessageBox.Critical)
 
