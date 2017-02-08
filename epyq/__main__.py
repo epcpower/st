@@ -188,7 +188,7 @@ class Window(QtWidgets.QMainWindow):
             ('CSV', ['csv']),
             ('All Files', ['*'])
         ]
-        filename = epyqlib.utils.qt.file_dialog(filters)
+        filename = epyqlib.utils.qt.file_dialog(filters, parent=self)
 
         if filename is not None:
             data = epyqlib.csvwindow.read_csv(filename)
@@ -239,6 +239,11 @@ def main(args=None):
         logging.getLogger().setLevel(logging.DEBUG)
 
     window = Window(ui_file=args.ui)
+
+    sys.excepthook = functools.partial(
+        epyqlib.utils.qt.exception_message_box,
+        parent=window
+    )
 
     window.show()
     from twisted.internet import reactor
