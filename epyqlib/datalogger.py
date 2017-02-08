@@ -142,62 +142,53 @@ def pull_raw_log(device, bus=None, parent=None):
 
 def generate_records(cache, chunks, data_stream, variables_and_chunks):
     chunk_list = list(chunks)
-    try:
-        scaling_cache = {}
-        while len(data_stream.read(1)) == 1:
-            data_stream.seek(-1, io.SEEK_CUR)
 
-            row = collections.OrderedDict()
+    scaling_cache = {}
+    while len(data_stream.read(1)) == 1:
+        data_stream.seek(-1, io.SEEK_CUR)
 
-            def update(data, variable, scaling_cache):
-                path = '.'.join(variable.path())
-                value = variable.variable.unpack(data)
-                type_ = variable.fields.type
-                scaling = 1
-                if type_ in scaling_cache:
-                    scaling = scaling_cache[type_]
-                else:
-                    if type_.startswith('_iq'):
-                        n = type_.lstrip('_iq')
-                        if n == '':
-                            n = 24
-                        else:
-                            n = int(n)
-                        scaling = 1 << n
-                    scaling_cache[type_] = scaling
+        row = collections.OrderedDict()
 
-                row[path] = value / scaling
+        def update(data, variable, scaling_cache):
+            path = '.'.join(variable.path())
+            value = variable.variable.unpack(data)
+            type_ = variable.fields.type
+            scaling = 1
+            if type_ in scaling_cache:
+                scaling = scaling_cache[type_]
+            else:
+                if type_.startswith('_iq'):
+                    n = type_.lstrip('_iq')
+                    if n == '':
+                        n = 24
+                    else:
+                        n = int(n)
+                    scaling = 1 << n
+                scaling_cache[type_] = scaling
 
-            for variable, chunk in variables_and_chunks.items():
-                partial = functools.partial(
-                    update,
-                    variable=variable,
-                    scaling_cache=scaling_cache
-                )
-                cache.subscribe(partial, chunk)
+            row[path] = value / scaling
 
-            for chunk in chunk_list:
-                chunk_bytes = bytearray(
-                    data_stream.read(len(chunk)))
-                if len(chunk_bytes) != len(chunk):
-                    raise EOFError(
-                        'Unexpected EOF found in the middle of a record')
+        for variable, chunk in variables_and_chunks.items():
+            partial = functools.partial(
+                update,
+                variable=variable,
+                scaling_cache=scaling_cache
+            )
+            cache.subscribe(partial, chunk)
 
-                chunk.set_bytes(chunk_bytes)
-                cache.update(chunk)
+        for chunk in chunk_list:
+            chunk_bytes = bytearray(
+                data_stream.read(len(chunk)))
+            if len(chunk_bytes) != len(chunk):
+                text = ("Unexpected EOF found in the middle of a record.  "
+                        "Continuing with partially extracted log.")
+                raise EOFError(text)
 
-            cache.unsubscribe_all()
-            yield row
-    except EOFError:
-        message_box = QMessageBox()
-        message_box.setStandardButtons(QMessageBox.Ok)
+            chunk.set_bytes(chunk_bytes)
+            cache.update(chunk)
 
-        text = ("Unexpected EOF found in the middle of a record.  "
-                "Continuing with partially extracted log.")
-
-        message_box.setText(text)
-
-        message_box.exec()
+        cache.unsubscribe_all()
+        yield row
 
 
 def parse_log(cache, chunks, csv_path, data_stream, variables_and_chunks):
