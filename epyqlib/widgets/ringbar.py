@@ -229,6 +229,9 @@ class RingBar(epyqlib.widgets.abstractwidget.AbstractWidget):
         if maximum is not None:
             self.maximum = maximum
 
+    def set_unit_text(self, units):
+        pass
+
 
 if __name__ == '__main__':
     import sys

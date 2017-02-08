@@ -184,6 +184,9 @@ class LineBar(epyqlib.widgets.abstractwidget.AbstractWidget):
 
         self.update()
 
+    def set_unit_text(self, units):
+        pass
+
 
 if __name__ == '__main__':
     import sys
