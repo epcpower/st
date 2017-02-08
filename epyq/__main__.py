@@ -153,10 +153,10 @@ class Window(QtWidgets.QMainWindow):
 
     def dialog(self, title, message, scrollable=False):
         if not scrollable:
-            box = QMessageBox()
+            box = QMessageBox(parent=self)
             box.setText(message)
         else:
-            box = QInputDialog()
+            box = QInputDialog(parent=self)
             box.setOptions(QInputDialog.UsePlainTextEditForTextInput)
             box.setTextValue(message)
             box.setLabelText('')
