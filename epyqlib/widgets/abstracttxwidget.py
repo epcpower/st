@@ -86,7 +86,7 @@ class AbstractTxWidget(epyqlib.widgets.abstractwidget.AbstractWidget):
             try:
                 self.signal_object.set_human_value(value, check_range=True)
             except epyqlib.canneo.OutOfRangeError as e:
-                box = QMessageBox()
+                box = QMessageBox(parent=self)
                 box.setWindowTitle("EPyQ")
 
                 message = textwrap.dedent('''\

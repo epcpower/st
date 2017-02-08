@@ -130,7 +130,7 @@ class VariableSelection(QtWidgets.QWidget):
 
     def update_parameters(self):
         model = self.nonproxy_model()
-        model.update_parameters()
+        model.update_parameters(parent=self)
 
     def process_raw_log(self):
         filters = [

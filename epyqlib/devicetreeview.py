@@ -173,7 +173,7 @@ class DeviceTreeView(QtWidgets.QWidget):
         file = epyqlib.utils.qt.file_dialog(filters, parent=self)
 
         if file is not None:
-            message_box = QMessageBox(self)
+            message_box = QMessageBox(parent=self)
             message_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
             message_box.setDefaultButton(QMessageBox.Cancel)
             message_box.setTextFormat(Qt.RichText)
@@ -243,12 +243,12 @@ class DeviceTreeView(QtWidgets.QWidget):
                                                     retries=math.inf,
                                                     parent=self)
 
-                    failed_box = QMessageBox(self)
+                    failed_box = QMessageBox(parent=self)
                     failed_box.setText(textwrap.dedent('''\
                     Flashing failed
                     '''))
 
-                    canceled_box = QMessageBox(self)
+                    canceled_box = QMessageBox(parent=self)
                     canceled_box.setText(textwrap.dedent('''\
                     Flashing canceled
                     '''))

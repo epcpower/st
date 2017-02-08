@@ -476,7 +476,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
                 self.subscribe(node=node, chunk=chunk)
 
-    def update_parameters(self):
+    def update_parameters(self, parent=None):
         cache = self.create_cache()
 
         set_frames = self.nvs.logger_set_frames()
@@ -488,7 +488,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         if chunk_count > frame_count:
             chunks = chunks[:frame_count]
 
-            message_box = QMessageBox()
+            message_box = QMessageBox(parent=parent)
             message_box.setStandardButtons(QMessageBox.Ok)
 
             text = ("Variable selection yields {chunks} memory chunks but "
