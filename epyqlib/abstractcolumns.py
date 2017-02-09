@@ -39,6 +39,10 @@ class AbstractColumns:
     def fill(cls, value):
         return cls(**dict(zip(cls._members, [value] * len(cls._members))))
 
+    @classmethod
+    def as_title_case(cls):
+        return cls(**dict(zip(cls._members, (s.title() for s in cls._members))))
+
     def __iter__(self):
         for i in range(len(self)):
             yield self[i]
