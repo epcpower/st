@@ -151,7 +151,8 @@ class Device:
 
             extension_class = module.DeviceExtension
 
-        self.extension = extension_class(device=self)
+        import weakref
+        self.extension = extension_class(device=weakref.ref(self))
 
         path = os.path.dirname(file.name)
         for ui_path_name in ['ui_path', 'ui_paths', 'menu']:
@@ -394,7 +395,6 @@ class Device:
             proxy = QSortFilterProxyModel()
             proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
             proxy.setSourceModel(variable_model)
-            self.ui.variable_selection.device = self
             self.ui.variable_selection.set_model(proxy)
             self.ui.variable_selection.set_sorting_enabled(True)
             self.ui.variable_selection.sort_by_column(

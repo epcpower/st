@@ -24,7 +24,6 @@ class VariableSelection(QtWidgets.QWidget):
 
         self.in_designer = in_designer
 
-        self.device = None
 
         ui = 'variableselection.ui'
         # TODO: CAMPid 9549757292917394095482739548437597676742

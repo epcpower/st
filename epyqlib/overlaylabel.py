@@ -6,6 +6,7 @@ import enum
 import functools
 import io
 import os
+import weakref
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import (pyqtProperty, pyqtSignal, pyqtSlot, Qt, QFile,
                           QFileInfo, QTextStream)
@@ -23,9 +24,14 @@ styles = {
                            "color: rgba(85, 85, 255, 25);"
 }
 
+
 def parent_resizeEvent(event, child, parent_resizeEvent):
-    child.resize(event.size())
-    parent_resizeEvent(event)
+    child = child()
+    if child is not None:
+        child.resize(event.size())
+        parent = parent_resizeEvent()
+        if parent is not None:
+            parent(event)
 
 
 class OverlayLabel(QtWidgets.QWidget):
@@ -50,11 +56,10 @@ class OverlayLabel(QtWidgets.QWidget):
         parent_widget = self.parentWidget()
 
         if parent_widget is not None:
-            old_resizeEvent = parent_widget.resizeEvent
             new_resizeEvent = functools.partial(
                 parent_resizeEvent,
-                child=self,
-                parent_resizeEvent=old_resizeEvent
+                child=weakref.ref(self),
+                parent_resizeEvent=weakref.ref(parent_widget.resizeEvent)
             )
 
             parent_widget.resizeEvent = new_resizeEvent
