@@ -317,6 +317,8 @@ class Model(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         bus = device.tree_parent
         row = bus.children.index(device)
 
+        device.device.bus.set_bus()
+
         self.begin_remove_rows(bus, row, row)
         bus.remove_child(row)
         self.end_remove_rows()
