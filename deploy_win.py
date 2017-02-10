@@ -240,31 +240,24 @@ if args.device_file is not None:
         os.environ['PATH'],
         os.path.join('c:/', 'Program Files', 'Git', 'bin')
     ])
+
     import epyqlib.collectdevices
 
-    collected_devices_directory = os.path.join('build', 'devices')
-    epyqlib.collectdevices.main(
-        args=[],
-        device_files=[args.device_file],
-        output_directory=collected_devices_directory,
-        groups=['release']
-    )
-    files.extend(glob.glob(os.path.join(collected_devices_directory, '*.epz')))
+    for group in ('release', 'factory'):
+        with tempfile.TemporaryDirectory() as device_dir:
+            epyqlib.collectdevices.main(
+                args=[],
+                device_files=[args.device_file],
+                output_directory=device_dir,
+                groups=[group]
+            )
 
-    with tempfile.TemporaryDirectory() as factory_dir:
-        epyqlib.collectdevices.main(
-            args=[],
-            device_files=[args.device_file],
-            output_directory=factory_dir,
-            groups=['factory']
-        )
-
-        zip_path = os.path.join('..', '{}_factory-{}.zip'.format(args.name, epyq.revision.hash))
-        with zipfile.ZipFile(file=zip_path, mode='w') as zip:
-            for path in glob.glob(os.path.join(factory_dir, '*.epz')):
-                zip.write(filename=path,
-                          arcname=os.path.basename(path)
-                )
+            zip_path = os.path.join('..', '{}-{}-{}.zip'.format(args.name, group, epyq.revision.hash))
+            with zipfile.ZipFile(file=zip_path, mode='w') as zip:
+                for path in glob.glob(os.path.join(device_dir, '*.epz')):
+                    zip.write(filename=path,
+                              arcname=os.path.basename(path)
+                    )
 
 
 for extension in ['svg']:
