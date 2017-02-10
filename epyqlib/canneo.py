@@ -617,7 +617,7 @@ class Neo(QtCanListener):
 
                     neo_frame = frame_class(frame=matrix_frame)
                     for signal in neo_frame.signals:
-                        if signal.multiplex is None:
+                        if signal.multiplex is True:
                             signal.set_value(int(multiplex_value))
                     frames.append(neo_frame)
                     multiplex_neo_frame.\
