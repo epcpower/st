@@ -37,6 +37,35 @@ class Columns(epyqlib.abstractcolumns.AbstractColumns):
 Columns.indexes = Columns.indexes()
 
 
+class Sender(QObject):
+    array_truncated_signal = pyqtSignal(int, str, int)
+
+    def __init__(self, slot, parent=None):
+        super().__init__(parent=parent)
+
+        self.array_truncated_signal.connect(slot)
+
+    def array_truncated(self, maximum_children, name, length):
+        self.array_truncated_signal.emit(maximum_children, name, length)
+
+
+def build_node_tree(variables, array_truncated_slot):
+    root = epyqlib.variableselectionmodel.Variables()
+
+    sender = Sender(slot=array_truncated_slot)
+
+    for variable in variables:
+        node = VariableNode(variable=variable)
+        root.append_child(node)
+        node.add_members(
+            base_type=epyqlib.cmemoryparser.base_type(variable),
+            address=variable.address,
+            sender=sender
+        )
+
+    return root
+
+
 class VariableNode(epyqlib.treenode.TreeNode):
     def __init__(self, variable, name=None, address=None, bits=None,
                  tree_parent=None, comparison_value=None):
@@ -137,7 +166,8 @@ class VariableNode(epyqlib.treenode.TreeNode):
     def chunk_updated(self, data):
         self.fields.value = self.variable.unpack(data)
 
-    def add_members(self, base_type, address, expand_pointer=False):
+    def add_members(self, base_type, address, expand_pointer=False,
+                    sender=None):
         new_members = []
 
         if isinstance(base_type, epyqlib.cmemoryparser.Struct):
@@ -146,7 +176,8 @@ class VariableNode(epyqlib.treenode.TreeNode):
 
         if isinstance(base_type, epyqlib.cmemoryparser.ArrayType):
             new_members.extend(
-                self.add_array_members(base_type, address))
+                self.add_array_members(
+                    base_type, address, sender=sender))
 
         if (expand_pointer and
                 isinstance(base_type, epyqlib.cmemoryparser.PointerType)):
@@ -177,7 +208,7 @@ class VariableNode(epyqlib.treenode.TreeNode):
 
         return new_members
 
-    def add_array_members(self, base_type, address):
+    def add_array_members(self, base_type, address, sender=None):
         new_members = []
         format = '[{{:0{}}}]'.format(len(str(base_type.length())))
 
@@ -196,15 +227,9 @@ class VariableNode(epyqlib.treenode.TreeNode):
             new_members.append(child_node)
 
         if base_type.length() > maximum_children:
-            message = ('Arrays over {} elements are truncated.\n'
-                       'This has happened to `{}`.'.format(
-                maximum_children, self.fields.name
-            ))
-            QMessageBox.information(
-                None,
-                'EPyQ',
-                message
-            )
+            if sender is not None:
+                sender.array_truncated(
+                    maximum_children, self.fields.name, base_type.length())
 
             # TODO: add a marker showing visually that it has been truncated
 
@@ -296,6 +321,17 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             reactor=reactor,
             bus=self.bus)
 
+    def array_truncated_message(self, maximum_children, name, length):
+        message = ('Arrays over {} elements are truncated.\n'
+                   'This has happened to `{}`[{}].'.format(
+            maximum_children, name, length
+        ))
+        QMessageBox.information(
+            None,
+            'EPyQ',
+            message
+        )
+
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.name:
             if role == Qt.CheckStateRole:
@@ -322,8 +358,9 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         logger.debug('Updating from binary, {} variables'.format(len(variables)))
 
         self.root = yield twisted.internet.threads.deferToThread(
-            self.build_node_tree,
-           variables=variables
+            build_node_tree,
+            variables=variables,
+            array_truncated_slot=self.array_truncated_message
         )
 
         self.endResetModel()
@@ -333,19 +370,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         logger.debug('Done creating cache')
         self.binary_loaded.emit()
-
-    def build_node_tree(self, variables):
-        root = epyqlib.variableselectionmodel.Variables()
-
-        for variable in variables:
-            node = VariableNode(variable=variable)
-            root.append_child(node)
-            node.add_members(
-                base_type=epyqlib.cmemoryparser.base_type(variable),
-                address=variable.address
-            )
-
-        return root
 
     def assign_root(self, root):
         self.root = root
