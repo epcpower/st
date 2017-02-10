@@ -74,7 +74,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         nv_signal.frame.read_write.set_data(read_write)
         nv_signal.frame.update_from_signals()
 
-        self._transport.write(nv_signal.frame.to_message())
+        self._transport.write_passive(nv_signal.frame.to_message())
         self.setTimeout(self._timeout)
 
         self._request_memory = nv_signal.status_signal
@@ -91,7 +91,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         nv_signal.frame.read_write.set_data(read_write)
         nv_signal.frame.update_from_signals()
 
-        self._transport.write(nv_signal.frame.to_message())
+        self._transport.write_passive(nv_signal.frame.to_message())
         self.setTimeout(self._timeout)
 
         self._request_memory = nv_signal.status_signal

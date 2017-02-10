@@ -28,6 +28,8 @@ class BusProxy(epyqlib.canneo.QtCanListener):
     def write(self, message):
         return self._bus.send(msg=message)
 
+    def write_passive(self, message):
+        return self._bus.send_passive(msg=message)
 
     def readEvent(self, message):
         """
