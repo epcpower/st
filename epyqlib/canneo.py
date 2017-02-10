@@ -303,7 +303,7 @@ class QtCanListener(QObject, can.Listener):
 
 
 class Frame(QtCanListener):
-    send = pyqtSignal(can.Message)
+    send = pyqtSignal(can.Message, 'PyQt_PyObject')
 
     def __init__(self, frame, multiplex_value=None,
                  signal_class=Signal, parent=None):
@@ -475,9 +475,7 @@ class Frame(QtCanListener):
         if update:
             self.data = self.pack(self)
 
-        self.send.emit(self.to_message())
-
-        self._sent()
+        self.send.emit(self.to_message(), self._sent)
 
     def _sent(self):
         pass

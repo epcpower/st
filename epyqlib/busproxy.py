@@ -41,7 +41,13 @@ class BusProxy(QObject):
     def transmit(self, transmit):
         self._transmit = transmit
 
-    def send(self, msg, passive=False):
+    def send(self, msg, on_success=None):
+        self._send(msg, on_success=on_success)
+
+    def send_passive(self, msg, on_success=None):
+        self._send(msg, on_success=on_success, passive=True)
+
+    def _send(self, msg, on_success=None, passive=False):
         if self.bus is not None and (self._transmit or passive):
             # TODO: this (the silly sleep) is really hacky and shouldn't be needed but it seems
             #       to be to keep from forcing socketcan offbus.  the issue
@@ -86,10 +92,14 @@ class BusProxy(QObject):
                 #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
                 sent = self.bus.send(msg)
                 time.sleep(0.0005)
+                # TODO: get a real value from send() instead of just None
+                # if sent and on_success is not None:
+                if on_success is not None:
+                    on_success()
             else:
                 # TODO: I would use message=message (or msg=msg) but:
                 #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
-                sent = self.bus.send(msg, passive=passive)
+                sent = self.bus._send(msg, on_success=on_success, passive=passive)
 
             if self.auto_disconnect:
                 self.verify_bus_ok()

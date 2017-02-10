@@ -326,9 +326,9 @@ class TxRx(TreeNode, epyqlib.canneo.QtCanListener):
         # TODO: actually identify the object
         return '-'
 
-    @pyqtSlot(can.Message)
-    def send(self, message):
-        self.bus.send(message)
+    @pyqtSlot(can.Message, 'PyQt_PyObject')
+    def send(self, message, on_success=None):
+        self.bus.send(message, on_success=on_success)
 
     def __str__(self):
         return 'Indexes: \n' + '\n'.join([str(i) for i in self.children])
