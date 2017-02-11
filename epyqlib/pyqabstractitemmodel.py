@@ -20,7 +20,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
     root_changed = pyqtSignal(TreeNode)
 
     def __init__(self, root, checkbox_columns=None, editable_columns=None,
-                 alignment=None, parent=None):
+                 alignment=None, attrs=False, parent=None):
         QAbstractItemModel.__init__(self, parent=parent)
 
         self.root = root
@@ -31,6 +31,8 @@ class PyQAbstractItemModel(QAbstractItemModel):
             self.alignment = alignment
         else:
             self.alignment = Qt.AlignTop | Qt.AlignLeft
+
+        self.attrs = attrs
 
         self.index_from_node_cache = weakref.WeakKeyDictionary()
 
@@ -51,7 +53,10 @@ class PyQAbstractItemModel(QAbstractItemModel):
         node = index.internalPointer()
 
         try:
-            return node.fields[index.column()]
+            if self.attrs:
+                return node.get(index.column())
+            else:
+                return node.fields[index.column()]
         except IndexError:
             return None
 
@@ -72,7 +77,10 @@ class PyQAbstractItemModel(QAbstractItemModel):
         try:
             get = node.get_human_value
         except AttributeError:
-            value = node.fields[index.column()]
+            if self.attrs:
+                value = node.get(index.column())
+            else:
+                value = node.fields[index.column()]
         else:
             try:
                 value = get()
