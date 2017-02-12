@@ -101,16 +101,19 @@ def generate_ranges(ids):
 
 
 class indexable_attrs:
-    def __init__(self, ignore=lambda a: not a.name.startswith('_')):
+    def __init__(self, ignore=lambda a: not a.name.startswith('_'),
+                 convert_on_set=False):
         self.ignore = ignore
+        self.convert_on_set = convert_on_set
 
     def __call__(self, cls):
+        ignore = self.ignore
+        convert_on_set = self.convert_on_set
+
         if hasattr(cls, '__attrs_post_init__'):
             old = cls.__attrs_post_init__
         else:
             old = None
-
-        ignore = self.ignore
 
         def __attrs_post_init__(self, *args, **kwargs):
             if old is not None:
@@ -123,7 +126,14 @@ class indexable_attrs:
             return getattr(self, self._public_attributes[index].name)
 
         def __setitem__(self, index, value):
-            return setattr(self, self._public_attributes[index].name, value)
+            attribute = self._public_attributes[index]
+
+            if convert_on_set and attribute.convert is not None:
+                value = attribute.convert(value)
+
+            return setattr(self,
+                           attribute.name,
+                           value)
 
         def __iter__(self):
             return (getattr(self, a.name) for a in self._public_attributes)
