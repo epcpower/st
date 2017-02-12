@@ -54,7 +54,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
 
         try:
             if self.attrs:
-                return node.get(index.column())
+                return node[index.column()]
             else:
                 return node.fields[index.column()]
         except IndexError:
@@ -78,7 +78,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
             get = node.get_human_value
         except AttributeError:
             if self.attrs:
-                value = node.get(index.column())
+                value = node[index.column()]
             else:
                 value = node.fields[index.column()]
         else:

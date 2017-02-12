@@ -98,3 +98,47 @@ def generate_ranges(ids):
             yield (start, previous)
 
             start = next
+
+
+class indexable_attrs:
+    def __init__(self, ignore=lambda a: not a.name.startswith('_')):
+        self.ignore = ignore
+
+    def __call__(self, cls):
+        if hasattr(cls, '__attrs_post_init__'):
+            old = cls.__attrs_post_init__
+        else:
+            old = None
+
+        ignore = self.ignore
+
+        def __attrs_post_init__(self, *args, **kwargs):
+            if old is not None:
+                old(self, *args, **kwargs)
+
+            self._public_attributes = tuple(a for a in attr.fields(type(self))
+                                            if ignore(a))
+
+        def __getitem__(self, index):
+            return getattr(self, self._public_attributes[index].name)
+
+        def __setitem__(self, index, value):
+            return setattr(self, self._public_attributes[index].name, value)
+
+        def __iter__(self):
+            return (getattr(self, a.name) for a in self._public_attributes)
+
+        methods = (__getitem__, __setitem__, __iter__)
+
+        for name in methods:
+            if hasattr(cls, name.__name__):
+                raise Exception(
+                    'Unable to make indexable, {} already defined'.format(
+                        name.__name__))
+
+        for name in methods:
+            setattr(cls, name.__name__, name)
+
+        cls.__attrs_post_init__ = __attrs_post_init__
+
+        return cls
