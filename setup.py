@@ -23,5 +23,11 @@ setup(
         'PyQtChart==5.7.0',
         'SIP==4.18.1',
         *conditional_requires
-    ]
+    ],
+    setup_requires=['vcversioner'],
+    vcversioner={
+        'version_module_paths': ['epyq/_version.py'],
+        'vcs_args': ['git', '--git-dir', '%(root)s/.git', 'describe',
+                     '--tags', '--long', '--abbrev=999']
+    },
 )

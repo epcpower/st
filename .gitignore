@@ -5,6 +5,7 @@ generated/
 *.stats
 *.exe
 designer*
+epyq/_version.py
 
 # PyCharm
 .idea/workspace.xml

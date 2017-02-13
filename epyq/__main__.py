@@ -23,15 +23,9 @@ else:
 import logging
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 
-try:
-    import epyq.revision
-except ImportError:
-    pass
-else:
-    print(epyq.revision.hash)
-
 import can
 import copy
+import epyq
 import epyqlib.canneo
 import epyqlib.csvwindow
 import epyqlib.nv
@@ -63,6 +57,9 @@ import twisted
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
+
+
+print(epyq.__version_tag__)
 
 
 # TODO: CAMPid 9756562638416716254289247326327819
@@ -136,15 +133,9 @@ class Window(QtWidgets.QMainWindow):
     def about_dialog(self):
         message = [
             __copyright__,
-            __license__
+            __license__,
+            epyq.__version_tag__
         ]
-
-        try:
-            import epyq.revision
-        except ImportError:
-            pass
-        else:
-            message.append(epyq.revision.hash)
 
         message = '\n'.join(message)
 
