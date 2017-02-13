@@ -100,6 +100,17 @@ def generate_ranges(ids):
             start = next
 
 
+def filler_attribute():
+    return attr.ib(
+        default='',
+        init=False,
+        metadata={
+            'editable': False,
+            'to_file': False
+        }
+    )
+
+
 class indexable_attrs:
     def __init__(self, ignore=lambda a: not a.name.startswith('_'),
                  convert_on_set=False):
@@ -119,14 +130,14 @@ class indexable_attrs:
             if old is not None:
                 old(self, *args, **kwargs)
 
-            self._public_attributes = tuple(a for a in attr.fields(type(self))
-                                            if ignore(a))
+            self.public_fields = tuple(a for a in attr.fields(type(self))
+                                       if ignore(a))
 
         def __getitem__(self, index):
-            return getattr(self, self._public_attributes[index].name)
+            return getattr(self, self.public_fields[index].name)
 
         def __setitem__(self, index, value):
-            attribute = self._public_attributes[index]
+            attribute = self.public_fields[index]
 
             if convert_on_set and attribute.convert is not None:
                 value = attribute.convert(value)
@@ -136,7 +147,7 @@ class indexable_attrs:
                            value)
 
         def __iter__(self):
-            return (getattr(self, a.name) for a in self._public_attributes)
+            return (getattr(self, a.name) for a in self.public_fields)
 
         methods = (__getitem__, __setitem__, __iter__)
 
