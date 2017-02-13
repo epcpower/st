@@ -35,7 +35,7 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
 
     notice = \
         """An unhandled exception occurred. Please report the problem via email to:\n"""\
-        """\t\t{email}\n\n{version}\n{version}"""\
+        """\t\t{email}\n\n{version}"""\
         """A log has been written to "{log}".\n\nError information:\n""".format(
         email=email, version=version, log=log)
     # TODO: add something for version
