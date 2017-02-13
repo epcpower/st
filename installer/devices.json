@@ -64,5 +64,11 @@
         "branch": "AFE",
         "file": "interface/microgrid_factory.epc",
         "groups": ["factory"]
+    },
+    "Data Logger (DG)": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "t416_data_logger",
+        "file": "interface/distributed_generation_factory.epc",
+        "groups": ["dev", "factory"]
     }
 }
