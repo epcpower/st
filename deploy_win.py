@@ -233,7 +233,7 @@ if args.device_file is not None:
 
     import epyqlib.collectdevices
 
-    for group in ('release', 'factory'):
+    for group in ('release', 'factory', 'dev'):
         with tempfile.TemporaryDirectory() as device_dir:
             epyqlib.collectdevices.main(
                 args=[],
