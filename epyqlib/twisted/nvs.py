@@ -23,18 +23,13 @@ class State(enum.Enum):
 
 
 class Protocol(twisted.protocols.policies.TimeoutMixin):
-    def __init__(self, tx_id=0x0CFFAA41, rx_id=0x1CFFA9F7, extended=True,
-                 timeout=1):
+    def __init__(self, timeout=1):
         self._deferred = None
 
         self._state = State.idle
         self._previous_state = self._state
 
         self._active = False
-
-        self._tx_id = tx_id
-        self._rx_id = rx_id
-        self._extended = extended
 
         self._request_memory = None
         self._timeout = timeout
@@ -100,17 +95,18 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
     def dataReceived(self, msg):
         logger.debug('Message received: {}'.format(msg))
-        if not (msg.arbitration_id == self._rx_id and
-                        bool(msg.id_type) == self._extended):
-            return
-
-        # TODO: check the mux value!
         if not self._active:
             return
 
-        self.setTimeout(None)
-
         status_signal = self._request_memory
+
+        if not (msg.arbitration_id == status_signal.frame.id and
+                        bool(msg.id_type) == status_signal.frame.extended):
+            return
+
+        # TODO: check the mux value!
+
+        self.setTimeout(None)
 
         signals = status_signal.frame.unpack(msg.data, only_return=True)
 
