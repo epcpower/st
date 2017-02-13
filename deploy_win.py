@@ -19,6 +19,7 @@ except ImportError:
 
 
 # TODO: CAMPid 98852142341263132467998754961432
+import epyq
 import epyqlib.tee
 import glob
 import json
@@ -132,17 +133,6 @@ def runit(args, cwd=None, env=None):
     if proc.returncode != 0:
         raise subprocess.CalledProcessError(proc.returncode, args)
 
-runit(
-    args=[
-        sys.executable,
-        os.path.join('..', 'sub','epyqlib', 'epyqlib',
-	             'generaterevision.py')
-    ],
-    cwd='epyq'
-)
-
-import epyq.revision
-
 qt_root = os.path.join('C:/', 'Qt', 'Qt5.7.0')
 
 env = os.environ
@@ -252,7 +242,8 @@ if args.device_file is not None:
                 groups=[group]
             )
 
-            zip_path = os.path.join('..', '{}-{}-{}.zip'.format(args.name, group, epyq.revision.hash))
+            zip_path = os.path.join('..', '{}-{}-{}.zip'.format(
+                args.name, group, epyq.__version_tag__))
             with zipfile.ZipFile(file=zip_path, mode='w') as zip:
                 for path in glob.glob(os.path.join(device_dir, '*.epz')):
                     zip.write(filename=path,
@@ -392,7 +383,7 @@ runit(args=[
     cwd='build'
 )
 
-installer_file = '{}-{}.exe'.format(args.name, epyq.revision.hash)
+installer_file = '{}-{}.exe'.format(args.name, epyq.__version_tag__)
 shutil.copy(
     os.path.join('build', 'epyq.exe'),
     os.path.join('..', installer_file)

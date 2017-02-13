@@ -4,6 +4,7 @@ import sys
 import time
 import traceback
 
+import epyq
 import epyqlib.utils.general
 
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -30,16 +31,13 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
     separator = '-' * 70
     email = "kyle.altendorf@epcpower.com"
 
-    try:
-        hash = 'Revision Hash: {}\n\n'.format(epyq.revision.hash)
-    except:
-        hash = ''
+    version = 'Version Tag: {}\n\n'.format(epyq.__version_tag__)
 
     notice = \
         """An unhandled exception occurred. Please report the problem via email to:\n"""\
-        """\t\t{email}\n\n{hash}"""\
+        """\t\t{email}\n\n{version}\n{version}"""\
         """A log has been written to "{log}".\n\nError information:\n""".format(
-        email=email, hash=hash, log=log)
+        email=email, version=version, log=log)
     # TODO: add something for version
     versionInfo=""
     timeString = time.strftime("%Y-%m-%d, %H:%M:%S")
