@@ -41,7 +41,7 @@ class DeviceLoadError(Exception):
     pass
 
 
-def collect(devices, output_directory, dry_run, groups=None):
+def collect(devices, output_directory, dry_run, groups=None, device_path=None):
     if groups is None:
         groups = []
 
@@ -56,20 +56,25 @@ def collect(devices, output_directory, dry_run, groups=None):
         dirs = []
 
         for name, values in devices.items():
-            dir = os.path.join(checkout_dir, name)
-            dirs.append(dir)
+            repository = values.get('repository', None)
             print('  Handling {}'.format(name))
+            if repository is not None:
+                dir = os.path.join(checkout_dir, name)
+                dirs.append(dir)
 
-            print('    Cloning {}'.format(values['repository']))
-            repo = git.Repo.clone_from(values['repository'], dir)
-            all_repos.append(repo)
-            repo.git.checkout(values['branch'])
-            sha = repo.head.commit.hexsha
+                print('    Cloning {}'.format(values['repository']))
+                repo = git.Repo.clone_from(values['repository'], dir)
+                all_repos.append(repo)
+                repo.git.checkout(values['branch'])
+                sha = repo.head.commit.hexsha
 
-            if values['repository'] not in all_urls:
-                all_urls.add(values['repository'])
-                all_remotes.add(repo)
-            all_devices.add((values['repository'], values['branch'], values['file']))
+                if values['repository'] not in all_urls:
+                    all_urls.add(values['repository'])
+                    all_remotes.add(repo)
+                all_devices.add((values['repository'], values['branch'], values['file']))
+            else:
+                dir = os.path.dirname(device_path)
+                sha = 'local'
 
             device_groups = values.get('groups', [])
             if set(device_groups).isdisjoint(set(groups)):
@@ -158,6 +163,8 @@ class LoadJsonFiles(argparse.Action):
                 (value.name, json.loads(value.read(), object_pairs_hook=collections.OrderedDict))
             )
 
+        setattr(namespace, self.dest + '_path', os.path.abspath(value.name))
+
 
 def parse_args(args):
     parser =  argparse.ArgumentParser()
@@ -193,7 +200,8 @@ def main(args=None, device_files=None, output_directory=None, groups=None):
         collect(devices=devices,
                 output_directory=args.output_directory,
                 dry_run=args.dry_run,
-                groups=args.groups)
+                groups=args.groups,
+                device_path=args.device_files_path)
 
 
 if __name__ == '__main__':
