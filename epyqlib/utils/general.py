@@ -112,14 +112,11 @@ def filler_attribute():
 
 
 class indexable_attrs:
-    def __init__(self, ignore=lambda a: not a.name.startswith('_'),
-                 convert_on_set=False):
+    def __init__(self, ignore=lambda a: not a.name.startswith('_')):
         self.ignore = ignore
-        self.convert_on_set = convert_on_set
 
     def __call__(self, cls):
         ignore = self.ignore
-        convert_on_set = self.convert_on_set
 
         if hasattr(cls, '__attrs_post_init__'):
             old = cls.__attrs_post_init__
@@ -138,9 +135,6 @@ class indexable_attrs:
 
         def __setitem__(self, index, value):
             attribute = self.public_fields[index]
-
-            if convert_on_set and attribute.convert is not None:
-                value = attribute.convert(value)
 
             return setattr(self,
                            attribute.name,
