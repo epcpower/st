@@ -15,6 +15,8 @@ import io
 import math
 import os
 import textwrap
+import epyqlib.utils.twisted
+
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import (QApplication, QAction, QFileDialog, QHeaderView,
                              QMenu, QProgressDialog, QMessageBox)
@@ -24,6 +26,10 @@ from PyQt5.QtCore import (Qt, pyqtSignal, pyqtSlot, QFile, QFileInfo,
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
+
+
+class UnsupportedError(Exception):
+    pass
 
 
 def load_device(bus=None, file=None, parent=None):
@@ -96,20 +102,24 @@ class DeviceTreeView(QtWidgets.QWidget):
         remove_device_action = None
         flash_action = None
         pull_raw_log_action = None
+        check_compatibility_action = None
 
         menu = QMenu()
         if isinstance(node, epyqlib.devicetree.Device):
+            offline = (not node.tree_parent._checked.name
+                      and not node.tree_parent.fields.name == 'Offline')
+
             pull_raw_log_action = menu.addAction('Pull Raw Log...')
-            pull_raw_log_action.setEnabled(
-                not node.tree_parent._checked.name
-                and not node.tree_parent.fields.name == 'Offline'
-            )
+            pull_raw_log_action.setEnabled(offline)
 
             write_to_epz = menu.addAction('Write To Epz...')
             write_to_epz.setEnabled(not node.device.from_zip)
             # TODO: stdlib zipfile can't create an encrypted .zip
             #       make a good solution that will...
             write_to_epz.setVisible(False)
+
+            check_compatibility_action = menu.addAction('Check Compatibility')
+            check_compatibility_action.setEnabled(not offline)
 
             remove_device_action = menu.addAction('Close')
         if isinstance(node, epyqlib.devicetree.Bus):
@@ -139,6 +149,55 @@ class DeviceTreeView(QtWidgets.QWidget):
             self.pull_raw_log(node=node)
         elif action is write_to_epz:
             self.write_to_epz(device=node.device)
+        elif action is check_compatibility_action:
+            self.check_compatibility(device=node.device)
+
+    def check_compatibility(self, device):
+        shas = device.shas
+        if len(shas) == 0:
+            self.compatibility_notification(
+                message='No compatible revisions specified for this device.',
+                compatible=False
+            )
+        else:
+            try:
+                signal = device.nvs.signal_from_names(
+                    'SoftwareHash', 'SoftwareHash')
+            except epyqlib.nv.NotFoundError as e:
+                raise UnsupportedError(
+                    'Compatibility check is not supported for this device') from e
+
+            d = device.nvs.protocol.read(signal)
+            d.addCallback(self._check_compatibility, device=device)
+            d.addErrback(epyqlib.utils.twisted.errbackhook)
+
+    def _check_compatibility(self, value, device):
+        sha = '{:07x}'.format(int(value))
+
+        compatible = any(s.startswith(sha) for s in device.shas)
+        print('alskflasdfasdfaslkfdasdfjsdjfasdfsd')
+        print(sha)
+        print(device.shas)
+
+        if compatible:
+            message = ('Embedded SHA {} found in compatibility list.'
+                       .format(sha))
+        else:
+            message = ('Embedded SHA {} not found in compatibility list.'
+                       .format(sha))
+
+        self.compatibility_notification(
+            message=message,
+            compatible=compatible
+        )
+
+    def compatibility_notification(self, message, compatible):
+        if compatible:
+            messagebox = QtWidgets.QMessageBox.information
+        else:
+            messagebox = QtWidgets.QMessageBox.warning
+
+        messagebox(self, 'EPyQ', message)
 
     def pull_raw_log(self, node):
         bus_node = node.tree_parent

@@ -204,10 +204,22 @@ class Device:
             f for f in [
                 d.get('module', None),
                 d.get('can_path', None),
+                d.get('compatibility', None),
                 *self.ui_paths.values()
             ]
             if f is not None
         ]
+
+        self.shas = []
+        compatibility_file = d.get('compatibility', None)
+        if compatibility_file is not None:
+            compatibility_file = os.path.join(
+                os.path.dirname(self.config_path), compatibility_file)
+            with open(compatibility_file) as file:
+                s = file.read()
+                c = json.loads(s, object_pairs_hook=OrderedDict)
+
+            self.shas.extend(c.get('shas', []))
 
         if not only_for_files:
             self._init_from_parameters(
