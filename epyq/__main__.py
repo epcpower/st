@@ -234,6 +234,7 @@ def main(args=None):
 
     sys.excepthook = functools.partial(
         epyqlib.utils.qt.exception_message_box,
+        version_tag=epyq.__version_tag__,
         parent=window
     )
 
