@@ -4,7 +4,6 @@ import sys
 import time
 import traceback
 
-import epyq
 import epyqlib.utils.general
 
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -20,7 +19,7 @@ log = os.path.join(os.getcwd(), 'epyq.log')
 #       http://die-offenbachs.homelinux.org:48888/hg/eric/file/a1e53a9ffcf3/eric6.py#l134
 
 def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
-                          message=None, parent=None):
+                          message=None, version_tag=None, parent=None):
     """
     Global function to catch unhandled exceptions.
 
@@ -31,11 +30,14 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
     separator = '-' * 70
     email = "kyle.altendorf@epcpower.com"
 
-    version = 'Version Tag: {}\n\n'.format(epyq.__version_tag__)
+    if version_tag is not None:
+        version = '\n\nVersion Tag: {}\n\n'.format(version_tag)
+    else:
+        version = ''
 
     notice = \
         """An unhandled exception occurred. Please report the problem via email to:\n"""\
-        """\t\t{email}\n\n{version}"""\
+        """\t\t{email}{version}"""\
         """A log has been written to "{log}".\n\nError information:\n""".format(
         email=email, version=version, log=log)
     # TODO: add something for version
