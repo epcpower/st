@@ -12,11 +12,13 @@ setup(
     entry_points={
         'console_scripts': [
             'collectdevices = epyqlib.collectdevices:main',
+            'contiguouscommits = epyqlib.utils.contiguouscommits:_entry_point',
             'epyqflash = epyqlib.flash:_entry_point',
             'patchvenv = epyqlib.patchvenv:main'
         ]
     },
     install_requires=[
+        'dulwich',
         'gitpython',
         'PyQt5'
     ]
