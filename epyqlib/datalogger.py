@@ -140,14 +140,18 @@ def pull_raw_log(device, bus=None, parent=None):
     return logger.pull_raw_log(path=filename)
 
 
-def generate_records(cache, chunks, data_stream, variables_and_chunks):
+def generate_records(cache, chunks, data_stream, variables_and_chunks,
+                     sample_period_us):
     chunk_list = list(chunks)
 
     scaling_cache = {}
+    timestamp = 0
     while len(data_stream.read(1)) == 1:
         data_stream.seek(-1, io.SEEK_CUR)
 
         row = collections.OrderedDict()
+        row['.time'] = timestamp / 1000000
+        timestamp += sample_period_us
 
         def update(data, variable, scaling_cache):
             path = '.'.join(variable.path())
@@ -191,12 +195,13 @@ def generate_records(cache, chunks, data_stream, variables_and_chunks):
         yield row
 
 
-def parse_log(cache, chunks, csv_path, data_stream, variables_and_chunks):
+def parse_log(cache, chunks, csv_path, data_stream, variables_and_chunks,
+              sample_period_us):
     with open(csv_path, 'w', newline='') as f:
         writer = None
 
         for row in generate_records(cache, chunks, data_stream,
-                                    variables_and_chunks):
+                                    variables_and_chunks, sample_period_us):
             if writer is None:
                 writer = csv.DictWriter(
                     f,

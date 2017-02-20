@@ -608,6 +608,10 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 ))
                 return d
 
+        [sample_period_node] = [n for n in block_header_node.children
+                        if n.fields.name == 'samplePeriod_us']
+        sample_period_us = sample_period_node.fields.value
+
         chunks = sorted(
             cache.contiguous_chunks(),
             key=lambda c: (c._address != record_header_address, c)
@@ -622,7 +626,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             chunks=chunks,
             csv_path=csv_path,
             data_stream=data_stream,
-            variables_and_chunks=variables_and_chunks
+            variables_and_chunks=variables_and_chunks,
+            sample_period_us=sample_period_us
         )
 
         return d

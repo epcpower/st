@@ -215,6 +215,9 @@ class QtChartWindow(QtWidgets.QMainWindow):
         self.checkable_charts = []
 
         for name, values in sorted(data.items()):
+            if name == '.time':
+                continue
+
             checkable_chart = CheckableChart()
             checkable_chart.name = name
             row = self.grid_layout.rowCount()
@@ -241,7 +244,11 @@ class QtChartWindow(QtWidgets.QMainWindow):
 
             series = QtChart.QLineSeries()
             series.setName(name)
-            polygons = QtGui.QPolygonF((QtCore.QPointF(x, y) for x, y in enumerate(values)))
+            if '.time' in data:
+                d = zip(data['.time'], values)
+            else:
+                d = enumerate(values)
+            polygons = QtGui.QPolygonF((QtCore.QPointF(x, y) for x, y in d))
             series.append(polygons)
             chart.addSeries(series)
             chart.createDefaultAxes()
