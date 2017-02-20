@@ -286,7 +286,8 @@ class Variables(epyqlib.treenode.TreeNode):
 class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     binary_loaded = pyqtSignal()
 
-    def __init__(self, nvs, bus, parent=None):
+    def __init__(self, nvs, bus, tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7,
+                 parent=None):
         checkbox_columns = Columns.fill(False)
         checkbox_columns.name = True
 
@@ -314,7 +315,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.pull_log_progress = epyqlib.utils.qt.Progress()
 
-        self.protocol = ccp.Handler(tx_id=0x1FFFFFFF, rx_id=0x1FFFFFF7)
+        self.protocol = ccp.Handler(tx_id=tx_id, rx_id=rx_id)
         from twisted.internet import reactor
         self.transport = epyqlib.twisted.busproxy.BusProxy(
             protocol=self.protocol,

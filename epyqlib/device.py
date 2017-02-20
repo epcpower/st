@@ -401,7 +401,9 @@ class Device:
         if Elements.variables in self.elements:
             variable_model = epyqlib.variableselectionmodel.VariableModel(
                 nvs=self.nvs,
-                bus=self.bus
+                bus=self.bus,
+                tx_id=self.neo_frames.frame_by_name('CCP').id,
+                rx_id=self.neo_frames.frame_by_name('CCPResponse').id
             )
 
             proxy = QSortFilterProxyModel()
