@@ -309,6 +309,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.nvs = nvs
         self.bus = bus
 
+        self.git_hash = None
+
         self.bits_per_byte = None
 
         self.cache = None
@@ -354,6 +356,10 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.bits_per_byte = bits_per_byte
         self.names = names
+
+        [self.git_hash] = [v for v in variables if v.name.startswith('dataLogger_gitRev_')]
+        self.git_hash = self.git_hash.name.split('0x', 1)[1]
+        self.git_hash = int(self.git_hash, 16)
 
         self.beginResetModel()
         logger.debug('Updating from binary, {} variables'.format(len(variables)))
@@ -585,6 +591,22 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 reference=node
             )
             cache.add(chunk)
+
+        if self.git_hash is not None:
+            [hash_node] = [n for n in block_header_node.children
+                           if n.fields.name == 'softwareHash']
+            if self.git_hash != hash_node.fields.value:
+                if hash_node.fields.value is not None:
+                    log_hash = '{:07x}'.format(hash_node.fields.value)
+                else:
+                    log_hash = str(hash_node.fields.value)
+
+                d = twisted.internet.defer.Deferred()
+                d.errback(Exception(
+                    'Git hashes from .out ({:07x}) and the log ({}) do not match'
+                    .format(self.git_hash, log_hash)
+                ))
+                return d
 
         chunks = sorted(
             cache.contiguous_chunks(),
