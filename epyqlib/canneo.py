@@ -525,6 +525,11 @@ class Frame(QtCanListener):
                 bool(msg.id_type) == self.extended):
             self.unpack(msg.data)
 
+    def terminate(self):
+        callers = tuple(r for r in self._cyclic_requests)
+        for caller in callers:
+            self.cyclic_request(caller, None)
+
 
 class Neo(QtCanListener):
     def __init__(self, matrix, frame_class=Frame, signal_class=Signal,
@@ -665,6 +670,10 @@ class Neo(QtCanListener):
             if msg.timestamp - last >= self.frame_rx_interval:
                 self.frame_rx_timestamps[frame] = msg.timestamp
                 frame.message_received_signal.emit(msg)
+
+    def terminate(self):
+        for frame in self.frames:
+            frame.terminate()
 
 
 def format_identifier(identifier, extended):

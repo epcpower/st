@@ -583,6 +583,9 @@ class Device:
         self.ui.offline_overlay.setVisible(len(text) > 0)
         self.ui.offline_overlay.setStyleSheet(style)
 
+    def terminate(self):
+        self.neo_frames.terminate()
+
 
 if __name__ == '__main__':
     import sys
