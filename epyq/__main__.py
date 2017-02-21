@@ -189,6 +189,7 @@ class Window(QtWidgets.QMainWindow):
     def _remove_device(self, device):
         self.ui.stacked.removeWidget(device.ui)
         device.ui.setParent(None)
+        device.terminate()
 
     @pyqtSlot(epyqlib.device.Device)
     def set_current_device(self, device):
