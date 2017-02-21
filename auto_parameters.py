@@ -1,3 +1,4 @@
+import collections
 import json
 
 import canmatrix.importany
@@ -51,7 +52,8 @@ class DeviceExtension:
         parameter_path = self.device.absolute_path(parameter_path)
         with open(parameter_path, 'r') as file:
             s = file.read()
-            self.parameter_dict = json.loads(s)
+            self.parameter_dict = json.loads(
+                s, object_pairs_hook=collections.OrderedDict)
 
     def load_parameters(self):
         d = self._load_parameters()
