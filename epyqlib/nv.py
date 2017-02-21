@@ -137,20 +137,24 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     def names(self):
         return '\n'.join([n.fields.name for n in self.children])
 
-    def write_all_to_device(self):
+    def write_all_to_device(self, only_these=None):
         self.set_status_string.emit('Writing to device...')
         d = twisted.internet.defer.Deferred()
         d.callback(None)
 
         already_set_frames = set()
 
-        def write_node(node, _):
+        def write_node(node, _=None):
             if node.frame not in already_set_frames:
                 already_set_frames.add(node.frame)
                 node.frame.update_from_signals()
                 d.addCallback(lambda _: self.protocol.write(node))
 
-        self.traverse(call_this=write_node)
+        if only_these is None:
+            self.traverse(call_this=write_node)
+        else:
+            for node in only_these:
+                write_node(node=node)
 
         d.addCallback(epyqlib.utils.twisted.detour_result,
                       self.set_status_string.emit,
@@ -160,7 +164,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                      self.set_status_string.emit,
                      'Failed while writing to device...')
 
-    def read_all_from_device(self):
+    def read_all_from_device(self, only_these=None):
         self.set_status_string.emit('Reading from device...')
         d = twisted.internet.defer.Deferred()
         d.callback(None)
@@ -169,7 +173,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
         from twisted.internet import reactor
 
-        def read_node(node, _):
+        def read_node(node, _=None):
             if node.frame not in already_read_frames:
                 already_read_frames.add(node.frame)
                 node.frame.update_from_signals()
@@ -179,7 +183,11 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                                   reactor, 0.02,
                                   self.protocol.read, node))
 
-        self.traverse(call_this=read_node)
+        if only_these is None:
+            self.traverse(call_this=read_node)
+        else:
+            for node in only_these:
+                read_node(node=node)
 
         d.addCallback(epyqlib.utils.twisted.detour_result,
                       self.set_status_string.emit,
@@ -341,11 +349,8 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
         TreeNode.__init__(self, parent)
 
         for signal in self.signals:
-            self.append_child(signal)
-
-        for child in self.children:
-            if child.name == "ReadParam_command":
-                self.read_write = child
+            if signal.name == "ReadParam_command":
+                self.read_write = signal
                 break
 
     def update_from_signals(self, for_read=False, function=None):

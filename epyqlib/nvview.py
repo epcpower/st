@@ -46,6 +46,11 @@ class NvView(QtWidgets.QWidget):
         self.ui.write_to_file_button.clicked.connect(self.write_to_file)
         self.ui.read_from_file_button.clicked.connect(self.read_from_file)
 
+        self.ui.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ui.tree_view.customContextMenuRequested.connect(
+            self.context_menu
+        )
+
         self.resize_columns = epyqlib.nv.Columns(
             name=True,
             value=True)
@@ -107,6 +112,29 @@ class NvView(QtWidgets.QWidget):
     @pyqtSlot(str)
     def set_status_string(self, string):
         self.ui.status_label.setText(string)
+
+    def context_menu(self, position):
+        index = self.ui.tree_view.indexAt(position)
+
+        if not index.isValid():
+            return
+
+        model = self.ui.tree_view.model()
+        node = model.node_from_index(index)
+
+        menu = QtWidgets.QMenu(parent=self.ui.tree_view)
+
+        read = menu.addAction('Read')
+        write = menu.addAction('Write')
+
+        action = menu.exec(self.ui.tree_view.viewport().mapToGlobal(position))
+
+        if action is None:
+            pass
+        elif action is read:
+            model.root.read_all_from_device(only_these=(node,))
+        elif action is write:
+            model.root.write_all_to_device(only_these=(node,))
 
 
 if __name__ == '__main__':
