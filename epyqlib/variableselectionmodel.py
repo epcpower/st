@@ -361,21 +361,29 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.git_hash = self.git_hash.name.split('0x', 1)[1]
         self.git_hash = int(self.git_hash, 16)
 
-        self.beginResetModel()
         logger.debug('Updating from binary, {} variables'.format(len(variables)))
 
-        self.root = yield twisted.internet.threads.deferToThread(
+        root = yield twisted.internet.threads.deferToThread(
             build_node_tree,
             variables=variables,
             array_truncated_slot=self.array_truncated_message
         )
 
+        logger.debug('Creating cache')
+        cache = yield twisted.internet.threads.deferToThread(
+            self.create_cache,
+            only_checked=False,
+            subscribe=True,
+            root=root
+        )
+        logger.debug('Done creating cache')
+
+        self.beginResetModel()
+        self.root = root
         self.endResetModel()
 
-        logger.debug('Creating cache')
-        self.cache = self.create_cache(only_checked=False, subscribe=True)
+        self.cache = cache
 
-        logger.debug('Done creating cache')
         self.binary_loaded.emit()
 
     def assign_root(self, root):
@@ -417,7 +425,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         )
 
     def create_cache(self, only_checked=True, subscribe=False,
-                     include_partially_checked=False, test=None):
+                     include_partially_checked=False, test=None, root=None):
         def default_test(node):
             acceptable_states = {
                 Qt.Unchecked,
@@ -436,13 +444,16 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         if test is None:
             test = default_test
 
+        if root is None:
+            root = self.root
+
         cache = cmc.Cache(bits_per_byte=self.bits_per_byte)
 
         def update_parameter(node, cache):
             # TODO: find a real solution to avoid blocking UI
             # QCoreApplication.processEvents()
 
-            if node is self.root:
+            if node is root:
                 return
 
             if test(node):
@@ -461,7 +472,7 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     )
                     cache.subscribe(callback, chunk)
 
-        self.root.traverse(
+        root.traverse(
             call_this=update_parameter,
             payload=cache,
             internal_nodes=True
