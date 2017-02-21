@@ -8,7 +8,7 @@ import io
 import os
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QFile, QFileInfo, QTextStream,
-                          QCoreApplication)
+                          QCoreApplication, Qt, QItemSelectionModel)
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -85,6 +85,24 @@ class NvView(QtWidgets.QWidget):
             epyqlib.nv.Columns.indexes.value,
             epyqlib.delegates.ByFunction(model=model, parent=self)
         )
+        self.ui.tree_view.selectionModel().currentChanged.connect(
+            self._current_changed)
+        self.ui.tree_view.setSelectionMode(self.ui.tree_view.MultiSelection)
+
+    def _current_changed(self, new_index, old_index):
+        model = self.ui.tree_view.model()
+        new = model.node_from_index(new_index)
+
+        selection_model = self.ui.tree_view.selectionModel()
+
+        selection_model.clearSelection()
+        nodes = set(new.frame.signals) & set(model.root.children)
+        nodes.discard(new)
+        for node in nodes:
+            selection_model.select(
+                model.index_from_node(node),
+                QItemSelectionModel.Select | QItemSelectionModel.Rows
+            )
 
     @pyqtSlot(str)
     def set_status_string(self, string):
