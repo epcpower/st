@@ -174,8 +174,12 @@ class CheckableChart:
 
 
 class QtChartWindow(QtWidgets.QMainWindow):
-    def __init__(self, data, parent):
+    closing = QtCore.pyqtSignal()
+
+    def __init__(self, data, parent=None):
         super().__init__(parent=parent)
+
+        self.setWindowModality(QtCore.Qt.NonModal)
 
         self.central_widget = QtWidgets.QWidget()
         self.central_widget_layout = QtWidgets.QVBoxLayout()
@@ -267,6 +271,9 @@ class QtChartWindow(QtWidgets.QMainWindow):
     def axis_range_changed(self, min, max):
         for axis in self.x_axes:
             axis.setRange(min, max)
+
+    def closeEvent(self, event):
+        self.closing.emit()
 
 
 def qtc(data):
