@@ -100,17 +100,7 @@ class VariableSelection(QtWidgets.QWidget):
 
         if filename is not None:
             # TODO: CAMPid 9632763567954321696542754261546
-            self.progress = QProgressDialog(self)
-            flags = self.progress.windowFlags()
-            flags &= ~Qt.WindowContextHelpButtonHint
-            self.progress.setWindowFlags(flags)
-            self.progress.setWindowModality(Qt.WindowModal)
-            self.progress.setAutoReset(False)
-            self.progress.setCancelButton(None)
-            self.progress.setMinimumDuration(0)
-            # Uncertain duration so use a busy indicator
-            self.progress.setMinimum(0)
-            self.progress.setMaximum(0)
+            self.progress = epyqlib.utils.qt.progress_dialog(parent=self)
             self.progress.setLabelText('Loading binary...')
 
             model = self.nonproxy_model()
@@ -152,19 +142,7 @@ class VariableSelection(QtWidgets.QWidget):
 
                 model = self.nonproxy_model()
 
-                # TODO: CAMPid 9632763567954321696542754261546
-                progress = QProgressDialog(self)
-                flags = self.progress.windowFlags()
-                flags &= ~Qt.WindowContextHelpButtonHint
-                progress.setWindowFlags(flags)
-                progress.setWindowModality(Qt.WindowModal)
-                progress.setAutoReset(False)
-                progress.setCancelButton(None)
-                progress.setMinimumDuration(0)
-                # Uncertain duration so use a busy indicator
-                # TODO: we could actually count records so do that someday
-                progress.setMinimum(0)
-                progress.setMaximum(0)
+                progress = epyqlib.utils.qt.progress_dialog(parent=self)
                 progress.setLabelText('Processing Raw Log...')
 
                 progress.show()

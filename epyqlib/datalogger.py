@@ -118,14 +118,7 @@ def pull_raw_log(device, bus=None, parent=None):
         d.callback(None)
         return d
 
-    # TODO: CAMPid 9632763567954321696542754261546
-    progress = QtWidgets.QProgressDialog(device.ui)
-    flags = progress.windowFlags()
-    flags &= ~QtCore.Qt.WindowContextHelpButtonHint
-    progress.setWindowFlags(flags)
-    progress.setWindowModality(QtCore.Qt.WindowModal)
-    progress.setAutoReset(False)
-    progress.setCancelButton(None)
+    progress = epyqlib.utils.qt.progress_dialog(parent=device.ui)
 
     logger = epyqlib.datalogger.DataLogger(
         nvs=device.nvs,

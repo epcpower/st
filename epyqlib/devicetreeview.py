@@ -288,13 +288,10 @@ class DeviceTreeView(QtWidgets.QWidget):
                     bus = epyqlib.busproxy.BusProxy(bus=real_bus,
                                                     auto_disconnect=False)
 
-                    # TODO: CAMPid 9632763567954321696542754261546
-                    progress = QProgressDialog(self)
-                    flags =  progress.windowFlags()
-                    flags &= ~Qt.WindowContextHelpButtonHint
-                    progress.setWindowFlags(flags)
-                    progress.setWindowModality(Qt.WindowModal)
-                    progress.setAutoReset(False)
+                    progress = epyqlib.utils.qt.progress_dialog(
+                        parent=self,
+                        cancellable=True
+                    )
 
                     flasher = epyqlib.flash.Flasher(file=f,
                                                     bus=bus,

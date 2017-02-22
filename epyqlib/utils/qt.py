@@ -219,3 +219,20 @@ def get_code():
         code_file.close()
 
     return code
+
+
+def progress_dialog(parent=None, cancellable=False):
+    progress = QtWidgets.QProgressDialog(parent)
+    flags = progress.windowFlags()
+    flags &= ~QtCore.Qt.WindowContextHelpButtonHint
+    flags &= ~QtCore.Qt.WindowCloseButtonHint
+    progress.setWindowFlags(flags)
+    progress.setWindowModality(QtCore.Qt.WindowModal)
+    progress.setAutoReset(False)
+    if not cancellable:
+        progress.setCancelButton(None)
+    progress.setMinimumDuration(0)
+    progress.setMinimum(0)
+    progress.setMaximum(0)
+
+    return progress
