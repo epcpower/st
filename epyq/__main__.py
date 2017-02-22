@@ -99,6 +99,8 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.device_tree.device_selected.connect(self.set_current_device)
 
+        self.subwindows = set()
+
     def dialog_from_file(self, title, file_name):
         # The Qt Installer Framework (QtIFW) likes to do a few things to license files...
         #  * '\n' -> '\r\n'
@@ -183,7 +185,15 @@ class Window(QtWidgets.QMainWindow):
 
         if filename is not None:
             data = epyqlib.csvwindow.read_csv(filename)
-            epyqlib.csvwindow.QtChartWindow(data=data, parent=self).show()
+            window = epyqlib.csvwindow.QtChartWindow(data=data)
+            self.subwindows.add(window)
+            window.closing.connect(
+                functools.partial(
+                    self.subwindows.discard,
+                    window
+                )
+            )
+            window.show()
 
     @pyqtSlot(epyqlib.device.Device)
     def _remove_device(self, device):
