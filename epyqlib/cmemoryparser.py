@@ -646,6 +646,7 @@ class Variable:
     name = attr.ib()
     type = attr.ib()
     address = attr.ib()
+    file = attr.ib(default=None)
 
     def render(self):
         base = base_type(self)
@@ -653,12 +654,13 @@ class Variable:
             array = base.array_markup()
         else:
             array = ''
-        return '{type} {name}{array}; // {base} @ 0x{address:08X}'.format(
+        return '{type} {name}{array}; // {base} @ 0x{address:08X} from {file}'.format(
             type=full_type(self),
             name=name(self),
             array=array,
             base=base_type(self).name,
-            address=self.address
+            address=self.address,
+            file=self.file
         )
 
     def unpack(self, data):
@@ -705,6 +707,20 @@ def fake_section(filename, section_name):
         name=section_name,
         global_offset=0,
         size=len(debug_bytes))
+
+
+def get_die_path(die):
+    path = []
+
+    while die._parent is not None:
+        die = die._parent
+
+        name = die.attributes['DW_AT_name'].value.decode('utf-8')
+        name = name.lstrip('./')
+        path.append(name)
+
+    return '::'.join(path[::-1])
+
 
 def process_file(filename):
     logging.debug('Processing file: {}'.format(filename))
@@ -838,10 +854,12 @@ def process_file(filename):
             continue
         address = int.from_bytes(bytes(location[1:5]),
                                  'little')
+
         variable = Variable(
             name=die.attributes['DW_AT_name'].value.decode('utf-8'),
             type=die.attributes['DW_AT_type'].value,
-            address=address
+            address=address,
+            file=get_die_path(die)
         )
         variables.append(variable)
         offsets[die.offset] = variable
@@ -1118,11 +1136,12 @@ def process_file(filename):
     #     volatile_type.type = offsets[volatile_type.type]
     #     logging.debug(volatile_type)
 
-    names = {None: []}
+    names = collections.defaultdict(list)
     for item in offsets.values():
         if hasattr(item, 'name'):
+            valid = False
             if item.name is None:
-                names[item.name].append(item)
+                valid = True
             elif is_modifier(item):
                 pass
             elif item.name.startswith('$'):
@@ -1130,13 +1149,10 @@ def process_file(filename):
             elif isinstance(item, SubroutineType):
                 pass
             else:
-                if item.name in names:
-                    raise Exception('{}\n{}'.format(item, names[item.name]))
-                    # pass
-                # else:
-                #     names[item.name] = []
-                # names[item.name].append(item)
-                names[item.name] = item
+                valid = True
+
+            if valid:
+                names[item.name].append(item)
 
     result = names, variables, bits_per_byte
 

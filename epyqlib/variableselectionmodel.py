@@ -32,7 +32,7 @@ __license__ = 'GPLv2+'
 
 
 class Columns(epyqlib.abstractcolumns.AbstractColumns):
-    _members = ['name', 'type', 'address', 'size', 'bits', 'value']
+    _members = ['name', 'type', 'address', 'size', 'bits', 'value', 'file']
 
 Columns.indexes = Columns.indexes()
 
@@ -77,6 +77,10 @@ class VariableNode(epyqlib.treenode.TreeNode):
         if bits is None:
             bits = ''
 
+        filename = ''
+        if hasattr(variable, 'file'):
+            filename = variable.file
+
         base_type = epyqlib.cmemoryparser.base_type(variable)
         type_name = epyqlib.cmemoryparser.type_name(variable)
 
@@ -85,7 +89,8 @@ class VariableNode(epyqlib.treenode.TreeNode):
                               address='0x{:08X}'.format(address),
                               size=base_type.bytes,
                               bits=bits,
-                              value=None)
+                              value=None,
+                              file=filename)
 
         self.comparison_value = comparison_value
 
@@ -303,7 +308,8 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             address='Address',
             size='Size',
             bits='Bits',
-            value='Value'
+            value='Value',
+            file='File'
         )
 
         self.nvs = nvs
@@ -556,12 +562,13 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 len(chunk._bytes) // (self.bits_per_byte // 8))
 
     def record_header_length(self):
-        return (self.names['DataLogger_RecordHeader'].type.bytes
+        [x] = self.names['DataLogger_RecordHeader']
+        return (x.type.bytes
                 * (self.bits_per_byte // 8))
 
     def block_header_length(self):
         try:
-            block_header = self.names['DataLogger_BlockHeader']
+            [block_header] = self.names['DataLogger_BlockHeader']
         except KeyError:
             block_header_bytes = 0
         else:
@@ -573,20 +580,22 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         data_stream = io.BytesIO(data)
         raw_header = data_stream.read(self.block_header_length())
 
+        [x] = self.names['DataLogger_BlockHeader']
         block_header_node = self.parse_block_header_into_node(
             raw_header=raw_header,
             bits_per_byte=self.bits_per_byte,
-            block_header_type=self.names['DataLogger_BlockHeader']
+            block_header_type=x
         )
 
         cache = self.create_log_cache(block_header_node)
 
+        [x] = self.names['DataLogger_RecordHeader']
         # TODO: hardcoded 32-bit addressing and offset assumption
         #       intended to avoid collision
         record_header_address = 2**32 + 100
         record_header = epyqlib.cmemoryparser.Variable(
             name='.record_header',
-            type=self.names['DataLogger_RecordHeader'],
+            type=x,
             address=record_header_address
         )
         record_header_node = VariableNode(variable=record_header)
