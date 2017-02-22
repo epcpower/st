@@ -4,7 +4,7 @@ import io
 import os
 from PyQt5 import QtWidgets, uic
 # from PyQt5.QtGui import QFontMetrics
-from PyQt5.QtCore import QFile, QFileInfo, QTextStream
+from PyQt5.QtCore import QFile, QFileInfo, QTextStream, Qt
 from PyQt5.QtWidgets import QHeaderView
 
 # See file COPYING in this source tree
@@ -36,7 +36,7 @@ class VariableSelectionView(QtWidgets.QWidget):
 
         header = self.ui.tree_view.header()
         header.setStretchLastSection(False)
-        header.setSectionResizeMode(0, QHeaderView.Stretch)
+        header.setSectionResizeMode(header.ResizeToContents)
 
     def set_sorting_enabled(self, enabled):
         self.ui.tree_view.setSortingEnabled(enabled)
