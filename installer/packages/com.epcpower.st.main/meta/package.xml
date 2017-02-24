@@ -3,7 +3,7 @@
     <Name>com.epcpower.st.main</Name>
     <DisplayName>EPC Power Service Tool</DisplayName>
     <Description>The EPC Power Service Tool.  Also known as EPyQ.</Description>
-    <Version>0.0.1-2</Version>
+    <Version>0.0.1-**VERSION_EPOCH**</Version>
     <ReleaseDate>2016-02-08</ReleaseDate>
     <Licenses>
         <License name="EPyQ" file="epyq-COPYING.txt" />

@@ -3,7 +3,7 @@
     <Name>com.epcpower.st.devices.factory</Name>
     <DisplayName>EPC Power Factory Device Files</DisplayName>
     <Description>EPyQ device files for use in the factory</Description>
-    <Version>0.0.1-2</Version>
+    <Version>0.0.1-**VERSION_EPOCH**</Version>
     <ReleaseDate>2016-02-08</ReleaseDate>
     <Default>false</Default>
 </Package>

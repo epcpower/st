@@ -3,7 +3,7 @@
     <Name>com.epcpower.st.devices.release</Name>
     <DisplayName>EPC Power Released Device Files</DisplayName>
     <Description>EPyQ device release use</Description>
-    <Version>0.0.1-2</Version>
+    <Version>0.0.1-**VERSION_EPOCH**</Version>
     <ReleaseDate>2016-02-08</ReleaseDate>
     <Default>false</Default>
 </Package>
