@@ -375,6 +375,18 @@ runit(
     cwd='build'
 )
 
+base = os.path.join('build', 'installer', 'packages')
+for path in os.listdir(base):
+    package_file = os.path.join(base, path, 'meta', 'package.xml')
+    runit(
+        args=[
+            sys.executable,
+            os.path.join('installer', 'config.py'),
+            '--template', package_file,
+            '--output', package_file
+        ]
+    )
+
 runit(args=[
     os.path.join('c:/', 'Qt', 'QtIFW2.0.3', 'bin', 'binarycreator.exe'),
     '-c', os.path.join('installer', 'config', 'config.xml'),
