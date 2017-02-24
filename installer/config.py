@@ -20,8 +20,8 @@ def main(template, output):
         for key, value in replacements.items():
             config = config.replace('**' + key + '**', value)
 
-        with open(output, 'w') as output_file:
-            output_file.write(config)
+    with open(output, 'w') as output_file:
+        output_file.write(config)
 
     return 0
 
