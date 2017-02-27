@@ -90,6 +90,14 @@ def pairwise(iterable):
     return zip(a, b)
 
 
+# https://docs.python.org/3/library/itertools.html
+def grouper(iterable, n, fillvalue=None):
+    "Collect data into fixed-length chunks or blocks"
+    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return itertools.zip_longest(*args, fillvalue=fillvalue)
+
+
 def generate_ranges(ids):
     start = ids[0]
 
