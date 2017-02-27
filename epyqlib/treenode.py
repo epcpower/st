@@ -22,6 +22,10 @@ class TreeNode:
         if self.tree_parent is not None:
             self.tree_parent.append_child(self)
 
+    def insert_child(self, i, child):
+        self.children.insert(i, child)
+        child.tree_parent = self
+
     def append_child(self, child):
         self.children.append(child)
         child.tree_parent = self
