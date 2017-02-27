@@ -180,7 +180,9 @@ class PyQAbstractItemModel(QAbstractItemModel):
             return QModelIndex()
         row = grandparent.row_of_child(parent)
 
-        assert row != - 1
+        if row == -1:
+            raise Exception('row == -1')
+
         return self.createIndex(row, 0, parent)
 
     def node_from_index(self, index):
