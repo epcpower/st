@@ -135,9 +135,6 @@ class indexable_attrs:
             if old is not None:
                 old(self, *args, **kwargs)
 
-            self.public_fields = tuple(a for a in attr.fields(type(self))
-                                       if ignore(a))
-
         def __getitem__(self, index):
             return getattr(self, self.public_fields[index].name)
 
@@ -163,5 +160,8 @@ class indexable_attrs:
             setattr(cls, name.__name__, name)
 
         cls.__attrs_post_init__ = __attrs_post_init__
+
+        cls.public_fields = tuple(a for a in attr.fields(cls)
+                                  if ignore(a))
 
         return cls
