@@ -69,6 +69,14 @@ class TreeNode:
 
         return leaves
 
+    def find_root(self):
+        root = self
+
+        while root.tree_parent is not None:
+            root = root.tree_parent
+
+        return root
+
     def __len__(self):
         return len(self.children)
 
