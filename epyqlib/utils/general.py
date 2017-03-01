@@ -165,3 +165,28 @@ class indexable_attrs:
                                   if ignore(a))
 
         return cls
+
+
+@attr.s
+class append_to_method:
+    callable = attr.ib()
+    name = attr.ib(default=None)
+
+    def __attrs_post_init__(self):
+        if self.name is None:
+            self.name = self.callable.__name__
+
+    def __call__(self, cls):
+        old = getattr(cls, self.name, None)
+        to_call = self.callable
+
+        def f(s, *args, **kwargs):
+            if old is not None:
+                old(s, *args, **kwargs)
+
+            to_call(s)
+
+        setattr(cls, self.name, f)
+        print('assigned {} to {}.{}'.format(f, cls.__name__, self.name))
+
+        return cls
