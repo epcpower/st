@@ -31,14 +31,14 @@ class TreeNode:
         child.tree_parent = self
 
     def child_at_row(self, row):
-        try:
+        if row < len(self.children):
             return self.children[row]
-        except IndexError:
+        else:
             return None
 
     def row_of_child(self, child):
         for i, item in enumerate(self.children):
-            if item == child:
+            if item is child:
                 return i
         return -1
 

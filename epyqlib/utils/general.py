@@ -112,6 +112,7 @@ def filler_attribute():
     return attr.ib(
         default='',
         init=False,
+        cmp=False,
         metadata={
             'editable': False,
             'to_file': False

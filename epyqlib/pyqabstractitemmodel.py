@@ -109,12 +109,14 @@ class PyQAbstractItemModel(QAbstractItemModel):
         if not index.isValid():
             return flags
 
+        column = index.column()
+
         if self.editable_columns is not None:
-            if self.editable_columns[index.column()]:
+            if self.editable_columns[column]:
                 flags |= Qt.ItemIsEditable
 
         if self.checkbox_columns is not None:
-            if self.checkbox_columns[index.column()]:
+            if self.checkbox_columns[column]:
                 flags |= Qt.ItemIsUserCheckable
 
         return flags
