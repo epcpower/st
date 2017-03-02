@@ -185,3 +185,7 @@ def get_attribute(inst, attribute):
     [value] = attr.astuple(inst, filter=attr.filters.include(attribute))
 
     return value
+
+
+def set_attribute(inst, attribute, value):
+    setattr(inst, attribute.name, value)
