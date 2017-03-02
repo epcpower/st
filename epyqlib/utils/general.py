@@ -108,18 +108,6 @@ def generate_ranges(ids):
             start = next
 
 
-def filler_attribute():
-    return attr.ib(
-        default='',
-        init=False,
-        cmp=False,
-        metadata={
-            'editable': False,
-            'to_file': False
-        }
-    )
-
-
 class indexable_attrs:
     def __init__(self, ignore=lambda a: not a.name.startswith('_')):
         self.ignore = ignore
