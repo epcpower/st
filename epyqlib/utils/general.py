@@ -191,3 +191,9 @@ class append_to_method:
         print('assigned {} to {}.{}'.format(f, cls.__name__, self.name))
 
         return cls
+
+
+def get_attribute(inst, attribute):
+    [value] = attr.astuple(inst, filter=attr.filters.include(attribute))
+
+    return value
