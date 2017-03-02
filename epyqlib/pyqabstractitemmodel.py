@@ -52,12 +52,9 @@ class PyQAbstractItemModel(QAbstractItemModel):
         node = index.internalPointer()
 
         try:
-            return self.data_display_get(node, index.column())
+            return node.fields[index.column()]
         except IndexError:
             return None
-
-    def data_display_get(self, node, column):
-        return node.fields[column]
 
     def data_unique(self, index):
         return index.internalPointer().unique()
@@ -76,7 +73,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
         try:
             get = node.get_human_value
         except AttributeError:
-            value = self.data_edit_get(node, index.column())
+            value = node.fields[index.column()]
         else:
             try:
                 value = get()
@@ -89,9 +86,6 @@ class PyQAbstractItemModel(QAbstractItemModel):
             value = str(value)
 
         return value
-
-    def data_edit_get(self, node, column):
-        return node.fields[column]
 
     def data(self, index, role):
         if not index.isValid():

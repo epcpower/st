@@ -108,54 +108,6 @@ def generate_ranges(ids):
             start = next
 
 
-class indexable_attrs:
-    def __init__(self, ignore=lambda a: not a.name.startswith('_')):
-        self.ignore = ignore
-
-    def __call__(self, cls):
-        ignore = self.ignore
-
-        if hasattr(cls, '__attrs_post_init__'):
-            old = cls.__attrs_post_init__
-        else:
-            old = None
-
-        def __attrs_post_init__(self, *args, **kwargs):
-            if old is not None:
-                old(self, *args, **kwargs)
-
-        def __getitem__(self, index):
-            return getattr(self, self.public_fields[index].name)
-
-        def __setitem__(self, index, value):
-            attribute = self.public_fields[index]
-
-            return setattr(self,
-                           attribute.name,
-                           value)
-
-        def __iter__(self):
-            return (getattr(self, a.name) for a in self.public_fields)
-
-        methods = (__getitem__, __setitem__, __iter__)
-
-        for name in methods:
-            if hasattr(cls, name.__name__):
-                raise Exception(
-                    'Unable to make indexable, {} already defined'.format(
-                        name.__name__))
-
-        for name in methods:
-            setattr(cls, name.__name__, name)
-
-        cls.__attrs_post_init__ = __attrs_post_init__
-
-        cls.public_fields = tuple(a for a in attr.fields(cls)
-                                  if ignore(a))
-
-        return cls
-
-
 @attr.s
 class append_to_method:
     callable = attr.ib()
@@ -179,13 +131,3 @@ class append_to_method:
         print('assigned {} to {}.{}'.format(f, cls.__name__, self.name))
 
         return cls
-
-
-def get_attribute(inst, attribute):
-    [value] = attr.astuple(inst, filter=attr.filters.include(attribute))
-
-    return value
-
-
-def set_attribute(inst, attribute, value):
-    setattr(inst, attribute.name, value)
