@@ -2,6 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
+import attr
 import can
 from epyqlib.abstractcolumns import AbstractColumns
 import epyqlib.canneo
@@ -36,13 +37,45 @@ class NotFoundError(Exception):
     pass
 
 
+@attr.s
+class Configuration:
+    set_frame = attr.ib()
+    status_frame = attr.ib()
+    to_nv_command = attr.ib()
+    to_nv_status = attr.ib()
+    read_write_signal = attr.ib()
+
+
+configurations = {
+    'original': Configuration(
+        set_frame='CommandSetNVParam',
+        status_frame='StatusNVParam',
+        to_nv_command='SaveToEE_command',
+        to_nv_status='SaveToEE_status',
+        read_write_signal='ReadParam_command'
+    ),
+    'j1939': Configuration(
+        set_frame='"Setup To Inverter"',
+        status_frame='"Setup From Inverter"',
+        to_nv_command='SaveToEE_command',
+        to_nv_status='SaveToEE_status',
+        read_write_signal='ReadParam_command'
+    )
+}
+
+
 class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
     set_status_string = pyqtSignal(str)
 
-    def __init__(self, neo, bus, parent=None):
+    def __init__(self, neo, bus, configuration=None, parent=None):
         TreeNode.__init__(self)
         epyqlib.canneo.QtCanListener.__init__(self, parent=parent)
+
+        if configuration is None:
+            configuration = 'original'
+
+        self.configuration = configurations[configuration]
 
         from twisted.internet import reactor
         self.protocol = epyqlib.twisted.nvs.Protocol()
@@ -57,7 +90,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
 
         self.set_frames = [f for f in self.neo.frames
-                       if f.name == 'CommandSetNVParam']
+                       if f.name == self.configuration.set_frame]
         try:
             self.set_frames = self.set_frames[0]
         except IndexError:
@@ -65,8 +98,10 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             raise NoNv()
 
         self.set_frames = self.set_frames.multiplex_frames
-        self.status_frames = [f for f in self.neo.frames
-                       if f.name == 'StatusNVParam'][0].multiplex_frames
+        self.status_frames = [
+            f for f in self.neo.frames
+            if f.name == self.configuration.status_frame
+        ][0].multiplex_frames
 
         self.save_frame = None
         self.save_signal = None
@@ -77,14 +112,14 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         self.confirm_save_value = None
         for frame in self.set_frames.values():
             for signal in frame.signals:
-                if signal.name == 'SaveToEE_command':
+                if signal.name == self.configuration.to_nv_command:
                     for key, value in signal.enumeration.items():
                         if value == 'Enable':
                             self.save_frame = frame
                             self.save_signal = signal
                             self.save_value = float(key)
 
-        save_status_name = 'SaveToEE_status'
+        save_status_name = self.configuration.to_nv_status
         for frame in self.status_frames.values():
             for signal in frame.signals:
                 if signal.name == save_status_name:
@@ -106,10 +141,15 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         for value, frame in self.set_frames.items():
             signals = [s for s in frame.signals]
             signals = [s for s in signals if s.multiplex is not 'Multiplexor']
-            signals = [s for s in signals if s.name not in
-                       ['ReadParam_command', 'CommandSetNVParam_MUX']]
+            signals = [
+                s for s in signals
+                if s.name not in [
+                    self.configuration.read_write_signal,
+                    '{}_MUX'.format(self.configuration.set_frame)
+                ]
+            ]
             for nv in signals:
-                if nv.name not in ['SaveToEE_command']:
+                if nv.name not in [self.configuration.to_nv_command]:
                     self.append_child(nv)
 
                 nv.frame.status_frame = self.status_frames[value]
@@ -362,17 +402,6 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
 
     def update_from_signals(self, for_read=False, function=None):
         epyqlib.canneo.Frame.update_from_signals(self, function=function)
-
-
-def ufs(signal):
-    if signal.name in ['ReadParam_command', 'CommandSetNVParam_MUX']:
-        return signal.value
-    else:
-        # TODO: CAMPid 9395616283654658598648263423685
-        # TODO: and _offset...
-
-        scaled_value = (signal.min - signal.offset) / signal.factor
-        return scaled_value
 
 
 class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):

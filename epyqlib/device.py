@@ -229,6 +229,8 @@ class Device:
                 tabs=tabs,
                 rx_interval=rx_interval,
                 edit_actions=edit_actions,
+                nv_configuration=d.get('nv_configuration'),
+                can_configuration=d.get('can_configuration'),
                 **kwargs)
 
     def _init_from_zip(self, zip_file, rx_interval=0, **kwargs):
@@ -265,9 +267,13 @@ class Device:
         shutil.rmtree(path)
 
     def _init_from_parameters(self, uis, serial_number, name, bus=None,
-                              tabs=None, rx_interval=0, edit_actions=None):
+                              tabs=None, rx_interval=0, edit_actions=None,
+                              nv_configuration=None, can_configuration=None):
         if tabs is None:
             tabs = Tabs.defaults()
+
+        if can_configuration is None:
+            can_configuration = 'original'
 
         self.bus = BusProxy(bus=bus)
 
@@ -386,7 +392,11 @@ class Device:
                 node_id_adjust=self.node_id_adjust
             )
 
-            self.nvs = epyqlib.nv.Nvs(self.frames_nv, self.bus)
+            self.nvs = epyqlib.nv.Nvs(
+                neo=self.frames_nv,
+                bus=self.bus,
+                configuration=nv_configuration
+            )
             notifiees.append(self.nvs)
 
 
@@ -481,7 +491,24 @@ class Device:
 
                 # TODO: add some notifications
                 found = False
-                frame = self.neo_frames.frame_by_name(frame_name)
+                frame = None
+                if can_configuration == 'original':
+                    frame = self.neo_frames.frame_by_name(frame_name)
+                elif can_configuration:
+                    found_frames = []
+                    for process_frame_name in('"Process To Inverter"',
+                                              '"Process From Inverter"'):
+                        mux_frame = (
+                            self.neo_frames.frame_by_name(process_frame_name)
+                        )
+                        found_frames.extend(
+                            f for f in mux_frame.multiplex_frames.values()
+                            if f.mux_name == frame_name
+                        )
+                    if len(found_frames) != 1:
+                        frame = None
+                    else:
+                        [frame] = found_frames
                 if frame is not None:
                     signal = frame.signal_by_name(signal_name)
                     if signal is not None:
