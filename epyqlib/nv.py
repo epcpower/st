@@ -115,7 +115,14 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                 nv.frame.status_frame = self.status_frames[value]
                 self.status_frames[value].set_frame = nv.frame
 
-                nv.status_signal = [s for s in self.status_frames[value].signals if s.start_bit == nv.start_bit][0]
+                search = (s for s in self.status_frames[value].signals
+                          if s.start_bit == nv.start_bit)
+                try:
+                    nv.status_signal, = search
+                except ValueError:
+                    raise Exception(
+                        'NV status signal not found for {}:{}'.format(nv.frame.mux_name, nv.name)
+                    )
                 nv.status_signal.set_signal = nv
 
         # TODO: this should probably be done in the view but this is easier for now
