@@ -4,6 +4,7 @@
 
 import io
 import os
+import epyqlib.form
 
 from collections import OrderedDict
 from PyQt5 import QtWidgets, uic
