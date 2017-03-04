@@ -435,6 +435,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 d = self.root.to_dict()
                 s = json.dumps(d, sort_keys=True, indent=4)
                 file.write(s)
+                file.write('\n')
 
                 self.set_status_string.emit(
                     'Saved to "{}"'.format(filename)
