@@ -55,8 +55,8 @@ configurations = {
         read_write_signal='ReadParam_command'
     ),
     'j1939': Configuration(
-        set_frame='"Setup To Inverter"',
-        status_frame='"Setup From Inverter"',
+        set_frame='ParameterQuery',
+        status_frame='ParameterResponse',
         to_nv_command='SaveToEE_command',
         to_nv_status='SaveToEE_status',
         read_write_signal='ReadParam_command'

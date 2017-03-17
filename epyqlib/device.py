@@ -496,8 +496,8 @@ class Device:
                     frame = self.neo_frames.frame_by_name(frame_name)
                 elif can_configuration:
                     found_frames = []
-                    for process_frame_name in('"Process To Inverter"',
-                                              '"Process From Inverter"'):
+                    for process_frame_name in('ProcessToInverter',
+                                              'ProcessFromInverter'):
                         mux_frame = (
                             self.neo_frames.frame_by_name(process_frame_name)
                         )
