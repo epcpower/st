@@ -494,7 +494,7 @@ class Device:
                 frame = None
                 if can_configuration == 'original':
                     frame = self.neo_frames.frame_by_name(frame_name)
-                elif can_configuration:
+                elif can_configuration == 'j1939':
                     found_frames = []
                     for process_frame_name in('ProcessToInverter',
                                               'ProcessFromInverter'):
