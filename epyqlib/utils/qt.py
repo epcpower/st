@@ -45,13 +45,10 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
     timeString = time.strftime("%Y-%m-%d, %H:%M:%S")
 
     if message is None:
-        tbinfofile = io.StringIO()
-        traceback.print_tb(tracebackobj, None, tbinfofile)
-        tbinfofile.seek(0)
-        tbinfo = tbinfofile.read()
-        errmsg = '%s: \n%s' % (str(excType), str(excValue))
+        tbinfo = ''.join(traceback.format_tb(tracebackobj))
+        errmsg = ''.join(traceback.format_exception_only(excType, excValue))
         sections = [separator, timeString, separator, errmsg, separator, tbinfo]
-        message = '\n'.join(sections)
+        message = '\n'.join(s.strip() for s in sections)
 
     errorbox = QtWidgets.QMessageBox(parent=parent)
     errorbox.setWindowTitle("EPyQ")
@@ -65,7 +62,7 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
 
     complete = str(notice) + str(message) + str(versionInfo)
 
-    sys.stderr.write(complete)
+    sys.stderr.write(complete + '\n')
     errorbox.setText(complete)
     errorbox.exec_()
 
