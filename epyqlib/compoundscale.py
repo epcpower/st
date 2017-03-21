@@ -40,55 +40,130 @@ class CompoundScale(QWidget):
         self.ui.status.in_designer = in_designer
         self.ui.numeric_status.in_designer = in_designer
 
-    @pyqtProperty(str)
+    @pyqtProperty(str, designable=False)
     def command_frame(self):
-        return self.ui.command.frame
+        return ''
 
     @command_frame.setter
-    def command_frame(self, frame):
-        self.ui.command.frame = frame
+    def command_frame(self, value):
+        self.command_signal_path_element_0 = value
 
-    @pyqtProperty(str)
+    @pyqtProperty(str, designable=False)
     def command_signal(self):
-        return self.ui.command.signal
+        return ''
 
     @command_signal.setter
-    def command_signal(self, signal):
-        self.ui.command.signal = signal
+    def command_signal(self, value):
+        self.command_signal_path_element_1 = value
 
-    @pyqtProperty(str)
+    @pyqtProperty(str, designable=False)
     def echo_frame(self):
-        return self.ui.echo.frame
+        return ''
 
     @echo_frame.setter
-    def echo_frame(self, frame):
-        self.ui.echo.frame = frame
+    def echo_frame(self, value):
+        self.echo_signal_path_element_0 = value
 
-    @pyqtProperty(str)
+    @pyqtProperty(str, designable=False)
     def echo_signal(self):
-        return self.ui.echo.signal
+        return ''
 
     @echo_signal.setter
-    def echo_signal(self, signal):
-        self.ui.echo.signal = signal
+    def echo_signal(self, value):
+        self.echo_signal_path_element_1 = value
 
-    @pyqtProperty(str)
+    @pyqtProperty(str, designable=False)
     def status_frame(self):
-        return self.ui.status.frame
+        return ''
 
     @status_frame.setter
-    def status_frame(self, frame):
-        self.ui.status.frame = frame
-        self.ui.numeric_status.frame = frame
+    def status_frame(self, value):
+        self.status_signal_path_element_0 = value
 
-    @pyqtProperty(str)
+    @pyqtProperty(str, designable=False)
     def status_signal(self):
-        return self.ui.status.signal
+        return ''
 
     @status_signal.setter
-    def status_signal(self, signal):
-        self.ui.status.signal = signal
-        self.ui.numeric_status.signal = signal
+    def status_signal(self, value):
+        self.status_signal_path_element_1 = value
+
+    @pyqtProperty('QString')
+    def command_signal_path_element_0(self):
+        return self.ui.command.signal_path_element_0
+
+    @command_signal_path_element_0.setter
+    def command_signal_path_element_0(self, value):
+        self.ui.command.signal_path_element_0 = value
+
+    @pyqtProperty('QString')
+    def command_signal_path_element_1(self):
+        return self.ui.command.signal_path_element_1
+
+    @command_signal_path_element_1.setter
+    def command_signal_path_element_1(self, value):
+        self.ui.command.signal_path_element_1 = value
+
+    @pyqtProperty('QString')
+    def command_signal_path_element_2(self):
+        return self.ui.command.signal_path_element_2
+
+    @command_signal_path_element_2.setter
+    def command_signal_path_element_2(self, value):
+        self.ui.command.signal_path_element_2 = value
+
+
+    @pyqtProperty('QString')
+    def echo_signal_path_element_0(self):
+        return self.ui.echo.signal_path_element_0
+
+    @echo_signal_path_element_0.setter
+    def echo_signal_path_element_0(self, value):
+        self.ui.echo.signal_path_element_0 = value
+
+    @pyqtProperty('QString')
+    def echo_signal_path_element_1(self):
+        return self.ui.echo.signal_path_element_1
+
+    @echo_signal_path_element_1.setter
+    def echo_signal_path_element_1(self, value):
+        self.ui.echo.signal_path_element_1 = value
+
+    @pyqtProperty('QString')
+    def echo_signal_path_element_2(self):
+        return self.ui.echo.signal_path_element_2
+
+    @echo_signal_path_element_2.setter
+    def echo_signal_path_element_2(self, value):
+        self.ui.echo.signal_path_element_2 = value
+
+
+    @pyqtProperty('QString')
+    def status_signal_path_element_0(self):
+        return self.ui.status.signal_path_element_0
+
+    @status_signal_path_element_0.setter
+    def status_signal_path_element_0(self, value):
+        self.ui.status.signal_path_element_0 = value
+        self.ui.numeric_status.signal_path_element_0 = value
+
+    @pyqtProperty('QString')
+    def status_signal_path_element_1(self):
+        return self.ui.status.signal_path_element_1
+
+    @status_signal_path_element_1.setter
+    def status_signal_path_element_1(self, value):
+        self.ui.status.signal_path_element_1 = value
+        self.ui.numeric_status.signal_path_element_1 = value
+
+    @pyqtProperty('QString')
+    def status_signal_path_element_2(self):
+        return self.ui.status.signal_path_element_2
+
+    @status_signal_path_element_2.setter
+    def status_signal_path_element_2(self, value):
+        self.ui.status.signal_path_element_2 = value
+        self.ui.numeric_status.signal_path_element_2 = value
 
     @pyqtProperty(bool)
     def status_override_range(self):

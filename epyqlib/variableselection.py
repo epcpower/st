@@ -26,6 +26,7 @@ class VariableSelection(QtWidgets.QWidget):
 
 
         ui = 'variableselection.ui'
+        self.file_name = ui
         # TODO: CAMPid 9549757292917394095482739548437597676742
         if not QFileInfo(ui).isAbsolute():
             ui_file = os.path.join(
@@ -51,6 +52,14 @@ class VariableSelection(QtWidgets.QWidget):
         )
 
         self.progress = None
+
+    def set_signal_paths(self, reset_signal_path, recording_signal_path,
+                         configuration_is_valid_signal_path):
+        self.ui.reset_button.set_signal_path(reset_signal_path)
+        self.ui.logging_led.set_signal_path(recording_signal_path)
+        self.ui.configuration_is_valid_led.set_signal_path(
+            configuration_is_valid_signal_path
+        )
 
     def set_model(self, model):
         self.ui.view.set_model(model)

@@ -71,8 +71,6 @@ class Led(epyqlib.widgets.abstractwidget.AbstractWidget):
         self.svg_string = file.readAll()
 
         # TODO: shouldn't this be in AbstractWidget?
-        self._frame = None
-        self._signal = None
         self._on_value = 1
         self._relative_height = 1
         self._label_from_enumeration = False

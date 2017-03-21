@@ -18,6 +18,10 @@ class OutOfRangeError(ValueError):
     pass
 
 
+class NotFoundError(Exception):
+    pass
+
+
 class Signal(QObject):
     # TODO: but some (progress bar, etc) require an int!
     value_changed = pyqtSignal(float)
@@ -643,6 +647,42 @@ class Neo(QtCanListener):
             return next(f for f in self.frames if f.name == name)
         except StopIteration:
             return None
+
+    def signal_by_path(self, *elements):
+        i = iter(elements)
+
+        def get_next(i):
+            try:
+                return next(i)
+            except StopIteration as e:
+                raise NotFoundError(', '.join(elements)) from e
+
+        element = get_next(i)
+
+        frame = self.frame_by_name(element)
+
+        if frame is None:
+            raise NotFoundError(', '.join(elements))
+
+        if hasattr(frame, 'multiplex_frames'):
+            element = get_next(i)
+
+            frames = (
+                f for f in frame.multiplex_frames.values()
+                if f.mux_name == element
+            )
+            try:
+                [frame] = frames
+            except ValueError:
+                raise NotFoundError(', '.join(elements))
+
+        element = get_next(i)
+
+        signal = frame.signal_by_name(element)
+        if signal is None:
+            raise NotFoundError(', '.join(elements))
+
+        return signal
 
     def get_multiplex(self, message):
         base_frame = self.frame_by_id(message.arbitration_id)

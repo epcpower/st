@@ -90,8 +90,7 @@ class AbstractWidget(QtWidgets.QWidget):
 
         self.set_signal(force_update=True)
 
-        self._frame = ''
-        self._signal = ''
+        self._signal_path = [''] * 3
         self._display_units = ''
         self._action = ''
 
@@ -143,22 +142,43 @@ class AbstractWidget(QtWidgets.QWidget):
                     'epyqlib.form.EpcForm' #expected_type.__class__.__name__
                 ))
 
-    @pyqtProperty('QString')
-    def frame(self):
-        return self._frame
+    def set_signal_path(self, path):
+        if len(path) > len(self._signal_path):
+            raise Exception(
+                'Passed path has length {} which is longer than the supported '
+                'limit of {}'.format(
+                    len(path),
+                    len(self._signal_path)
+                )
+            )
 
-    @frame.setter
-    def frame(self, frame):
-        self._frame = frame
+        self._signal_path = list(path) + [''] * (len(self._signal_path) - len(path))
+
+    @pyqtProperty('QString')
+    def signal_path_element_0(self):
+        return self._signal_path[0]
+
+    @signal_path_element_0.setter
+    def signal_path_element_0(self, value):
+        self._signal_path[0] = value
         self.update_metadata()
 
     @pyqtProperty('QString')
-    def signal(self):
-        return self._signal
+    def signal_path_element_1(self):
+        return self._signal_path[1]
 
-    @signal.setter
-    def signal(self, signal):
-        self._signal = signal
+    @signal_path_element_1.setter
+    def signal_path_element_1(self, value):
+        self._signal_path[1] = value
+        self.update_metadata()
+
+    @pyqtProperty('QString')
+    def signal_path_element_2(self):
+        return self._signal_path[2]
+
+    @signal_path_element_2.setter
+    def signal_path_element_2(self, value):
+        self._signal_path[2] = value
         self.update_metadata()
 
     @pyqtProperty(int)
