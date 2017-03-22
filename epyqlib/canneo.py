@@ -69,6 +69,7 @@ class Signal(QObject):
         # self._receiver = signal._receiver # {str} ''
         self.signal_size = int(signal._signalsize) # {int} 2
         self.start_bit = int(signal.getStartbit()) # {int} 0
+        self.ordering_start_bit = signal.getStartbit(bitNumbering=True, startLittle=True)
         self.unit = signal._unit # {str} ''
         self.enumeration = {int(k): v for k, v in signal._values.items()} # {dict} {'0': 'Disable', '2': 'Error', '1': 'Enable', '3': 'N/A'}
         self.signed = signal._is_signed
@@ -95,6 +96,14 @@ class Signal(QObject):
 
         if connect is not None:
             self.connect(connect)
+
+    def __str__(self):
+        return '{name}: sb:{start_bit}, osb:{ordering_start_bit}, len:{length}'.format(
+            name=self.name,
+            start_bit=self.start_bit,
+            ordering_start_bit=self.ordering_start_bit,
+            length=self.signal_size
+        )
 
     def to_human(self, value):
         return self.offset + (value * float(self.factor))
@@ -377,9 +386,7 @@ class Frame(QtCanListener):
 
     def pad(self):
         if not self.padded:
-            # TODO: use getMsbStartbit() if intel/little endian
-            #       and search for all other uses
-            self.signals.sort(key=lambda x: x.start_bit)
+            self.signals.sort(key=lambda x: x.ordering_start_bit)
             # TODO: get rid of this, yuck
             Matrix_Pad = lambda start_bit, length: canmatrix.Signal(
                 name='__padding__',
@@ -388,7 +395,7 @@ class Frame(QtCanListener):
                 is_little_endian=0)
             def Matrix_Pad_Fixed(start_bit, length):
                 pad = Matrix_Pad(start_bit, length)
-                pad.setStartbit(start_bit)
+                pad.setStartbit(start_bit, bitNumbering=True, startLittle=True)
                 return pad
             Pad = lambda start_bit, length: Signal(
                 signal=Matrix_Pad_Fixed(start_bit, length),
@@ -400,7 +407,7 @@ class Frame(QtCanListener):
             padded_signals = []
             unpadded_signals = list(self.signals)
             for signal in unpadded_signals:
-                startbit = signal.start_bit
+                startbit = signal.ordering_start_bit
                 if startbit < bit:
                     raise Exception('{}({}):{}: too far ahead!'
                                     .format(self.name,
@@ -454,7 +461,30 @@ class Frame(QtCanListener):
                     value = 0
                 data.append(value)
 
-        return bitstruct.pack(self.format(), *data)
+        packed = bitstruct.pack(self.format(), *data)
+
+        if self.bitstruct_fmt is None:
+            self.bitstruct_fmt = bitstruct._parse_format(self.format())
+
+        data = packed
+
+        s = ''.join(['{:08b}'.format(b) for b in data])
+        l = [x[1] for x in self.bitstruct_fmt]
+        r = ''
+        start = 0
+        for x in l:
+            r += s[start:start + x][::-1]
+            start += x
+
+        s = ''
+        for x in range(len(data)):
+            s += r[8*x:8*(x+1)][::-1]
+        # s = ''.join(['{:08b}'.format(b)[::-1] for b in data])
+
+        i = int(s, 2)
+        b = i.to_bytes(len(data), byteorder='big')
+
+        return b
 
     def unpack(self, data, report_error=True, only_return=False):
         rx_length = len(data)
@@ -466,7 +496,18 @@ class Frame(QtCanListener):
             if self.bitstruct_fmt is None:
                 self.bitstruct_fmt = bitstruct._parse_format(self.format())
 
-            unpacked = bitstruct.unpack(self.bitstruct_fmt, data)
+            s = ''.join(['{:08b}'.format(b)[::-1] for b in data])
+            l = [x[1] for x in self.bitstruct_fmt]
+            r = ''
+            start = 0
+            for x in l:
+                r += s[start:start+x][::-1]
+                start += x
+
+            i = int(r, 2)
+            b = i.to_bytes(len(data), byteorder='big')
+
+            unpacked = bitstruct.unpack(self.bitstruct_fmt, b)
 
             if only_return:
                 return dict(zip(self.signals, unpacked))
