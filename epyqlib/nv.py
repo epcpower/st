@@ -254,25 +254,27 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
     @pyqtSlot(can.Message)
     def message_received(self, msg):
-        multiplex_message, multiplex_value =\
-            self.neo.get_multiplex(msg)
+        if (msg.arbitration_id == self.status_frames[0].id
+                and msg.id_type == self.status_frames[0].extended):
+            multiplex_message, multiplex_value =\
+                self.neo.get_multiplex(msg)
 
-        if multiplex_message is None:
-            return
+            if multiplex_message is None:
+                return
 
-        if multiplex_value is not None and multiplex_message in self.status_frames.values():
-            multiplex_message.unpack(msg.data)
-            # multiplex_message.frame.update_canneo_from_matrix_signals()
+            if multiplex_value is not None and multiplex_message in self.status_frames.values():
+                multiplex_message.unpack(msg.data)
+                # multiplex_message.frame.update_canneo_from_matrix_signals()
 
-            status_signals = multiplex_message.signals
-            sort_key = lambda s: s.start_bit
-            status_signals.sort(key=sort_key)
-            set_signals = multiplex_message.set_frame.signals
-            set_signals.sort(key=sort_key)
-            for status, set in zip(status_signals, set_signals):
-                set.set_value(status.value)
+                status_signals = multiplex_message.signals
+                sort_key = lambda s: s.start_bit
+                status_signals.sort(key=sort_key)
+                set_signals = multiplex_message.set_frame.signals
+                set_signals.sort(key=sort_key)
+                for status, set in zip(status_signals, set_signals):
+                    set.set_value(status.value)
 
-            self.all_changed()
+                self.all_changed()
 
     def unique(self):
         # TODO: actually identify the object

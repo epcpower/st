@@ -570,6 +570,10 @@ class Frame(QtCanListener):
                 bool(msg.id_type) == self.extended):
             self.unpack(msg.data)
 
+            if self.mux_name is None:
+                mux_signal, = (s for s in self.signals if s.name != '__padding__')
+                self.multiplex_frames[mux_signal.value].message_received(msg)
+
     def terminate(self):
         callers = tuple(r for r in self._cyclic_requests)
         for caller in callers:
@@ -679,7 +683,12 @@ class Neo(QtCanListener):
 
     def frame_by_id(self, id):
         try:
-            return next(f for f in self.frames if f.id == id)
+            frame, = (
+                f for f in self.frames
+                if f.id == id and f.mux_name is None
+            )
+
+            return frame
         except StopIteration:
             return None
 

@@ -397,7 +397,7 @@ class Device:
                                      frame_class=message_node_tx_partial,
                                      signal_class=signal_node_tx_partial,
                                      node_id_adjust=self.node_id_adjust)
-            notifiees.extend(neo_tx.frames)
+            notifiees.extend(f for f in neo_tx.frames if f.mux_name is None)
 
             self.neo_frames = neo_tx
 
