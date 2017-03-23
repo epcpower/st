@@ -2,6 +2,7 @@ import bitstruct
 import can
 from canmatrix import canmatrix
 import copy
+import epyqlib.utils.general
 import functools
 import locale
 import math
@@ -73,6 +74,9 @@ class Signal(QObject):
         self.unit = signal._unit # {str} ''
         self.enumeration = {int(k): v for k, v in signal._values.items()} # {dict} {'0': 'Disable', '2': 'Error', '1': 'Enable', '3': 'N/A'}
         self.signed = signal._is_signed
+        print(self.name, self.multiplex)
+        if self.multiplex is True:
+            self.signed = False
         self.float = signal._is_float
 
         self.value = None
@@ -345,7 +349,6 @@ class Frame(QtCanListener):
         self.timer.timeout.connect(_update_and_send)
 
         self.format_str = None
-        self.bitstruct_fmt = None
         self.data = None
 
         self.signals = []
@@ -461,30 +464,24 @@ class Frame(QtCanListener):
                     value = 0
                 data.append(value)
 
-        packed = bitstruct.pack(self.format(), *data)
+        bsl = []
+        for v, signal in zip(reversed(data), reversed(self.signals)):
+            p = bitstruct.pack(signal.format(), v)
+            a = []
+            remaining = signal.signal_size
+            for b in p:
+                bs_ = '{:08b}'.format(b)
+                bits = min(8, remaining)
+                a.extend(c for c in reversed(bs_[:bits]))
+                remaining -= bits
 
-        if self.bitstruct_fmt is None:
-            self.bitstruct_fmt = bitstruct._parse_format(self.format())
+            bsl.extend(s for s in reversed(a))
 
-        data = packed
-
-        s = ''.join(['{:08b}'.format(b) for b in data])
-        l = [x[1] for x in self.bitstruct_fmt]
-        r = ''
-        start = 0
-        for x in l:
-            r += s[start:start + x][::-1]
-            start += x
-
-        s = ''
-        for x in range(len(data)):
-            s += r[8*x:8*(x+1)][::-1]
-        # s = ''.join(['{:08b}'.format(b)[::-1] for b in data])
-
-        i = int(s, 2)
-        b = i.to_bytes(len(data), byteorder='big')
-
-        return b
+        return reversed(
+            bytearray(int(''.join(b), 2)
+                      for b in epyqlib.utils.general.grouper(bsl, 8, '0')
+            )
+        )
 
     def unpack(self, data, report_error=True, only_return=False):
         rx_length = len(data)
@@ -493,21 +490,27 @@ class Frame(QtCanListener):
         else:
             self.pad()
 
-            if self.bitstruct_fmt is None:
-                self.bitstruct_fmt = bitstruct._parse_format(self.format())
+            s = ''.join('{:08b}'.format(b) for b in reversed(data))
+            unpacked = []
+            end = len(s)
+            for signal in self.signals:
+                start = end - signal.signal_size
+                bs = s[start:end]
+                end = start
 
-            s = ''.join(['{:08b}'.format(b)[::-1] for b in data])
-            l = [x[1] for x in self.bitstruct_fmt]
-            r = ''
-            start = 0
-            for x in l:
-                r += s[start:start+x][::-1]
-                start += x
+                mbs = []
+                while True:
+                    mbs.append(bs[-8:])
+                    bs = bs[:-8]
+                    if len(bs) == 0:
+                        break
 
-            i = int(r, 2)
-            b = i.to_bytes(len(data), byteorder='big')
+                mbs[-1] = mbs[-1].ljust(8, '0')
 
-            unpacked = bitstruct.unpack(self.bitstruct_fmt, b)
+                bs = (int(b, 2) for b in mbs)
+
+                [up] = bitstruct.unpack(signal.format(), bs)
+                unpacked.append(up)
 
             if only_return:
                 return dict(zip(self.signals, unpacked))
