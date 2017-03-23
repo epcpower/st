@@ -615,6 +615,11 @@ class Neo(QtCanListener):
                         Id=frame._Id,
                         dlc=frame._Size,
                         transmitter=frame._Transmitter)
+                if 'GenMsgCycleTime' in frame._attributes:
+                    multiplex_frame.addAttribute(
+                        'GenMsgCycleTime',
+                        frame._attributes['GenMsgCycleTime']
+                    )
                 multiplex_frame._extended = frame._extended
                 # TODO: add __copy__() and __deepcopy__() to canmatrix
                 matrix_signal = canmatrix.Signal(
@@ -647,6 +652,11 @@ class Neo(QtCanListener):
                             dlc=frame._Size,
                             transmitter=frame._Transmitter)
                     matrix_frame._extended = frame._extended
+                    if 'GenMsgCycleTime' in frame._attributes:
+                        matrix_frame.addAttribute(
+                            'GenMsgCycleTime',
+                            frame._attributes['GenMsgCycleTime']
+                        )
                     matrix_frame.addAttribute('mux_name', multiplex_name)
                     matrix_signal = canmatrix.Signal(
                             name=multiplex_signal._name,
