@@ -556,7 +556,6 @@ class Device:
                     frames.add(frame)
                     self.dash_connected_signals.add(signal)
                     widget.set_signal(signal)
-                    frame.user_send_control = False
 
                 if edit_actions is not None:
                     # TODO: CAMPid 97453289314763416967675427
