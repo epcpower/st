@@ -26,7 +26,7 @@ class State(enum.Enum):
 
 @attr.s
 class Request:
-    f = attr.ib()
+    read = attr.ib()
     signal = attr.ib()
     deferred = attr.ib()
 
@@ -74,19 +74,15 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._get()
 
     def read(self, nv_signal):
-        deferred = twisted.internet.defer.Deferred()
-        self._put(Request(
-            f=self._read,
-            signal=nv_signal,
-            deferred=deferred
-        ))
-
-        return deferred
+        return self._read_write_request(nv_signal=nv_signal, read=True)
 
     def write(self, nv_signal):
+        return self._read_write_request(nv_signal=nv_signal, read=False)
+
+    def _read_write_request(self, nv_signal, read):
         deferred = twisted.internet.defer.Deferred()
         self._put(Request(
-            f=self._write,
+            read=read,
             signal=nv_signal,
             deferred=deferred
         ))
@@ -105,31 +101,17 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
                 pass
             else:
                 self._deferred = request.deferred
-                request.f(request.signal)
+                self._read_write(
+                    nv_signal=request.signal,
+                    read=request.read
+                )
 
-    def _read(self, nv_signal):
+    def _read_write(self, nv_signal, read):
         self._start_transaction()
 
         read_write, = (k for k, v
                        in nv_signal.frame.read_write.enumeration.items()
-                       if v == 'Read')
-
-        nv_signal.frame.read_write.set_data(read_write)
-        nv_signal.frame.update_from_signals()
-
-        self._transport.write_passive(nv_signal.frame.to_message())
-        self.setTimeout(self._timeout)
-
-        self._request_memory = nv_signal.status_signal
-
-        return self._deferred
-
-    def _write(self, nv_signal):
-        self._start_transaction()
-
-        read_write, = (k for k, v
-                       in nv_signal.frame.read_write.enumeration.items()
-                       if v == 'Write')
+                       if v == ('Read' if read else 'Write'))
 
         nv_signal.frame.read_write.set_data(read_write)
         nv_signal.frame.update_from_signals()

@@ -34,6 +34,8 @@ import tempfile
 import textwrap
 import twisted.internet.task
 import zipfile
+from twisted.internet.defer import setDebugging
+setDebugging(True)
 
 from collections import OrderedDict
 from enum import Enum, unique
