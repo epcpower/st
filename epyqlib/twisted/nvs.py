@@ -1,6 +1,8 @@
 import enum
 import logging
-import sys
+import queue
+
+import attr
 import twisted.internet.defer
 import twisted.protocols.policies
 
@@ -22,6 +24,13 @@ class State(enum.Enum):
     writing = 2
 
 
+@attr.s
+class Request:
+    f = attr.ib()
+    signal = attr.ib()
+    deferred = attr.ib()
+
+
 class Protocol(twisted.protocols.policies.TimeoutMixin):
     def __init__(self, timeout=1):
         self._deferred = None
@@ -33,6 +42,8 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
         self._request_memory = None
         self._timeout = timeout
+
+        self.requests = queue.Queue()
 
     @property
     def state(self):
@@ -48,18 +59,55 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._transport = transport
         logger.debug('Protocol.makeConnection(): {}'.format(transport))
 
-    def _new_deferred(self):
-        self._deferred = twisted.internet.defer.Deferred()
-
     def _start_transaction(self):
         if self._active:
             raise Exception('Protocol is already active')
 
         self._active = True
 
-        self._new_deferred()
+    def _transaction_over(self):
+        import twisted.internet
+        twisted.internet.reactor.callLater(0.02, self._transaction_over_after_delay)
+
+    def _transaction_over_after_delay(self):
+        self._active = False
+        self._get()
 
     def read(self, nv_signal):
+        deferred = twisted.internet.defer.Deferred()
+        self._put(Request(
+            f=self._read,
+            signal=nv_signal,
+            deferred=deferred
+        ))
+
+        return deferred
+
+    def write(self, nv_signal):
+        deferred = twisted.internet.defer.Deferred()
+        self._put(Request(
+            f=self._write,
+            signal=nv_signal,
+            deferred=deferred
+        ))
+
+        return deferred
+
+    def _put(self, request):
+        self.requests.put(request)
+        self._get()
+
+    def _get(self):
+        if not self._active:
+            try:
+                request = self.requests.get(block=False)
+            except queue.Empty:
+                pass
+            else:
+                self._deferred = request.deferred
+                request.f(request.signal)
+
+    def _read(self, nv_signal):
         self._start_transaction()
 
         read_write, = (k for k, v
@@ -76,7 +124,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
         return self._deferred
 
-    def write(self, nv_signal):
+    def _write(self, nv_signal):
         self._start_transaction()
 
         read_write, = (k for k, v
@@ -94,6 +142,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         return self._deferred
 
     def dataReceived(self, msg):
+
         logger.debug('Message received: {}'.format(msg))
         if not self._active:
             return
@@ -120,23 +169,23 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
     def timeoutConnection(self):
         message = 'Protocol timed out while in state: {}'.format(self.state)
         logger.debug(message)
-        self._active = False
         if self._previous_state in [State.idle]:
             self.state = self._previous_state
+        self._transaction_over()
         self._deferred.errback(RequestTimeoutError(message))
 
     def callback(self, payload):
-        self._active = False
+        self._transaction_over()
         logger.debug('calling back for {}'.format(self._deferred))
         self._deferred.callback(payload)
 
     def errback(self, payload):
-        self._active = False
+        self._transaction_over()
         logger.debug('erring back for {}'.format(self._deferred))
         logger.debug('with payload {}'.format(payload))
         self._deferred.errback(payload)
 
     def cancel(self):
-        self._active = False
         self.setTimeout(None)
+        self._transaction_over()
         self._deferred.cancel()

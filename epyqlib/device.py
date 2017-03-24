@@ -17,6 +17,7 @@ except ImportError:
 import epyqlib.nv
 import epyqlib.nvview
 import epyqlib.overlaylabel
+import epyqlib.twisted.loopingset
 import epyqlib.txrx
 import epyqlib.txrxview
 import epyqlib.utils.qt
@@ -31,6 +32,7 @@ import os
 import shutil
 import tempfile
 import textwrap
+import twisted.internet.task
 import zipfile
 
 from collections import OrderedDict
@@ -507,6 +509,8 @@ class Device:
         self.dash_connected_signals = set()
         self.dash_missing_signals = set()
         self.dash_missing_defaults = set()
+        self.nv_looping_set = epyqlib.twisted.loopingset.Set()
+        self.nv_looping_reads = {}
         if Tabs.variables in tabs:
             flat.append(self.ui.variable_selection)
         for dash in flat:
@@ -551,8 +555,28 @@ class Device:
                         )
                     )
                 else:
-                    frame = signal.frame
+                    if signal.frame.id == self.nvs.set_frames[0].id:
+                        nv_signal = self.nvs.neo.signal_by_path(*signal_path)
 
+                        if nv_signal.multiplex not in self.nv_looping_reads:
+                            def read(nv_signal=nv_signal):
+                                d = self.nvs.protocol.read(
+                                    nv_signal=nv_signal)
+                                d.addErrback(lambda _: None)
+
+                                return d
+
+                            self.nv_looping_reads[nv_signal.multiplex] = read
+
+                        self.nv_looping_set.add_request(
+                            key=widget,
+                            request=epyqlib.twisted.loopingset.Request(
+                                f=self.nv_looping_reads[nv_signal.multiplex],
+                                period=1
+                            )
+                        )
+
+                    frame = signal.frame
                     frames.add(frame)
                     self.dash_connected_signals.add(signal)
                     widget.set_signal(signal)
