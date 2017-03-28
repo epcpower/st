@@ -131,17 +131,26 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
         status_signal = self._request_memory
 
+        if status_signal is None:
+            return
+
         if not (msg.arbitration_id == status_signal.frame.id and
                         bool(msg.id_type) == status_signal.frame.extended):
             return
 
-        # TODO: check the mux value!
-
-        self.setTimeout(None)
-
         signals = status_signal.frame.unpack(msg.data, only_return=True)
 
-        # TODO: check mux and read vs. write
+        mux = status_signal.set_signal.frame.mux.value
+        response_mux_value, = (v for k, v in signals.items() if k.name == 'ParameterResponse_MUX')
+        if response_mux_value != mux:
+            return
+        response_read_write_value, = (v for k, v in signals.items() if k.name
+                                      == 'ReadParam_status')
+        if response_read_write_value != \
+                status_signal.set_signal.frame.read_write.value:
+            return
+
+        self.setTimeout(None)
 
         raw_value = signals[status_signal]
         value = status_signal.to_human(value=raw_value)

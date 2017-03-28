@@ -477,11 +477,11 @@ class Frame(QtCanListener):
 
             bsl.extend(s for s in reversed(a))
 
-        return reversed(
+        return list(reversed(
             bytearray(int(''.join(b), 2)
                       for b in epyqlib.utils.general.grouper(bsl, 8, '0')
             )
-        )
+        ))
 
     def unpack(self, data, report_error=True, only_return=False):
         rx_length = len(data)
@@ -573,7 +573,7 @@ class Frame(QtCanListener):
                 bool(msg.id_type) == self.extended):
             self.unpack(msg.data)
 
-            if self.mux_name is None:
+            if hasattr(self, 'multiplex_frames') and self.mux_name is None:
                 mux_signal, = (s for s in self.signals if s.name != '__padding__')
                 self.multiplex_frames[mux_signal.value].message_received(msg)
 

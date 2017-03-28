@@ -268,9 +268,9 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
                 status_signals = multiplex_message.signals
                 sort_key = lambda s: s.start_bit
-                status_signals.sort(key=sort_key)
+                status_signals = sorted(status_signals, key=sort_key)
                 set_signals = multiplex_message.set_frame.signals
-                set_signals.sort(key=sort_key)
+                set_signals = sorted(set_signals, key=sort_key)
                 for status, set in zip(status_signals, set_signals):
                     set.set_value(status.value)
 
@@ -398,8 +398,13 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
         TreeNode.__init__(self, parent)
 
         for signal in self.signals:
-            if signal.name == "ReadParam_command":
+            if signal.name in ("ReadParam_command", "ReadParam_status"):
                 self.read_write = signal
+                break
+
+        for signal in self.signals:
+            if signal.name in ("ParameterQuery_MUX", "ParameterResponse_MUX"):
+                self.mux = signal
                 break
 
     def update_from_signals(self, for_read=False, function=None):
