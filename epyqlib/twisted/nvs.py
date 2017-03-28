@@ -72,6 +72,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         twisted.internet.reactor.callLater(0.02, self._transaction_over_after_delay)
         d = self._deferred
         self._deferred = None
+        self.state = State.idle
         return d
 
     def _transaction_over_after_delay(self):
@@ -113,6 +114,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
     def _read_write(self, nv_signal, read):
         self._start_transaction()
+        self.state = State.reading if read else State.writing
 
         read_write, = (k for k, v
                        in nv_signal.frame.read_write.enumeration.items()
@@ -164,7 +166,13 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self.callback(value)
 
     def timeoutConnection(self):
-        message = 'Protocol timed out while in state: {}'.format(self.state)
+        status_signal = self._request_memory
+        message = 'Protocol timed out while in state {} handling ' \
+                  '{} : {}'.format(
+            self.state,
+            status_signal.frame.mux_name,
+            status_signal.name
+        )
         logger.debug(message)
         if self._previous_state in [State.idle]:
             self.state = self._previous_state
