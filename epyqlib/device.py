@@ -561,10 +561,19 @@ class Device:
                         nv_signal = self.nvs.neo.signal_by_path(*signal_path)
 
                         if nv_signal.multiplex not in self.nv_looping_reads:
+                            def ignore_timeout(failure):
+                                if failure.type is \
+                                        epyqlib.twisted.nvs.RequestTimeoutError:
+                                    return None
+
+                                return epyqlib.utils.twisted.errbackhook(
+                                        failure)
+
                             def read(nv_signal=nv_signal):
                                 d = self.nvs.protocol.read(
                                     nv_signal=nv_signal)
-                                d.addErrback(lambda _: None)
+
+                                d.addErrback(ignore_timeout)
 
                                 return d
 
