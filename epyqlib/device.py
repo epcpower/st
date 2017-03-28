@@ -578,6 +578,10 @@ class Device:
                             )
                         )
 
+                        if not(hasattr(widget, 'tx') and widget.tx):
+                            signal = self.neo_frames.signal_by_path(
+                                self.nvs.status_frames[0].name, *signal_path[1:])
+
                     frame = signal.frame
                     frames.add(frame)
                     self.dash_connected_signals.add(signal)
