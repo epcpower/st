@@ -22,7 +22,7 @@ class AbstractTxWidget(epyqlib.widgets.abstractwidget.AbstractWidget):
         epyqlib.widgets.abstractwidget.AbstractWidget.__init__(
             self, ui=ui, parent=parent, in_designer=in_designer)
 
-        self._tx = False
+        self.tx = False
 
         for widget in self.findChildren(QWidget):
             if widget.property('editable_click'):
