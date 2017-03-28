@@ -74,7 +74,6 @@ class Signal(QObject):
         self.unit = signal._unit # {str} ''
         self.enumeration = {int(k): v for k, v in signal._values.items()} # {dict} {'0': 'Disable', '2': 'Error', '1': 'Enable', '3': 'N/A'}
         self.signed = signal._is_signed
-        print(self.name, self.multiplex)
         if self.multiplex is True:
             self.signed = False
         self.float = signal._is_float
