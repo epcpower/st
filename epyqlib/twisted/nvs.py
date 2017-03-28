@@ -6,6 +6,8 @@ import attr
 import twisted.internet.defer
 import twisted.protocols.policies
 
+import epyqlib.utils.general
+
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
@@ -68,6 +70,9 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
     def _transaction_over(self):
         import twisted.internet
         twisted.internet.reactor.callLater(0.02, self._transaction_over_after_delay)
+        d = self._deferred
+        self._deferred = None
+        return d
 
     def _transaction_over_after_delay(self):
         self._active = False
@@ -121,12 +126,13 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
         self._request_memory = nv_signal.status_signal
 
-        return self._deferred
-
     def dataReceived(self, msg):
 
         logger.debug('Message received: {}'.format(msg))
         if not self._active:
+            return
+
+        if self._deferred is None:
             return
 
         status_signal = self._request_memory
@@ -162,21 +168,21 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         logger.debug(message)
         if self._previous_state in [State.idle]:
             self.state = self._previous_state
-        self._transaction_over()
-        self._deferred.errback(RequestTimeoutError(message))
+        deferred = self._transaction_over()
+        deferred.errback(RequestTimeoutError(message))
 
     def callback(self, payload):
-        self._transaction_over()
-        logger.debug('calling back for {}'.format(self._deferred))
-        self._deferred.callback(payload)
+        deferred = self._transaction_over()
+        logger.debug('calling back for {}'.format(deferred))
+        deferred.callback(payload)
 
     def errback(self, payload):
-        self._transaction_over()
-        logger.debug('erring back for {}'.format(self._deferred))
+        deferred = self._transaction_over()
+        logger.debug('erring back for {}'.format(deferred))
         logger.debug('with payload {}'.format(payload))
-        self._deferred.errback(payload)
+        deferred.errback(payload)
 
     def cancel(self):
         self.setTimeout(None)
-        self._transaction_over()
-        self._deferred.cancel()
+        deferred = self._transaction_over()
+        deferred.cancel()
