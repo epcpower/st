@@ -694,15 +694,17 @@ class Neo(QtCanListener):
         self.frames = frames
 
     def frame_by_id(self, id):
-        try:
-            frame, = (
-                f for f in self.frames
-                if f.id == id and f.mux_name is None
-            )
+        found = (
+            f for f in self.frames
+            if f.id == id and f.mux_name is None
+        )
 
-            return frame
-        except StopIteration:
+        try:
+            frame, = found
+        except ValueError:
             return None
+
+        return frame
 
     def frame_by_name(self, name):
         try:
