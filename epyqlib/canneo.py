@@ -130,7 +130,12 @@ class Signal(QObject):
         if isinstance(raw_value, str):
             enumeration_strings = self.enumeration_strings()
             if len(enumeration_strings) > 0:
-                value = float(enumeration_strings.index(raw_value))
+                try:
+                    index = enumeration_strings.index(raw_value)
+                except ValueError:
+                    index = int(raw_value)
+
+                value = float(index)
             elif len(raw_value) == 0:
                 value = 0
             else:
