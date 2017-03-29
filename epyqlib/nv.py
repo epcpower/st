@@ -222,17 +222,12 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
         already_read_frames = set()
 
-        from twisted.internet import reactor
-
         def read_node(node, _=None):
             if node.frame not in already_read_frames:
                 already_read_frames.add(node.frame)
                 node.frame.update_from_signals()
 
-                d.addCallback(lambda _:
-                              twisted.internet.task.deferLater(
-                                  reactor, 0.02,
-                                  self.protocol.read, node))
+                d.addCallback(lambda _: self.protocol.read(node))
 
         if only_these is None:
             self.traverse(call_this=read_node)
