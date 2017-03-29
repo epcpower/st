@@ -167,7 +167,6 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
     def dataReceived(self, msg):
 
-        logger.debug('Message received: {}'.format(msg))
         if not self._active:
             return
 
