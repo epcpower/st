@@ -19,6 +19,10 @@ class RequestTimeoutError(TimeoutError):
     pass
 
 
+class ReadOnlyError(Exception):
+    pass
+
+
 @enum.unique
 class State(enum.Enum):
     idle = 0
@@ -82,7 +86,13 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
     def read(self, nv_signal):
         return self._read_write_request(nv_signal=nv_signal, read=True)
 
-    def write(self, nv_signal):
+    def write(self, nv_signal, ignore_read_only=False):
+        if nv_signal.frame.read_write.min > 0:
+            if ignore_read_only:
+                return
+            else:
+                raise ReadOnlyError()
+
         return self._read_write_request(nv_signal=nv_signal, read=False)
 
     def _read_write_request(self, nv_signal, read):

@@ -195,7 +195,11 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             if node.frame not in already_set_frames:
                 already_set_frames.add(node.frame)
                 node.frame.update_from_signals()
-                d.addCallback(lambda _: self.protocol.write(node))
+                d.addCallback(
+                    lambda _: self.protocol.write(
+                        node, ignore_read_only=True
+                    )
+                )
 
         if only_these is None:
             self.traverse(call_this=write_node)
