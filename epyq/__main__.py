@@ -23,7 +23,6 @@ else:
 import logging
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 
-import can
 import copy
 import epyq
 import epyqlib.canneo
@@ -231,6 +230,11 @@ def main(args=None):
         parser.add_argument('--verbose', '-v', action='count', default=0)
         args = parser.parse_args()
 
+    can_logger_modules = ('can', 'can.socketcan.native')
+
+    for module in can_logger_modules:
+        logging.getLogger(module).setLevel(logging.WARNING)
+
     if args.verbose >= 1:
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.DEBUG)
@@ -240,6 +244,11 @@ def main(args=None):
 
     if args.verbose >= 3:
         logging.getLogger().setLevel(logging.DEBUG)
+
+    if args.verbose >= 4:
+        logging.getLogger().setLevel(logging.INFO)
+        for module in can_logger_modules:
+            logging.getLogger(module).setLevel(logging.DEBUG)
 
     window = Window(ui_file=args.ui)
 
