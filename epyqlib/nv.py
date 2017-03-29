@@ -151,6 +151,25 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                     '{}_MUX'.format(self.configuration.set_frame)
                 ]
             ]
+
+            if len(signals) > 0:
+                def ignore_timeout(failure):
+                    if failure.type is \
+                            epyqlib.twisted.nvs.RequestTimeoutError:
+                        return None
+
+                    return epyqlib.utils.twisted.errbackhook(
+                        failure)
+
+                def send(signal=signals[0]):
+                    d = self.protocol.write(
+                        nv_signal=signal,
+                        priority=epyqlib.twisted.nvs.Priority.user
+                    )
+                    d.addErrback(ignore_timeout)
+
+                frame._send.connect(send)
+
             for nv in signals:
                 if nv.name not in [self.configuration.to_nv_command]:
                     self.append_child(nv)
@@ -388,6 +407,8 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
 
 
 class Frame(epyqlib.canneo.Frame, TreeNode):
+    _send = pyqtSignal()
+
     def __init__(self, message=None, tx=False, frame=None,
                  multiplex_value=None, signal_class=Nv,
                  parent=None):
@@ -410,6 +431,8 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
     def update_from_signals(self, for_read=False, function=None):
         epyqlib.canneo.Frame.update_from_signals(self, function=function)
 
+    def send_now(self):
+        self._send.emit()
 
 class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     set_status_string = pyqtSignal(str)
