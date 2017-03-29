@@ -484,6 +484,14 @@ class Device:
             self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.variables))
         if Tabs.nv not in tabs:
             self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.nv))
+        else:
+            def tab_changed(index):
+                if index == self.ui.tabs.indexOf(self.ui.nv):
+                    self.nv_looping_set.stop()
+                else:
+                    self.nv_looping_set.start()
+
+            self.ui.tabs.currentChanged.connect(tab_changed)
 
         self.ui.offline_overlay = epyqlib.overlaylabel.OverlayLabel(parent=self.ui)
         self.ui.offline_overlay.label.setText('offline')
