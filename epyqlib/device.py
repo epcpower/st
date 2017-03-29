@@ -427,9 +427,13 @@ class Device:
                 node_id_adjust=self.node_id_adjust
             )
 
+            self.nv_looping_set = epyqlib.twisted.loopingset.Set()
+
             self.nvs = epyqlib.nv.Nvs(
                 neo=self.frames_nv,
                 bus=self.bus,
+                stop_cyclic=self.nv_looping_set.stop,
+                start_cyclic=self.nv_looping_set.start,
                 configuration=nv_configuration
             )
             notifiees.append(self.nvs)
@@ -511,7 +515,6 @@ class Device:
         self.dash_connected_signals = set()
         self.dash_missing_signals = set()
         self.dash_missing_defaults = set()
-        self.nv_looping_set = epyqlib.twisted.loopingset.Set()
         self.nv_looping_reads = {}
         if Tabs.variables in tabs:
             flat.append(self.ui.variable_selection)

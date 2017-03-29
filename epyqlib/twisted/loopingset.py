@@ -58,6 +58,14 @@ class Set:
             loop_deferred = self.loops[f].loop.start(self.loops[f].period)
             loop_deferred.addErrback(epyqlib.utils.twisted.errbackhook)
 
+    def stop(self):
+        for element in self.loops.values():
+            element.loop.stop()
+
+    def start(self):
+        for element in self.loops.values():
+            element.loop.start(element.period)
+
 
 if __name__ == '__main__':
     # TODO: move this to a unit test and actually check it's result

@@ -68,13 +68,16 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
     set_status_string = pyqtSignal(str)
 
-    def __init__(self, neo, bus, configuration=None, parent=None):
+    def __init__(self, neo, bus, stop_cyclic, start_cyclic, configuration=None,
+                 parent=None):
         TreeNode.__init__(self)
         epyqlib.canneo.QtCanListener.__init__(self, parent=parent)
 
         if configuration is None:
             configuration = 'original'
 
+        self.stop_cyclic = stop_cyclic
+        self.start_cyclic = start_cyclic
         self.configuration = configurations[configuration]
 
         from twisted.internet import reactor
@@ -197,6 +200,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         self.set_status_string.emit('{}...'.format(activity))
         d = twisted.internet.defer.Deferred()
         d.callback(None)
+        self.stop_cyclic()
 
         already_visited_frames = set()
 
@@ -222,9 +226,13 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         d.addCallback(epyqlib.utils.twisted.detour_result,
                       self.set_status_string.emit,
                       'Finished {}...'.format(activity.lower()))
+        d.addCallback(epyqlib.utils.twisted.detour_result,
+                      self.start_cyclic)
         d.addErrback(epyqlib.utils.twisted.detour_result,
                      self.set_status_string.emit,
                      'Failed while {}...'.format(activity.lower()))
+        d.addErrback(epyqlib.utils.twisted.detour_result,
+                     self.start_cyclic)
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def all_changed(self):
