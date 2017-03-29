@@ -30,11 +30,19 @@ class State(enum.Enum):
     writing = 2
 
 
+@enum.unique
+class Priority(enum.IntEnum):
+    user = 0
+    background = 1
+
+
 @attr.s
 class Request:
-    read = attr.ib()
-    signal = attr.ib()
-    deferred = attr.ib()
+    priority = attr.ib()
+    read = attr.ib(cmp=False)
+    signal = attr.ib(cmp=False)
+    deferred = attr.ib(cmp=False)
+    passive = attr.ib(cmp=False)
 
 
 class Protocol(twisted.protocols.policies.TimeoutMixin):
@@ -49,7 +57,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._request_memory = None
         self._timeout = timeout
 
-        self.requests = queue.Queue()
+        self.requests = queue.PriorityQueue()
 
     @property
     def state(self):
@@ -83,24 +91,37 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._active = False
         self._get()
 
-    def read(self, nv_signal):
-        return self._read_write_request(nv_signal=nv_signal, read=True)
+    def read(self, nv_signal, priority=Priority.background, passive=False):
+        return self._read_write_request(
+            nv_signal=nv_signal,
+            read=True,
+            priority=priority,
+            passive=passive
+        )
 
-    def write(self, nv_signal, ignore_read_only=False):
+    def write(self, nv_signal, priority=Priority.background, passive=False,
+              ignore_read_only=False):
         if nv_signal.frame.read_write.min > 0:
             if ignore_read_only:
                 return
             else:
                 raise ReadOnlyError()
 
-        return self._read_write_request(nv_signal=nv_signal, read=False)
+        return self._read_write_request(
+            nv_signal=nv_signal,
+            read=False,
+            priority=priority,
+            passive=passive
+        )
 
-    def _read_write_request(self, nv_signal, read):
+    def _read_write_request(self, nv_signal, read, priority, passive):
         deferred = twisted.internet.defer.Deferred()
         self._put(Request(
             read=read,
             signal=nv_signal,
-            deferred=deferred
+            deferred=deferred,
+            priority=priority,
+            passive=passive
         ))
 
         return deferred
@@ -119,10 +140,11 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
                 self._deferred = request.deferred
                 self._read_write(
                     nv_signal=request.signal,
-                    read=request.read
+                    read=request.read,
+                    passive=request.passive
                 )
 
-    def _read_write(self, nv_signal, read):
+    def _read_write(self, nv_signal, read, passive):
         self._start_transaction()
         self.state = State.reading if read else State.writing
 
@@ -133,7 +155,12 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         nv_signal.frame.read_write.set_data(read_write)
         nv_signal.frame.update_from_signals()
 
-        self._transport.write_passive(nv_signal.frame.to_message())
+        if passive:
+            write = self._transport.write_passive
+        else:
+            write = self._transport.write
+
+        write(nv_signal.frame.to_message())
         self.setTimeout(self._timeout)
 
         self._request_memory = nv_signal.status_signal

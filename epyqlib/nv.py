@@ -209,11 +209,20 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                 already_visited_frames.add(node.frame)
                 node.frame.update_from_signals()
                 if read:
-                    d.addCallback(lambda _: self.protocol.read(node))
+                    d.addCallback(
+                        lambda _: self.protocol.read(
+                            node,
+                            priority=epyqlib.twisted.nvs.Priority.user,
+                            passive=True
+                        )
+                    )
                 else:
                     d.addCallback(
                         lambda _: self.protocol.write(
-                            node, ignore_read_only=True
+                            node,
+                            ignore_read_only=True,
+                            priority=epyqlib.twisted.nvs.Priority.user,
+                            passive=True
                         )
                     )
 
@@ -299,7 +308,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         self.set_status_string.emit('Requested save to NV...')
         self.save_signal.set_value(self.save_value)
         self.save_frame.update_from_signals()
-        d = self.protocol.write(self.save_signal)
+        d = self.protocol.write(self.save_signal, passive=True)
         d.addCallback(self._module_to_nv_response)
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
