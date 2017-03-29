@@ -185,62 +185,46 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         return '\n'.join([n.fields.name for n in self.children])
 
     def write_all_to_device(self, only_these=None):
-        self.set_status_string.emit('Writing to device...')
-        d = twisted.internet.defer.Deferred()
-        d.callback(None)
-
-        already_set_frames = set()
-
-        def write_node(node, _=None):
-            if node.frame not in already_set_frames:
-                already_set_frames.add(node.frame)
-                node.frame.update_from_signals()
-                d.addCallback(
-                    lambda _: self.protocol.write(
-                        node, ignore_read_only=True
-                    )
-                )
-
-        if only_these is None:
-            self.traverse(call_this=write_node)
-        else:
-            for node in only_these:
-                write_node(node=node)
-
-        d.addCallback(epyqlib.utils.twisted.detour_result,
-                      self.set_status_string.emit,
-                      'Finished writing to device...')
-        d.addErrback(epyqlib.utils.twisted.detour_result,
-                     self.set_status_string.emit,
-                     'Failed while writing to device...')
-        d.addErrback(epyqlib.utils.twisted.errbackhook)
+        return self._read_write_all(read=False, only_these=only_these)
 
     def read_all_from_device(self, only_these=None):
-        self.set_status_string.emit('Reading from device...')
+        return self._read_write_all(read=True, only_these=only_these)
+
+    def _read_write_all(self, read, only_these=None):
+        activity = ('Reading from device' if read
+                    else 'Writing to device')
+
+        self.set_status_string.emit('{}...'.format(activity))
         d = twisted.internet.defer.Deferred()
         d.callback(None)
 
-        already_read_frames = set()
+        already_visited_frames = set()
 
-        def read_node(node, _=None):
-            if node.frame not in already_read_frames:
-                already_read_frames.add(node.frame)
+        def handle_node(node, _=None):
+            if node.frame not in already_visited_frames:
+                already_visited_frames.add(node.frame)
                 node.frame.update_from_signals()
-
-                d.addCallback(lambda _: self.protocol.read(node))
+                if read:
+                    d.addCallback(lambda _: self.protocol.read(node))
+                else:
+                    d.addCallback(
+                        lambda _: self.protocol.write(
+                            node, ignore_read_only=True
+                        )
+                    )
 
         if only_these is None:
-            self.traverse(call_this=read_node)
+            self.traverse(call_this=handle_node)
         else:
             for node in only_these:
-                read_node(node=node)
+                handle_node(node=node)
 
         d.addCallback(epyqlib.utils.twisted.detour_result,
                       self.set_status_string.emit,
-                      'Finished reading from device...')
+                      'Finished {}...'.format(activity.lower()))
         d.addErrback(epyqlib.utils.twisted.detour_result,
                      self.set_status_string.emit,
-                     'Failed while reading from device...')
+                     'Failed while {}...'.format(activity.lower()))
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def all_changed(self):
