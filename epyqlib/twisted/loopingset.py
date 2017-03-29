@@ -60,11 +60,13 @@ class Set:
 
     def stop(self):
         for element in self.loops.values():
-            element.loop.stop()
+            if element.loop.running:
+                element.loop.stop()
 
     def start(self):
         for element in self.loops.values():
-            element.loop.start(element.period)
+            if not element.loop.running:
+                element.loop.start(element.period)
 
 
 if __name__ == '__main__':
