@@ -210,10 +210,10 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         d.addCallback(epyqlib.utils.twisted.detour_result,
                       self.set_status_string.emit,
                       'Finished writing to device...')
-        d.addErrback(epyqlib.utils.twisted.errbackhook)
         d.addErrback(epyqlib.utils.twisted.detour_result,
                      self.set_status_string.emit,
                      'Failed while writing to device...')
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def read_all_from_device(self, only_these=None):
         self.set_status_string.emit('Reading from device...')
@@ -238,10 +238,10 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         d.addCallback(epyqlib.utils.twisted.detour_result,
                       self.set_status_string.emit,
                       'Finished reading from device...')
-        d.addErrback(epyqlib.utils.twisted.errbackhook)
         d.addErrback(epyqlib.utils.twisted.detour_result,
                      self.set_status_string.emit,
                      'Failed while reading from device...')
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def all_changed(self):
         # TODO: CAMPid 99854759326728959578972453876695627489
