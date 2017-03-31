@@ -579,6 +579,9 @@ class Frame(QtCanListener):
 
             if hasattr(self, 'multiplex_frames') and self.mux_name is None:
                 mux_signal, = (s for s in self.signals if s.name != '__padding__')
+                # TODO: this if added to avoid exceptions temporarily
+                if mux_signal.value not in self.multiplex_frames:
+                    return
                 self.multiplex_frames[mux_signal.value].message_received(msg)
 
     def terminate(self):
