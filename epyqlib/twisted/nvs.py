@@ -1,8 +1,12 @@
 import enum
 import logging
-import sys
+import queue
+
+import attr
 import twisted.internet.defer
 import twisted.protocols.policies
+
+import epyqlib.utils.general
 
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -15,11 +19,30 @@ class RequestTimeoutError(TimeoutError):
     pass
 
 
+class ReadOnlyError(Exception):
+    pass
+
+
 @enum.unique
 class State(enum.Enum):
     idle = 0
     reading = 1
     writing = 2
+
+
+@enum.unique
+class Priority(enum.IntEnum):
+    user = 0
+    background = 1
+
+
+@attr.s
+class Request:
+    priority = attr.ib()
+    read = attr.ib(cmp=False)
+    signal = attr.ib(cmp=False)
+    deferred = attr.ib(cmp=False)
+    passive = attr.ib(cmp=False)
 
 
 class Protocol(twisted.protocols.policies.TimeoutMixin):
@@ -33,6 +56,8 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
         self._request_memory = None
         self._timeout = timeout
+
+        self.requests = queue.PriorityQueue()
 
     @property
     def state(self):
@@ -48,69 +73,128 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._transport = transport
         logger.debug('Protocol.makeConnection(): {}'.format(transport))
 
-    def _new_deferred(self):
-        self._deferred = twisted.internet.defer.Deferred()
-
     def _start_transaction(self):
         if self._active:
             raise Exception('Protocol is already active')
 
         self._active = True
 
-        self._new_deferred()
+    def _transaction_over(self):
+        import twisted.internet
+        twisted.internet.reactor.callLater(0.02, self._transaction_over_after_delay)
+        d = self._deferred
+        self._deferred = None
+        self.state = State.idle
+        return d
 
-    def read(self, nv_signal):
+    def _transaction_over_after_delay(self):
+        self._active = False
+        self._get()
+
+    def read(self, nv_signal, priority=Priority.background, passive=False):
+        return self._read_write_request(
+            nv_signal=nv_signal,
+            read=True,
+            priority=priority,
+            passive=passive
+        )
+
+    def write(self, nv_signal, priority=Priority.background, passive=False,
+              ignore_read_only=False):
+        if nv_signal.frame.read_write.min > 0:
+            if ignore_read_only:
+                return
+            else:
+                raise ReadOnlyError()
+
+        return self._read_write_request(
+            nv_signal=nv_signal,
+            read=False,
+            priority=priority,
+            passive=passive
+        )
+
+    def _read_write_request(self, nv_signal, read, priority, passive):
+        deferred = twisted.internet.defer.Deferred()
+        self._put(Request(
+            read=read,
+            signal=nv_signal,
+            deferred=deferred,
+            priority=priority,
+            passive=passive
+        ))
+
+        return deferred
+
+    def _put(self, request):
+        self.requests.put(request)
+        self._get()
+
+    def _get(self):
+        if not self._active:
+            try:
+                request = self.requests.get(block=False)
+            except queue.Empty:
+                pass
+            else:
+                self._deferred = request.deferred
+                self._read_write(
+                    nv_signal=request.signal,
+                    read=request.read,
+                    passive=request.passive
+                )
+
+    def _read_write(self, nv_signal, read, passive):
         self._start_transaction()
+        self.state = State.reading if read else State.writing
 
         read_write, = (k for k, v
                        in nv_signal.frame.read_write.enumeration.items()
-                       if v == 'Read')
+                       if v == ('Read' if read else 'Write'))
 
         nv_signal.frame.read_write.set_data(read_write)
         nv_signal.frame.update_from_signals()
 
-        self._transport.write_passive(nv_signal.frame.to_message())
+        if passive:
+            write = self._transport.write_passive
+        else:
+            write = self._transport.write
+
+        write(nv_signal.frame.to_message())
         self.setTimeout(self._timeout)
 
         self._request_memory = nv_signal.status_signal
-
-        return self._deferred
-
-    def write(self, nv_signal):
-        self._start_transaction()
-
-        read_write, = (k for k, v
-                       in nv_signal.frame.read_write.enumeration.items()
-                       if v == 'Write')
-
-        nv_signal.frame.read_write.set_data(read_write)
-        nv_signal.frame.update_from_signals()
-
-        self._transport.write_passive(nv_signal.frame.to_message())
-        self.setTimeout(self._timeout)
-
-        self._request_memory = nv_signal.status_signal
-
-        return self._deferred
 
     def dataReceived(self, msg):
-        logger.debug('Message received: {}'.format(msg))
+
         if not self._active:
             return
 
+        if self._deferred is None:
+            return
+
         status_signal = self._request_memory
+
+        if status_signal is None:
+            return
 
         if not (msg.arbitration_id == status_signal.frame.id and
                         bool(msg.id_type) == status_signal.frame.extended):
             return
 
-        # TODO: check the mux value!
-
-        self.setTimeout(None)
-
         signals = status_signal.frame.unpack(msg.data, only_return=True)
 
-        # TODO: check mux and read vs. write
+        mux = status_signal.set_signal.frame.mux.value
+        response_mux_value, = (v for k, v in signals.items() if k.name == 'ParameterResponse_MUX')
+        if response_mux_value != mux:
+            return
+        response_read_write_value, = (v for k, v in signals.items() if k.name
+                                      == 'ReadParam_status')
+        if response_read_write_value != \
+                status_signal.set_signal.frame.read_write.value:
+            return
+
+        self.setTimeout(None)
 
         raw_value = signals[status_signal]
         value = status_signal.to_human(value=raw_value)
@@ -118,25 +202,31 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self.callback(value)
 
     def timeoutConnection(self):
-        message = 'Protocol timed out while in state: {}'.format(self.state)
+        status_signal = self._request_memory
+        message = 'Protocol timed out while in state {} handling ' \
+                  '{} : {}'.format(
+            self.state,
+            status_signal.frame.mux_name,
+            status_signal.name
+        )
         logger.debug(message)
-        self._active = False
         if self._previous_state in [State.idle]:
             self.state = self._previous_state
-        self._deferred.errback(RequestTimeoutError(message))
+        deferred = self._transaction_over()
+        deferred.errback(RequestTimeoutError(message))
 
     def callback(self, payload):
-        self._active = False
-        logger.debug('calling back for {}'.format(self._deferred))
-        self._deferred.callback(payload)
+        deferred = self._transaction_over()
+        logger.debug('calling back for {}'.format(deferred))
+        deferred.callback(payload)
 
     def errback(self, payload):
-        self._active = False
-        logger.debug('erring back for {}'.format(self._deferred))
+        deferred = self._transaction_over()
+        logger.debug('erring back for {}'.format(deferred))
         logger.debug('with payload {}'.format(payload))
-        self._deferred.errback(payload)
+        deferred.errback(payload)
 
     def cancel(self):
-        self._active = False
         self.setTimeout(None)
-        self._deferred.cancel()
+        deferred = self._transaction_over()
+        deferred.cancel()

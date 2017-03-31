@@ -34,12 +34,6 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="frame" stdset="0">
-         <string/>
-        </property>
-        <property name="signal" stdset="0">
-         <string/>
-        </property>
         <property name="label_visible" stdset="0">
          <bool>false</bool>
         </property>
@@ -61,12 +55,6 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="frame" stdset="0">
-           <string/>
-          </property>
-          <property name="signal" stdset="0">
-           <string/>
-          </property>
           <property name="label_override" stdset="0">
            <string/>
           </property>
@@ -85,12 +73,6 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="frame" stdset="0">
-           <string/>
-          </property>
-          <property name="signal" stdset="0">
-           <string/>
           </property>
           <property name="label_override" stdset="0">
            <string/>

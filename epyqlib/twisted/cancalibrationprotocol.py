@@ -523,7 +523,6 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         logger.debug('Timeout set to {}'.format(packet.command_code.timeout))
 
     def dataReceived(self, msg):
-        logger.debug('Message received: {}'.format(msg))
         if not (msg.arbitration_id == self._rx_id and
                     bool(msg.id_type) == self._extended):
             return

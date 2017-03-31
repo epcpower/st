@@ -2,6 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
+import attr
 import can
 from epyqlib.abstractcolumns import AbstractColumns
 import epyqlib.canneo
@@ -36,13 +37,48 @@ class NotFoundError(Exception):
     pass
 
 
+@attr.s
+class Configuration:
+    set_frame = attr.ib()
+    status_frame = attr.ib()
+    to_nv_command = attr.ib()
+    to_nv_status = attr.ib()
+    read_write_signal = attr.ib()
+
+
+configurations = {
+    'original': Configuration(
+        set_frame='CommandSetNVParam',
+        status_frame='StatusNVParam',
+        to_nv_command='SaveToEE_command',
+        to_nv_status='SaveToEE_status',
+        read_write_signal='ReadParam_command'
+    ),
+    'j1939': Configuration(
+        set_frame='ParameterQuery',
+        status_frame='ParameterResponse',
+        to_nv_command='SaveToEE_command',
+        to_nv_status='SaveToEE_status',
+        read_write_signal='ReadParam_command'
+    )
+}
+
+
 class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
     set_status_string = pyqtSignal(str)
 
-    def __init__(self, neo, bus, parent=None):
+    def __init__(self, neo, bus, stop_cyclic, start_cyclic, configuration=None,
+                 parent=None):
         TreeNode.__init__(self)
         epyqlib.canneo.QtCanListener.__init__(self, parent=parent)
+
+        if configuration is None:
+            configuration = 'original'
+
+        self.stop_cyclic = stop_cyclic
+        self.start_cyclic = start_cyclic
+        self.configuration = configurations[configuration]
 
         from twisted.internet import reactor
         self.protocol = epyqlib.twisted.nvs.Protocol()
@@ -57,7 +93,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
 
         self.set_frames = [f for f in self.neo.frames
-                       if f.name == 'CommandSetNVParam']
+                       if f.name == self.configuration.set_frame]
         try:
             self.set_frames = self.set_frames[0]
         except IndexError:
@@ -65,8 +101,10 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             raise NoNv()
 
         self.set_frames = self.set_frames.multiplex_frames
-        self.status_frames = [f for f in self.neo.frames
-                       if f.name == 'StatusNVParam'][0].multiplex_frames
+        self.status_frames = [
+            f for f in self.neo.frames
+            if f.name == self.configuration.status_frame
+        ][0].multiplex_frames
 
         self.save_frame = None
         self.save_signal = None
@@ -77,14 +115,14 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         self.confirm_save_value = None
         for frame in self.set_frames.values():
             for signal in frame.signals:
-                if signal.name == 'SaveToEE_command':
+                if signal.name == self.configuration.to_nv_command:
                     for key, value in signal.enumeration.items():
                         if value == 'Enable':
                             self.save_frame = frame
                             self.save_signal = signal
                             self.save_value = float(key)
 
-        save_status_name = 'SaveToEE_status'
+        save_status_name = self.configuration.to_nv_status
         for frame in self.status_frames.values():
             for signal in frame.signals:
                 if signal.name == save_status_name:
@@ -106,10 +144,34 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         for value, frame in self.set_frames.items():
             signals = [s for s in frame.signals]
             signals = [s for s in signals if s.multiplex is not 'Multiplexor']
-            signals = [s for s in signals if s.name not in
-                       ['ReadParam_command', 'CommandSetNVParam_MUX']]
+            signals = [
+                s for s in signals
+                if s.name not in [
+                    self.configuration.read_write_signal,
+                    '{}_MUX'.format(self.configuration.set_frame)
+                ]
+            ]
+
+            if len(signals) > 0:
+                def ignore_timeout(failure):
+                    if failure.type is \
+                            epyqlib.twisted.nvs.RequestTimeoutError:
+                        return None
+
+                    return epyqlib.utils.twisted.errbackhook(
+                        failure)
+
+                def send(signal=signals[0]):
+                    d = self.protocol.write(
+                        nv_signal=signal,
+                        priority=epyqlib.twisted.nvs.Priority.user
+                    )
+                    d.addErrback(ignore_timeout)
+
+                frame._send.connect(send)
+
             for nv in signals:
-                if nv.name not in ['SaveToEE_command']:
+                if nv.name not in [self.configuration.to_nv_command]:
                     self.append_child(nv)
 
                 nv.frame.status_frame = self.status_frames[value]
@@ -145,64 +207,56 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         return '\n'.join([n.fields.name for n in self.children])
 
     def write_all_to_device(self, only_these=None):
-        self.set_status_string.emit('Writing to device...')
-        d = twisted.internet.defer.Deferred()
-        d.callback(None)
-
-        already_set_frames = set()
-
-        def write_node(node, _=None):
-            if node.frame not in already_set_frames:
-                already_set_frames.add(node.frame)
-                node.frame.update_from_signals()
-                d.addCallback(lambda _: self.protocol.write(node))
-
-        if only_these is None:
-            self.traverse(call_this=write_node)
-        else:
-            for node in only_these:
-                write_node(node=node)
-
-        d.addCallback(epyqlib.utils.twisted.detour_result,
-                      self.set_status_string.emit,
-                      'Finished writing to device...')
-        d.addErrback(epyqlib.utils.twisted.errbackhook)
-        d.addErrback(epyqlib.utils.twisted.detour_result,
-                     self.set_status_string.emit,
-                     'Failed while writing to device...')
+        return self._read_write_all(read=False, only_these=only_these)
 
     def read_all_from_device(self, only_these=None):
-        self.set_status_string.emit('Reading from device...')
+        return self._read_write_all(read=True, only_these=only_these)
+
+    def _read_write_all(self, read, only_these=None):
+        activity = ('Reading from device' if read
+                    else 'Writing to device')
+
+        self.set_status_string.emit('{}...'.format(activity))
         d = twisted.internet.defer.Deferred()
         d.callback(None)
 
-        already_read_frames = set()
+        already_visited_frames = set()
 
-        from twisted.internet import reactor
-
-        def read_node(node, _=None):
-            if node.frame not in already_read_frames:
-                already_read_frames.add(node.frame)
+        def handle_node(node, _=None):
+            if node.frame not in already_visited_frames:
+                already_visited_frames.add(node.frame)
                 node.frame.update_from_signals()
-
-                d.addCallback(lambda _:
-                              twisted.internet.task.deferLater(
-                                  reactor, 0.02,
-                                  self.protocol.read, node))
+                if read:
+                    d.addCallback(
+                        lambda _: self.protocol.read(
+                            node,
+                            priority=epyqlib.twisted.nvs.Priority.user,
+                            passive=True
+                        )
+                    )
+                else:
+                    d.addCallback(
+                        lambda _: self.protocol.write(
+                            node,
+                            ignore_read_only=True,
+                            priority=epyqlib.twisted.nvs.Priority.user,
+                            passive=True
+                        )
+                    )
 
         if only_these is None:
-            self.traverse(call_this=read_node)
+            self.traverse(call_this=handle_node)
         else:
             for node in only_these:
-                read_node(node=node)
+                handle_node(node=node)
 
         d.addCallback(epyqlib.utils.twisted.detour_result,
                       self.set_status_string.emit,
-                      'Finished reading from device...')
-        d.addErrback(epyqlib.utils.twisted.errbackhook)
+                      'Finished {}...'.format(activity.lower()))
         d.addErrback(epyqlib.utils.twisted.detour_result,
                      self.set_status_string.emit,
-                     'Failed while reading from device...')
+                     'Failed while {}...'.format(activity.lower()))
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def all_changed(self):
         # TODO: CAMPid 99854759326728959578972453876695627489
@@ -214,25 +268,27 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
     @pyqtSlot(can.Message)
     def message_received(self, msg):
-        multiplex_message, multiplex_value =\
-            self.neo.get_multiplex(msg)
+        if (msg.arbitration_id == self.status_frames[0].id
+                and msg.id_type == self.status_frames[0].extended):
+            multiplex_message, multiplex_value =\
+                self.neo.get_multiplex(msg)
 
-        if multiplex_message is None:
-            return
+            if multiplex_message is None:
+                return
 
-        if multiplex_value is not None and multiplex_message in self.status_frames.values():
-            multiplex_message.unpack(msg.data)
-            # multiplex_message.frame.update_canneo_from_matrix_signals()
+            if multiplex_value is not None and multiplex_message in self.status_frames.values():
+                multiplex_message.unpack(msg.data)
+                # multiplex_message.frame.update_canneo_from_matrix_signals()
 
-            status_signals = multiplex_message.signals
-            sort_key = lambda s: s.start_bit
-            status_signals.sort(key=sort_key)
-            set_signals = multiplex_message.set_frame.signals
-            set_signals.sort(key=sort_key)
-            for status, set in zip(status_signals, set_signals):
-                set.set_value(status.value)
+                status_signals = multiplex_message.signals
+                sort_key = lambda s: s.start_bit
+                status_signals = sorted(status_signals, key=sort_key)
+                set_signals = multiplex_message.set_frame.signals
+                set_signals = sorted(set_signals, key=sort_key)
+                for status, set in zip(status_signals, set_signals):
+                    set.set_value(status.value)
 
-            self.all_changed()
+                self.all_changed()
 
     def unique(self):
         # TODO: actually identify the object
@@ -266,7 +322,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         self.set_status_string.emit('Requested save to NV...')
         self.save_signal.set_value(self.save_value)
         self.save_frame.update_from_signals()
-        d = self.protocol.write(self.save_signal)
+        d = self.protocol.write(self.save_signal, passive=True)
         d.addCallback(self._module_to_nv_response)
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
@@ -346,6 +402,8 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
 
 
 class Frame(epyqlib.canneo.Frame, TreeNode):
+    _send = pyqtSignal()
+
     def __init__(self, message=None, tx=False, frame=None,
                  multiplex_value=None, signal_class=Nv,
                  parent=None):
@@ -356,24 +414,20 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
         TreeNode.__init__(self, parent)
 
         for signal in self.signals:
-            if signal.name == "ReadParam_command":
+            if signal.name in ("ReadParam_command", "ReadParam_status"):
                 self.read_write = signal
+                break
+
+        for signal in self.signals:
+            if signal.name in ("ParameterQuery_MUX", "ParameterResponse_MUX"):
+                self.mux = signal
                 break
 
     def update_from_signals(self, for_read=False, function=None):
         epyqlib.canneo.Frame.update_from_signals(self, function=function)
 
-
-def ufs(signal):
-    if signal.name in ['ReadParam_command', 'CommandSetNVParam_MUX']:
-        return signal.value
-    else:
-        # TODO: CAMPid 9395616283654658598648263423685
-        # TODO: and _offset...
-
-        scaled_value = (signal.min - signal.offset) / signal.factor
-        return scaled_value
-
+    def send_now(self):
+        self._send.emit()
 
 class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     set_status_string = pyqtSignal(str)

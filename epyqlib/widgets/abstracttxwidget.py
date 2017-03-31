@@ -59,6 +59,7 @@ class AbstractTxWidget(epyqlib.widgets.abstractwidget.AbstractWidget):
 
     def set_signal(self, signal=None, force_update=False):
         if signal is not None and self.tx:
+            signal.frame.user_send_control = False
             period = signal.frame.cycle_time
             if period is None:
                 self._period = None

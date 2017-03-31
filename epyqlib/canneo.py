@@ -2,6 +2,7 @@ import bitstruct
 import can
 from canmatrix import canmatrix
 import copy
+import epyqlib.utils.general
 import functools
 import locale
 import math
@@ -15,6 +16,10 @@ __license__ = 'GPLv2+'
 
 
 class OutOfRangeError(ValueError):
+    pass
+
+
+class NotFoundError(Exception):
     pass
 
 
@@ -65,9 +70,12 @@ class Signal(QObject):
         # self._receiver = signal._receiver # {str} ''
         self.signal_size = int(signal._signalsize) # {int} 2
         self.start_bit = int(signal.getStartbit()) # {int} 0
+        self.ordering_start_bit = signal.getStartbit(bitNumbering=True, startLittle=True)
         self.unit = signal._unit # {str} ''
         self.enumeration = {int(k): v for k, v in signal._values.items()} # {dict} {'0': 'Disable', '2': 'Error', '1': 'Enable', '3': 'N/A'}
         self.signed = signal._is_signed
+        if self.multiplex is True:
+            self.signed = False
         self.float = signal._is_float
 
         self.value = None
@@ -92,6 +100,14 @@ class Signal(QObject):
         if connect is not None:
             self.connect(connect)
 
+    def __str__(self):
+        return '{name}: sb:{start_bit}, osb:{ordering_start_bit}, len:{length}'.format(
+            name=self.name,
+            start_bit=self.start_bit,
+            ordering_start_bit=self.ordering_start_bit,
+            length=self.signal_size
+        )
+
     def to_human(self, value):
         return self.offset + (value * float(self.factor))
 
@@ -114,7 +130,12 @@ class Signal(QObject):
         if isinstance(raw_value, str):
             enumeration_strings = self.enumeration_strings()
             if len(enumeration_strings) > 0:
-                value = float(enumeration_strings.index(raw_value))
+                try:
+                    index = enumeration_strings.index(raw_value)
+                except ValueError:
+                    index = int(raw_value)
+
+                value = float(index)
             elif len(raw_value) == 0:
                 value = 0
             else:
@@ -332,7 +353,6 @@ class Frame(QtCanListener):
         self.timer.timeout.connect(_update_and_send)
 
         self.format_str = None
-        self.bitstruct_fmt = None
         self.data = None
 
         self.signals = []
@@ -373,9 +393,7 @@ class Frame(QtCanListener):
 
     def pad(self):
         if not self.padded:
-            # TODO: use getMsbStartbit() if intel/little endian
-            #       and search for all other uses
-            self.signals.sort(key=lambda x: x.start_bit)
+            self.signals.sort(key=lambda x: x.ordering_start_bit)
             # TODO: get rid of this, yuck
             Matrix_Pad = lambda start_bit, length: canmatrix.Signal(
                 name='__padding__',
@@ -384,7 +402,7 @@ class Frame(QtCanListener):
                 is_little_endian=0)
             def Matrix_Pad_Fixed(start_bit, length):
                 pad = Matrix_Pad(start_bit, length)
-                pad.setStartbit(start_bit)
+                pad.setStartbit(start_bit, bitNumbering=True, startLittle=True)
                 return pad
             Pad = lambda start_bit, length: Signal(
                 signal=Matrix_Pad_Fixed(start_bit, length),
@@ -396,7 +414,7 @@ class Frame(QtCanListener):
             padded_signals = []
             unpadded_signals = list(self.signals)
             for signal in unpadded_signals:
-                startbit = signal.start_bit
+                startbit = signal.ordering_start_bit
                 if startbit < bit:
                     raise Exception('{}({}):{}: too far ahead!'
                                     .format(self.name,
@@ -450,7 +468,24 @@ class Frame(QtCanListener):
                     value = 0
                 data.append(value)
 
-        return bitstruct.pack(self.format(), *data)
+        bsl = []
+        for v, signal in zip(reversed(data), reversed(self.signals)):
+            p = bitstruct.pack(signal.format(), v)
+            a = []
+            remaining = signal.signal_size
+            for b in p:
+                bs_ = '{:08b}'.format(b)
+                bits = min(8, remaining)
+                a.extend(c for c in reversed(bs_[:bits]))
+                remaining -= bits
+
+            bsl.extend(s for s in reversed(a))
+
+        return list(reversed(
+            bytearray(int(''.join(b), 2)
+                      for b in epyqlib.utils.general.grouper(bsl, 8, '0')
+            )
+        ))
 
     def unpack(self, data, report_error=True, only_return=False):
         rx_length = len(data)
@@ -459,10 +494,27 @@ class Frame(QtCanListener):
         else:
             self.pad()
 
-            if self.bitstruct_fmt is None:
-                self.bitstruct_fmt = bitstruct._parse_format(self.format())
+            s = ''.join('{:08b}'.format(b) for b in reversed(data))
+            unpacked = []
+            end = len(s)
+            for signal in self.signals:
+                start = end - signal.signal_size
+                bs = s[start:end]
+                end = start
 
-            unpacked = bitstruct.unpack(self.bitstruct_fmt, data)
+                mbs = []
+                while True:
+                    mbs.append(bs[-8:])
+                    bs = bs[:-8]
+                    if len(bs) == 0:
+                        break
+
+                mbs[-1] = mbs[-1].ljust(8, '0')
+
+                bs = (int(b, 2) for b in mbs)
+
+                [up] = bitstruct.unpack(signal.format(), bs)
+                unpacked.append(up)
 
             if only_return:
                 return dict(zip(self.signals, unpacked))
@@ -525,6 +577,10 @@ class Frame(QtCanListener):
                 bool(msg.id_type) == self.extended):
             self.unpack(msg.data)
 
+            if hasattr(self, 'multiplex_frames') and self.mux_name is None:
+                mux_signal, = (s for s in self.signals if s.name != '__padding__')
+                self.multiplex_frames[mux_signal.value].message_received(msg)
+
     def terminate(self):
         callers = tuple(r for r in self._cyclic_requests)
         for caller in callers:
@@ -566,6 +622,11 @@ class Neo(QtCanListener):
                         Id=frame._Id,
                         dlc=frame._Size,
                         transmitter=frame._Transmitter)
+                if 'GenMsgCycleTime' in frame._attributes:
+                    multiplex_frame.addAttribute(
+                        'GenMsgCycleTime',
+                        frame._attributes['GenMsgCycleTime']
+                    )
                 multiplex_frame._extended = frame._extended
                 # TODO: add __copy__() and __deepcopy__() to canmatrix
                 matrix_signal = canmatrix.Signal(
@@ -598,6 +659,11 @@ class Neo(QtCanListener):
                             dlc=frame._Size,
                             transmitter=frame._Transmitter)
                     matrix_frame._extended = frame._extended
+                    if 'GenMsgCycleTime' in frame._attributes:
+                        matrix_frame.addAttribute(
+                            'GenMsgCycleTime',
+                            frame._attributes['GenMsgCycleTime']
+                        )
                     matrix_frame.addAttribute('mux_name', multiplex_name)
                     matrix_signal = canmatrix.Signal(
                             name=multiplex_signal._name,
@@ -633,16 +699,59 @@ class Neo(QtCanListener):
         self.frames = frames
 
     def frame_by_id(self, id):
+        found = (
+            f for f in self.frames
+            if f.id == id and f.mux_name is None
+        )
+
         try:
-            return next(f for f in self.frames if f.id == id)
-        except StopIteration:
+            frame, = found
+        except ValueError:
             return None
+
+        return frame
 
     def frame_by_name(self, name):
         try:
             return next(f for f in self.frames if f.name == name)
         except StopIteration:
             return None
+
+    def signal_by_path(self, *elements):
+        i = iter(elements)
+
+        def get_next(i):
+            try:
+                return next(i)
+            except StopIteration as e:
+                raise NotFoundError(', '.join(elements)) from e
+
+        element = get_next(i)
+
+        frame = self.frame_by_name(element)
+
+        if frame is None:
+            raise NotFoundError(', '.join(elements))
+
+        if hasattr(frame, 'multiplex_frames'):
+            element = get_next(i)
+
+            frames = (
+                f for f in frame.multiplex_frames.values()
+                if f.mux_name == element
+            )
+            try:
+                [frame] = frames
+            except ValueError:
+                raise NotFoundError(', '.join(elements))
+
+        element = get_next(i)
+
+        signal = frame.signal_by_name(element)
+        if signal is None:
+            raise NotFoundError(', '.join(elements))
+
+        return signal
 
     def get_multiplex(self, message):
         base_frame = self.frame_by_id(message.arbitration_id)

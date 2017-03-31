@@ -65,64 +65,85 @@ class IoPoint(QWidget):
 
         # TODO: if not empty then do something
 
-    @pyqtProperty(str)
-    def status_frame(self):
-        return self.ui.status.frame
+    @pyqtProperty('QString')
+    def status_signal_path_element_0(self):
+        return self.ui.status.signal_path_element_0
 
-    @status_frame.setter
-    def status_frame(self, frame):
-        self.ui.status.frame = frame
-
+    @status_signal_path_element_0.setter
+    def status_signal_path_element_0(self, value):
+        self.ui.status.signal_path_element_0 = value
         self.update_configuration()
 
-    @pyqtProperty(str)
-    def status_signal(self):
-        return self.ui.status.signal
+    @pyqtProperty('QString')
+    def status_signal_path_element_1(self):
+        return self.ui.status.signal_path_element_1
 
-    @status_signal.setter
-    def status_signal(self, signal):
-        self.ui.status.signal = signal
-
+    @status_signal_path_element_1.setter
+    def status_signal_path_element_1(self, value):
+        self.ui.status.signal_path_element_1 = value
         self.update_configuration()
 
-    @pyqtProperty(str)
-    def set_frame(self):
-        return self.ui.set.frame
+    @pyqtProperty('QString')
+    def status_signal_path_element_2(self):
+        return self.ui.status.signal_path_element_2
 
-    @set_frame.setter
-    def set_frame(self, frame):
-        self.ui.set.frame = frame
-
+    @status_signal_path_element_2.setter
+    def status_signal_path_element_2(self, value):
+        self.ui.status.signal_path_element_2 = value
         self.update_configuration()
 
-    @pyqtProperty(str)
-    def set_signal(self):
-        return self.ui.set.signal
+    @pyqtProperty('QString')
+    def set_signal_path_element_0(self):
+        return self.ui.set.signal_path_element_0
 
-    @set_signal.setter
-    def set_signal(self, signal):
-        self.ui.set.signal = signal
-
+    @set_signal_path_element_0.setter
+    def set_signal_path_element_0(self, value):
+        self.ui.set.signal_path_element_0 = value
         self.update_configuration()
 
-    @pyqtProperty(str)
-    def override_frame(self):
-        return self.ui.override.frame
+    @pyqtProperty('QString')
+    def set_signal_path_element_1(self):
+        return self.ui.set.signal_path_element_1
 
-    @override_frame.setter
-    def override_frame(self, frame):
-        self.ui.override.frame = frame
-
+    @set_signal_path_element_1.setter
+    def set_signal_path_element_1(self, value):
+        self.ui.set.signal_path_element_1 = value
         self.update_configuration()
 
-    @pyqtProperty(str)
-    def override_signal(self):
-        return self.ui.override.signal
+    @pyqtProperty('QString')
+    def set_signal_path_element_2(self):
+        return self.ui.set.signal_path_element_2
 
-    @override_signal.setter
-    def override_signal(self, signal):
-        self.ui.override.signal = signal
+    @set_signal_path_element_2.setter
+    def set_signal_path_element_2(self, value):
+        self.ui.set.signal_path_element_2 = value
+        self.update_configuration()
 
+    @pyqtProperty('QString')
+    def override_signal_path_element_0(self):
+        return self.ui.override.signal_path_element_0
+
+    @override_signal_path_element_0.setter
+    def override_signal_path_element_0(self, value):
+        self.ui.override.signal_path_element_0 = value
+        self.update_configuration()
+
+    @pyqtProperty('QString')
+    def override_signal_path_element_1(self):
+        return self.ui.override.signal_path_element_1
+
+    @override_signal_path_element_1.setter
+    def override_signal_path_element_1(self, value):
+        self.ui.override.signal_path_element_1 = value
+        self.update_configuration()
+
+    @pyqtProperty('QString')
+    def override_signal_path_element_2(self):
+        return self.ui.override.signal_path_element_2
+
+    @override_signal_path_element_2.setter
+    def override_signal_path_element_2(self, value):
+        self.ui.override.signal_path_element_2 = value
         self.update_configuration()
 
     def update_configuration(self):

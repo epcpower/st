@@ -5,6 +5,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
+import attr
 import can
 import canmatrix.importany as importany
 import epyqlib.canneo
@@ -16,6 +17,7 @@ except ImportError:
 import epyqlib.nv
 import epyqlib.nvview
 import epyqlib.overlaylabel
+import epyqlib.twisted.loopingset
 import epyqlib.txrx
 import epyqlib.txrxview
 import epyqlib.utils.qt
@@ -30,7 +32,10 @@ import os
 import shutil
 import tempfile
 import textwrap
+import twisted.internet.task
 import zipfile
+from twisted.internet.defer import setDebugging
+setDebugging(True)
 
 from collections import OrderedDict
 from enum import Enum, unique
@@ -86,6 +91,34 @@ node_id_types = OrderedDict([
     ('j1939', j1939_node_id_adjust),
     ('simple', simple_node_id_adjust)
 ])
+
+
+@attr.s
+class CanConfiguration:
+    data_logger_reset_signal_path = attr.ib()
+    data_logger_recording_signal_path = attr.ib()
+    data_logger_configuration_is_valid_signal_path = attr.ib()
+
+
+can_configurations = {
+    'original': CanConfiguration(
+        data_logger_reset_signal_path=(
+            'CommandModeControl', 'ResetDatalogger'),
+        data_logger_recording_signal_path=(
+            'StatusBits', 'DataloggerRecording'),
+        data_logger_configuration_is_valid_signal_path=(
+            'StatusBits', 'DataloggerConfigurationIsValid')
+    ),
+    'j1939': CanConfiguration(
+        data_logger_reset_signal_path=(
+            'ParameterQuery', 'DataloggerConfig', 'ResetDatalogger'),
+        data_logger_recording_signal_path=(
+            'ParameterQuery', 'DataloggerStatus', 'DataloggerRecording'),
+        data_logger_configuration_is_valid_signal_path=(
+            'ParameterQuery', 'DataloggerStatus',
+            'DataloggerConfigurationIsValid')
+    )
+}
 
 
 def load(file):
@@ -229,6 +262,8 @@ class Device:
                 tabs=tabs,
                 rx_interval=rx_interval,
                 edit_actions=edit_actions,
+                nv_configuration=d.get('nv_configuration'),
+                can_configuration=d.get('can_configuration'),
                 **kwargs)
 
     def _init_from_zip(self, zip_file, rx_interval=0, **kwargs):
@@ -265,9 +300,15 @@ class Device:
         shutil.rmtree(path)
 
     def _init_from_parameters(self, uis, serial_number, name, bus=None,
-                              tabs=None, rx_interval=0, edit_actions=None):
+                              tabs=None, rx_interval=0, edit_actions=None,
+                              nv_configuration=None, can_configuration=None):
         if tabs is None:
             tabs = Tabs.defaults()
+
+        if can_configuration is None:
+            can_configuration = 'original'
+
+        can_configuration = can_configurations[can_configuration]
 
         self.bus = BusProxy(bus=bus)
 
@@ -360,7 +401,7 @@ class Device:
                                      frame_class=message_node_tx_partial,
                                      signal_class=signal_node_tx_partial,
                                      node_id_adjust=self.node_id_adjust)
-            notifiees.extend(neo_tx.frames)
+            notifiees.extend(f for f in neo_tx.frames if f.mux_name is None)
 
             self.neo_frames = neo_tx
 
@@ -386,7 +427,15 @@ class Device:
                 node_id_adjust=self.node_id_adjust
             )
 
-            self.nvs = epyqlib.nv.Nvs(self.frames_nv, self.bus)
+            self.nv_looping_set = epyqlib.twisted.loopingset.Set()
+
+            self.nvs = epyqlib.nv.Nvs(
+                neo=self.frames_nv,
+                bus=self.bus,
+                stop_cyclic=self.nv_looping_set.stop,
+                start_cyclic=self.nv_looping_set.start,
+                configuration=nv_configuration
+            )
             notifiees.append(self.nvs)
 
 
@@ -415,6 +464,14 @@ class Device:
                 column=epyqlib.variableselectionmodel.Columns.indexes.name,
                 order=Qt.AscendingOrder
             )
+            self.ui.variable_selection.set_signal_paths(
+                reset_signal_path=
+                    can_configuration.data_logger_reset_signal_path,
+                recording_signal_path=
+                    can_configuration.data_logger_recording_signal_path,
+                configuration_is_valid_signal_path=
+                    can_configuration.data_logger_configuration_is_valid_signal_path,
+            )
 
         if Tabs.dashes in tabs:
             for i, (name, dash) in enumerate(self.dash_uis.items()):
@@ -427,6 +484,14 @@ class Device:
             self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.variables))
         if Tabs.nv not in tabs:
             self.ui.tabs.removeTab(self.ui.tabs.indexOf(self.ui.nv))
+        else:
+            def tab_changed(index):
+                if index == self.ui.tabs.indexOf(self.ui.nv):
+                    self.nv_looping_set.stop()
+                else:
+                    self.nv_looping_set.start()
+
+            self.ui.tabs.currentChanged.connect(tab_changed)
 
         self.ui.offline_overlay = epyqlib.overlaylabel.OverlayLabel(parent=self.ui)
         self.ui.offline_overlay.label.setText('offline')
@@ -458,6 +523,7 @@ class Device:
         self.dash_connected_signals = set()
         self.dash_missing_signals = set()
         self.dash_missing_defaults = set()
+        self.nv_looping_reads = {}
         if Tabs.variables in tabs:
             flat.append(self.ui.variable_selection)
         for dash in flat:
@@ -470,26 +536,79 @@ class Device:
             frames = dash.connected_frames
 
             for widget in widgets:
-                frame_name = widget.property('frame')
-                signal_name = widget.property('signal')
-
                 widget.set_range(min=0, max=100)
                 try:
                     widget.set_value(default_widget_value)
                 except ValueError:
                     widget.set_value(0)
 
-                # TODO: add some notifications
-                found = False
-                frame = self.neo_frames.frame_by_name(frame_name)
+                frame = widget.property('frame')
                 if frame is not None:
-                    signal = frame.signal_by_name(signal_name)
-                    if signal is not None:
-                        found = True
-                        frames.add(frame)
-                        self.dash_connected_signals.add(signal)
-                        widget.set_signal(signal)
-                        frame.user_send_control = False
+                    signal = widget.property('signal')
+                    signal_path = (frame, signal)
+                else:
+                    signal_path = tuple(
+                        e for e in widget._signal_path if len(e) > 0)
+
+                try:
+                    signal = self.neo_frames.signal_by_path(*signal_path)
+                except epyqlib.canneo.NotFoundError:
+                    widget_path = []
+                    p = widget
+                    while p is not dash:
+                        widget_path.insert(0, p.objectName())
+                        p = p.parent()
+
+                    self.dash_missing_signals.add(
+                        '{}:/{} - {}'.format(
+                            dash.file_name,
+                            '/'.join(widget_path),
+                            ':'.join(signal_path) if len(signal_path) > 0
+                                else '<none specified>'
+                        )
+                    )
+                else:
+                    if signal.frame.id == self.nvs.set_frames[0].id:
+                        nv_signal = self.nvs.neo.signal_by_path(*signal_path)
+
+                        if nv_signal.multiplex not in self.nv_looping_reads:
+                            def ignore_timeout(failure):
+                                if failure.type is \
+                                        epyqlib.twisted.nvs.RequestTimeoutError:
+                                    return None
+
+                                return epyqlib.utils.twisted.errbackhook(
+                                        failure)
+
+                            def read(nv_signal=nv_signal):
+                                d = self.nvs.protocol.read(
+                                    nv_signal=nv_signal)
+
+                                d.addErrback(ignore_timeout)
+
+                                return d
+
+                            self.nv_looping_reads[nv_signal.multiplex] = read
+
+                        self.nv_looping_set.add_request(
+                            key=widget,
+                            request=epyqlib.twisted.loopingset.Request(
+                                f=self.nv_looping_reads[nv_signal.multiplex],
+                                period=1
+                            )
+                        )
+
+                        if hasattr(widget, 'tx') and widget.tx:
+                            signal = self.nvs.neo.signal_by_path(
+                                self.nvs.set_frames[0].name, *signal_path[1:])
+                        else:
+                            signal = self.nvs.neo.signal_by_path(
+                                self.nvs.status_frames[0].name, *signal_path[1:])
+
+                    frame = signal.frame
+                    frames.add(frame)
+                    self.dash_connected_signals.add(signal)
+                    widget.set_signal(signal)
 
                 if edit_actions is not None:
                     # TODO: CAMPid 97453289314763416967675427
@@ -500,9 +619,6 @@ class Device:
                                           widget=widget,
                                           signal=widget.edit)
                                 break
-                if not found:
-                    self.dash_missing_signals.add(
-                        '{} : {}'.format(frame_name, signal_name))
 
         self.bus_status_changed(online=False, transmit=False)
 
@@ -533,8 +649,8 @@ class Device:
 
         if len(self.dash_missing_signals) > 0:
             logger.error('\n === Signals referenced by a widget but not defined')
-            undefined_signals = '\n'.join(sorted(self.dash_missing_signals))
-            logger.error(undefined_signals)
+            undefined_signals = sorted(self.dash_missing_signals)
+            logger.error('\n'.join(undefined_signals))
 
             box = QMessageBox()
             box.setWindowTitle("EPyQ")
@@ -549,7 +665,7 @@ class Device:
 
             {signals}
             ''').format(message=message,
-                        signals=undefined_signals)
+                        signals='\n\n'.join(undefined_signals))
 
             box.setText(message)
             box.exec_()

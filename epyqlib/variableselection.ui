@@ -20,18 +20,12 @@
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="4">
-      <widget class="Led" name="led">
+      <widget class="Led" name="logging_led">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>DataloggerRecording</string>
        </property>
        <property name="label_override" stdset="0">
         <string>Logging</string>
@@ -70,12 +64,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="frame" stdset="0">
-        <string>CommandModeControl</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>ResetDatalogger</string>
-       </property>
        <property name="label_override" stdset="0">
         <string>Reset Log</string>
        </property>
@@ -98,18 +86,12 @@
       <widget class="VariableSelectionView" name="view"/>
      </item>
      <item row="1" column="0">
-      <widget class="Led" name="led_2">
+      <widget class="Led" name="configuration_is_valid_led">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="frame" stdset="0">
-        <string>StatusBits</string>
-       </property>
-       <property name="signal" stdset="0">
-        <string>DataloggerConfigurationIsValid</string>
        </property>
        <property name="label_override" stdset="0">
         <string>Configuration Is Valid</string>
