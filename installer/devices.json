@@ -11,31 +11,7 @@
         "file": "interface/DCDC_ID247_FACTORY.epc",
         "groups": ["factory"]
     },
-    "UL1741 Microgrid": {
-        "repository": "https://epc-phab.exana.io/diffusion/ICU",
-        "branch": "UL1741",
-        "file": "interface/microgrid.epc",
-        "groups": ["dev"]
-    },
-    "UL1741 Microgrid Factory": {
-        "repository": "https://epc-phab.exana.io/diffusion/ICU",
-        "branch": "UL1741",
-        "file": "interface/microgrid_factory.epc",
-        "groups": ["dev", "factory"]
-    },
-    "UL1741 Hydra": {
-        "repository": "https://epc-phab.exana.io/diffusion/ICU",
-        "branch": "UL1741",
-        "file": "interface/hydra.epc",
-        "groups": ["dev"]
-    },
-    "UL1741 Distributed Generation": {
-        "repository": "https://epc-phab.exana.io/diffusion/ICU",
-        "branch": "UL1741",
-        "file": "interface/distributed_generation.epc",
-        "groups": ["release"]
-    },
-    "UL1741 Distributed Generation": {
+    "UL1741 Distributed Generation Factory": {
         "repository": "https://epc-phab.exana.io/diffusion/ICU",
         "branch": "UL1741",
         "file": "interface/distributed_generation_factory.epc",
