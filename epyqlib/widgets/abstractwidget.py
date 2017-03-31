@@ -430,7 +430,9 @@ class AbstractWidget(QtWidgets.QWidget):
                 elements.append('Name: {}'.format(name))
 
         elements.append('Description: {}'.format(tip))
-
+        if hasattr(self, '_signal_path'):
+            elements.append(
+                'Path: {}'.format(' : '.join(self._signal_path)))
         contents = '<br><br>'.join(elements)
         complete = '<div align="left">{}</div>'.format(contents)
         self.setToolTip(complete)
