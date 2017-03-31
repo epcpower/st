@@ -29,6 +29,18 @@
         "file": "interface/hydra.epc",
         "groups": ["dev"]
     },
+    "UL1741 Distributed Generation": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "UL1741",
+        "file": "interface/distributed_generation.epc",
+        "groups": ["release"]
+    },
+    "UL1741 Distributed Generation": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "UL1741",
+        "file": "interface/distributed_generation_factory.epc",
+        "groups": ["dev", "factory"]
+    },
     "Hydra": {
         "repository": "https://epc-phab.exana.io/diffusion/ICU",
         "branch": "AFE",
