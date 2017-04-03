@@ -8,7 +8,8 @@ import io
 import os
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QFile, QFileInfo, QTextStream,
-                          QCoreApplication, Qt, QItemSelectionModel)
+                          QCoreApplication, Qt, QItemSelectionModel,
+                          QModelIndex)
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -17,8 +18,6 @@ __license__ = 'GPLv2+'
 
 class NvView(QtWidgets.QWidget):
     module_to_nv = pyqtSignal()
-    read_from_module = pyqtSignal()
-    write_to_module = pyqtSignal()
     read_from_file = pyqtSignal()
     write_to_file = pyqtSignal()
 
@@ -55,14 +54,20 @@ class NvView(QtWidgets.QWidget):
             name=True,
             value=True)
 
+    def write_to_module(self):
+        model = self.ui.tree_view.model()
+        model.root.write_all_to_device(callback=self.update_signals)
+
+    def read_from_module(self):
+        model = self.ui.tree_view.model()
+        model.root.read_all_from_device(callback=self.update_signals)
+
     def setModel(self, model):
         self.ui.tree_view.setModel(model)
 
         model.set_status_string.connect(self.set_status_string)
 
         self.ui.module_to_nv.connect(model.module_to_nv)
-        self.ui.read_from_module.connect(model.read_from_module)
-        self.ui.write_to_module.connect(model.write_to_module)
 
         read_from_file = functools.partial(
             model.read_from_file,
@@ -132,9 +137,22 @@ class NvView(QtWidgets.QWidget):
         if action is None:
             pass
         elif action is read:
-            model.root.read_all_from_device(only_these=(node,))
+            model.root.read_all_from_device(only_these=(node,),
+                                            callback=self.update_signals)
         elif action is write:
-            model.root.write_all_to_device(only_these=(node,))
+            model.root.write_all_to_device(only_these=(node,),
+                                           callback=self.update_signals)
+
+    def update_signals(self, d):
+        model = self.ui.tree_view.model()
+
+        for signal, value in d.items():
+            # TODO: don't hardcode this here, some general 'ignore me' property
+            if signal.name not in {'__padding__', 'ParameterResponse_MUX',
+                                   'ReadParam_status'}:
+                signal.set_signal.set_data(value)
+
+        model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 if __name__ == '__main__':

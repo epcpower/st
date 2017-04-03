@@ -432,12 +432,23 @@ class Device:
             self.nvs = epyqlib.nv.Nvs(
                 neo=self.frames_nv,
                 bus=self.bus,
+                configuration=nv_configuration
+            )
+
+            self.widget_frames_nv = epyqlib.canneo.Neo(
+                matrix=matrix_nv,
+                frame_class=epyqlib.nv.Frame,
+                signal_class=epyqlib.nv.Nv,
+                node_id_adjust=self.node_id_adjust
+            )
+            self.widget_nvs = epyqlib.nv.Nvs(
+                neo=self.widget_frames_nv,
+                bus=self.bus,
                 stop_cyclic=self.nv_looping_set.stop,
                 start_cyclic=self.nv_looping_set.start,
                 configuration=nv_configuration
             )
-            notifiees.append(self.nvs)
-
+            notifiees.append(self.widget_nvs)
 
             nv_views = self.ui.findChildren(epyqlib.nvview.NvView)
             if len(nv_views) > 0:
@@ -569,7 +580,7 @@ class Device:
                     )
                 else:
                     if signal.frame.id == self.nvs.set_frames[0].id:
-                        nv_signal = self.nvs.neo.signal_by_path(*signal_path)
+                        nv_signal = self.widget_nvs.neo.signal_by_path(*signal_path)
 
                         if nv_signal.multiplex not in self.nv_looping_reads:
                             def ignore_timeout(failure):
@@ -599,10 +610,10 @@ class Device:
                         )
 
                         if hasattr(widget, 'tx') and widget.tx:
-                            signal = self.nvs.neo.signal_by_path(
+                            signal = self.widget_nvs.neo.signal_by_path(
                                 self.nvs.set_frames[0].name, *signal_path[1:])
                         else:
-                            signal = self.nvs.neo.signal_by_path(
+                            signal = self.widget_nvs.neo.signal_by_path(
                                 self.nvs.status_frames[0].name, *signal_path[1:])
 
                     frame = signal.frame

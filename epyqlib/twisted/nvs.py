@@ -43,6 +43,7 @@ class Request:
     signal = attr.ib(cmp=False)
     deferred = attr.ib(cmp=False)
     passive = attr.ib(cmp=False)
+    all_values = attr.ib(cmp=False)
 
 
 class Protocol(twisted.protocols.policies.TimeoutMixin):
@@ -91,16 +92,18 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._active = False
         self._get()
 
-    def read(self, nv_signal, priority=Priority.background, passive=False):
+    def read(self, nv_signal, priority=Priority.background, passive=False,
+             all_values=False):
         return self._read_write_request(
             nv_signal=nv_signal,
             read=True,
             priority=priority,
-            passive=passive
+            passive=passive,
+            all_values=all_values
         )
 
     def write(self, nv_signal, priority=Priority.background, passive=False,
-              ignore_read_only=False):
+              ignore_read_only=False, all_values=False):
         if nv_signal.frame.read_write.min > 0:
             if ignore_read_only:
                 return
@@ -111,17 +114,20 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
             nv_signal=nv_signal,
             read=False,
             priority=priority,
-            passive=passive
+            passive=passive,
+            all_values=all_values
         )
 
-    def _read_write_request(self, nv_signal, read, priority, passive):
+    def _read_write_request(self, nv_signal, read, priority, passive,
+                            all_values):
         deferred = twisted.internet.defer.Deferred()
         self._put(Request(
             read=read,
             signal=nv_signal,
             deferred=deferred,
             priority=priority,
-            passive=passive
+            passive=passive,
+            all_values=all_values
         ))
 
         return deferred
@@ -138,32 +144,28 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
                 pass
             else:
                 self._deferred = request.deferred
-                self._read_write(
-                    nv_signal=request.signal,
-                    read=request.read,
-                    passive=request.passive
-                )
+                self._read_write(request)
 
-    def _read_write(self, nv_signal, read, passive):
+    def _read_write(self, request):
         self._start_transaction()
-        self.state = State.reading if read else State.writing
+        self.state = State.reading if request.read else State.writing
 
         read_write, = (k for k, v
-                       in nv_signal.frame.read_write.enumeration.items()
-                       if v == ('Read' if read else 'Write'))
+                       in request.signal.frame.read_write.enumeration.items()
+                       if v == ('Read' if request.read else 'Write'))
 
-        nv_signal.frame.read_write.set_data(read_write)
-        nv_signal.frame.update_from_signals()
+        request.signal.frame.read_write.set_data(read_write)
+        request.signal.frame.update_from_signals()
 
-        if passive:
+        if request.passive:
             write = self._transport.write_passive
         else:
             write = self._transport.write
 
-        write(nv_signal.frame.to_message())
+        write(request.signal.frame.to_message())
         self.setTimeout(self._timeout)
 
-        self._request_memory = nv_signal.status_signal
+        self._request_memory = request
 
     def dataReceived(self, msg):
 
@@ -173,7 +175,8 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         if self._deferred is None:
             return
 
-        status_signal = self._request_memory
+        request = self._request_memory
+        status_signal = request.signal.status_signal
 
         if status_signal is None:
             return
@@ -196,13 +199,17 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
         self.setTimeout(None)
 
-        raw_value = signals[status_signal]
-        value = status_signal.to_human(value=raw_value)
+        if request.all_values:
+            value = {s: s.to_human(value=v) for s, v in signals.items()}
+        else:
+            raw_value = signals[status_signal]
+            value = status_signal.to_human(value=raw_value)
 
         self.callback(value)
 
     def timeoutConnection(self):
-        status_signal = self._request_memory
+        request = self._request_memory
+        status_signal = request.signal.status_signal
         message = 'Protocol timed out while in state {} handling ' \
                   '{} : {}'.format(
             self.state,

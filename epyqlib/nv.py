@@ -68,8 +68,8 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
     set_status_string = pyqtSignal(str)
 
-    def __init__(self, neo, bus, stop_cyclic, start_cyclic, configuration=None,
-                 parent=None):
+    def __init__(self, neo, bus, stop_cyclic=None, start_cyclic=None,
+                 configuration=None, parent=None):
         TreeNode.__init__(self)
         epyqlib.canneo.QtCanListener.__init__(self, parent=parent)
 
@@ -206,13 +206,15 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     def names(self):
         return '\n'.join([n.fields.name for n in self.children])
 
-    def write_all_to_device(self, only_these=None):
-        return self._read_write_all(read=False, only_these=only_these)
+    def write_all_to_device(self, only_these=None, callback=None):
+        return self._read_write_all(read=False, only_these=only_these,
+                                    callback=callback)
 
-    def read_all_from_device(self, only_these=None):
-        return self._read_write_all(read=True, only_these=only_these)
+    def read_all_from_device(self, only_these=None, callback=None):
+        return self._read_write_all(read=True, only_these=only_these,
+                                    callback=callback)
 
-    def _read_write_all(self, read, only_these=None):
+    def _read_write_all(self, read, only_these=None, callback=None):
         activity = ('Reading from device' if read
                     else 'Writing to device')
 
@@ -231,7 +233,8 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                         lambda _: self.protocol.read(
                             node,
                             priority=epyqlib.twisted.nvs.Priority.user,
-                            passive=True
+                            passive=True,
+                            all_values=True
                         )
                     )
                 else:
@@ -240,9 +243,13 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                             node,
                             ignore_read_only=True,
                             priority=epyqlib.twisted.nvs.Priority.user,
-                            passive=True
+                            passive=True,
+                            all_values = True
                         )
                     )
+
+                if callback is not None:
+                    d.addCallback(callback)
 
         if only_these is None:
             self.traverse(call_this=handle_node)
@@ -386,6 +393,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
     def set_data(self, data):
         # self.fields.value = value
         self.set_human_value(data)
+        self.fields.value = self.full_string
 
     def clear(self):
         self.set_value(float('nan'))
