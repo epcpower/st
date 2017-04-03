@@ -237,16 +237,17 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                             all_values=True
                         )
                     )
-                else:
+                elif node.frame.read_write.min <= 0:
                     d.addCallback(
                         lambda _: self.protocol.write(
                             node,
-                            ignore_read_only=True,
                             priority=epyqlib.twisted.nvs.Priority.user,
                             passive=True,
-                            all_values = True
+                            all_values=True
                         )
                     )
+                else:
+                    return
 
                 if callback is not None:
                     d.addCallback(callback)
