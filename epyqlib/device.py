@@ -712,6 +712,7 @@ class Device:
 
     def terminate(self):
         self.neo_frames.terminate()
+        logging.debug('{} terminated'.format(object.__repr__(self)))
 
 
 if __name__ == '__main__':

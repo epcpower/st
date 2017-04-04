@@ -4,6 +4,7 @@
 
 import can
 import can.interfaces.pcan
+import logging
 import time
 
 from epyqlib.canneo import QtCanListener
@@ -135,6 +136,10 @@ class BusProxy(QObject):
     def flash(self):
         if self.bus is not None:
             return self.bus.flash()
+
+    def terminate(self):
+        self.set_bus()
+        logging.debug('{} terminated'.format(object.__repr__(self)))
 
     def set_bus(self, bus=None):
         was_online = self.bus is not None

@@ -5,6 +5,7 @@
 import can
 import epyqlib.pyqabstractitemmodel
 import functools
+import logging
 import sys
 import time
 
@@ -118,6 +119,10 @@ class Bus(TreeNode):
         self.bus = epyqlib.busproxy.BusProxy(
             transmit=self.checked(Columns.indexes.transmit))
 
+    def terminate(self):
+        self.bus.terminate()
+        logging.debug('{} terminated'.format(object.__repr__(self)))
+
     def set_data(self, data):
         for key, value in bitrates.items():
             if data == value:
@@ -200,6 +205,10 @@ class Device(TreeNode):
         self.device = device
         self.device.bus.transmit = self._checked.transmit == Qt.Checked
 
+    def terminate(self):
+        self.device.terminate()
+        logging.debug('{} terminated'.format(object.__repr__(self)))
+
     def unique(self):
         return self.device
 
@@ -266,6 +275,19 @@ class Model(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.headers = Columns(name='Name',
                                bitrate='Bitrate',
                                transmit='Transmit')
+
+    def terminate(self):
+        def terminate_devices(node, _):
+            if isinstance(node, Device):
+                node.terminate()
+
+        def terminate_buses(node, _):
+            if isinstance(node, Bus):
+                node.terminate()
+
+        self.root.traverse(terminate_devices, internal_nodes=True)
+        self.root.traverse(terminate_buses, internal_nodes=True)
+        logging.debug('{} terminated'.format(object.__repr__(self)))
 
     def went_offline(self, node):
         # TODO: trigger gui update, or find a way that does it automatically

@@ -5,6 +5,7 @@ import copy
 import epyqlib.utils.general
 import functools
 import locale
+import logging
 import math
 from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QTimer, Qt)
 import re
@@ -589,6 +590,8 @@ class Frame(QtCanListener):
         for caller in callers:
             self.cyclic_request(caller, None)
 
+        logging.debug('{} terminated'.format(object.__repr__(self)))
+
 
 class Neo(QtCanListener):
     def __init__(self, matrix, frame_class=Frame, signal_class=Signal,
@@ -786,6 +789,8 @@ class Neo(QtCanListener):
     def terminate(self):
         for frame in self.frames:
             frame.terminate()
+
+        logging.debug('{} terminated'.format(object.__repr__(self)))
 
 
 def format_identifier(identifier, extended):
