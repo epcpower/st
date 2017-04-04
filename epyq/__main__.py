@@ -49,10 +49,8 @@ from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
                              QListWidgetItem, QAction, QMenu, QInputDialog,
                              QPlainTextEdit)
 from PyQt5.QtGui import QPixmap, QPicture, QTextCursor
-import qt5reactor
 import time
 import traceback
-import twisted
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -221,6 +219,7 @@ def main(args=None):
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
 
+    import qt5reactor
     qt5reactor.install()
 
     if args is None:
@@ -243,6 +242,7 @@ def main(args=None):
         logger.setLevel(logging.DEBUG)
 
     if args.verbose >= 2:
+        import twisted.internet.defer
         twisted.internet.defer.setDebugging(True)
 
     if args.verbose >= 3:
