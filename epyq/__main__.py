@@ -263,12 +263,6 @@ def main(args=None):
 
     window.show()
 
-    # TODO: reactor.run() would avoid the need for thread pool starting
-    #       and stopping but it acts differently.  Let's see if we can
-    #       get a response.
-    #
-    #       https://github.com/sunu/qt5reactor/issues/12
-
     from twisted.internet import reactor
     reactor.runReturn()
     result = app.exec()
