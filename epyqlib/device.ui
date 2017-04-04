@@ -96,7 +96,7 @@
      </widget>
      <widget class="QWidget" name="nv">
       <attribute name="title">
-       <string>NV Parameters</string>
+       <string>Parameters</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
