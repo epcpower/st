@@ -38,6 +38,7 @@ import functools
 import io
 import math
 import platform
+import threading
 
 from epyqlib.device import Device
 
@@ -92,13 +93,15 @@ class Window(QtWidgets.QMainWindow):
         self.ui.action_chart_log.triggered.connect(self.chart_log)
 
         device_tree = epyqlib.devicetree.Tree()
-        device_tree_model = epyqlib.devicetree.Model(root=device_tree)
-        device_tree_model.device_removed.connect(self._remove_device)
-        self.ui.device_tree.setModel(device_tree_model)
-
+        self.device_tree_model = epyqlib.devicetree.Model(root=device_tree)
+        self.device_tree_model.device_removed.connect(self._remove_device)
+        self.ui.device_tree.setModel(self.device_tree_model)
         self.ui.device_tree.device_selected.connect(self.set_current_device)
 
         self.subwindows = set()
+
+    def closeEvent(self, event):
+        self.device_tree_model.terminate()
 
     def dialog_from_file(self, title, file_name):
         # The Qt Installer Framework (QtIFW) likes to do a few things to license files...
@@ -259,8 +262,6 @@ def main(args=None):
     )
 
     window.show()
-    from twisted.internet import reactor
-    reactor.getThreadPool().start()
 
     # TODO: reactor.run() would avoid the need for thread pool starting
     #       and stopping but it acts differently.  Let's see if we can
@@ -268,9 +269,12 @@ def main(args=None):
     #
     #       https://github.com/sunu/qt5reactor/issues/12
 
-    # result = reactor.run()
+    from twisted.internet import reactor
+    reactor.runReturn()
     result = app.exec()
-    reactor._stopThreadPool()
+    logging.debug('Application ended')
+    reactor.stop()
+    logging.debug('Reactor stopped')
 
     return result
 
