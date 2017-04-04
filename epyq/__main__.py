@@ -27,7 +27,6 @@ import copy
 import epyq
 import epyqlib.canneo
 import epyqlib.csvwindow
-import epyqlib.nv
 from epyqlib.svgwidget import SvgWidget
 import epyqlib.txrx
 import epyqlib.utils.qt
@@ -39,8 +38,6 @@ import io
 import math
 import platform
 import threading
-
-from epyqlib.device import Device
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
@@ -195,13 +192,13 @@ class Window(QtWidgets.QMainWindow):
             )
             window.show()
 
-    @pyqtSlot(epyqlib.device.Device)
+    @pyqtSlot(object)
     def _remove_device(self, device):
         self.ui.stacked.removeWidget(device.ui)
         device.ui.setParent(None)
         device.terminate()
 
-    @pyqtSlot(epyqlib.device.Device)
+    @pyqtSlot(object)
     def set_current_device(self, device):
         self.ui.stacked.addWidget(device.ui)
         self.ui.stacked.setCurrentWidget(device.ui)
