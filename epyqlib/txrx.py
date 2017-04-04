@@ -1,5 +1,6 @@
 import can
 import canmatrix.canmatrix
+import epyqlib.pyqabstractitemmodel
 from epyqlib.abstractcolumns import AbstractColumns
 import epyqlib.canneo
 from epyqlib.treenode import TreeNode
