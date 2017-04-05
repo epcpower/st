@@ -55,8 +55,7 @@ class Set:
                 period=minimum_period
             )
 
-            loop_deferred = self.loops[f].loop.start(self.loops[f].period)
-            loop_deferred.addErrback(epyqlib.utils.twisted.errbackhook)
+            _start_loop(self.loops[f].loop, self.loops[f].period)
 
     def stop(self):
         for element in self.loops.values():
@@ -66,7 +65,12 @@ class Set:
     def start(self):
         for element in self.loops.values():
             if not element.loop.running:
-                element.loop.start(element.period)
+                _start_loop(element.loop, element.period)
+
+
+def _start_loop(loop, period):
+    loop_deferred = loop.start(period)
+    loop_deferred.addErrback(epyqlib.utils.twisted.errbackhook)
 
 
 if __name__ == '__main__':
