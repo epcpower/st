@@ -271,4 +271,6 @@ def main(args=None):
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    # TODO: this should be sys.exit() but something keeps the process
+    #       from terminating
+    os._exit(main())
