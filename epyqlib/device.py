@@ -712,6 +712,7 @@ class Device:
 
     def terminate(self):
         self.neo_frames.terminate()
+        self.nv_looping_set.stop()
         logging.debug('{} terminated'.format(object.__repr__(self)))
 
 
