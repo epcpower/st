@@ -45,6 +45,8 @@ class Signal(QObject):
         self.hexadecimal_output = self.hexadecimal_output is not None
         self.little_endian = signal._is_little_endian # {int} 0
         self.comment = signal._comment # {str} 'Run command.  When set to a value of \\'Enable\\', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to \\'Disable\\' to leave POR or FAULTED state.'
+        if self.comment is None:
+            self.comment = ''
         # TODO: maybe not use a string, but used to help with decimal places
         self.factor = signal._factor
         try:
@@ -339,6 +341,8 @@ class Frame(QtCanListener):
         self.cycle_time = frame._attributes.get('GenMsgCycleTime', None)
         self.mux_name = frame._attributes.get('mux_name', None)
         self.comment = frame._comment # {str} 'Operational commands are received by the module via control bits within this message.'
+        if self.comment is None:
+            self.comment = ''
         self.extended = bool(frame._extended) # {int} 1
         self.name = frame._name # {str} 'CommandModeControl'
         # self._receiver = frame._receiver # {list} []
