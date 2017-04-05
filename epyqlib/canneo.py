@@ -192,16 +192,13 @@ class Signal(QObject):
         return self.decimal_places
 
     def set_value(self, value, force=False, check_range=False):
+        value_parameter = value
         if value is None:
             self.value = None
-            self.full_string = '-'
-            self.short_string = '-'
             self.value_changed.emit(float('nan'))
-            self.enumeration_text = None
         elif type(value) is float and math.isnan(value):
             pass
         elif self.value != value or force:
-            self.enumeration_text = None
             # TODO: be careful here, should all be int which is immutable
             #       and therefore safe but...  otherwise a copy would be
             #       needed
@@ -216,19 +213,12 @@ class Signal(QObject):
             try:
                 # TODO: CAMPid 94562754956589992752348667
                 enum_string = self.enumeration[value]
-                self.full_string = self.enumeration_format_re['format'].format(
-                        s=enum_string, v=value)
-                self.enumeration_text = enum_string
-                self.short_string = enum_string
             except KeyError:
                 # TODO: this should be a subclass or something
                 if self.name == '__padding__':
-                    self.full_string = '__padding__'
-                    self.short_string = self.full_string
+                    pass
                 elif self.hexadecimal_output:
-                    format = '{{:0{}X}}'.format(math.ceil(self.signal_size/math.log2(16)))
-                    self.full_string = format.format(int(self.value))
-                    self.short_string = self.full_string
+                    pass
                 else:
                     # TODO: CAMPid 9395616283654658598648263423685
                     # TODO: and _offset...
@@ -237,16 +227,54 @@ class Signal(QObject):
                         self.offset + (float(self.value) * self.factor)
                     )
 
-                    self.full_string = self.format_float(self.scaled_value)
-                    self.short_string = self.full_string
+                    value = self.scaled_value
+
+            self.full_string, self.short_string, self.enumeration_text = (
+                self.format_strings(value=value_parameter)
+            )
+
+            self.value_changed.emit(value)
+
+    def format_strings(self, value):
+        if value is None or (type(value) is float and math.isnan(value)):
+            full_string = '-'
+            short_string = '-'
+            enumeration_text = None
+        else:
+            enumeration_text = None
+
+            try:
+                # TODO: CAMPid 94562754956589992752348667
+                enum_string = self.enumeration[value]
+                full_string = self.enumeration_format_re['format'].format(
+                        s=enum_string, v=value)
+                enumeration_text = enum_string
+                short_string = enum_string
+            except KeyError:
+                # TODO: this should be a subclass or something
+                if self.name == '__padding__':
+                    full_string = '__padding__'
+                    short_string = full_string
+                elif self.hexadecimal_output:
+                    format = '{{:0{}X}}'.format(math.ceil(self.signal_size/math.log2(16)))
+                    full_string = format.format(int(value))
+                    short_string = full_string
+                else:
+                    # TODO: CAMPid 9395616283654658598648263423685
+                    # TODO: and _offset...
+
+                    scaled_value = (
+                        self.offset + (float(value) * self.factor)
+                    )
+
+                    full_string = self.format_float(scaled_value)
+                    short_string = full_string
 
                     if self.unit is not None:
                         if len(self.unit) > 0:
-                            self.full_string += ' [{}]'.format(self.unit)
+                            full_string += ' [{}]'.format(self.unit)
 
-                    value = self.scaled_value
-
-            self.value_changed.emit(value)
+        return full_string, short_string, enumeration_text
 
     def force_value_changed(self):
         value = self.scaled_value
