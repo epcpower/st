@@ -24,7 +24,7 @@ __license__ = 'GPLv2+'
 
 
 class Columns(AbstractColumns):
-    _members = ['name', 'value', 'min', 'max', 'factory']
+    _members = ['name', 'value', 'min', 'max', 'default', 'factory']
 
 Columns.indexes = Columns.indexes()
 
@@ -379,11 +379,16 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
                                     parent=parent)
         TreeNode.__init__(self)
 
+        default = self.default_value
+        if default is None:
+            default = 0
+
         self.fields = Columns(
             name='{}:{}'.format(self.frame.mux_name, self.name),
             value='',
             min=self.format_float(value=self.min),
             max=self.format_float(value=self.max),
+            default=self.format_strings(value=int(default))[0],
             factory='True' if '<factory>' in self.comment else ''
         )
         self.clear()
@@ -457,6 +462,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                                value='Value',
                                min='Min',
                                max='Max',
+                               default='Default',
                                factory='Factory')
 
         root.set_status_string.connect(self.set_status_string)
