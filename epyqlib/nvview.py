@@ -99,6 +99,11 @@ class NvView(QtWidgets.QWidget):
             self._current_changed)
         self.ui.tree_view.setSelectionMode(self.ui.tree_view.MultiSelection)
 
+        self.ui.tree_view.setColumnHidden(
+            epyqlib.nv.Columns.indexes.factory,
+            all(len(nv.fields.factory) == 0 for nv in model.root.children)
+        )
+
     def _current_changed(self, new_index, old_index):
         model = self.ui.tree_view.model()
         new = model.node_from_index(new_index)
