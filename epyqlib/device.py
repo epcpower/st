@@ -238,6 +238,7 @@ class Device:
                 d.get('module', None),
                 d.get('can_path', None),
                 d.get('compatibility', None),
+                d.get('parameter_defaults', None),
                 *self.ui_paths.values()
             ]
             if f is not None
@@ -434,6 +435,17 @@ class Device:
                 bus=self.bus,
                 configuration=nv_configuration
             )
+
+            if 'parameter_defaults' in self.raw_dict:
+                parameter_defaults_path = os.path.join(
+                    os.path.dirname(self.config_path),
+                    self.raw_dict['parameter_defaults']
+                )
+                with open(parameter_defaults_path) as f:
+                    self.nvs.defaults_from_dict(json.load(f))
+                    for nv in self.nvs.children:
+                        nv.fields.default = nv.format_strings(
+                            value=int(nv.default_value))[0]
 
             self.widget_frames_nv = epyqlib.canneo.Neo(
                 matrix=matrix_nv,

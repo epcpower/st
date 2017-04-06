@@ -328,6 +328,22 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             print("Unrecognized NV value named '{}' found when loading "
                   "from dict".format(name))
 
+    def defaults_from_dict(self, d):
+        only_in_file = list(d.keys())
+
+        for child in self.children:
+            value = d.get(child.fields.name, None)
+            if value is not None:
+                child.default_value = child.from_human(float(value))
+                only_in_file.remove(child.fields.name)
+            else:
+                print("Nv value named '{}' not found when loading from dict"
+                      .format(child.fields.name))
+
+        for name in only_in_file:
+            print("Unrecognized NV value named '{}' found when loading to "
+                  "defaults from dict".format(name))
+
     def module_to_nv(self):
         self.set_status_string.emit('Requested save to NV...')
         self.save_signal.set_value(self.save_value)
