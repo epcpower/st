@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 import attr
 import can
-import canmatrix.importany as importany
+import canmatrix.formats
 import epyqlib.canneo
 import epyqlib.deviceextension
 try:
@@ -366,7 +366,7 @@ class Device:
         if Elements.dash in self.elements:
             self.uis = self.dash_uis
 
-            matrix = list(importany.importany(self.can_path).values())[0]
+            matrix = list(canmatrix.formats.loadp(self.can_path).values())[0]
             # TODO: this is icky
             if Elements.tx not in self.elements:
                 self.neo_frames = epyqlib.canneo.Neo(matrix=matrix,
@@ -377,7 +377,7 @@ class Device:
 
         if Elements.rx in self.elements:
             # TODO: the repetition here is not so pretty
-            matrix_rx = list(importany.importany(self.can_path).values())[0]
+            matrix_rx = list(canmatrix.formats.loadp(self.can_path).values())[0]
             neo_rx = epyqlib.canneo.Neo(matrix=matrix_rx,
                                      frame_class=epyqlib.txrx.MessageNode,
                                      signal_class=epyqlib.txrx.SignalNode,
@@ -393,7 +393,7 @@ class Device:
             rx.end_insert_rows.connect(rx_model.end_insert_rows)
 
         if Elements.tx in self.elements:
-            matrix_tx = list(importany.importany(self.can_path).values())[0]
+            matrix_tx = list(canmatrix.formats.loadp(self.can_path).values())[0]
             message_node_tx_partial = functools.partial(epyqlib.txrx.MessageNode,
                                                         tx=True)
             signal_node_tx_partial = functools.partial(epyqlib.txrx.SignalNode,
@@ -420,7 +420,7 @@ class Device:
                 self.ui.tx.setModel(tx_model)
 
         if Elements.nv in self.elements:
-            matrix_nv = list(importany.importany(self.can_path).values())[0]
+            matrix_nv = list(canmatrix.formats.loadp(self.can_path).values())[0]
             self.frames_nv = epyqlib.canneo.Neo(
                 matrix=matrix_nv,
                 frame_class=epyqlib.nv.Frame,

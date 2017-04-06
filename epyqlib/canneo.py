@@ -439,7 +439,6 @@ class Frame(QtCanListener):
                 is_little_endian=0)
             def Matrix_Pad_Fixed(start_bit, length):
                 pad = Matrix_Pad(start_bit, length)
-                pad.setStartbit(start_bit, bitNumbering=True, startLittle=True)
                 return pad
             Pad = lambda start_bit, length: Signal(
                 signal=Matrix_Pad_Fixed(start_bit, length),

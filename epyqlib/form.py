@@ -2,7 +2,7 @@
 
 #TODO: """DocString if there is one"""
 
-import canmatrix.importany as importany
+import canmatrix.formats
 import epyqlib.canneo
 import epyqlib.widgets.abstractwidget
 import math
@@ -86,7 +86,7 @@ class EpcForm(QWidget):
                 )
 
         try:
-            imported = list(importany.importany(can_file).values())
+            imported = list(canmatrix.formats.loadp(can_file).values())
         except FileNotFoundError:
             imported = []
 
