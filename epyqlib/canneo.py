@@ -195,9 +195,8 @@ class Signal(QObject):
         value_parameter = value
         if value is None:
             self.value = None
-            self.value_changed.emit(float('nan'))
         elif type(value) is float and math.isnan(value):
-            pass
+            return
         elif self.value != value or force:
             # TODO: be careful here, should all be int which is immutable
             #       and therefore safe but...  otherwise a copy would be
@@ -229,10 +228,13 @@ class Signal(QObject):
 
                     value = self.scaled_value
 
-            self.full_string, self.short_string, self.enumeration_text = (
-                self.format_strings(value=value_parameter)
-            )
+        self.full_string, self.short_string, self.enumeration_text = (
+            self.format_strings(value=value_parameter)
+        )
 
+        if value_parameter is None:
+            self.value_changed.emit(float('nan'))
+        else:
             self.value_changed.emit(value)
 
     def format_strings(self, value):
