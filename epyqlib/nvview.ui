@@ -97,7 +97,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QTreeView" name="tree_view"/>
+      <widget class="QTreeView" name="tree_view">
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
