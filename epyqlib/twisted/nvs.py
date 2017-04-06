@@ -143,10 +143,61 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
             except queue.Empty:
                 pass
             else:
-                self._deferred = request.deferred
-                self._read_write(request)
+                if request.read:
+                    self._read_write(request)
+                else:
+                    self._read_before_write(request)
+
+    def _read_before_write(self, request):
+        frame = request.signal.frame
+
+        empty = [s for s in frame.parameter_signals if s.value is None]
+
+        if len(empty) == 0:
+            self._read_write(request)
+        else:
+            d = twisted.internet.defer.Deferred()
+            d.callback(None)
+
+            nonempty = {
+                s: s.value
+                for s in frame.parameter_signals
+                if s.value is not None
+                }
+
+            proxy_signal = next(iter(nonempty.keys()))
+
+            def read_then_write(values, empty=empty):
+                for signal in empty:
+                    signal.set_human_value(values[signal.status_signal])
+
+                return self.write(
+                    proxy_signal,
+                    all_values=True
+                )
+
+            def write_response(values, nonempty=nonempty, empty=empty,
+                               request=request):
+                data = {
+                    signal.status_signal: values[signal.status_signal]
+                    for signal in nonempty
+                }
+
+                for signal in empty:
+                    data[signal.status_signal] = None
+
+                request.deferred.callback(data)
+
+            d.addCallback(lambda _: self.read(
+                proxy_signal,
+                all_values=True
+            ))
+            d.addCallback(read_then_write)
+            d.addCallback(write_response)
+            d.addErrback(lambda e: request.deferred.errback(e))
 
     def _read_write(self, request):
+        self._deferred = request.deferred
         self._start_transaction()
         self.state = State.reading if request.read else State.writing
 

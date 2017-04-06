@@ -57,59 +57,10 @@ class NvView(QtWidgets.QWidget):
 
     def write_to_module(self):
         model = self.ui.tree_view.model()
-
-        all_empty = set(
-            nv for nv in model.root.children
-            if nv.value is None
-        )
-        all_nonempty = set(
-            nv for nv in model.root.children
-            if nv.value is not None
-        )
-
-        frames = set(s.frame for s in all_nonempty)
-
-        d = twisted.internet.defer.Deferred()
-        d.callback(None)
-
-        for frame in frames:
-            nonempty = {
-                s: s.value
-                for s in (set(frame.signals) & all_nonempty)
-                if s.value is not None
-            }
-
-            empty = [s for s in (set(frame.signals) & all_empty) if s.value is None]
-
-            proxy_signal = next(iter(nonempty.keys()))
-
-            def read_then_write(values, empty=empty):
-                for signal in empty:
-                    signal.set_human_value(values[signal.status_signal])
-
-                return model.root.protocol.write(
-                    proxy_signal,
-                    all_values=True
-                )
-
-            def write_response(values, nonempty=nonempty, empty=empty):
-                d = {
-                    signal.status_signal: values[signal.status_signal]
-                    for signal in nonempty
-                }
-                self.update_signals(d)
-
-                for signal in empty:
-                    signal.set_value(None)
-
-            d.addCallback(lambda _: model.root.protocol.read(
-                proxy_signal,
-                all_values=True
-            ))
-            d.addCallback(read_then_write)
-            d.addCallback(write_response)
-
-        d.addErrback(epyqlib.utils.twisted.errbackhook)
+        only_these = [nv for nv in model.root.children
+                      if nv.value is not None]
+        model.root.write_all_to_device(callback=self.update_signals,
+                                       only_these = only_these)
 
     def read_from_module(self):
         model = self.ui.tree_view.model()
