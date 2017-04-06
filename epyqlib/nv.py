@@ -401,13 +401,15 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         if default is None:
             default = 0
 
+        factory = '<factory>' in (self.comment + self.frame.comment)
+
         self.fields = Columns(
             name='{}:{}'.format(self.frame.mux_name, self.name),
             value='',
             min=self.format_float(value=self.min),
             max=self.format_float(value=self.max),
             default=self.format_strings(value=int(default))[0],
-            factory='True' if '<factory>' in self.comment else ''
+            factory='True' if factory else ''
         )
         self.clear()
 

@@ -706,6 +706,8 @@ class Neo(QtCanListener):
                             frame._attributes['GenMsgCycleTime']
                         )
                     matrix_frame.addAttribute('mux_name', multiplex_name)
+                    matrix_frame.addComment(multiplex_signal.comments[int(
+                        multiplex_value)])
                     matrix_signal = canmatrix.Signal(
                             name=multiplex_signal._name,
                             startBit=multiplex_signal._startbit,
