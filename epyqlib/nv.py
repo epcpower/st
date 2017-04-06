@@ -489,6 +489,15 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         root.set_status_string.connect(self.set_status_string)
 
+    def flags(self, index):
+        flags = super().flags(index)
+        node = self.node_from_index(index)
+
+        if node.frame.read_write.min > 0:
+            flags &= ~Qt.ItemIsEditable
+
+        return flags
+
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.value:
             if role == Qt.EditRole:
