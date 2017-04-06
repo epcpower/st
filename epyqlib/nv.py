@@ -24,7 +24,7 @@ __license__ = 'GPLv2+'
 
 
 class Columns(AbstractColumns):
-    _members = ['name', 'value', 'min', 'max', 'default', 'factory']
+    _members = ['name', 'value', 'default', 'min', 'max', 'factory']
 
 Columns.indexes = Columns.indexes()
 
