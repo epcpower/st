@@ -358,7 +358,7 @@ class Frame(QtCanListener):
     send = pyqtSignal(can.Message, 'PyQt_PyObject')
 
     def __init__(self, frame, multiplex_value=None,
-                 signal_class=Signal, parent=None):
+                 signal_class=Signal, set_value_to_default=True, parent=None):
         QtCanListener.__init__(self, self.message_received, parent=parent)
 
         self.id = frame._Id # {int} 16755521
@@ -409,7 +409,9 @@ class Frame(QtCanListener):
                 if default_value is None:
                     default_value = 0
 
-                neo_signal.set_human_value(offset + (default_value * factor))
+                if set_value_to_default:
+                    neo_signal.set_human_value(
+                        offset + (default_value * factor))
 
     def signal_by_name(self, name):
         try:

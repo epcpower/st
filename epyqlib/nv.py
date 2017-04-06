@@ -428,6 +428,7 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
         epyqlib.canneo.Frame.__init__(self, frame=frame,
                                    multiplex_value=multiplex_value,
                                    signal_class=signal_class,
+                                   set_value_to_default=False,
                                    parent=parent)
         TreeNode.__init__(self, parent)
 
