@@ -170,9 +170,11 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
                 frame._send.connect(send)
 
+            frame.parameter_signals = []
             for nv in signals:
                 if nv.name not in [self.configuration.to_nv_command]:
                     self.append_child(nv)
+                    frame.parameter_signals.append(nv)
 
                 nv.frame.status_frame = self.status_frames[value]
                 self.status_frames[value].set_frame = nv.frame
