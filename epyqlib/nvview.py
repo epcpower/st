@@ -138,8 +138,10 @@ class NvView(QtWidgets.QWidget):
 
         menu = QtWidgets.QMenu(parent=self.ui.tree_view)
 
-        read = menu.addAction('Read')
-        write = menu.addAction('Write')
+        read = menu.addAction('Read {}'.format(
+            self.ui.read_from_module_button.text()))
+        write = menu.addAction('Write {}'.format(
+            self.ui.write_to_module_button.text()))
 
         action = menu.exec(self.ui.tree_view.viewport().mapToGlobal(position))
 
