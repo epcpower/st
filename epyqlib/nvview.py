@@ -142,6 +142,7 @@ class NvView(QtWidgets.QWidget):
             self.ui.read_from_module_button.text()))
         write = menu.addAction('Write {}'.format(
             self.ui.write_to_module_button.text()))
+        clear = menu.addAction('Clear Local')
 
         action = menu.exec(self.ui.tree_view.viewport().mapToGlobal(position))
 
@@ -153,6 +154,8 @@ class NvView(QtWidgets.QWidget):
         elif action is write:
             model.root.write_all_to_device(only_these=(node,),
                                            callback=self.update_signals)
+        elif action is clear:
+            node.set_value(None)
 
     def update_signals(self, d):
         model = self.ui.tree_view.model()
