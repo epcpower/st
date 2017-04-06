@@ -56,7 +56,10 @@ class NvView(QtWidgets.QWidget):
 
     def write_to_module(self):
         model = self.ui.tree_view.model()
-        model.root.write_all_to_device(callback=self.update_signals)
+        only_these = [nv for nv in model.root.children
+                      if nv.value is not None]
+        model.root.write_all_to_device(callback=self.update_signals,
+                                       only_these=only_these)
 
     def read_from_module(self):
         model = self.ui.tree_view.model()
