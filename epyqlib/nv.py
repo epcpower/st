@@ -404,7 +404,10 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
 
     def set_data(self, data):
         # self.fields.value = value
-        self.set_human_value(data)
+        if data is None:
+            self.set_value(data)
+        else:
+            self.set_human_value(data)
         self.fields.value = self.full_string
 
     def clear(self):
