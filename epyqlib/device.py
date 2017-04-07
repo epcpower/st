@@ -576,20 +576,21 @@ class Device:
                 try:
                     signal = self.neo_frames.signal_by_path(*signal_path)
                 except epyqlib.canneo.NotFoundError:
-                    widget_path = []
-                    p = widget
-                    while p is not dash:
-                        widget_path.insert(0, p.objectName())
-                        p = p.parent()
+                    if not widget.ignore:
+                        widget_path = []
+                        p = widget
+                        while p is not dash:
+                            widget_path.insert(0, p.objectName())
+                            p = p.parent()
 
-                    self.dash_missing_signals.add(
-                        '{}:/{} - {}'.format(
-                            dash.file_name,
-                            '/'.join(widget_path),
-                            ':'.join(signal_path) if len(signal_path) > 0
-                                else '<none specified>'
+                        self.dash_missing_signals.add(
+                            '{}:/{} - {}'.format(
+                                dash.file_name,
+                                '/'.join(widget_path),
+                                ':'.join(signal_path) if len(signal_path) > 0
+                                    else '<none specified>'
+                            )
                         )
-                    )
                 else:
                     if signal.frame.id == self.nvs.set_frames[0].id:
                         nv_signal = self.widget_nvs.neo.signal_by_path(*signal_path)

@@ -44,6 +44,7 @@ class CompoundScale(QWidget):
 
     def update_echo_visibility(self):
         self.ui.echo.setHidden(self.echo_signal_path_element_0 in {None, ''})
+        self.ui.echo.ignore = True
 
     @pyqtProperty(str, designable=False)
     def command_frame(self):

@@ -94,6 +94,8 @@ class AbstractWidget(QtWidgets.QWidget):
         self._display_units = ''
         self._action = ''
 
+        self.ignore = False
+
     @pyqtProperty(str)
     def action(self):
         return self._action
