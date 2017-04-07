@@ -269,14 +269,6 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                      'Failed while {}...'.format(activity.lower()))
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
-    def all_changed(self):
-        # TODO: CAMPid 99854759326728959578972453876695627489
-        if len(self.children) > 0:
-            self.changed.emit(
-                self.children[0], Columns.indexes.value,
-                self.children[-1], Columns.indexes.value,
-                [Qt.DisplayRole])
-
     @pyqtSlot(can.Message)
     def message_received(self, msg):
         if (msg.arbitration_id == self.status_frames[0].id
@@ -298,8 +290,6 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                 set_signals = sorted(set_signals, key=sort_key)
                 for status, set in zip(status_signals, set_signals):
                     set.set_value(status.value)
-
-                self.all_changed()
 
     def unique(self):
         # TODO: actually identify the object
