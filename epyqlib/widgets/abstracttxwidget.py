@@ -41,6 +41,10 @@ class AbstractTxWidget(epyqlib.widgets.abstractwidget.AbstractWidget):
         self.set_signal(signal=self.signal_object)
         self.ui.value.setDisabled(not self.tx)
 
+    def meta_set_value(self, value):
+        if not self.value.hasFocus():
+            self.set_value(value)
+
     def user_set_value(self, value):
         self.signal_object.set_human_value(value, check_range=True)
         self.edited.emit(value)

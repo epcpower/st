@@ -374,10 +374,10 @@ class AbstractWidget(QtWidgets.QWidget):
     def update_connection(self, signal=None):
         if signal is not self.signal_object:
             if self.signal_object is not None:
-                self.signal_object.value_changed.disconnect(self.set_value)
+                self.signal_object.value_changed.disconnect(self.meta_set_value)
 
             if signal is not None:
-                signal.value_changed.connect(self.set_value)
+                signal.value_changed.connect(self.meta_set_value)
 
             # TODO: CAMPid 0932498324014012080143014320
             if signal is not None and len(self.override_units) > 0:
@@ -387,6 +387,9 @@ class AbstractWidget(QtWidgets.QWidget):
                 )
             else:
                 self._conversion_multiplier = 1
+
+    def meta_set_value(self, value):
+        self.set_value(value)
 
     def set_signal(self, signal=None, force_update=False):
         if signal is not self.signal_object or force_update:
