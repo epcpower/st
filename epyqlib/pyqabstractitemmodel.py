@@ -40,7 +40,9 @@ class PyQAbstractItemModel(QAbstractItemModel):
             unique_role: self.data_unique,
             Qt.TextAlignmentRole: lambda index: int(self.alignment),
             Qt.CheckStateRole: self.data_check_state,
-            Qt.EditRole: self.data_edit
+            Qt.EditRole: self.data_edit,
+            Qt.BackgroundRole: self.data_background,
+            Qt.DecorationRole: self.data_decoration
         }
 
     def headerData(self, section, orientation, role):
@@ -85,6 +87,12 @@ class PyQAbstractItemModel(QAbstractItemModel):
             value = str(value)
 
         return value
+
+    def data_background(self, index):
+        return None
+
+    def data_decoration(self, index):
+        return None
 
     def data(self, index, role):
         if not index.isValid():
