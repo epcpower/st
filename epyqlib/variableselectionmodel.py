@@ -456,9 +456,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         cache = cmc.Cache(bits_per_byte=self.bits_per_byte)
 
         def update_parameter(node, cache):
-            # TODO: find a real solution to avoid blocking UI
-            # QCoreApplication.processEvents()
-
             if node is root:
                 return
 

@@ -106,13 +106,6 @@ class ListMenuView(QtWidgets.QWidget):
         #     epyqlib.nv.Columns.indexes.value,
         #     epyqlib.delegates.Combo(model=model, parent=self))
 
-    # @pyqtSlot(str)
-    # def set_status_string(self, string):
-    #     self.ui.status_label.setText(string)
-    #     # TODO: the long activities that need this should be reworked
-    #     #       https://epc-phab.exana.io/T273
-    #     QCoreApplication.processEvents()
-
     @pyqtSlot(epyqlib.listmenu.Node)
     def root_changed(self, node):
         self.ui.label.setText(node.fields.name)

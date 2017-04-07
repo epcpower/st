@@ -63,7 +63,6 @@ class ParameterEdit(QWidget):
     def edited(self, value):
         self.nv.read_from_device()
         time.sleep(0.05)
-        # TODO: processEvents()?
         self.nv.set_human_value(value)
         self.nv.write_to_device()
 
