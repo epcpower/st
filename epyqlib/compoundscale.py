@@ -40,6 +40,11 @@ class CompoundScale(QWidget):
         self.ui.status.in_designer = in_designer
         self.ui.numeric_status.in_designer = in_designer
 
+        self.update_echo_visibility()
+
+    def update_echo_visibility(self):
+        self.ui.echo.setHidden(self.echo_signal_path_element_0 in {None, ''})
+
     @pyqtProperty(str, designable=False)
     def command_frame(self):
         return ''
@@ -63,6 +68,7 @@ class CompoundScale(QWidget):
     @echo_frame.setter
     def echo_frame(self, value):
         self.echo_signal_path_element_0 = value
+        self.update_echo_visibility()
 
     @pyqtProperty(str, designable=False)
     def echo_signal(self):
@@ -120,6 +126,7 @@ class CompoundScale(QWidget):
     @echo_signal_path_element_0.setter
     def echo_signal_path_element_0(self, value):
         self.ui.echo.signal_path_element_0 = value
+        self.update_echo_visibility()
 
     @pyqtProperty('QString')
     def echo_signal_path_element_1(self):
