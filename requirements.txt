@@ -3,7 +3,7 @@ requests
 -e sub/epyqlib
 
 -e hg+https://bitbucket.org/altendky/python-can@74fb38d11c317daac8131e09e51a6a55408bfbf9#egg=python-can
--e git+https://github.com/ebroecker/canmatrix@21c8bb7aae128db46eff44e5a84ca30fa09419fb#egg=canmatrix
+-e git+https://github.com/ebroecker/canmatrix@ac55bac774b39e86840a851a293e44f620bf4411#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@129a72e290c533654a91bd556b1d4b0822df423f#egg=bitstruct
 twisted==16.5.0
 -e git+https://github.com/altendky/qt5reactor@a52c0d0c289c8e08680c0204974081c541504d41#egg=qt5reactor
