@@ -155,7 +155,7 @@ class NvView(QtWidgets.QWidget):
             model.root.write_all_to_device(only_these=(node,),
                                            callback=self.update_signals)
         elif action is clear:
-            node.set_value(None)
+            node.clear()
 
     def update_signals(self, d):
         model = self.ui.tree_view.model()

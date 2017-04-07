@@ -13,6 +13,7 @@ import json
 import epyqlib.pyqabstractitemmodel
 from epyqlib.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot)
+from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 import time
 import twisted.internet.defer
@@ -413,12 +414,15 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         )
         self.clear()
 
+        self.modified = False
+
     def set_value(self, value, force=False, check_range=False):
         epyqlib.canneo.Signal.set_value(self,
                                         value=value,
                                         force=force,
                                         check_range=check_range)
         self.fields.value = self.full_string
+        self.modified = False
 
     def set_data(self, data):
         # self.fields.value = value
@@ -427,15 +431,18 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         else:
             self.set_human_value(data)
         self.fields.value = self.full_string
+        self.modified = False
 
     def clear(self):
-        self.set_value(float('nan'))
+        self.set_value(None)
         try:
             status_signal = self.status_signal
         except AttributeError:
             pass
         else:
-            status_signal.set_value(float('nan'))
+            status_signal.set_value(None)
+
+        self.modified = True
 
     def unique(self):
         # TODO: make it more unique
@@ -491,6 +498,11 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         root.set_status_string.connect(self.set_status_string)
 
+        self.modified_icon = (
+            QtWidgets.QApplication.instance().style().standardIcon(
+                    QtWidgets.QStyle.SP_DialogResetButton)
+        )
+
     def flags(self, index):
         flags = super().flags(index)
         node = self.node_from_index(index)
@@ -500,6 +512,14 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         return flags
 
+    def data_decoration(self, index):
+        if index.column() == Columns.indexes.value:
+            node = self.node_from_index(index)
+            if node.modified:
+                return self.modified_icon
+
+        return None
+
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.value:
             if role == Qt.EditRole:
@@ -508,6 +528,8 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     node.set_data(data)
                 except ValueError:
                     return False
+
+                node.modified = True
                 self.dataChanged.emit(index, index)
                 return True
 
