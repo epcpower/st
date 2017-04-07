@@ -51,10 +51,11 @@ class PyQAbstractItemModel(QAbstractItemModel):
     def data_display(self, index):
         node = index.internalPointer()
 
-        try:
-            return node.fields[index.column()]
-        except IndexError:
-            return None
+        column = index.column()
+        if column < len(node.fields):
+            return node.fields[column]
+
+        return None
 
     def data_unique(self, index):
         return index.internalPointer().unique()
@@ -63,22 +64,20 @@ class PyQAbstractItemModel(QAbstractItemModel):
         if self.checkbox_columns is not None:
             if self.checkbox_columns[index.column()]:
                 node = index.internalPointer()
-                try:
+                if hasattr(node, 'checked'):
                     return node.checked(index.column())
-                except AttributeError:
-                    return None
+
+                return None
 
     def data_edit(self, index):
         node = index.internalPointer()
-        try:
-            get = node.get_human_value
-        except AttributeError:
-            value = node.fields[index.column()]
-        else:
-            try:
-                value = get()
-            except TypeError:
+        if hasattr(node, 'get_human_value'):
+            if callable(node.get_human_value):
+                value = node.get_human_value()
+            else:
                 value = ''
+        else:
+            value = node.fields[index.column()]
 
         if value is None:
             value = ''
@@ -91,10 +90,10 @@ class PyQAbstractItemModel(QAbstractItemModel):
         if not index.isValid():
             return None
 
-        try:
+        if role in self.role_functions:
             return self.role_functions[role](index=index)
-        except KeyError:
-            return None
+
+        return None
 
     def flags(self, index):
         flags = QAbstractItemModel.flags(self, index)
@@ -188,9 +187,9 @@ class PyQAbstractItemModel(QAbstractItemModel):
 
     def index_from_node(self, node):
         # TODO  make up another role for identification?
-        try:
+        if node in self.index_from_node_cache:
             index = self.index_from_node_cache[node]
-        except KeyError:
+        else:
             if node is self.root:
                 index = QModelIndex()
             else:
