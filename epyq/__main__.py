@@ -266,6 +266,8 @@ def main(args=None):
     logging.debug('Application ended')
     reactor.stop()
     logging.debug('Reactor stopped')
+    # TODO: be extra sure to exit.  related to the issues mentioned below
+    os._exit(result)
 
     return result
 
