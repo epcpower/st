@@ -24,6 +24,9 @@ class NotFoundError(Exception):
     pass
 
 
+bitstruct_unpack = functools.lru_cache(10000)(bitstruct.unpack)
+
+
 class Signal(QObject):
     # TODO: but some (progress bar, etc) require an int!
     value_changed = pyqtSignal(float)
@@ -562,7 +565,7 @@ class Frame(QtCanListener):
 
                 bs = (int(b, 2) for b in mbs)
 
-                [up] = bitstruct.unpack(signal.format(), bs)
+                [up] = bitstruct_unpack(signal.format(), tuple(bs))
                 unpacked.append(up)
 
             if only_return:
@@ -850,6 +853,8 @@ class Neo(QtCanListener):
         for frame in self.frames:
             frame.terminate()
 
+        logging.debug('epyqlib.canneo.bitstruct_unpack(): {}'.format(
+                      bitstruct_unpack.cache_info()))
         logging.debug('{} terminated'.format(object.__repr__(self)))
 
 
