@@ -360,8 +360,11 @@ class Frame(QtCanListener):
     send = pyqtSignal(can.Message, 'PyQt_PyObject')
 
     def __init__(self, frame, multiplex_value=None,
-                 signal_class=Signal, set_value_to_default=True, parent=None):
+                 signal_class=Signal, set_value_to_default=True,
+                 mux_frame=None, parent=None):
         QtCanListener.__init__(self, self.message_received, parent=parent)
+
+        self.mux_frame = mux_frame
 
         self.id = frame._Id # {int} 16755521
         # self._SignalGroups = frame._SignalGroups # {list} []
@@ -611,14 +614,20 @@ class Frame(QtCanListener):
     def message_received(self, msg):
         if (msg.arbitration_id == self.id and
                 bool(msg.id_type) == self.extended):
-            self.unpack(msg.data)
+            if self.mux_frame is None:
+                self.unpack(msg.data)
+            elif self.mux_frame is self:
+                # print(self, self.name, self.mux_name, self.mux_frame, self.mux_frame.name, self.mux_frame.mux_name)
 
-            if hasattr(self, 'multiplex_frames') and self.mux_name is None:
-                mux_signal, = (s for s in self.signals if s.name != '__padding__')
+                unpacked = self.mux_frame.unpack(msg.data, only_return=True)
+                mux_signal, = (s for s in unpacked if s.name != '__padding__')
+
                 # TODO: this if added to avoid exceptions temporarily
                 if mux_signal.value not in self.multiplex_frames:
                     return
                 self.multiplex_frames[mux_signal.value].message_received(msg)
+            else:
+                self.unpack(msg.data)
 
     def terminate(self):
         callers = tuple(r for r in self._cyclic_requests)
@@ -684,6 +693,7 @@ class Neo(QtCanListener):
                         multiplex=multiplex_signal._multiplex)
                 multiplex_frame.addSignal(matrix_signal)
                 multiplex_neo_frame = frame_class(frame=multiplex_frame)
+                multiplex_neo_frame.mux_frame = multiplex_neo_frame
                 frames.append(multiplex_neo_frame)
 
                 multiplex_neo_frame.multiplex_signal =\
@@ -727,7 +737,10 @@ class Neo(QtCanListener):
                         if str(signal._multiplex) == multiplex_value:
                             matrix_frame.addSignal(signal)
 
-                    neo_frame = frame_class(frame=matrix_frame)
+                    neo_frame = frame_class(
+                        frame=matrix_frame,
+                        mux_frame=multiplex_neo_frame
+                    )
                     for signal in neo_frame.signals:
                         if signal.multiplex is True:
                             signal.set_value(int(multiplex_value))

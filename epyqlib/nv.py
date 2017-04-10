@@ -443,12 +443,13 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
     _send = pyqtSignal()
 
     def __init__(self, message=None, tx=False, frame=None,
-                 multiplex_value=None, signal_class=Nv,
+                 multiplex_value=None, signal_class=Nv, mux_frame=None,
                  parent=None):
         epyqlib.canneo.Frame.__init__(self, frame=frame,
                                    multiplex_value=multiplex_value,
                                    signal_class=signal_class,
                                    set_value_to_default=False,
+                                   mux_frame=mux_frame,
                                    parent=parent)
         TreeNode.__init__(self, parent)
 
