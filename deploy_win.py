@@ -183,7 +183,8 @@ def pip_install(package, no_ssl_verify, site=False, parameters=[]):
     pip_parameters.append(package)
     return pip.main(pip_parameters)
 
-pip_install('hg+http://www.riverbankcomputing.com/hg/pyqtdeploy@bef6017b100c#egg=pyqtdeploy', no_ssl_verify=False, site=True, parameters=['--upgrade'])
+# pip_install('hg+http://www.riverbankcomputing.com/hg/pyqtdeploy@bef6017b100c#egg=pyqtdeploy', no_ssl_verify=False, site=True, parameters=['--upgrade'])
+pip_install('pyqtdeploy==1.3.2', no_ssl_verify=False, site=True, parameters=['--upgrade'])
 
 resource_files = glob.glob(os.path.join('sub', 'epyqlib', 'epyqlib', 'resources', '*.qrc'))
 for f in resource_files:
