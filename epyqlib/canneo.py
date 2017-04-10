@@ -81,6 +81,8 @@ class Signal(QObject):
             self.signed = False
         self.float = signal._is_float
 
+        self._format = None
+
         self.value = None
         self.scaled_value = None
         self.full_string = None
@@ -303,31 +305,39 @@ class Signal(QObject):
                 formatted = format.format(value)
             else:
                 format = '%.{}f'.format(decimal_places)
-                formatted = locale.format(format, value, grouping=True)
+                formatted = locale_format(format, value)
 
         return formatted
 
     def format(self):
-        if self.float:
-            # TODO: CAMPid 097897541967932453154321546542175421549
-            types = {
-                32: 'f',
-                64: 'd'
-            }
-            try:
-                type = types[self.signal_size]
-            except KeyError:
-                raise Exception(
-                    'float type only supports lengths in [{}]'.
-                    format(', '.join([str(t) for t in types.keys()]))
-                )
-        else:
-            type = 's' if self.signed else 'u'
+        if self._format is None:
+            if self.float:
+                # TODO: CAMPid 097897541967932453154321546542175421549
+                types = {
+                    32: 'f',
+                    64: 'd'
+                }
+                try:
+                    type = types[self.signal_size]
+                except KeyError:
+                    raise Exception(
+                        'float type only supports lengths in [{}]'.
+                        format(', '.join([str(t) for t in types.keys()]))
+                    )
+            else:
+                type = 's' if self.signed else 'u'
 
-        return '{}{}{}'.format(
-                '<' if self.little_endian else '>',
-                type,
-                self.signal_size)
+            self._format = ''.join((
+                    '<' if self.little_endian else '>',
+                    str(type),
+                    str(self.signal_size)
+            ))
+
+        return self._format
+
+@functools.lru_cache(10000)
+def locale_format(format, value):
+    return locale.format(format, value, grouping=True)
 
 
 class QtCanListener(QObject, can.Listener):
