@@ -83,6 +83,8 @@ class Led(epyqlib.widgets.abstractwidget.AbstractWidget):
         }
         self.ui.value.main_element = 'led'
 
+        self._last_loaded_svg = object()
+
         self._on_color = QColor()
         self._manual_off_color = QColor()
         self._automatic_off_color = True
@@ -188,7 +190,9 @@ class Led(epyqlib.widgets.abstractwidget.AbstractWidget):
         else:
             svg = self.svg['manual_off']
 
-        self.ui.value.load(svg)
+        if svg is not self._last_loaded_svg:
+            self.ui.value.load(svg)
+            self._last_loaded_svg = svg
 
         # TODO: figure out if this should be needed.  seems not but
         #       without it the font metric can return invalid values
