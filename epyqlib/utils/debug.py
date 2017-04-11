@@ -1,5 +1,7 @@
 import threading
 
+import psutil
+
 
 def spy(*ignore):
     """
@@ -41,3 +43,33 @@ def spy(*ignore):
         return Spy
 
     return inner
+
+
+class ReportThreads:
+    def __init__(self):
+        self.process = psutil.Process()
+        self.i = 0
+        self.previous_threads = set()
+
+    def __call__(self, description=''):
+        current_threads = {t.id for t in self.process.threads()}
+
+        started_threads = current_threads - self.previous_threads
+        stopped_threads = self.previous_threads - current_threads
+
+        print('report_threads()', str(self.i).rjust(5), description)
+        print('    ', threading.enumerate())
+
+        x = (
+            ('current', current_threads),
+            ('started', started_threads),
+            ('stopped', stopped_threads),
+        )
+
+        for d, v in x:
+            print('    ', d, sorted(v))
+
+        self.i += 1
+        self.previous_threads = current_threads
+
+report_threads = ReportThreads()
