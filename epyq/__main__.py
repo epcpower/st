@@ -263,6 +263,9 @@ def main(args=None):
     from twisted.internet import reactor
     reactor.runReturn()
     result = app.exec()
+    if reactor.threadpool is not None:
+        reactor._stopThreadPool()
+        logging.debug('Thread pool stopped')
     logging.debug('Application ended')
     reactor.stop()
     logging.debug('Reactor stopped')
