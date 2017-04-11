@@ -215,10 +215,7 @@ class Signal(QObject):
                           in (human_value, self.min, self.max)]))
             self.value = value
 
-            try:
-                # TODO: CAMPid 94562754956589992752348667
-                enum_string = self.enumeration[value]
-            except KeyError:
+            if value not in self.enumeration:
                 # TODO: this should be a subclass or something
                 if self.name == '__padding__':
                     pass
