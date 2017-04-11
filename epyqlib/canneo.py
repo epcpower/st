@@ -224,7 +224,7 @@ class Signal(QObject):
                     pass
                 elif self.hexadecimal_output:
                     pass
-                else:
+                elif self.value is not None:
                     # TODO: CAMPid 9395616283654658598648263423685
                     # TODO: and _offset...
 
