@@ -45,7 +45,7 @@ class Set:
                 period=minimum_period
             )
 
-            self.loops[f].loop.start(self.loops[f].period)
+            _start_loop(self.loops[f].loop, self.loops[f].period)
 
         if minimum_period != self.loops[f].period:
             self.loops[f].loop.stop()
