@@ -15,6 +15,7 @@ from epyqlib.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QVariant, QModelIndex, pyqtSignal, pyqtSlot)
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
+import textwrap
 import time
 import twisted.internet.defer
 import twisted.internet.task
@@ -26,7 +27,7 @@ __license__ = 'GPLv2+'
 
 class Columns(AbstractColumns):
     _members = ['name', 'value', 'reset', 'clear', 'default', 'min', 'max',
-                'factory']
+                'factory', 'comment']
 
 Columns.indexes = Columns.indexes()
 
@@ -405,7 +406,8 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             min=self.format_float(value=self.min),
             max=self.format_float(value=self.max),
             default=self.format_strings(value=int(default))[0],
-            factory='True' if factory else ''
+            factory='True' if factory else '',
+            comment=self.comment,
         )
 
     def can_be_reset(self):
@@ -508,7 +510,8 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                                min='Min',
                                max='Max',
                                default='Default',
-                               factory='Factory')
+                               factory='Factory',
+                               comment='Comment')
 
         root.set_status_string.connect(self.set_status_string)
 
@@ -558,6 +561,9 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             node = self.node_from_index(index)
             if node.can_be_reset():
                 return node.format_strings(value=node.reset_value)[0]
+        elif index.column() == Columns.indexes.comment:
+            node = self.node_from_index(index)
+            return '\n'.join(textwrap.wrap(node.comment, 60))
 
     def reset_node(self, index):
         node = self.node_from_index(index)

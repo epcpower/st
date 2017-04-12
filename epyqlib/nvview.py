@@ -57,6 +57,7 @@ class NvView(QtWidgets.QWidget):
             min=True,
             max=True,
             factory=True,
+            comment=True,
         )
 
         self.ui.tree_view.clicked.connect(self.clicked)
