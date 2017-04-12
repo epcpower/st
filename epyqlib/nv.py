@@ -410,6 +410,27 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             comment=self.comment,
         )
 
+    def can_be_saturated(self):
+        if self.value is None:
+            return False
+
+        return not (self.min <= self.to_human(self.value) <= self.max)
+
+    def saturate(self):
+        if not self.can_be_saturated():
+            return
+
+        self.set_data(
+            min(
+                max(
+                    self.from_human(self.min),
+                    self.value
+                ),
+                self.from_human(self.max)
+            ),
+            mark_modified=True
+        )
+
     def can_be_reset(self):
         return self.reset_value != self.value
 
@@ -548,7 +569,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         if index.column() == Columns.indexes.saturate:
             node = self.node_from_index(index)
             if node.value is not None:
-                if not (node.min <= node.to_human(node.value) <= node.max):
+                if node.can_be_saturated():
                     return self.saturate_icon
         elif index.column() == Columns.indexes.reset:
             node = self.node_from_index(index)
@@ -569,6 +590,11 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         elif index.column() == Columns.indexes.comment:
             node = self.node_from_index(index)
             return '\n'.join(textwrap.wrap(node.comment, 60))
+
+    def saturate_node(self, index):
+        node = self.node_from_index(index)
+        node.saturate()
+        self.changed(node, 0, node, len(Columns()), [])
 
     def reset_node(self, index):
         node = self.node_from_index(index)

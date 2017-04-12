@@ -131,7 +131,9 @@ class NvView(QtWidgets.QWidget):
         model = self.ui.tree_view.model()
 
         column = index.column()
-        if column == model.headers.indexes.reset:
+        if column == model.headers.indexes.saturate:
+            model.saturate_node(index)
+        elif column == model.headers.indexes.reset:
             model.reset_node(index)
         elif column == model.headers.indexes.clear:
             model.clear_node(index)
