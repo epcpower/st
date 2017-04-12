@@ -395,19 +395,19 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
 
         factory = '<factory>' in (self.comment + self.frame.comment)
 
+        self.reset_value = None
+        self.modified = False
+
+        self.clear(mark_modified=False)
+
         self.fields = Columns(
             name='{}:{}'.format(self.frame.mux_name, self.name),
-            value='',
+            value=self.full_string,
             min=self.format_float(value=self.min),
             max=self.format_float(value=self.max),
             default=self.format_strings(value=int(default))[0],
             factory='True' if factory else ''
         )
-
-        self.reset_value = None
-        self.modified = False
-
-        self.clear(mark_modified=False)
 
     def can_be_reset(self):
         return self.modified
