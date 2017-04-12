@@ -173,7 +173,8 @@ class NvView(QtWidgets.QWidget):
                                             callback=self.update_signals)
         elif action is write:
             model.root.write_all_to_device(only_these=(node,),
-                                           callback=self.update_signals)
+                                           callback=self.update_signals,
+                                           all_non_empty=False)
         elif action is saturate:
             model.saturate_node(index)
         elif action is reset:

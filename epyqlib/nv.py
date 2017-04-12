@@ -211,15 +211,21 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     def names(self):
         return '\n'.join([n.fields.name for n in self.children])
 
-    def write_all_to_device(self, only_these=None, callback=None):
-        return self._read_write_all(read=False, only_these=only_these,
-                                    callback=callback)
+    def write_all_to_device(self, only_these=None, callback=None,
+                            all_non_empty=True):
+        return self._read_write_all(
+            read=False,
+            only_these=only_these,
+            callback=callback,
+            all_non_empty=all_non_empty,
+        )
 
     def read_all_from_device(self, only_these=None, callback=None):
         return self._read_write_all(read=True, only_these=only_these,
                                     callback=callback)
 
-    def _read_write_all(self, read, only_these=None, callback=None):
+    def _read_write_all(self, read, only_these=None, callback=None,
+                        all_non_empty=True):
         activity = ('Reading from device' if read
                     else 'Writing to device')
 
@@ -248,7 +254,8 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                             node,
                             priority=epyqlib.twisted.nvs.Priority.user,
                             passive=True,
-                            all_values=True
+                            all_values=True,
+                            all_non_empty=all_non_empty,
                         )
                     )
                 else:
