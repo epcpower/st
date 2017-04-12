@@ -26,7 +26,7 @@ __license__ = 'GPLv2+'
 
 
 class Columns(AbstractColumns):
-    _members = ['name', 'out_of_range', 'value', 'reset', 'clear', 'default',
+    _members = ['name', 'saturate', 'value', 'reset', 'clear', 'default',
                 'min', 'max', 'factory', 'comment']
 
 Columns.indexes = Columns.indexes()
@@ -515,18 +515,11 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         root.set_status_string.connect(self.set_status_string)
 
-        self.reset_icon = (
-            QtWidgets.QApplication.instance().style().standardIcon(
-                    QtWidgets.QStyle.SP_FileDialogBack)
-        )
-        self.clear_icon = (
-            QtWidgets.QApplication.instance().style().standardIcon(
-                    QtWidgets.QStyle.SP_LineEditClearButton)
-        )
-        self.out_of_range_icon = (
-            QtWidgets.QApplication.instance().style().standardIcon(
-                    QtWidgets.QStyle.SP_MessageBoxWarning)
-        )
+        self.reset_icon = '\uf0e2'
+        self.clear_icon = '\uf12d'
+        self.saturate_icon = '\uf066'
+
+        self.icon_font = QtGui.QFont('fontawesome')
 
         self.force_action_decorations = False
 
@@ -539,8 +532,25 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         return flags
 
-    def data_decoration(self, index):
-        if index.column() == Columns.indexes.reset:
+    def data_font(self, index):
+        columns = {
+            Columns.indexes.saturate,
+            Columns.indexes.reset,
+            Columns.indexes.clear,
+        }
+
+        if index.column() in columns:
+            return self.icon_font
+
+        return None
+
+    def data_display(self, index):
+        if index.column() == Columns.indexes.saturate:
+            node = self.node_from_index(index)
+            if node.value is not None:
+                if not (node.min <= node.to_human(node.value) <= node.max):
+                    return self.saturate_icon
+        elif index.column() == Columns.indexes.reset:
             node = self.node_from_index(index)
             if node.can_be_reset() or self.force_action_decorations:
                 return self.reset_icon
@@ -548,13 +558,8 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             node = self.node_from_index(index)
             if node.can_be_cleared() or self.force_action_decorations:
                 return self.clear_icon
-        elif index.column() == Columns.indexes.out_of_range:
-            node = self.node_from_index(index)
-            if node.value is not None:
-                if not (node.min <= node.to_human(node.value) <= node.max):
-                    return self.out_of_range_icon
 
-        return None
+        return super().data_display(index)
 
     def data_tool_tip(self, index):
         if index.column() == Columns.indexes.reset:

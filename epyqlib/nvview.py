@@ -117,7 +117,7 @@ class NvView(QtWidgets.QWidget):
 
         model.force_action_decorations = True
         decoration_only_columns = (
-            model.headers.indexes.out_of_range,
+            model.headers.indexes.saturate,
             model.headers.indexes.clear,
             model.headers.indexes.reset,
         )
