@@ -549,6 +549,12 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         return None
 
+    def data_tool_tip(self, index):
+        if index.column() == Columns.indexes.reset:
+            node = self.node_from_index(index)
+            if node.can_be_reset():
+                return node.format_strings(value=node.reset_value)[0]
+
     def reset_node(self, index):
         node = self.node_from_index(index)
         node.reset()
