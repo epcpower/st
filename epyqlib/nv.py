@@ -25,7 +25,8 @@ __license__ = 'GPLv2+'
 
 
 class Columns(AbstractColumns):
-    _members = ['name', 'value', 'default', 'min', 'max', 'factory']
+    _members = ['name', 'value', 'reset', 'clear', 'default', 'min', 'max',
+                'factory']
 
 Columns.indexes = Columns.indexes()
 
@@ -402,8 +403,20 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             default=self.format_strings(value=int(default))[0],
             factory='True' if factory else ''
         )
-        self.clear()
 
+        self.reset_value = None
+        self.modified = False
+
+        self.clear(mark_modified=False)
+
+    def can_be_reset(self):
+        return self.modified
+
+    def reset(self):
+        if not self.can_be_reset():
+            return
+
+        self.set_value(self.reset_value)
         self.modified = False
 
     def set_value(self, value, force=False, check_range=False):
@@ -414,25 +427,31 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         self.fields.value = self.full_string
         self.modified = False
 
-    def set_data(self, data):
+    def set_data(self, data, mark_modified=False):
         # self.fields.value = value
+        if not self.modified and mark_modified:
+            self.reset_value = self.value
         if data is None:
             self.set_value(data)
         else:
             self.set_human_value(data)
         self.fields.value = self.full_string
-        self.modified = False
+        self.modified = mark_modified
 
-    def clear(self):
-        self.set_value(None)
+    def can_be_cleared(self):
+        return self.value is not None
+
+    def clear(self, mark_modified=True):
+        if not self.can_be_cleared():
+            return
+
+        self.set_data(None, mark_modified=mark_modified)
         try:
             status_signal = self.status_signal
         except AttributeError:
             pass
         else:
             status_signal.set_value(None)
-
-        self.modified = True
 
     def unique(self):
         # TODO: make it more unique
@@ -489,10 +508,16 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         root.set_status_string.connect(self.set_status_string)
 
-        self.modified_icon = (
+        self.reset_icon = (
             QtWidgets.QApplication.instance().style().standardIcon(
-                    QtWidgets.QStyle.SP_DialogResetButton)
+                    QtWidgets.QStyle.SP_FileDialogBack)
         )
+        self.clear_icon = (
+            QtWidgets.QApplication.instance().style().standardIcon(
+                    QtWidgets.QStyle.SP_LineEditClearButton)
+        )
+
+        self.force_action_decorations = False
 
     def flags(self, index):
         flags = super().flags(index)
@@ -504,23 +529,36 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         return flags
 
     def data_decoration(self, index):
-        if index.column() == Columns.indexes.value:
+        if index.column() == Columns.indexes.reset:
             node = self.node_from_index(index)
-            if node.modified:
-                return self.modified_icon
+            if node.can_be_reset() or self.force_action_decorations:
+                return self.reset_icon
+        elif index.column() == Columns.indexes.clear:
+            node = self.node_from_index(index)
+            if node.can_be_cleared() or self.force_action_decorations:
+                return self.clear_icon
 
         return None
+
+    def reset_node(self, index):
+        node = self.node_from_index(index)
+        node.reset()
+        self.changed(node, 0, node, len(Columns()), [])
+
+    def clear_node(self, index):
+        node = self.node_from_index(index)
+        node.clear()
+        self.changed(node, 0, node, len(Columns()), [])
 
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.value:
             if role == Qt.EditRole:
                 node = self.node_from_index(index)
                 try:
-                    node.set_data(data)
+                    node.set_data(data, mark_modified=True)
                 except ValueError:
                     return False
 
-                node.modified = True
                 self.dataChanged.emit(index, index)
                 return True
 

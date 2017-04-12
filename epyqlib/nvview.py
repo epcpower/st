@@ -55,6 +55,8 @@ class NvView(QtWidgets.QWidget):
             name=True,
             value=True)
 
+        self.ui.tree_view.clicked.connect(self.clicked)
+
     def write_to_module(self):
         model = self.ui.tree_view.model()
         only_these = [nv for nv in model.root.children
@@ -107,6 +109,26 @@ class NvView(QtWidgets.QWidget):
             epyqlib.nv.Columns.indexes.factory,
             all(len(nv.fields.factory) == 0 for nv in model.root.children)
         )
+
+        model.force_action_decorations = True
+        decoration_only_columns = (
+            model.headers.indexes.clear,
+            model.headers.indexes.reset
+        )
+        for column in decoration_only_columns:
+            self.ui.tree_view.resizeColumnToContents(column)
+            self.ui.tree_view.header().setSectionResizeMode(
+                column, QtWidgets.QHeaderView.Fixed)
+        model.force_action_decorations = False
+
+    def clicked(self, index):
+        model = self.ui.tree_view.model()
+
+        column = index.column()
+        if column == model.headers.indexes.reset:
+            model.reset_node(index)
+        elif column == model.headers.indexes.clear:
+            model.clear_node(index)
 
     def _current_changed(self, new_index, old_index):
         model = self.ui.tree_view.model()
