@@ -420,6 +420,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         self.modified = False
 
     def set_value(self, value, force=False, check_range=False):
+        self.reset_value = value
         epyqlib.canneo.Signal.set_value(self,
                                         value=value,
                                         force=force,
@@ -429,12 +430,13 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
 
     def set_data(self, data, mark_modified=False):
         # self.fields.value = value
-        if not self.modified and mark_modified:
-            self.reset_value = self.value
+        reset_value = self.reset_value
         if data is None:
             self.set_value(data)
         else:
             self.set_human_value(data, check_range=True)
+        if mark_modified:
+            self.reset_value = reset_value
         self.fields.value = self.full_string
         self.modified = mark_modified
 
