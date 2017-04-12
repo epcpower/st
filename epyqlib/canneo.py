@@ -88,9 +88,6 @@ class Signal(QObject):
 
         self.value = None
         self.scaled_value = None
-        self.full_string = None
-        self.short_string = None
-        self.enumeration_text = None
 
         self.frame = frame
         # TODO: put this into the frame!
@@ -107,6 +104,9 @@ class Signal(QObject):
 
         self._format = None
 
+        self.full_string, self.short_string, self.enumeration_text = (
+            self.format_strings(value=self.value)
+        )
         if connect is not None:
             self.connect(connect)
 
