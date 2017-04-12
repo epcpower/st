@@ -396,7 +396,6 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         factory = '<factory>' in (self.comment + self.frame.comment)
 
         self.reset_value = None
-        self.modified = False
 
         self.clear(mark_modified=False)
 
@@ -417,7 +416,6 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             return
 
         self.set_value(self.reset_value)
-        self.modified = False
 
     def set_value(self, value, force=False, check_range=False):
         self.reset_value = value
@@ -426,7 +424,6 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
                                         force=force,
                                         check_range=check_range)
         self.fields.value = self.full_string
-        self.modified = False
 
     def set_data(self, data, mark_modified=False):
         # self.fields.value = value
@@ -442,7 +439,6 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             if mark_modified:
                 self.reset_value = reset_value
         self.fields.value = self.full_string
-        self.modified = mark_modified
 
         return True
 
