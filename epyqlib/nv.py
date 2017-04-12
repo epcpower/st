@@ -427,16 +427,16 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         if self.value is None:
             return False
 
-        return not (self.min <= self.to_human(self.value) <= self.max)
+        return self.to_human(self.value) != self.saturation_value()
 
     def saturate(self):
         if not self.can_be_saturated():
             return
 
-        self.set_data(
-            min(max(self.min, self.to_human(self.value)), self.max),
-            mark_modified=True
-        )
+        self.set_data(self.saturation_value(), mark_modified=True)
+
+    def saturation_value(self):
+        return min(max(self.min, self.to_human(self.value)), self.max)
 
     def can_be_reset(self):
         return self.reset_value != self.value
@@ -590,6 +590,11 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         return super().data_display(index)
 
     def data_tool_tip(self, index):
+        if index.column() == Columns.indexes.saturate:
+            node = self.node_from_index(index)
+            if node.can_be_saturated():
+                return node.format_strings(
+                    value=node.from_human(node.saturation_value()))[0]
         if index.column() == Columns.indexes.reset:
             node = self.node_from_index(index)
             if node.can_be_reset():
