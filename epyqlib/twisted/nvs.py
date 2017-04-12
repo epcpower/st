@@ -95,13 +95,14 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._get()
 
     def read(self, nv_signal, priority=Priority.background, passive=False,
-             all_values=False):
+             all_values=False, all_non_empty=True):
         return self._read_write_request(
             nv_signal=nv_signal,
             read=True,
             priority=priority,
             passive=passive,
-            all_values=all_values
+            all_values=all_values,
+            all_non_empty=all_non_empty,
         )
 
     def write(self, nv_signal, priority=Priority.background, passive=False,
@@ -261,7 +262,11 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self.setTimeout(None)
 
         if request.all_values:
-            value = {s: s.to_human(value=v) for s, v in signals.items()}
+            if request.all_non_empty:
+                value = {s: s.to_human(value=v) for s, v in signals.items()}
+            else:
+                value = {s: s.to_human(value=v) for s, v in signals.items()
+                         if s is request.signal.status_signal}
         else:
             raw_value = signals[status_signal]
             value = status_signal.to_human(value=raw_value)

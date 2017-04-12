@@ -220,9 +220,14 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             all_non_empty=all_non_empty,
         )
 
-    def read_all_from_device(self, only_these=None, callback=None):
-        return self._read_write_all(read=True, only_these=only_these,
-                                    callback=callback)
+    def read_all_from_device(self, only_these=None, callback=None,
+                             all_non_empty=True):
+        return self._read_write_all(
+            read=True,
+            only_these=only_these,
+            callback=callback,
+            all_non_empty=all_non_empty,
+        )
 
     def _read_write_all(self, read, only_these=None, callback=None,
                         all_non_empty=True):
@@ -235,7 +240,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
         already_visited_frames = set()
 
-        def handle_node(node, _=None):
+        def handle_node(node, _=None, all_non_empty=all_non_empty):
             if node.frame not in already_visited_frames:
                 already_visited_frames.add(node.frame)
                 node.frame.update_from_signals()
@@ -245,7 +250,8 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                             node,
                             priority=epyqlib.twisted.nvs.Priority.user,
                             passive=True,
-                            all_values=True
+                            all_values=True,
+                            all_non_empty=all_non_empty,
                         )
                     )
                 elif node.frame.read_write.min <= 0:
