@@ -146,8 +146,6 @@ class Signal(QObject):
                     index = int(raw_value)
 
                 value = float(index)
-            elif len(raw_value) == 0:
-                value = 0
             else:
                 value = locale.atof(raw_value)
         else:
