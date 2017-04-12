@@ -169,6 +169,8 @@ class NvView(QtWidgets.QWidget):
         write = menu.addAction('Write {}'.format(
             self.ui.write_to_module_button.text()))
         clear = menu.addAction('Clear Local')
+        if not node.can_be_cleared():
+            clear.setDisabled(True)
 
         action = menu.exec(self.ui.tree_view.viewport().mapToGlobal(position))
 
