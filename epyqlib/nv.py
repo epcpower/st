@@ -410,7 +410,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         )
 
     def can_be_reset(self):
-        return self.modified
+        return self.reset_value != self.value
 
     def reset(self):
         if not self.can_be_reset():
