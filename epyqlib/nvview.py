@@ -172,7 +172,13 @@ class NvView(QtWidgets.QWidget):
             self.ui.read_from_module_button.text()))
         write = menu.addAction('Write {}'.format(
             self.ui.write_to_module_button.text()))
-        clear = menu.addAction('Clear Local')
+        saturate = menu.addAction('Saturate')
+        if not node.can_be_saturated():
+            saturate.setDisabled(True)
+        reset = menu.addAction('Reset')
+        if not node.can_be_reset():
+            reset.setDisabled(True)
+        clear = menu.addAction('Clear')
         if not node.can_be_cleared():
             clear.setDisabled(True)
 
@@ -186,6 +192,10 @@ class NvView(QtWidgets.QWidget):
         elif action is write:
             model.root.write_all_to_device(only_these=(node,),
                                            callback=self.update_signals)
+        elif action is saturate:
+            model.saturate_node(index)
+        elif action is reset:
+            model.reset_node(index)
         elif action is clear:
             model.clear_node(index)
 
