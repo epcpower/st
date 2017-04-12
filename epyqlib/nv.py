@@ -455,14 +455,14 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
                                         check_range=check_range)
         self.fields.value = self.full_string
 
-    def set_data(self, data, mark_modified=False):
+    def set_data(self, data, mark_modified=False, check_range=True):
         # self.fields.value = value
         reset_value = self.reset_value
         try:
             if data is None:
                 self.set_value(data)
             else:
-                self.set_human_value(data, check_range=True)
+                self.set_human_value(data, check_range=check_range)
         except ValueError:
             return False
         finally:
