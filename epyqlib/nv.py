@@ -434,7 +434,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         if data is None:
             self.set_value(data)
         else:
-            self.set_human_value(data)
+            self.set_human_value(data, check_range=True)
         self.fields.value = self.full_string
         self.modified = mark_modified
 
