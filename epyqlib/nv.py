@@ -516,6 +516,10 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             QtWidgets.QApplication.instance().style().standardIcon(
                     QtWidgets.QStyle.SP_LineEditClearButton)
         )
+        self.out_of_range_icon = (
+            QtWidgets.QApplication.instance().style().standardIcon(
+                    QtWidgets.QStyle.SP_MessageBoxWarning)
+        )
 
         self.force_action_decorations = False
 
@@ -537,6 +541,11 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             node = self.node_from_index(index)
             if node.can_be_cleared() or self.force_action_decorations:
                 return self.clear_icon
+        elif index.column() == Columns.indexes.value:
+            node = self.node_from_index(index)
+            if node.value is not None:
+                if not (node.min <= node.to_human(node.value) <= node.max):
+                    return self.out_of_range_icon
 
         return None
 
