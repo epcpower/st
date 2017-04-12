@@ -431,14 +431,20 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
     def set_data(self, data, mark_modified=False):
         # self.fields.value = value
         reset_value = self.reset_value
-        if data is None:
-            self.set_value(data)
-        else:
-            self.set_human_value(data, check_range=True)
-        if mark_modified:
-            self.reset_value = reset_value
+        try:
+            if data is None:
+                self.set_value(data)
+            else:
+                self.set_human_value(data, check_range=True)
+        except ValueError:
+            return False
+        finally:
+            if mark_modified:
+                self.reset_value = reset_value
         self.fields.value = self.full_string
         self.modified = mark_modified
+
+        return True
 
     def can_be_cleared(self):
         return self.value is not None
@@ -571,13 +577,10 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         if index.column() == Columns.indexes.value:
             if role == Qt.EditRole:
                 node = self.node_from_index(index)
-                try:
-                    node.set_data(data, mark_modified=True)
-                except ValueError:
-                    return False
+                success = node.set_data(data, mark_modified=True)
 
                 self.dataChanged.emit(index, index)
-                return True
+                return success
 
         return False
 
