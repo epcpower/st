@@ -421,13 +421,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             return
 
         self.set_data(
-            min(
-                max(
-                    self.from_human(self.min),
-                    self.value
-                ),
-                self.from_human(self.max)
-            ),
+            min(max(self.min, self.to_human(self.value)), self.max),
             mark_modified=True
         )
 
