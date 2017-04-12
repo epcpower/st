@@ -53,7 +53,11 @@ class NvView(QtWidgets.QWidget):
 
         self.resize_columns = epyqlib.nv.Columns(
             name=True,
-            value=True)
+            value=True,
+            min=True,
+            max=True,
+            factory=True,
+    )
 
         self.ui.tree_view.clicked.connect(self.clicked)
 
