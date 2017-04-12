@@ -44,6 +44,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
             Qt.BackgroundRole: self.data_background,
             Qt.DecorationRole: self.data_decoration,
             Qt.ToolTipRole: self.data_tool_tip,
+            Qt.FontRole: self.data_font,
         }
 
     def headerData(self, section, orientation, role):
@@ -96,6 +97,9 @@ class PyQAbstractItemModel(QAbstractItemModel):
         return None
 
     def data_tool_tip(self, index):
+        return None
+
+    def data_font(self, index):
         return None
 
     def data(self, index, role):
