@@ -148,10 +148,15 @@ class Signal(QObject):
                 value = float(index)
             else:
                 value = locale.atof(raw_value)
+        elif raw_value is None:
+            value = raw_value
         else:
             value = float(raw_value)
 
-        self.set_value(value=self.from_human(value),
+        if value is not None:
+            value = self.from_human(value)
+
+        self.set_value(value=value,
                        force=force,
                        check_range=check_range)
 
