@@ -117,8 +117,9 @@ class NvView(QtWidgets.QWidget):
 
         model.force_action_decorations = True
         decoration_only_columns = (
+            model.headers.indexes.out_of_range,
             model.headers.indexes.clear,
-            model.headers.indexes.reset
+            model.headers.indexes.reset,
         )
         for column in decoration_only_columns:
             self.ui.tree_view.resizeColumnToContents(column)

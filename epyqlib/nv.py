@@ -26,8 +26,8 @@ __license__ = 'GPLv2+'
 
 
 class Columns(AbstractColumns):
-    _members = ['name', 'value', 'reset', 'clear', 'default', 'min', 'max',
-                'factory', 'comment']
+    _members = ['name', 'out_of_range', 'value', 'reset', 'clear', 'default',
+                'min', 'max', 'factory', 'comment']
 
 Columns.indexes = Columns.indexes()
 
@@ -548,7 +548,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             node = self.node_from_index(index)
             if node.can_be_cleared() or self.force_action_decorations:
                 return self.clear_icon
-        elif index.column() == Columns.indexes.value:
+        elif index.column() == Columns.indexes.out_of_range:
             node = self.node_from_index(index)
             if node.value is not None:
                 if not (node.min <= node.to_human(node.value) <= node.max):
