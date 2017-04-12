@@ -106,9 +106,6 @@ class NvView(QtWidgets.QWidget):
             epyqlib.nv.Columns.indexes.value,
             epyqlib.delegates.ByFunction(model=model, parent=self)
         )
-        self.ui.tree_view.selectionModel().currentChanged.connect(
-            self._current_changed)
-        self.ui.tree_view.setSelectionMode(self.ui.tree_view.MultiSelection)
 
         self.ui.tree_view.setColumnHidden(
             epyqlib.nv.Columns.indexes.factory,
@@ -137,21 +134,6 @@ class NvView(QtWidgets.QWidget):
             model.reset_node(index)
         elif column == model.headers.indexes.clear:
             model.clear_node(index)
-
-    def _current_changed(self, new_index, old_index):
-        model = self.ui.tree_view.model()
-        new = model.node_from_index(new_index)
-
-        selection_model = self.ui.tree_view.selectionModel()
-
-        selection_model.clearSelection()
-        nodes = set(new.frame.signals) & set(model.root.children)
-        nodes.discard(new)
-        for node in nodes:
-            selection_model.select(
-                model.index_from_node(node),
-                QItemSelectionModel.Select | QItemSelectionModel.Rows
-            )
 
     @pyqtSlot(str)
     def set_status_string(self, string):
