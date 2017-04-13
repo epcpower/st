@@ -1,7 +1,7 @@
 import itertools
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
-from math import pi, isinf, sqrt, asin, ceil, cos, sin, floor
+from math import pi, isinf, sqrt, asin, ceil, cos, sin, floor, ceil
 
 # See file COPYING in this source tree
 __copyright__ = ('\n'.join([
@@ -72,9 +72,9 @@ class QScale(QtWidgets.QWidget):
             wLabel, hLabel = hLabel, wLabel
 
         if width is None:
-            width = 2 * self.m_borderWidth + wLabel + 1
+            width = ceil(2 * self.m_borderWidth + wLabel + 1)
         if height is None:
-            height = 2 * (1 + self.m_borderWidth + hLabel)
+            height = ceil(2 * (1 + self.m_borderWidth + hLabel))
 
         if vertical:
             height, width = width, height
