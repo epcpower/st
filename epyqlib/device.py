@@ -468,7 +468,15 @@ class Device:
                 self.nvs.changed.connect(nv_model.changed)
 
                 for view in nv_views:
-                    view.setModel(nv_model)
+                    proxy = QSortFilterProxyModel()
+                    proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
+                    proxy.setSourceModel(nv_model)
+                    view.setModel(proxy)
+                    view.set_sorting_enabled(True)
+                    view.sort_by_column(
+                        column=epyqlib.nv.Columns.indexes.name,
+                        order=Qt.AscendingOrder
+                    )
 
         if Elements.variables in self.elements:
             variable_model = epyqlib.variableselectionmodel.VariableModel(

@@ -93,6 +93,7 @@ class VariableSelection(QtWidgets.QWidget):
             model = self.nonproxy_model()
             model.load_selection(filename=filename)
 
+    # TODO: CAMPid 07943342700734207878034207087
     def nonproxy_model(self):
         model = self.ui.view.model
         while isinstance(model, QSortFilterProxyModel):

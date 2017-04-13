@@ -192,8 +192,6 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                     )
                 nv.status_signal.set_signal = nv
 
-        # TODO: this should probably be done in the view but this is easier for now
-        self.children.sort(key=lambda c: (c.frame.mux_name, c.name))
 
         duplicate_names = set()
         found_names = set()

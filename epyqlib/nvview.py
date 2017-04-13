@@ -10,7 +10,7 @@ import twisted.internet.defer
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QFile, QFileInfo, QTextStream,
                           QCoreApplication, Qt, QItemSelectionModel,
-                          QModelIndex)
+                          QModelIndex, QSortFilterProxyModel)
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -62,20 +62,35 @@ class NvView(QtWidgets.QWidget):
 
         self.ui.tree_view.clicked.connect(self.clicked)
 
-    def write_to_module(self):
+    # TODO: CAMPid 07943342700734207878034207087
+    def nonproxy_model(self):
         model = self.ui.tree_view.model()
+        while isinstance(model, QSortFilterProxyModel):
+            model = model.sourceModel()
+
+        return model
+
+    def set_sorting_enabled(self, enabled):
+        self.ui.tree_view.setSortingEnabled(enabled)
+
+    def sort_by_column(self, column, order):
+        self.ui.tree_view.sortByColumn(column, order)
+
+    def write_to_module(self):
+        model = self.nonproxy_model()
         only_these = [nv for nv in model.root.children
                       if nv.value is not None]
         model.root.write_all_to_device(callback=self.update_signals,
                                        only_these = only_these)
 
     def read_from_module(self):
-        model = self.ui.tree_view.model()
+        model = self.nonproxy_model()
         model.root.read_all_from_device(callback=self.update_signals)
 
     def setModel(self, model):
         self.ui.tree_view.setModel(model)
 
+        model = self.nonproxy_model()
         model.set_status_string.connect(self.set_status_string)
 
         self.ui.module_to_nv.connect(model.module_to_nv)
@@ -125,7 +140,7 @@ class NvView(QtWidgets.QWidget):
         model.force_action_decorations = False
 
     def clicked(self, index):
-        model = self.ui.tree_view.model()
+        model = self.nonproxy_model()
 
         column = index.column()
         if column == model.headers.indexes.saturate:
@@ -141,11 +156,12 @@ class NvView(QtWidgets.QWidget):
 
     def context_menu(self, position):
         index = self.ui.tree_view.indexAt(position)
+        index = self.ui.tree_view.model().mapToSource(index)
 
         if not index.isValid():
             return
 
-        model = self.ui.tree_view.model()
+        model = self.nonproxy_model()
         node = model.node_from_index(index)
 
         menu = QtWidgets.QMenu(parent=self.ui.tree_view)
@@ -184,7 +200,7 @@ class NvView(QtWidgets.QWidget):
             model.clear_node(index)
 
     def update_signals(self, d):
-        model = self.ui.tree_view.model()
+        model = self.nonproxy_model()
 
         for signal, value in d.items():
             # TODO: don't hardcode this here, some general 'ignore me' property
