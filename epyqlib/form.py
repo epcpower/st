@@ -65,9 +65,10 @@ class EpcForm(QWidget):
 
         can_file = self.can_file
 
+        imported = ()
         new_form_window = (
             QDesignerFormWindowInterface.findFormWindow(self))
-        if new_form_window != self.form_window:
+        if self.neo is None:
             if self.form_window is not None:
                 self.form_window.fileNameChanged.disconnect(
                     self.form_window_file_name_changed)
@@ -78,27 +79,23 @@ class EpcForm(QWidget):
                 self.form_window.fileNameChanged.connect(
                     self.form_window_file_name_changed)
 
-        if self.form_window is not None:
-            if not os.path.isabs(can_file):
-                can_file = os.path.join(
-                    os.path.dirname(self.form_window.fileName()),
-                    can_file
-                )
+            if self.form_window is not None:
+                if not os.path.isabs(can_file):
+                    can_file = os.path.join(
+                        os.path.dirname(self.form_window.fileName()),
+                        can_file
+                    )
 
-        try:
-            imported = list(canmatrix.formats.loadp(can_file).values())
-        except FileNotFoundError:
-            imported = []
+            try:
+                imported = list(canmatrix.formats.loadp(can_file).values())
+            except (FileNotFoundError, IsADirectoryError):
+                pass
 
         widgets = self.findChildren(
                 epyqlib.widgets.abstractwidget.AbstractWidget)
 
-        try:
-            matrix = imported[0]
-        except IndexError:
-            self.neo = None
-        else:
-            self.neo = epyqlib.canneo.Neo(matrix=matrix)
+        if len(imported) > 0:
+            self.neo = epyqlib.canneo.Neo(matrix=imported[0])
 
         for widget in widgets:
             self.update_widget(widget=widget)
@@ -110,18 +107,24 @@ class EpcForm(QWidget):
         if self.neo is None:
             widget.set_signal(force_update=True)
         else:
-            frame_name = widget.property('frame')
-            signal_name = widget.property('signal')
-
+            # TODO: CAMPid 07340793413419714301373147
             widget.set_range(min=0, max=100)
             widget.set_value(math.nan)
 
-            # TODO: add some notifications
-            frame = self.neo.frame_by_name(frame_name)
+            frame = widget.property('frame')
             if frame is not None:
-                signal = frame.signal_by_name(signal_name)
-                if signal is not None:
-                    widget.set_signal(signal)
+                signal = widget.property('signal')
+                signal_path = (frame, signal)
+            else:
+                signal_path = tuple(
+                    e for e in widget._signal_path if len(e) > 0)
+
+            try:
+                signal = self.neo.signal_by_path(*signal_path)
+            except epyqlib.canneo.NotFoundError:
+                pass
+            else:
+                widget.set_signal(signal)
 
 
 if __name__ == '__main__':

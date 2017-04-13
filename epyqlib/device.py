@@ -559,6 +559,7 @@ class Device:
             frames = dash.connected_frames
 
             for widget in widgets:
+                # TODO: CAMPid 07340793413419714301373147
                 widget.set_range(min=0, max=100)
                 try:
                     widget.set_value(default_widget_value)
