@@ -238,10 +238,10 @@ class Signal(QObject):
                 self.format_strings(value=value_parameter)
             )
 
-        if value_parameter is None:
-            self.value_changed.emit(float('nan'))
-        else:
-            self.value_changed.emit(value)
+            if value_parameter is None:
+                self.value_changed.emit(float('nan'))
+            else:
+                self.value_changed.emit(value)
 
     def format_strings(self, value):
         if value is None or (type(value) is float and math.isnan(value)):
