@@ -49,6 +49,7 @@ class QScale(QtWidgets.QWidget):
 
         self.breakpoints = []
         self.colors = []
+        self.setMinimumSize()
 
     def setMinimumSize(self, width=None, height=None, painter=None):
         self.updateLabelSample()
