@@ -208,9 +208,13 @@ class NvView(QtWidgets.QWidget):
             # TODO: don't hardcode this here, some general 'ignore me' property
             if signal.name not in {'__padding__', 'ParameterResponse_MUX',
                                    'ParameterQuery_MUX', 'ReadParam_status'}:
-                signal.set_signal.set_data(value, check_range=False)
-
-        model.dataChanged.emit(QModelIndex(), QModelIndex())
+                signal = signal.set_signal
+                signal.set_data(value, check_range=False)
+                for column in range(signal.fields.indexes.saturate,
+                                    signal.fields.indexes.clear + 1):
+                    model.changed(signal, column,
+                                  signal, column,
+                                  (Qt.DisplayRole,))
 
 
 if __name__ == '__main__':
