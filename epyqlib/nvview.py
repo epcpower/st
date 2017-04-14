@@ -88,7 +88,8 @@ class NvView(QtWidgets.QWidget):
         model.root.read_all_from_device(callback=self.update_signals)
 
     def setModel(self, model):
-        self.ui.tree_view.setModel(model)
+        proxy = model
+        self.ui.tree_view.setModel(proxy)
 
         model = self.nonproxy_model()
         model.set_status_string.connect(self.set_status_string)
@@ -119,7 +120,7 @@ class NvView(QtWidgets.QWidget):
 
         self.ui.tree_view.setItemDelegateForColumn(
             epyqlib.nv.Columns.indexes.value,
-            epyqlib.delegates.ByFunction(model=model, parent=self)
+            epyqlib.delegates.ByFunction(model=model, proxy=proxy, parent=self)
         )
 
         self.ui.tree_view.setColumnHidden(

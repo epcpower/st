@@ -16,13 +16,16 @@ def default(node):
 
 
 class ByFunction(QtWidgets.QStyledItemDelegate):
-    def __init__(self, model, parent, function=default):
+    def __init__(self, model, parent, proxy=None, function=default):
         QtWidgets.QStyledItemDelegate.__init__(self, parent=parent)
 
         self.model = model
+        self.proxy = proxy
         self.function = function
 
     def createEditor(self, parent, option, index):
+        if self.proxy is not None:
+            index = self.proxy.mapToSource(index)
         # TODO: way too particular
         node = self.model.node_from_index(index)
 
