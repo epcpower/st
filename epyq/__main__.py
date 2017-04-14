@@ -93,10 +93,22 @@ class Window(QtWidgets.QMainWindow):
         self.ui.device_tree.setModel(self.device_tree_model)
         self.ui.device_tree.device_selected.connect(self.set_current_device)
 
+        self.ui.collapse_button.clicked.connect(self.collapse_expand)
+        size_hint = self.ui.collapse_button.sizeHint()
+        size_hint.setWidth(0.75 * size_hint.width())
+        size_hint.setHeight(6 * size_hint.width())
+        self.ui.collapse_button.setMinimumSize(size_hint)
+        self.ui.collapse_button.setMaximumSize(size_hint)
+
         self.subwindows = set()
 
     def closeEvent(self, event):
         self.device_tree_model.terminate()
+
+    def collapse_expand(self):
+        self.ui.device_tree.setVisible(not self.ui.device_tree.isVisible())
+        self.ui.collapse_button.setArrowType(
+            Qt.LeftArrow if self.ui.device_tree.isVisible() else Qt.RightArrow)
 
     def dialog_from_file(self, title, file_name):
         # The Qt Installer Framework (QtIFW) likes to do a few things to license files...
