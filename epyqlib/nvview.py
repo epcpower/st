@@ -141,6 +141,7 @@ class NvView(QtWidgets.QWidget):
 
     def clicked(self, index):
         model = self.nonproxy_model()
+        index = self.ui.tree_view.model().mapToSource(index)
 
         column = index.column()
         if column == model.headers.indexes.saturate:
