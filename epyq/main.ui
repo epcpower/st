@@ -19,22 +19,22 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="DeviceTreeView" name="device_tree">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QToolButton" name="collapse_button">
       <property name="text">
        <string/>
       </property>
       <property name="arrowType">
        <enum>Qt::LeftArrow</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="DeviceTreeView" name="device_tree">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
      </widget>
     </item>
