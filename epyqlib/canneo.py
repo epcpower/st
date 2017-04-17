@@ -401,9 +401,9 @@ class Frame(QtCanListener):
         self._cyclic_requests = {}
         self._cyclic_period = None
         self.user_send_control = True
+        self.block_cyclic = False
         self.timer = QTimer()
-        _update_and_send = functools.partial(self._send, update=True)
-        self.timer.timeout.connect(_update_and_send)
+        self.timer.timeout.connect(self._update_and_send)
 
         self.format_str = None
         self.data = None
@@ -432,6 +432,10 @@ class Frame(QtCanListener):
                 if set_value_to_default:
                     neo_signal.set_human_value(
                         offset + (default_value * factor))
+
+    def _update_and_send(self):
+        if not self.block_cyclic:
+            self._send(update=True)
 
     def signal_by_name(self, name):
         try:
