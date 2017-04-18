@@ -204,17 +204,17 @@ class NvView(QtWidgets.QWidget):
     def update_signals(self, d):
         model = self.nonproxy_model()
 
-        for signal, value in d.items():
-            # TODO: don't hardcode this here, some general 'ignore me' property
-            if signal.name not in {'__padding__', 'ParameterResponse_MUX',
-                                   'ParameterQuery_MUX', 'ReadParam_status'}:
-                signal = signal.set_signal
+        frame = next(iter(d)).frame
+
+        for signal in frame.set_frame.parameter_signals:
+            if signal.status_signal in d:
+                value = d[signal.status_signal]
                 signal.set_data(value, check_range=False)
-                for column in range(signal.fields.indexes.saturate,
-                                    signal.fields.indexes.clear + 1):
-                    model.changed(signal, column,
-                                  signal, column,
-                                  (Qt.DisplayRole,))
+            for column in range(signal.fields.indexes.saturate,
+                                signal.fields.indexes.clear + 1):
+                model.changed(signal, column,
+                              signal, column,
+                              (Qt.DisplayRole,))
 
 
 if __name__ == '__main__':
