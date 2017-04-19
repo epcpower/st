@@ -81,12 +81,22 @@ class NvView(QtWidgets.QWidget):
         model = self.nonproxy_model()
         only_these = [nv for nv in model.root.children
                       if nv.value is not None]
-        model.root.write_all_to_device(callback=self.update_signals,
-                                       only_these = only_these)
+        callback = functools.partial(
+            self.update_signals,
+            only_these=only_these
+        )
+        model.root.write_all_to_device(callback=callback,
+                                       only_these=only_these)
 
     def read_from_module(self):
         model = self.nonproxy_model()
-        model.root.read_all_from_device(callback=self.update_signals)
+        only_these = [nv for nv in model.root.children]
+        callback = functools.partial(
+            self.update_signals,
+            only_these=only_these
+        )
+        model.root.read_all_from_device(callback=callback,
+                                        only_these=only_these)
 
     def setModel(self, model):
         proxy = model
