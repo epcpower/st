@@ -222,6 +222,8 @@ class NvView(QtWidgets.QWidget):
             if signal.status_signal in d:
                 value = d[signal.status_signal]
                 signal.set_data(value, check_range=False)
+
+        for signal in frame.set_frame.parameter_signals:
             for column in range(signal.fields.indexes.saturate,
                                 signal.fields.indexes.clear + 1):
                 model.changed(signal, column,
