@@ -164,9 +164,9 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                     return epyqlib.utils.twisted.errbackhook(
                         failure)
 
-                def send(signal=signals[0]):
-                    d = self.protocol.write(
-                        nv_signal=signal,
+                def send(signals=signals):
+                    d = self.protocol.write_multiple(
+                        nv_signals=signals,
                         priority=epyqlib.twisted.nvs.Priority.user
                     )
                     d.addErrback(ignore_timeout)
@@ -209,26 +209,21 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     def names(self):
         return '\n'.join([n.fields.name for n in self.children])
 
-    def write_all_to_device(self, only_these=None, callback=None,
-                            all_non_empty=True):
+    def write_all_to_device(self, only_these=None, callback=None):
         return self._read_write_all(
             read=False,
             only_these=only_these,
             callback=callback,
-            all_non_empty=all_non_empty,
         )
 
-    def read_all_from_device(self, only_these=None, callback=None,
-                             all_non_empty=True):
+    def read_all_from_device(self, only_these=None, callback=None):
         return self._read_write_all(
             read=True,
             only_these=only_these,
             callback=callback,
-            all_non_empty=all_non_empty,
         )
 
-    def _read_write_all(self, read, only_these=None, callback=None,
-                        all_non_empty=True):
+    def _read_write_all(self, read, only_these=None, callback=None):
         activity = ('Reading from device' if read
                     else 'Writing to device')
 
@@ -238,7 +233,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
         already_visited_frames = set()
 
-        def handle_node(node, _=None, all_non_empty=all_non_empty):
+        def handle_node(node, _=None):
             if node.frame not in already_visited_frames:
                 already_visited_frames.add(node.frame)
                 node.frame.update_from_signals()
@@ -249,7 +244,6 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                             priority=epyqlib.twisted.nvs.Priority.user,
                             passive=True,
                             all_values=True,
-                            all_non_empty=all_non_empty,
                         )
                     )
                 elif node.frame.read_write.min <= 0:
@@ -259,7 +253,32 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                             priority=epyqlib.twisted.nvs.Priority.user,
                             passive=True,
                             all_values=True,
-                            all_non_empty=all_non_empty,
+                        )
+                    )
+                else:
+                    return
+
+                if callback is not None:
+                    d.addCallback(callback)
+
+        def handle_frame(frame, signals):
+                frame.update_from_signals()
+                if read:
+                    d.addCallback(
+                        lambda _: self.protocol.read_multiple(
+                            nv_signals=signals,
+                            priority=epyqlib.twisted.nvs.Priority.user,
+                            passive=True,
+                            all_values=True,
+                        )
+                    )
+                elif frame.read_write.min <= 0:
+                    d.addCallback(
+                        lambda _: self.protocol.write_multiple(
+                            nv_signals=signals,
+                            priority=epyqlib.twisted.nvs.Priority.user,
+                            passive=True,
+                            all_values=True,
                         )
                     )
                 else:
@@ -271,8 +290,12 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         if only_these is None:
             self.traverse(call_this=handle_node)
         else:
-            for node in only_these:
-                handle_node(node=node)
+            frames = set(nv.frame for nv in only_these)
+            for frame in frames:
+                signals = tuple(nv for nv in only_these
+                                if nv.frame is frame)
+
+                handle_frame(frame=frame, signals=signals)
 
         d.addCallback(epyqlib.utils.twisted.detour_result,
                       self.set_status_string.emit,

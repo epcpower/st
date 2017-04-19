@@ -188,12 +188,10 @@ class NvView(QtWidgets.QWidget):
             pass
         elif action is read:
             model.root.read_all_from_device(only_these=(node,),
-                                            callback=self.update_signals,
-                                            all_non_empty=False)
+                                            callback=self.update_signals)
         elif action is write:
             model.root.write_all_to_device(only_these=(node,),
-                                           callback=self.update_signals,
-                                           all_non_empty=False)
+                                           callback=self.update_signals)
         elif action is saturate:
             model.saturate_node(index)
         elif action is reset:

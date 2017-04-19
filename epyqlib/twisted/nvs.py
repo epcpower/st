@@ -40,11 +40,10 @@ class Priority(enum.IntEnum):
 class Request:
     priority = attr.ib()
     read = attr.ib(cmp=False)
-    signal = attr.ib(cmp=False)
+    signals = attr.ib(cmp=False)
     deferred = attr.ib(cmp=False)
     passive = attr.ib(cmp=False)
     all_values = attr.ib(cmp=False)
-    all_non_empty = attr.ib(cmp=False)
     signal_backup = attr.ib(default=attr.Factory(dict), cmp=False)
 
 
@@ -95,18 +94,29 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._get()
 
     def read(self, nv_signal, priority=Priority.background, passive=False,
-             all_values=False, all_non_empty=True):
+             all_values=False):
         return self._read_write_request(
-            nv_signal=nv_signal,
+            nv_signals=(nv_signal,),
             read=True,
             priority=priority,
             passive=passive,
             all_values=all_values,
-            all_non_empty=all_non_empty,
+        )
+
+    def read_multiple(self, nv_signals, priority=Priority.background,
+                      passive=False, all_values=False):
+        # TODO: make sure all signals are from the same frame
+        return self._read_write_request(
+            nv_signals=nv_signals,
+            read=True,
+            priority=priority,
+            passive=passive,
+            all_values=all_values,
         )
 
     def write(self, nv_signal, priority=Priority.background, passive=False,
-              ignore_read_only=False, all_values=False, all_non_empty=True):
+              ignore_read_only=False, all_values=False):
+        # TODO: make sure all signals are from the same frame
         if nv_signal.frame.read_write.min > 0:
             if ignore_read_only:
                 return
@@ -114,25 +124,39 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
                 raise ReadOnlyError()
 
         return self._read_write_request(
-            nv_signal=nv_signal,
+            nv_signals=(nv_signal,),
             read=False,
             priority=priority,
             passive=passive,
             all_values=all_values,
-            all_non_empty=all_non_empty
         )
 
-    def _read_write_request(self, nv_signal, read, priority, passive,
-                            all_values, all_non_empty=True):
+    def write_multiple(self, nv_signals, priority=Priority.background,
+                       passive=False, ignore_read_only=False, all_values=False):
+        if nv_signals[0].frame.read_write.min > 0:
+            if ignore_read_only:
+                return
+            else:
+                raise ReadOnlyError()
+
+        return self._read_write_request(
+            nv_signals=nv_signals,
+            read=False,
+            priority=priority,
+            passive=passive,
+            all_values=all_values,
+        )
+
+    def _read_write_request(self, nv_signals, read, priority, passive,
+                            all_values):
         deferred = twisted.internet.defer.Deferred()
         self._put(Request(
             read=read,
-            signal=nv_signal,
+            signals=nv_signals,
             deferred=deferred,
             priority=priority,
             passive=passive,
             all_values=all_values,
-            all_non_empty=all_non_empty
         ))
 
         return deferred
@@ -154,14 +178,14 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
                     self._read_before_write(request)
 
     def _read_before_write(self, request):
-        frame = request.signal.frame
+        frame = request.signals[0].frame
 
-        if request.all_non_empty:
-            skip_signals = [s for s in frame.parameter_signals
-                            if s.value is None]
-        else:
-            skip_signals = [s for s in frame.parameter_signals
-                            if s is not request.signal]
+        nonskip = {
+            s: s.value
+            for s in request.signals
+        }
+
+        skip_signals = set(frame.parameter_signals) - set(nonskip.keys())
 
         if len(skip_signals) == 0:
             self._read_write(request)
@@ -169,22 +193,14 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
             d = twisted.internet.defer.Deferred()
             d.callback(None)
 
-            nonskip = {
-                s: s.value
-                for s in frame.parameter_signals
-                if s not in skip_signals
-            }
-
-            proxy_signal = next(iter(nonskip.keys()))
-
             def read_then_write(values, skip_signals=skip_signals,
                                 request=request):
                 request.signal_backup = {s: s.value for s in skip_signals}
                 for signal in skip_signals:
                     signal.set_human_value(values[signal.status_signal])
 
-                return self.write(
-                    proxy_signal,
+                return self.write_multiple(
+                    frame.parameter_signals,
                     all_values=True
                 )
 
@@ -199,8 +215,8 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
                 request.deferred.callback(data)
 
-            d.addCallback(lambda _: self.read(
-                proxy_signal,
+            d.addCallback(lambda _: self.read_multiple(
+                frame.parameter_signals,
                 all_values=True
             ))
             d.addCallback(read_then_write)
@@ -212,19 +228,20 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._start_transaction()
         self.state = State.reading if request.read else State.writing
 
+        frame = request.signals[0].frame
         read_write, = (k for k, v
-                       in request.signal.frame.read_write.enumeration.items()
+                       in frame.read_write.enumeration.items()
                        if v == ('Read' if request.read else 'Write'))
 
-        request.signal.frame.read_write.set_data(read_write)
-        request.signal.frame.update_from_signals()
+        frame.read_write.set_data(read_write)
+        frame.update_from_signals()
 
         if request.passive:
             write = self._transport.write_passive
         else:
             write = self._transport.write
 
-        write(request.signal.frame.to_message())
+        write(frame.to_message())
         self.setTimeout(self._timeout)
 
         self._request_memory = request
@@ -238,7 +255,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
             return
 
         request = self._request_memory
-        status_signal = request.signal.status_signal
+        status_signal = request.signals[0].status_signal
 
         if status_signal is None:
             return
@@ -262,11 +279,9 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self.setTimeout(None)
 
         if request.all_values:
-            if request.all_non_empty:
-                value = {s: s.to_human(value=v) for s, v in signals.items()}
-            else:
-                value = {s: s.to_human(value=v) for s, v in signals.items()
-                         if s is request.signal.status_signal}
+            status_signals = {s.status_signal for s in request.signals}
+            value = {s: s.to_human(value=v) for s, v in signals.items()
+                     if s in status_signals}
         else:
             raw_value = signals[status_signal]
             value = status_signal.to_human(value=raw_value)
@@ -275,7 +290,8 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
     def timeoutConnection(self):
         request = self._request_memory
-        status_signal = request.signal.status_signal
+        # TODO: report all requested signals
+        status_signal = request.signals[0].status_signal
         message = 'Protocol timed out while in state {} handling ' \
                   '{} : {}'.format(
             self.state,
