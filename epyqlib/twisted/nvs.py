@@ -195,7 +195,11 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
             def read_then_write(values, skip_signals=skip_signals,
                                 request=request):
-                request.signal_backup = {s: s.value for s in skip_signals}
+                request.signal_backup = {
+                    s: (s.value, s.reset_value)
+                    for s in skip_signals
+                }
+
                 for signal in skip_signals:
                     signal.set_human_value(values[signal.status_signal])
 
@@ -210,8 +214,9 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
                     for signal in nonskip
                 }
 
-                for signal, value in request.signal_backup.items():
+                for signal, (value, reset) in request.signal_backup.items():
                     signal.set_value(value)
+                    signal.reset_value = reset
 
                 request.deferred.callback(data)
 
