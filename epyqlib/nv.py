@@ -624,18 +624,15 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             node = self.node_from_index(index)
             return '\n'.join(textwrap.wrap(node.comment, 60))
 
-    def saturate_node(self, index):
-        node = self.node_from_index(index)
+    def saturate_node(self, node):
         node.saturate()
         self.changed(node, 0, node, len(Columns()), [])
 
-    def reset_node(self, index):
-        node = self.node_from_index(index)
+    def reset_node(self, node):
         node.reset()
         self.changed(node, 0, node, len(Columns()), [])
 
-    def clear_node(self, index):
-        node = self.node_from_index(index)
+    def clear_node(self, node):
         node.clear()
         self.changed(node, 0, node, len(Columns()), [])
 

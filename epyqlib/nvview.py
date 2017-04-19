@@ -46,10 +46,11 @@ class NvView(QtWidgets.QWidget):
         self.ui.write_to_file_button.clicked.connect(self.write_to_file)
         self.ui.read_from_file_button.clicked.connect(self.read_from_file)
 
-        self.ui.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.ui.tree_view.customContextMenuRequested.connect(
-            self.context_menu
-        )
+        view = self.ui.tree_view
+        view.setContextMenuPolicy(Qt.CustomContextMenu)
+        view.customContextMenuRequested.connect(self.context_menu)
+        view.setSelectionBehavior(view.SelectRows)
+        view.setSelectionMode(view.ExtendedSelection)
 
         self.resize_columns = epyqlib.nv.Columns(
             name=True,
@@ -143,28 +144,32 @@ class NvView(QtWidgets.QWidget):
     def clicked(self, index):
         model = self.nonproxy_model()
         index = self.ui.tree_view.model().mapToSource(index)
+        node = model.node_from_index(index)
 
         column = index.column()
         if column == model.headers.indexes.saturate:
-            model.saturate_node(index)
+            model.saturate_node(node)
         elif column == model.headers.indexes.reset:
-            model.reset_node(index)
+            model.reset_node(node)
         elif column == model.headers.indexes.clear:
-            model.clear_node(index)
+            model.clear_node(node)
 
     @pyqtSlot(str)
     def set_status_string(self, string):
         self.ui.status_label.setText(string)
 
     def context_menu(self, position):
-        index = self.ui.tree_view.indexAt(position)
-        index = self.ui.tree_view.model().mapToSource(index)
-
-        if not index.isValid():
-            return
+        proxy = self.ui.tree_view.model()
 
         model = self.nonproxy_model()
-        node = model.node_from_index(index)
+        selection_model = self.ui.tree_view.selectionModel()
+        selected_indexes = selection_model.selectedRows()
+        selected_indexes = tuple(
+            proxy.mapToSource(i) for i in selected_indexes
+        )
+        selected_nodes = tuple(
+            model.node_from_index(i) for i in selected_indexes
+        )
 
         menu = QtWidgets.QMenu(parent=self.ui.tree_view)
 
@@ -173,38 +178,47 @@ class NvView(QtWidgets.QWidget):
         write = menu.addAction('Write {}'.format(
             self.ui.write_to_module_button.text()))
         saturate = menu.addAction('Saturate')
-        if not node.can_be_saturated():
+        if not any(n.can_be_saturated() for n in selected_nodes):
             saturate.setDisabled(True)
         reset = menu.addAction('Reset')
-        if not node.can_be_reset():
+        if not any(n.can_be_reset() for n in selected_nodes):
             reset.setDisabled(True)
         clear = menu.addAction('Clear')
-        if not node.can_be_cleared():
+        if not any(n.can_be_cleared() for n in selected_nodes):
             clear.setDisabled(True)
 
         action = menu.exec(self.ui.tree_view.viewport().mapToGlobal(position))
 
+        callback = functools.partial(
+            self.update_signals,
+            only_these=selected_nodes
+        )
         if action is None:
             pass
         elif action is read:
-            model.root.read_all_from_device(only_these=(node,),
-                                            callback=self.update_signals)
+            model.root.read_all_from_device(only_these=selected_nodes,
+                                            callback=callback)
         elif action is write:
-            model.root.write_all_to_device(only_these=(node,),
-                                           callback=self.update_signals)
+            model.root.write_all_to_device(only_these=selected_nodes,
+                                           callback=callback)
         elif action is saturate:
-            model.saturate_node(index)
+            for node in selected_nodes:
+                model.saturate_node(node)
         elif action is reset:
-            model.reset_node(index)
+            for node in selected_nodes:
+                model.reset_node(node)
         elif action is clear:
-            model.clear_node(index)
+            for node in selected_nodes:
+                model.clear_node(node)
 
-    def update_signals(self, d):
+    def update_signals(self, d, only_these):
         model = self.nonproxy_model()
 
         frame = next(iter(d)).frame
 
-        for signal in frame.set_frame.parameter_signals:
+        signals = set(only_these) & set(frame.set_frame.parameter_signals)
+
+        for signal in signals:
             if signal.status_signal in d:
                 value = d[signal.status_signal]
                 signal.set_data(value, check_range=False)
