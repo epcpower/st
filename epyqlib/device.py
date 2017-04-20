@@ -202,6 +202,13 @@ class Device:
 
         self.ui_paths = json_ui_paths
 
+        hierarchy_path = d.get('parameter_hierarchy', None)
+        if hierarchy_path is None:
+            hierarchy = None
+        else:
+            with open(self.absolute_path(hierarchy_path)) as f:
+                hierarchy = json.load(f)
+
         for tab in Tabs:
             try:
                 value = d['tabs'][tab.name]
@@ -239,6 +246,7 @@ class Device:
                 d.get('can_path', None),
                 d.get('compatibility', None),
                 d.get('parameter_defaults', None),
+                d.get('parameter_hierarchy', None),
                 *self.ui_paths.values()
             ]
             if f is not None
@@ -265,6 +273,7 @@ class Device:
                 edit_actions=edit_actions,
                 nv_configuration=d.get('nv_configuration'),
                 can_configuration=d.get('can_configuration'),
+                hierarchy=hierarchy,
                 **kwargs)
 
     def _init_from_zip(self, zip_file, rx_interval=0, **kwargs):
@@ -302,7 +311,8 @@ class Device:
 
     def _init_from_parameters(self, uis, serial_number, name, bus=None,
                               tabs=None, rx_interval=0, edit_actions=None,
-                              nv_configuration=None, can_configuration=None):
+                              nv_configuration=None, can_configuration=None,
+                              hierarchy=None):
         if tabs is None:
             tabs = Tabs.defaults()
 
@@ -433,7 +443,8 @@ class Device:
             self.nvs = epyqlib.nv.Nvs(
                 neo=self.frames_nv,
                 bus=self.bus,
-                configuration=nv_configuration
+                configuration=nv_configuration,
+                hierarchy=hierarchy,
             )
 
             if 'parameter_defaults' in self.raw_dict:
@@ -444,8 +455,9 @@ class Device:
                 with open(parameter_defaults_path) as f:
                     self.nvs.defaults_from_dict(json.load(f))
                     for nv in self.nvs.children:
-                        nv.fields.default = nv.format_strings(
-                            value=int(nv.default_value))[0]
+                        if isinstance(nv, epyqlib.nv.Nv):
+                            nv.fields.default = nv.format_strings(
+                                value=int(nv.default_value))[0]
 
             self.widget_frames_nv = epyqlib.canneo.Neo(
                 matrix=matrix_nv,

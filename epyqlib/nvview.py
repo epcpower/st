@@ -79,7 +79,7 @@ class NvView(QtWidgets.QWidget):
 
     def write_to_module(self):
         model = self.nonproxy_model()
-        only_these = [nv for nv in model.root.children
+        only_these = [nv for nv in model.all_nv()
                       if nv.value is not None]
         callback = functools.partial(
             self.update_signals,
@@ -90,7 +90,7 @@ class NvView(QtWidgets.QWidget):
 
     def read_from_module(self):
         model = self.nonproxy_model()
-        only_these = [nv for nv in model.root.children]
+        only_these = [nv for nv in model.all_nv()]
         callback = functools.partial(
             self.update_signals,
             only_these=only_these
@@ -119,15 +119,10 @@ class NvView(QtWidgets.QWidget):
         )
         self.ui.write_to_file.connect(write_to_file)
 
-        self.ui.tree_view.header().setStretchLastSection(False)
-
         for i in epyqlib.nv.Columns.indexes:
             if self.resize_columns[i]:
                 self.ui.tree_view.header().setSectionResizeMode(
                     i, QtWidgets.QHeaderView.ResizeToContents)
-        # TODO: would be nice to share between message and signal perhaps?
-        self.ui.tree_view.header().setSectionResizeMode(
-            epyqlib.nv.Columns.indexes.value, QtWidgets.QHeaderView.Stretch)
 
         self.ui.tree_view.setItemDelegateForColumn(
             epyqlib.nv.Columns.indexes.value,
@@ -136,7 +131,7 @@ class NvView(QtWidgets.QWidget):
 
         self.ui.tree_view.setColumnHidden(
             epyqlib.nv.Columns.indexes.factory,
-            not any(nv.fields.factory for nv in model.root.children)
+            not any(nv.fields.factory for nv in model.root.all_nv())
         )
 
         model.force_action_decorations = True
@@ -157,13 +152,14 @@ class NvView(QtWidgets.QWidget):
         index = self.ui.tree_view.model().mapToSource(index)
         node = model.node_from_index(index)
 
-        column = index.column()
-        if column == model.headers.indexes.saturate:
-            model.saturate_node(node)
-        elif column == model.headers.indexes.reset:
-            model.reset_node(node)
-        elif column == model.headers.indexes.clear:
-            model.clear_node(node)
+        if isinstance(node, epyqlib.nv.Nv):
+            column = index.column()
+            if column == model.headers.indexes.saturate:
+                model.saturate_node(node)
+            elif column == model.headers.indexes.reset:
+                model.reset_node(node)
+            elif column == model.headers.indexes.clear:
+                model.clear_node(node)
 
     @pyqtSlot(str)
     def set_status_string(self, string):
@@ -172,7 +168,26 @@ class NvView(QtWidgets.QWidget):
     def context_menu(self, position):
         proxy = self.ui.tree_view.model()
 
+        index = self.ui.tree_view.indexAt(position)
+        index = proxy.mapToSource(index)
+
         model = self.nonproxy_model()
+
+        node = model.node_from_index(index)
+        node_type = type(node)
+
+        dispatch = {
+            epyqlib.nv.Nv: self.nv_context_menu
+        }
+
+        f = dispatch.get(node_type)
+        if f is not None:
+            f(position)
+
+    def nv_context_menu(self, position):
+        proxy = self.ui.tree_view.model()
+        model = self.nonproxy_model()
+
         selection_model = self.ui.tree_view.selectionModel()
         selected_indexes = selection_model.selectedRows()
         selected_indexes = tuple(
@@ -180,6 +195,9 @@ class NvView(QtWidgets.QWidget):
         )
         selected_nodes = tuple(
             model.node_from_index(i) for i in selected_indexes
+        )
+        selected_nodes = tuple(
+            node for node in selected_nodes if isinstance(node, epyqlib.nv.Nv)
         )
 
         menu = QtWidgets.QMenu(parent=self.ui.tree_view)

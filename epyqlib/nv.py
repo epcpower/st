@@ -67,12 +67,20 @@ configurations = {
 }
 
 
+@attr.s
+class Group(TreeNode):
+    fields = attr.ib(default=attr.Factory(Columns))
+
+    def __attrs_post_init__(self):
+        super().__init__()
+
+
 class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
     set_status_string = pyqtSignal(str)
 
     def __init__(self, neo, bus, stop_cyclic=None, start_cyclic=None,
-                 configuration=None, parent=None):
+                 configuration=None, hierarchy=None, parent=None):
         TreeNode.__init__(self)
         epyqlib.canneo.QtCanListener.__init__(self, parent=parent)
 
@@ -142,6 +150,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                     save_status_name
                 ))
 
+        self.nv_by_path = {}
         # TODO: kind of an ugly manual way to connect this
         self.status_frames[0].set_frame = self.set_frames[0]
         for value, frame in self.set_frames.items():
@@ -176,7 +185,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             frame.parameter_signals = []
             for nv in signals:
                 if nv.name not in [self.configuration.to_nv_command]:
-                    self.append_child(nv)
+                    self.nv_by_path[nv.signal_path()] = nv
                     frame.parameter_signals.append(nv)
 
                 nv.frame.status_frame = self.status_frames[value]
@@ -193,9 +202,63 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                 nv.status_signal.set_signal = nv
 
 
+        unreferenced_paths = set(self.nv_by_path)
+        if hierarchy is not None:
+            print('yeppers')
+            def handle(children, tree_parent,
+                       unreferenced_paths=unreferenced_paths):
+                unreferenced_groups = []
+                print(children, tree_parent)
+                for child in children:
+                    print(child)
+                    if isinstance(child, dict):
+                        group = Group(
+                            fields=Columns(
+                                name=child['name'],
+                            )
+                        )
+                        tree_parent.append_child(group)
+                        print('added group: {}'.format(group.fields.name))
+                        if child.get('unreferenced'):
+                            unreferenced_groups.append(group)
+                        else:
+
+                            unreferenced_groups.extend(handle(
+                                children=child.get('children', ()),
+                                tree_parent=group
+                            ))
+                    else:
+                        path = ('ParameterQuery',) + tuple(child)
+                        if path in unreferenced_paths:
+                            tree_parent.append_child(self.nv_by_path[path])
+                            unreferenced_paths.discard(path)
+                        else:
+                            raise Exception('Attempted to put parameter in '
+                                            'multiple groups: {}'.format(path))
+
+                return tuple(g for g in unreferenced_groups if g is not None)
+
+            unreferenced_groups = handle(children=hierarchy['children'],
+                                      tree_parent=self)
+
+            print('\\/ \\/ \\/ unreferenced parameter paths')
+            print(
+                json.dumps(
+                    tuple(p[1:] for p in sorted(unreferenced_paths)),
+                    indent=4
+                )
+            )
+            print('/\\ /\\ /\\ unreferenced parameter paths')
+        else:
+            unreferenced_groups = (self,)
+
+        for group in unreferenced_groups:
+            for path in unreferenced_paths:
+                group.append_child(self.nv_by_path[path])
+
         duplicate_names = set()
         found_names = set()
-        for child in self.children:
+        for child in self.all_nv():
             name = child.fields.name
             if name not in found_names:
                 found_names.add(name)
@@ -206,8 +269,21 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             raise Exception('Duplicate NV parameter names found: {}'.format(
                 ', '.join(duplicate_names)))
 
+    def all_nv(self):
+        def visit(node, all):
+            if isinstance(node, Nv):
+                all.add(node)
+            else:
+                for child in node.children:
+                    visit(child, all)
+
+        all = set()
+        visit(self, all)
+
+        return all
+
     def names(self):
-        return '\n'.join([n.fields.name for n in self.children])
+        return '\n'.join([n.fields.name for n in self.all_nv()])
 
     def write_all_to_device(self, only_these=None, callback=None):
         return self._read_write_all(
@@ -234,6 +310,9 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         already_visited_frames = set()
 
         def handle_node(node, _=None):
+            if not isinstance(node, Nv):
+                return
+
             if node.frame not in already_visited_frames:
                 already_visited_frames.add(node.frame)
                 node.frame.update_from_signals()
@@ -333,7 +412,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
     def to_dict(self, include_secrets=False):
         d = {}
-        for child in self.children:
+        for child in self.all_nv():
             if include_secrets or not child.secret:
                 d[child.fields.name] = child.get_human_value(for_file=True)
 
@@ -342,7 +421,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     def from_dict(self, d):
         only_in_file = list(d.keys())
 
-        for child in self.children:
+        for child in self.all_nv():
             value = d.get(child.fields.name, None)
             if value is not None:
                 child.set_human_value(value)
@@ -358,7 +437,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     def defaults_from_dict(self, d):
         only_in_file = list(d.keys())
 
-        for child in self.children:
+        for child in self.all_nv():
             value = d.get(child.fields.name, None)
             if value is not None:
                 child.default_value = child.from_human(float(value))
@@ -443,6 +522,9 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             factory=factory,
             comment=self.comment,
         )
+
+    def signal_path(self):
+        return self.frame.signal_path() + (self.name,)
 
     def can_be_saturated(self):
         if self.value is None:
@@ -537,6 +619,12 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
                 self.mux = signal
                 break
 
+    def signal_path(self):
+        if self.mux_name is None:
+            return self.name,
+        else:
+            return self.name, self.mux_name
+
     def update_from_signals(self, for_read=False, function=None):
         epyqlib.canneo.Frame.update_from_signals(self, function=function)
 
@@ -572,11 +660,14 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.force_action_decorations = False
 
+    def all_nv(self):
+        return self.root.all_nv()
+
     def flags(self, index):
         flags = super().flags(index)
         node = self.node_from_index(index)
 
-        if node.frame.read_write.min > 0:
+        if not isinstance(node, epyqlib.nv.Nv) or node.frame.read_write.min > 0:
             flags &= ~Qt.ItemIsEditable
 
         return flags
@@ -597,42 +688,49 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     def data_display(self, index):
         if index.column() == Columns.indexes.saturate:
             node = self.node_from_index(index)
-            if node.value is not None:
-                if node.can_be_saturated():
-                    return self.saturate_icon
+            if isinstance(node, epyqlib.nv.Nv):
+                if node.value is not None:
+                    if node.can_be_saturated():
+                        return self.saturate_icon
         elif index.column() == Columns.indexes.reset:
             node = self.node_from_index(index)
-            if node.can_be_reset() or self.force_action_decorations:
-                return self.reset_icon
+            if isinstance(node, epyqlib.nv.Nv):
+                if node.can_be_reset() or self.force_action_decorations:
+                    return self.reset_icon
         elif index.column() == Columns.indexes.clear:
             node = self.node_from_index(index)
-            if node.can_be_cleared() or self.force_action_decorations:
-                return self.clear_icon
+            if isinstance(node, epyqlib.nv.Nv):
+                if node.can_be_cleared() or self.force_action_decorations:
+                    return self.clear_icon
         elif index.column() == Columns.indexes.factory:
             node = self.node_from_index(index)
-            if node.fields.factory:
-                return self.factory_icon
-            else:
-                return None
+            if isinstance(node, epyqlib.nv.Nv):
+                if node.fields.factory:
+                    return self.factory_icon
+                else:
+                    return None
 
         return super().data_display(index)
 
     def data_tool_tip(self, index):
         if index.column() == Columns.indexes.saturate:
             node = self.node_from_index(index)
-            if node.can_be_saturated():
-                return node.format_strings(
-                    value=node.from_human(node.saturation_value()))[0]
+            if isinstance(node, epyqlib.nv.Nv):
+                if node.can_be_saturated():
+                    return node.format_strings(
+                        value=node.from_human(node.saturation_value()))[0]
         if index.column() == Columns.indexes.reset:
             node = self.node_from_index(index)
-            if node.can_be_reset():
-                return node.format_strings(value=node.reset_value)[0]
+            if isinstance(node, epyqlib.nv.Nv):
+                if node.can_be_reset():
+                    return node.format_strings(value=node.reset_value)[0]
         elif index.column() == Columns.indexes.comment:
             node = self.node_from_index(index)
-            comment = node.fields.comment
-            if comment is None:
-                comment = ''
-            return '\n'.join(textwrap.wrap(comment, 60))
+            if isinstance(node, epyqlib.nv.Nv):
+                comment = node.fields.comment
+                if comment is None:
+                    comment = ''
+                return '\n'.join(textwrap.wrap(comment, 60))
 
     def saturate_node(self, node):
         node.saturate()
