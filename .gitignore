@@ -1,10 +1,9 @@
 /venv/
-/activate
-/activate.bat
+/activate*
 generated/
 *.stats
 *.exe
-designer*
+/designer*
 epyq/_version.py
 version.txt
 
