@@ -633,6 +633,13 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
     def send_now(self):
         self._send.emit()
 
+
+@attr.s
+class Icon:
+    character = attr.ib()
+    check = attr.ib()
+
+
 class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     set_status_string = pyqtSignal(str)
 
@@ -653,10 +660,18 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         root.set_status_string.connect(self.set_status_string)
 
-        self.reset_icon = '\uf0e2'
-        self.clear_icon = '\uf057'
-        self.saturate_icon = '\uf066'
-        self.factory_icon = '\uf084'
+        self.icons = Columns(
+            reset=Icon(character='\uf0e2', check='can_be_reset'),
+            clear=Icon(character='\uf057', check='can_be_cleared'),
+            saturate=Icon(character='\uf066', check='can_be_saturated'),
+            factory=Icon(character='\uf084', check='is_factory'),
+        )
+
+        self.icon_columns = set(
+            index
+            for index, icon in zip(self.icons.indexes, self.icons)
+            if icon is not None
+        )
 
         self.icon_font = QtGui.QFont('fontawesome')
 
@@ -675,40 +690,20 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         return flags
 
     def data_font(self, index):
-        columns = {
-            Columns.indexes.saturate,
-            Columns.indexes.reset,
-            Columns.indexes.clear,
-            Columns.indexes.factory
-        }
-
-        if index.column() in columns:
+        if index.column() in self.icon_columns:
             return self.icon_font
 
         return None
 
     def data_display(self, index):
-        if index.column() == Columns.indexes.saturate:
+        column = index.column()
+        icon = self.icons[column]
+        if icon is not None:
             node = self.node_from_index(index)
             if isinstance(node, epyqlib.nv.Nv):
-                if node.value is not None:
-                    if node.can_be_saturated():
-                        return self.saturate_icon
-        elif index.column() == Columns.indexes.reset:
-            node = self.node_from_index(index)
-            if isinstance(node, epyqlib.nv.Nv):
-                if node.can_be_reset() or self.force_action_decorations:
-                    return self.reset_icon
-        elif index.column() == Columns.indexes.clear:
-            node = self.node_from_index(index)
-            if isinstance(node, epyqlib.nv.Nv):
-                if node.can_be_cleared() or self.force_action_decorations:
-                    return self.clear_icon
-        elif index.column() == Columns.indexes.factory:
-            node = self.node_from_index(index)
-            if isinstance(node, epyqlib.nv.Nv):
-                if node.is_factory() or self.force_action_decorations:
-                    return self.factory_icon
+                check = getattr(node, icon.check)
+                if check() or self.force_action_decorations:
+                    return icon.character
 
         return super().data_display(index)
 

@@ -57,7 +57,6 @@ class NvView(QtWidgets.QWidget):
             value=True,
             min=True,
             max=True,
-            factory=True,
             comment=True,
         )
 
@@ -135,13 +134,7 @@ class NvView(QtWidgets.QWidget):
         )
 
         model.force_action_decorations = True
-        decoration_only_columns = (
-            model.headers.indexes.saturate,
-            model.headers.indexes.clear,
-            model.headers.indexes.reset,
-            model.headers.indexes.factory
-        )
-        for column in decoration_only_columns:
+        for column in model.icon_columns:
             self.ui.tree_view.resizeColumnToContents(column)
             self.ui.tree_view.header().setSectionResizeMode(
                 column, QtWidgets.QHeaderView.Fixed)
