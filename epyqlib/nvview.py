@@ -136,7 +136,7 @@ class NvView(QtWidgets.QWidget):
 
         self.ui.tree_view.setColumnHidden(
             epyqlib.nv.Columns.indexes.factory,
-            all(len(nv.fields.factory) == 0 for nv in model.root.children)
+            not any(nv.fields.factory for nv in model.root.children)
         )
 
         model.force_action_decorations = True
@@ -144,6 +144,7 @@ class NvView(QtWidgets.QWidget):
             model.headers.indexes.saturate,
             model.headers.indexes.clear,
             model.headers.indexes.reset,
+            model.headers.indexes.factory
         )
         for column in decoration_only_columns:
             self.ui.tree_view.resizeColumnToContents(column)

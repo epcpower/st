@@ -440,7 +440,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             min=self.format_float(value=self.min),
             max=self.format_float(value=self.max),
             default=self.format_strings(value=int(default))[0],
-            factory='True' if factory else '',
+            factory=factory,
             comment=self.comment,
         )
 
@@ -559,7 +559,6 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                                min='Min',
                                max='Max',
                                default='Default',
-                               factory='Factory',
                                comment='Comment')
 
         root.set_status_string.connect(self.set_status_string)
@@ -567,6 +566,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.reset_icon = '\uf0e2'
         self.clear_icon = '\uf057'
         self.saturate_icon = '\uf066'
+        self.factory_icon = '\uf023'
 
         self.icon_font = QtGui.QFont('fontawesome')
 
@@ -586,6 +586,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             Columns.indexes.saturate,
             Columns.indexes.reset,
             Columns.indexes.clear,
+            Columns.indexes.factory
         }
 
         if index.column() in columns:
@@ -607,6 +608,12 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             node = self.node_from_index(index)
             if node.can_be_cleared() or self.force_action_decorations:
                 return self.clear_icon
+        elif index.column() == Columns.indexes.factory:
+            node = self.node_from_index(index)
+            if node.fields.factory:
+                return self.factory_icon
+            else:
+                return None
 
         return super().data_display(index)
 
