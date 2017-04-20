@@ -622,7 +622,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 return node.format_strings(value=node.reset_value)[0]
         elif index.column() == Columns.indexes.comment:
             node = self.node_from_index(index)
-            return '\n'.join(textwrap.wrap(node.comment, 60))
+            return '\n'.join(textwrap.wrap(node.fields.comment, 60))
 
     def saturate_node(self, node):
         node.saturate()
