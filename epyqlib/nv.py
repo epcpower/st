@@ -507,7 +507,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         if default is None:
             default = 0
 
-        factory = '<factory>' in (self.comment + self.frame.comment)
+        self.factory = '<factory>' in (self.comment + self.frame.comment)
 
         self.reset_value = None
 
@@ -519,7 +519,6 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             min=self.format_float(value=self.min),
             max=self.format_float(value=self.max),
             default=self.format_strings(value=int(default))[0],
-            factory=factory,
             comment=self.comment,
         )
 
@@ -589,6 +588,9 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             pass
         else:
             status_signal.set_value(None)
+
+    def is_factory(self):
+        return self.factory
 
     def unique(self):
         # TODO: make it more unique
@@ -705,10 +707,8 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         elif index.column() == Columns.indexes.factory:
             node = self.node_from_index(index)
             if isinstance(node, epyqlib.nv.Nv):
-                if node.fields.factory:
+                if node.is_factory() or self.force_action_decorations:
                     return self.factory_icon
-                else:
-                    return None
 
         return super().data_display(index)
 

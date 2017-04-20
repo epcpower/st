@@ -131,7 +131,7 @@ class NvView(QtWidgets.QWidget):
 
         self.ui.tree_view.setColumnHidden(
             epyqlib.nv.Columns.indexes.factory,
-            not any(nv.fields.factory for nv in model.root.all_nv())
+            not any(nv.is_factory() for nv in model.root.all_nv())
         )
 
         model.force_action_decorations = True
