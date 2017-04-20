@@ -62,7 +62,8 @@ def del_rw(action, name, exc):
         os.remove(name)
 
 
-files = ['activate', 'activate.bat', 'designer', 'designer.bat', 'designer.vbs']
+files = ['activate', 'activate.bat', 'activate.ps1',
+         'designer', 'designer.bat', 'designer.ps1', 'designer.vbs']
 
 for file in files:
     silentremove(file)

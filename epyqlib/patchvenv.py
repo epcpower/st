@@ -20,7 +20,8 @@ Activate = collections.namedtuple(
         'set_format',
         'path_separator',
         'pwd',
-        'comment_marker'
+        'comment_marker',
+        'insert_before'
     ]
 )
 
@@ -30,14 +31,24 @@ activate_scripts = {
         set_format='export {name}={value}',
         path_separator=':',
         pwd='$(pwd)',
-        comment_marker='#'
+        comment_marker='#',
+        insert_before=None
     ),
     'activate.bat': Activate(
         windows=True,
         set_format='set {name}={value}',
         path_separator=';',
         pwd='%cd%',
-        comment_marker='REM'
+        comment_marker='REM',
+        insert_before = None
+    ),
+    'activate.ps1': Activate(
+        windows=True,
+        set_format='${name} = "{value}"',
+        path_separator=';',
+        pwd="$((Get-Location).Path)",
+        comment_marker='#',
+        insert_before='# SIG'
     ),
 }
 
@@ -106,11 +117,27 @@ def patch_activate(bin):
                 )
                 set_commands.append(command)
 
-            with open(path, 'a') as f:
-                write_patch_notice(f, script.comment_marker)
+            if script.insert_before is not None:
+                with open(path, 'r') as f:
+                    contents = f.read()
+                with open(path, 'w') as f:
+                    written = False
+                    for line in contents.splitlines():
+                        if line.startswith(script.insert_before) and not written:
+                            written = True
+                            write_patch_notice(f, script.comment_marker)
 
-                for command in set_commands:
-                    f.write(command + '\n')
+                            for command in set_commands:
+                                f.write(command + '\n')
+                            f.write('\n\n')
+
+                        f.write(line + '\n')
+            else:
+                with open(path, 'a') as f:
+                    write_patch_notice(f, script.comment_marker)
+
+                    for command in set_commands:
+                        f.write(command + '\n')
 
 
 def write_activate_shortcuts(root, bin):
@@ -127,7 +154,7 @@ def write_activate_shortcuts(root, bin):
 
 
 def copy_designer_files(root):
-    files = ['designer', 'designer.bat', 'designer.vbs']
+    files = ['designer', 'designer.bat', 'designer.ps1', 'designer.vbs']
 
     for file in files:
         shutil.copy(os.path.join(os.path.dirname(__file__), '..', file),
