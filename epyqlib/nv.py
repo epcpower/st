@@ -26,8 +26,8 @@ __license__ = 'GPLv2+'
 
 
 class Columns(AbstractColumns):
-    _members = ['name', 'factory', 'value', 'saturate', 'reset', 'clear', 'default',
-                'min', 'max', 'comment']
+    _members = ['name', 'read_only', 'factory', 'value', 'saturate', 'reset',
+                'clear', 'default', 'min', 'max', 'comment']
 
 Columns.indexes = Columns.indexes()
 
@@ -592,6 +592,9 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
     def is_factory(self):
         return self.factory
 
+    def is_read_only(self):
+        return self.frame.read_write.min > 0
+
     def unique(self):
         # TODO: make it more unique
         return str(self.fields.name) + '__'
@@ -665,6 +668,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             clear=Icon(character='\uf057', check='can_be_cleared'),
             saturate=Icon(character='\uf066', check='can_be_saturated'),
             factory=Icon(character='\uf084', check='is_factory'),
+            read_only=Icon(character='\uf023', check='is_read_only')
         )
 
         self.icon_columns = set(
@@ -684,7 +688,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         flags = super().flags(index)
         node = self.node_from_index(index)
 
-        if not isinstance(node, epyqlib.nv.Nv) or node.frame.read_write.min > 0:
+        if not isinstance(node, epyqlib.nv.Nv) or node.is_read_only():
             flags &= ~Qt.ItemIsEditable
 
         return flags
