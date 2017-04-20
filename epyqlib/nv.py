@@ -654,7 +654,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         self.reset_icon = '\uf0e2'
         self.clear_icon = '\uf057'
         self.saturate_icon = '\uf066'
-        self.factory_icon = '\uf023'
+        self.factory_icon = '\uf084'
 
         self.icon_font = QtGui.QFont('fontawesome')
 
