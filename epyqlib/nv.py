@@ -232,6 +232,9 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                         if path in unreferenced_paths:
                             tree_parent.append_child(self.nv_by_path[path])
                             unreferenced_paths.discard(path)
+                        elif path not in self.nv_by_path:
+                            print('Unknown parameter referenced: {}'
+                                  .format(path))
                         else:
                             raise Exception('Attempted to put parameter in '
                                             'multiple groups: {}'.format(path))
