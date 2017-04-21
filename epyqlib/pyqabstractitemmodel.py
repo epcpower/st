@@ -18,6 +18,7 @@ __license__ = 'GPLv2+'
 @enum.unique
 class UserRoles(epyqlib.utils.general.AutoNumberIntEnum):
     unique = Qt.UserRole
+    sort = ()
 
 
 class PyQAbstractItemModel(QAbstractItemModel):
@@ -41,6 +42,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
 
         self.role_functions = {
             Qt.DisplayRole: self.data_display,
+            UserRoles.sort: self.data_display,
             UserRoles.unique: self.data_unique,
             Qt.TextAlignmentRole: lambda index: int(self.alignment),
             Qt.CheckStateRole: self.data_check_state,
