@@ -99,6 +99,7 @@ class NvView(QtWidgets.QWidget):
 
     def setModel(self, model):
         proxy = model
+        proxy.setSortRole(epyqlib.pyqabstractitemmodel.UserRoles.sort)
         self.ui.tree_view.setModel(proxy)
 
         model = self.nonproxy_model()

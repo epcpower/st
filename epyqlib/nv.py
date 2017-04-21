@@ -692,6 +692,10 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.force_action_decorations = False
 
+        self.role_functions[epyqlib.pyqabstractitemmodel.UserRoles.sort] = (
+            self.data_sort
+        )
+
     def all_nv(self):
         return self.root.all_nv()
 
@@ -703,6 +707,11 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             flags &= ~Qt.ItemIsEditable
 
         return flags
+
+    def data_sort(self, index):
+        node = self.node_from_index(index)
+
+        return isinstance(node, Group), self.data_display(index)
 
     def data_font(self, index):
         icon = self.icons[index.column()]
