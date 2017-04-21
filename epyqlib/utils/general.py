@@ -1,4 +1,5 @@
 import collections
+import enum
 import itertools
 import math
 import os
@@ -131,3 +132,18 @@ class append_to_method:
         print('assigned {} to {}.{}'.format(f, cls.__name__, self.name))
 
         return cls
+
+
+# Based on https://docs.python.org/3.5/library/enum.html#autonumber
+class AutoNumberIntEnum(enum.IntEnum):
+    def __new__(cls, value=None):
+        if value is None:
+            if len(cls.__members__) == 0:
+                base = 0
+            else:
+                base = tuple(cls.__members__.values())[-1]
+            value = base + 1
+
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        return obj
