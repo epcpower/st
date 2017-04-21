@@ -2,8 +2,10 @@
 
 #TODO: """DocString if there is one"""
 
+import enum
 import weakref
 
+import epyqlib.utils.general
 from epyqlib.treenode import TreeNode
 from PyQt5.QtCore import (Qt, QAbstractItemModel, QVariant,
                           QModelIndex, pyqtSignal, pyqtSlot)
@@ -13,7 +15,9 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-unique_role = Qt.UserRole
+@enum.unique
+class UserRoles(epyqlib.utils.general.AutoNumberIntEnum):
+    unique = Qt.UserRole
 
 
 class PyQAbstractItemModel(QAbstractItemModel):
@@ -37,7 +41,7 @@ class PyQAbstractItemModel(QAbstractItemModel):
 
         self.role_functions = {
             Qt.DisplayRole: self.data_display,
-            unique_role: self.data_unique,
+            UserRoles.unique: self.data_unique,
             Qt.TextAlignmentRole: lambda index: int(self.alignment),
             Qt.CheckStateRole: self.data_check_state,
             Qt.EditRole: self.data_edit,
