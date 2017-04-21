@@ -703,11 +703,14 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         column = index.column()
         icon = self.icons[column]
         if icon is not None:
-            node = self.node_from_index(index)
-            if isinstance(node, epyqlib.nv.Nv):
-                check = getattr(node, icon.check)
-                if check() or self.force_action_decorations:
-                    return icon.character
+            if self.force_action_decorations:
+                return icon.character
+            else:
+                node = self.node_from_index(index)
+                if isinstance(node, epyqlib.nv.Nv):
+                    check = getattr(node, icon.check)
+                    if check():
+                        return icon.character
 
         return super().data_display(index)
 
