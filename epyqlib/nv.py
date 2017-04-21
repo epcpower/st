@@ -641,6 +641,7 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
 class Icon:
     character = attr.ib()
     check = attr.ib()
+    font = attr.ib(QtGui.QFont('fontawesome'))
 
 
 class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
@@ -677,8 +678,6 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             if icon is not None
         )
 
-        self.icon_font = QtGui.QFont('fontawesome')
-
         self.force_action_decorations = False
 
     def all_nv(self):
@@ -694,8 +693,9 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         return flags
 
     def data_font(self, index):
-        if index.column() in self.icon_columns:
-            return self.icon_font
+        icon = self.icons[index.column()]
+        if icon is not None:
+            return icon.font
 
         return None
 
