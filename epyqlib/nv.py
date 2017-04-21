@@ -652,7 +652,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         epyqlib.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
                 self, root=root, editable_columns=editable_columns,
-                parent=parent)
+                alignment=Qt.AlignVCenter | Qt.AlignLeft, parent=parent)
 
         self.headers = Columns(name='Name',
                                value='Value',
