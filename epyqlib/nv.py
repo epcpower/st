@@ -259,6 +259,15 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             for path in unreferenced_paths:
                 group.append_child(self.nv_by_path[path])
 
+        def remove_empty_groups(node):
+            if isinstance(node, Group) and len(node.children) == 0:
+                node.tree_parent.remove_child(child=node)
+            else:
+                for child in node.children:
+                    remove_empty_groups(child)
+
+        remove_empty_groups(self)
+
         duplicate_names = set()
         found_names = set()
         for child in self.all_nv():
