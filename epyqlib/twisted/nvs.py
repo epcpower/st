@@ -272,7 +272,10 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         signals = status_signal.frame.unpack(msg.data, only_return=True)
 
         mux = status_signal.set_signal.frame.mux.value
-        response_mux_value, = (v for k, v in signals.items() if k.name == 'ParameterResponse_MUX')
+        response_mux_value, = (
+            v for k, v in signals.items()
+            if k.name.endswith('_MUX')
+        )
         if response_mux_value != mux:
             return
         response_read_write_value, = (v for k, v in signals.items() if k.name

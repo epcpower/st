@@ -632,7 +632,7 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
                 break
 
         for signal in self.signals:
-            if signal.name in ("ParameterQuery_MUX", "ParameterResponse_MUX"):
+            if signal.name.endswith("_MUX"):
                 self.mux = signal
                 break
 
