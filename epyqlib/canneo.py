@@ -878,6 +878,7 @@ class Neo(QtCanListener):
         logging.debug('{} terminated'.format(object.__repr__(self)))
 
 
+@functools.lru_cache(128)
 def format_identifier(identifier, extended):
     f = '0x{{:0{}X}}'
 
@@ -888,5 +889,6 @@ def format_identifier(identifier, extended):
 
     return f.format(identifier)
 
+@functools.lru_cache(1024)
 def format_data(data):
     return ' '.join(['{:02X}'.format(byte) for byte in data])
