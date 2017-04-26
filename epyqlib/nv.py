@@ -755,7 +755,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     comment = ''
                 return '\n'.join(textwrap.wrap(comment, 60))
 
-    def dynamic_columns_changed(self, node):
+    def dynamic_columns_changed(self, node, roles=(Qt.DisplayRole,)):
         columns = (
             Columns.indexes.value,
             Columns.indexes.saturate,
@@ -764,7 +764,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         )
 
         for column in columns:
-            self.changed(node, column, node, column, [])
+            self.changed(node, column, node, column, roles)
 
     def saturate_node(self, node):
         node.saturate()
