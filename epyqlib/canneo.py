@@ -25,6 +25,126 @@ class NotFoundError(Exception):
     pass
 
 
+@functools.lru_cache(4096)
+def pack_bitstring(length, is_float, value):
+    if is_float:
+        # TODO: CAMPid 097897541967932453154321546542175421549
+        types = {
+            32: '>f',
+            64: '>d'
+        }
+
+        float_type = types.get(length)
+
+        if float_type is None:
+            raise Exception(
+                'float type only supports lengths in [{}]'.
+                    format(', '.join([str(t) for t in types.keys()]))
+            )
+
+        x, = struct.pack(float_type, value)
+
+        bitstring = ''.join('{:08b}'.format(b) for b in x)
+    else:
+        b = value.to_bytes(math.ceil(length/8), byteorder='big',
+                             signed=True)
+        b = '{:0{}b}'.format(int.from_bytes(b, byteorder='big'),
+                             length)
+        bitstring = b[:length]
+
+    return bitstring
+
+
+@functools.lru_cache(4096)
+def unpack_bitstring(length, is_float, is_signed, bits):
+    if is_float:
+        # TODO: CAMPid 097897541967932453154321546542175421549
+        types = {
+            32: '>f',
+            64: '>d'
+        }
+
+        float_type = types.get(length)
+
+        if float_type is None:
+            raise Exception(
+                'float type only supports lengths in [{}]'.
+                    format(', '.join([str(t) for t in types.keys()]))
+            )
+
+        value, = struct.unpack(
+            float_type,
+            bytes(int(''.join(b), 2)
+                      for b in epyqlib.utils.general.grouper(bits, 8))
+        )
+    else:
+        value = int(bits, 2)
+
+        if is_signed and bits[0] == '1':
+            value -= (1 << len(bits))
+
+    return value
+
+
+@functools.lru_cache(4096)
+def bytes_to_bitstrings(data):
+    b = tuple('{:08b}'.format(b) for b in data)
+    little = ''.join(reversed(b))
+    big = ''.join(b)
+
+    return little, big
+
+
+@functools.lru_cache(4096)
+def bitstring_to_signal_list(signals, big, little):
+    unpacked = []
+    for signal in signals:
+        if signal.little_endian:
+            least = 64 - signal.start_bit
+            most = least - signal.signal_size
+
+            bits = little[most:least]
+        else:
+            most = signal.start_bit
+            least = most + signal.signal_size
+
+            bits = big[most:least]
+
+        unpacked.append(signal.unpack_bitstring(bits))
+    return unpacked
+
+
+@functools.lru_cache(4096)
+def signals_to_bytes(length, signals, data):
+    little_bits = [None] * (length * 8)
+    big_bits = list(little_bits)
+    for value, signal in zip(data, signals):
+        bits = signal.pack_bitstring(value)
+
+        if signal.little_endian:
+            least = 64 - signal.start_bit
+            most = least - signal.signal_size
+
+            little_bits[most:least] = bits
+        else:
+            most = signal.start_bit
+            least = most + signal.signal_size
+
+            big_bits[most:least] = bits
+    little_bits = reversed(tuple(epyqlib.utils.general.grouper(
+        little_bits, 8)))
+    little_bits = tuple(itertools.chain(*little_bits))
+    bitstring = ''.join(
+        next(x for x in (l, b, '0') if x is not None)
+        # l if l != ' ' else (b if b != ' ' else '0')
+        for l, b in zip(little_bits, big_bits)
+    )
+    return bytes(
+        int(''.join(b), 2)
+        for b in epyqlib.utils.general.grouper(bitstring, 8)
+    )
+
+
 class Signal(QObject):
     # TODO: but some (progress bar, etc) require an int!
     value_changed = pyqtSignal(float)
@@ -311,61 +431,10 @@ class Signal(QObject):
         if value is None:
             value = 0
 
-        if self.float:
-            # TODO: CAMPid 097897541967932453154321546542175421549
-            types = {
-                32: '>f',
-                64: '>d'
-            }
-
-            float_type = types.get(self.signal_size)
-
-            if float_type is None:
-                raise Exception(
-                    'float type only supports lengths in [{}]'.
-                        format(', '.join([str(t) for t in types.keys()]))
-                )
-
-            x, = struct.pack(float_type, value)
-
-            bitstring = ''.join('{:08b}'.format(b) for b in x)
-        else:
-            b = value.to_bytes(math.ceil(self.signal_size/8), byteorder='big',
-                                 signed=True)
-            b = '{:0{}b}'.format(int.from_bytes(b, byteorder='big'),
-                                self.signal_size)
-            bitstring = b[:self.signal_size]
-
-        return bitstring
+        return pack_bitstring(self.signal_size, self.float, value)
 
     def unpack_bitstring(self, bits):
-        if self.float:
-            # TODO: CAMPid 097897541967932453154321546542175421549
-            types = {
-                32: '>f',
-                64: '>d'
-            }
-
-            float_type = types.get(self.signal_size)
-
-            if float_type is None:
-                raise Exception(
-                    'float type only supports lengths in [{}]'.
-                        format(', '.join([str(t) for t in types.keys()]))
-                )
-
-            value, = struct.unpack(
-                float_type,
-                bytearray(int(''.join(b), 2)
-                          for b in epyqlib.utils.general.grouper(bits, 8))
-            )
-        else:
-            value = int(bits, 2)
-
-            if self.signed and bits[0] == '1':
-                value -= (1 << len(bits))
-
-        return value
+        return unpack_bitstring(self.signal_size, self.float, self.signed, bits)
 
 
 @functools.lru_cache(10000)
@@ -459,6 +528,8 @@ class Frame(QtCanListener):
                     neo_signal.set_human_value(
                         offset + (default_value * factor))
 
+        self.signals = tuple(self.signals)
+
     def _update_and_send(self):
         if not self.block_cyclic:
             self._send(update=True)
@@ -488,62 +559,18 @@ class Frame(QtCanListener):
                 except (TypeError, ValueError):
                     value = 0
                 data.append(value)
+            data = tuple(data)
 
-        little_bits = [None] * (self.size * 8)
-        big_bits = list(little_bits)
-
-        for value, signal in zip(data, self.signals):
-            bits = signal.pack_bitstring(value)
-
-            if signal.little_endian:
-                least = 64 - signal.start_bit
-                most = least - signal.signal_size
-
-                little_bits[most:least] = bits
-            else:
-                most = signal.start_bit
-                least = most + signal.signal_size
-
-                big_bits[most:least] = bits
-
-        little_bits = reversed(tuple(epyqlib.utils.general.grouper(
-            little_bits, 8)))
-        little_bits = tuple(itertools.chain(*little_bits))
-
-        bitstring = ''.join(
-            next(x for x in (l, b, '0') if x is not None)
-            # l if l != ' ' else (b if b != ' ' else '0')
-            for l, b in zip(little_bits, big_bits)
-        )
-
-        return bytearray(
-            int(''.join(b), 2)
-            for b in epyqlib.utils.general.grouper(bitstring, 8)
-        )
+        return signals_to_bytes(self.size, self.signals, data)
 
     def unpack(self, data, report_error=True, only_return=False):
         rx_length = len(data)
         if rx_length != self.size and report_error:
             print('Received message 0x{self.id:08X} with length {rx_length}, expected {self.size}'.format(**locals()))
         else:
-            b = tuple('{:08b}'.format(b) for b in data)
-            little = ''.join(reversed(b))
-            big = ''.join(b)
+            little, big = bytes_to_bitstrings(bytes(data))
 
-            unpacked = []
-            for signal in self.signals:
-                if signal.little_endian:
-                    least = 64 - signal.start_bit
-                    most = least - signal.signal_size
-
-                    bits = little[most:least]
-                else:
-                    most = signal.start_bit
-                    least = most + signal.signal_size
-
-                    bits = big[most:least]
-
-                unpacked.append(signal.unpack_bitstring(bits))
+            unpacked = bitstring_to_signal_list(self.signals, big, little)
 
             if only_return:
                 return dict(zip(self.signals, unpacked))
@@ -830,6 +857,19 @@ class Neo(QtCanListener):
         for frame in self.frames:
             frame.terminate()
 
+        cached_functions = (
+            pack_bitstring,
+            unpack_bitstring,
+            bytes_to_bitstrings,
+            bitstring_to_signal_list,
+            signals_to_bytes,
+        )
+
+        for f in cached_functions:
+            logging.debug('epyqlib.canneo.{}(): {}'.format(
+                f.__name__,
+                f.cache_info(),
+            ))
         logging.debug('{} terminated'.format(object.__repr__(self)))
 
 
