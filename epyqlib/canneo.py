@@ -1,14 +1,15 @@
-import bitstruct
 import can
 from canmatrix import canmatrix
 import copy
 import epyqlib.utils.general
 import functools
+import itertools
 import locale
 import logging
 import math
 from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, QTimer, Qt)
 import re
+import struct
 import sys
 
 # See file COPYING in this source tree
@@ -22,9 +23,6 @@ class OutOfRangeError(ValueError):
 
 class NotFoundError(Exception):
     pass
-
-
-bitstruct_unpack = functools.lru_cache(10000)(bitstruct.unpack)
 
 
 class Signal(QObject):
@@ -76,7 +74,6 @@ class Signal(QObject):
         # self._receiver = signal._receiver # {str} ''
         self.signal_size = int(signal._signalsize) # {int} 2
         self.start_bit = int(signal.getStartbit()) # {int} 0
-        self.ordering_start_bit = signal.getStartbit(bitNumbering=True, startLittle=True)
         self.unit = signal._unit # {str} ''
         self.enumeration = {int(k): v for k, v in signal._values.items()} # {dict} {'0': 'Disable', '2': 'Error', '1': 'Enable', '3': 'N/A'}
         self.signed = signal._is_signed
@@ -220,9 +217,7 @@ class Signal(QObject):
 
             if value not in self.enumeration:
                 # TODO: this should be a subclass or something
-                if self.name == '__padding__':
-                    pass
-                elif self.hexadecimal_output:
+                if self.hexadecimal_output:
                     pass
                 elif self.value is not None:
                     # TODO: CAMPid 9395616283654658598648263423685
@@ -260,10 +255,7 @@ class Signal(QObject):
                 short_string = enum_string
             except KeyError:
                 # TODO: this should be a subclass or something
-                if self.name == '__padding__':
-                    full_string = '__padding__'
-                    short_string = full_string
-                elif self.hexadecimal_output:
+                if self.hexadecimal_output:
                     format = '{{:0{}X}}'.format(math.ceil(self.signal_size/math.log2(16)))
                     full_string = format.format(int(value))
                     short_string = full_string
@@ -313,31 +305,67 @@ class Signal(QObject):
 
         return formatted
 
-    def format(self):
-        if self._format is None:
-            if self.float:
-                # TODO: CAMPid 097897541967932453154321546542175421549
-                types = {
-                    32: 'f',
-                    64: 'd'
-                }
-                try:
-                    type = types[self.signal_size]
-                except KeyError:
-                    raise Exception(
-                        'float type only supports lengths in [{}]'.
+    def pack_bitstring(self, value=None):
+        if value is None:
+            value = self.value
+        if value is None:
+            value = 0
+
+        if self.float:
+            # TODO: CAMPid 097897541967932453154321546542175421549
+            types = {
+                32: '>f',
+                64: '>d'
+            }
+
+            float_type = types.get(self.signal_size)
+
+            if float_type is None:
+                raise Exception(
+                    'float type only supports lengths in [{}]'.
                         format(', '.join([str(t) for t in types.keys()]))
-                    )
-            else:
-                type = 's' if self.signed else 'u'
+                )
 
-            self._format = ''.join((
-                    '<' if self.little_endian else '>',
-                    str(type),
-                    str(self.signal_size)
-            ))
+            x, = struct.pack(float_type, value)
 
-        return self._format
+            bitstring = ''.join('{:08b}'.format(b) for b in x)
+        else:
+            b = value.to_bytes(math.ceil(self.signal_size/8), byteorder='big',
+                                 signed=True)
+            b = '{:0{}b}'.format(int.from_bytes(b, byteorder='big'),
+                                self.signal_size)
+            bitstring = b[:self.signal_size]
+
+        return bitstring
+
+    def unpack_bitstring(self, bits):
+        if self.float:
+            # TODO: CAMPid 097897541967932453154321546542175421549
+            types = {
+                32: '>f',
+                64: '>d'
+            }
+
+            float_type = types.get(self.signal_size)
+
+            if float_type is None:
+                raise Exception(
+                    'float type only supports lengths in [{}]'.
+                        format(', '.join([str(t) for t in types.keys()]))
+                )
+
+            value, = struct.unpack(
+                float_type,
+                bytearray(int(''.join(b), 2)
+                          for b in epyqlib.utils.general.grouper(bits, 8))
+            )
+        else:
+            value = int(bits, 2)
+
+            if self.signed and bits[0] == '1':
+                value -= (1 << len(bits))
+
+        return value
 
 
 @functools.lru_cache(10000)
@@ -396,8 +424,6 @@ class Frame(QtCanListener):
         # self._receiver = frame._receiver # {list} []
         # self._signals = frame._signals # {list} [<canmatrix.canmatrix.Signal object at 0x7fddf8053fd0>, <canmatrix.canmatrix.Signal object at 0x7fddf8054048>, <canmatrix.canmatrix.Signal object at 0x7fddf80543c8>, <canmatrix.canmatrix.Signal object at 0x7fddf8054470>, <canmatrix.canmatrix.Signal object
 
-        self.padded = False
-
         self._cyclic_requests = {}
         self._cyclic_period = None
         self.user_send_control = True
@@ -443,73 +469,10 @@ class Frame(QtCanListener):
         except StopIteration:
             return None
 
-    def unpad(self):
-        if self.padded:
-            self.frame._signals = [s for s in self.frame._signals
-                                   if s._name != '__padding__']
-
-            self.padded = False
-
-    def pad(self):
-        if not self.padded:
-            self.signals.sort(key=lambda x: x.ordering_start_bit)
-            # TODO: get rid of this, yuck
-            Matrix_Pad = lambda start_bit, length: canmatrix.Signal(
-                name='__padding__',
-                startBit=start_bit,
-                signalSize=length,
-                is_little_endian=0)
-            def Matrix_Pad_Fixed(start_bit, length):
-                pad = Matrix_Pad(start_bit, length)
-                return pad
-            Pad = lambda start_bit, length: Signal(
-                signal=Matrix_Pad_Fixed(start_bit, length),
-                frame=self
-            )
-            # TODO: 1 or 0, which is the first bit per canmatrix?
-            bit = 0
-            # pad for unused bits
-            padded_signals = []
-            unpadded_signals = list(self.signals)
-            for signal in unpadded_signals:
-                startbit = signal.ordering_start_bit
-                if startbit < bit:
-                    raise Exception('{}({}):{}: too far ahead!'
-                                    .format(self.name,
-                                            self.mux_name,
-                                            signal.name))
-                padding = startbit - bit
-                if padding:
-                    pad = Pad(bit, padding)
-                    padded_signals.append(pad)
-                    bit += pad.signal_size
-                padded_signals.append(signal)
-                bit += signal.signal_size
-            # TODO: 1 or 0, which is the first bit per canmatrix?
-            padding = (self.size * 8) - bit
-            if padding < 0:
-                # TODO: fix the common issue so the exception can be used
-                # raise Exception('frame too long!')
-                print('Frame too long!  (but this is expected for now since the DBC seems wrong)')
-            elif padding > 0:
-                pad = Pad(bit, padding)
-                padded_signals.append(pad)
-
-            self.signals = padded_signals
-            self.padded = True
-
-    def format(self):
-        if self.format_str is None:
-            self.format_str = ''.join([s.format() for s in self.signals])
-
-        return self.format_str
-
     def update_from_signals(self, function=None):
         self.data = self.pack(self, function=function)
 
     def pack(self, data, function=None):
-        self.pad()
-
         if data == self:
             if function is None:
                 function = lambda s: s.value
@@ -526,53 +489,61 @@ class Frame(QtCanListener):
                     value = 0
                 data.append(value)
 
-        bsl = []
-        for v, signal in zip(reversed(data), reversed(self.signals)):
-            p = bitstruct.pack(signal.format(), v)
-            a = []
-            remaining = signal.signal_size
-            for b in p:
-                bs_ = '{:08b}'.format(b)
-                bits = min(8, remaining)
-                a.extend(c for c in reversed(bs_[:bits]))
-                remaining -= bits
+        little_bits = [None] * (self.size * 8)
+        big_bits = list(little_bits)
 
-            bsl.extend(s for s in reversed(a))
+        for value, signal in zip(data, self.signals):
+            bits = signal.pack_bitstring(value)
 
-        return list(reversed(
-            bytearray(int(''.join(b), 2)
-                      for b in epyqlib.utils.general.grouper(bsl, 8, '0')
-            )
-        ))
+            if signal.little_endian:
+                least = 64 - signal.start_bit
+                most = least - signal.signal_size
+
+                little_bits[most:least] = bits
+            else:
+                most = signal.start_bit
+                least = most + signal.signal_size
+
+                big_bits[most:least] = bits
+
+        little_bits = reversed(tuple(epyqlib.utils.general.grouper(
+            little_bits, 8)))
+        little_bits = tuple(itertools.chain(*little_bits))
+
+        bitstring = ''.join(
+            next(x for x in (l, b, '0') if x is not None)
+            # l if l != ' ' else (b if b != ' ' else '0')
+            for l, b in zip(little_bits, big_bits)
+        )
+
+        return bytearray(
+            int(''.join(b), 2)
+            for b in epyqlib.utils.general.grouper(bitstring, 8)
+        )
 
     def unpack(self, data, report_error=True, only_return=False):
         rx_length = len(data)
         if rx_length != self.size and report_error:
             print('Received message 0x{self.id:08X} with length {rx_length}, expected {self.size}'.format(**locals()))
         else:
-            self.pad()
+            b = tuple('{:08b}'.format(b) for b in data)
+            little = ''.join(reversed(b))
+            big = ''.join(b)
 
-            s = ''.join('{:08b}'.format(b) for b in reversed(data))
             unpacked = []
-            end = len(s)
             for signal in self.signals:
-                start = end - signal.signal_size
-                bs = s[start:end]
-                end = start
+                if signal.little_endian:
+                    least = 64 - signal.start_bit
+                    most = least - signal.signal_size
 
-                mbs = []
-                while True:
-                    mbs.append(bs[-8:])
-                    bs = bs[:-8]
-                    if len(bs) == 0:
-                        break
+                    bits = little[most:least]
+                else:
+                    most = signal.start_bit
+                    least = most + signal.signal_size
 
-                mbs[-1] = mbs[-1].ljust(8, '0')
+                    bits = big[most:least]
 
-                bs = (int(b, 2) for b in mbs)
-
-                [up] = bitstruct_unpack(signal.format(), tuple(bs))
-                unpacked.append(up)
+                unpacked.append(signal.unpack_bitstring(bits))
 
             if only_return:
                 return dict(zip(self.signals, unpacked))
@@ -639,7 +610,7 @@ class Frame(QtCanListener):
                 # print(self, self.name, self.mux_name, self.mux_frame, self.mux_frame.name, self.mux_frame.mux_name)
 
                 unpacked = self.mux_frame.unpack(msg.data, only_return=True)
-                mux_signal, = (s for s in unpacked if s.name != '__padding__')
+                mux_signal, = unpacked
 
                 # TODO: this if added to avoid exceptions temporarily
                 if mux_signal.value not in self.multiplex_frames:
@@ -859,8 +830,6 @@ class Neo(QtCanListener):
         for frame in self.frames:
             frame.terminate()
 
-        logging.debug('epyqlib.canneo.bitstruct_unpack(): {}'.format(
-                      bitstruct_unpack.cache_info()))
         logging.debug('{} terminated'.format(object.__repr__(self)))
 
 
