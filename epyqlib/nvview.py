@@ -257,11 +257,7 @@ class NvView(QtWidgets.QWidget):
                 signal.set_data(value, check_range=False)
 
         for signal in frame.set_frame.parameter_signals:
-            for column in range(signal.fields.indexes.saturate,
-                                signal.fields.indexes.clear + 1):
-                model.changed(signal, column,
-                              signal, column,
-                              (Qt.DisplayRole,))
+            model.dynamic_columns_changed(signal)
 
 
 if __name__ == '__main__':
