@@ -61,6 +61,7 @@ class NvView(QtWidgets.QWidget):
         )
 
         self.ui.tree_view.clicked.connect(self.clicked)
+        self.ui.tree_view.header().setMinimumSectionSize(0)
 
     # TODO: CAMPid 07943342700734207878034207087
     def nonproxy_model(self):
@@ -139,6 +140,15 @@ class NvView(QtWidgets.QWidget):
             self.ui.tree_view.resizeColumnToContents(column)
             self.ui.tree_view.header().setSectionResizeMode(
                 column, QtWidgets.QHeaderView.Fixed)
+
+        max_icon_column_width = max(
+            self.ui.tree_view.columnWidth(c) for c in model.icon_columns
+        )
+
+        for column in model.icon_columns:
+            self.ui.tree_view.header().setMinimumSectionSize(0)
+            self.ui.tree_view.setColumnWidth(column, max_icon_column_width)
+
         model.force_action_decorations = False
 
     def clicked(self, index):
