@@ -272,7 +272,7 @@ class TxRx(TreeNode, epyqlib.canneo.QtCanListener):
                 transmitter=None
             )
             message_node = MessageNode(message=message, tx=tx, frame=frame)
-            self.neo.frames.append(message_node)
+            self.neo.frames = self.neo.frames + (message_node,)
 
         message_node.send.connect(self.send)
         self.messages[id] = message_node

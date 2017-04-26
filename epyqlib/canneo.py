@@ -654,6 +654,21 @@ class Frame(QtCanListener):
         logging.debug('{} terminated'.format(object.__repr__(self)))
 
 
+@functools.lru_cache(1024)
+def frame_by_id(id, frames):
+    found = (
+        f for f in frames
+        if f.id == id and f.mux_name is None
+    )
+
+    try:
+        frame, = found
+    except ValueError:
+        return None
+
+    return frame
+
+
 class Neo(QtCanListener):
     def __init__(self, matrix, frame_class=Frame, signal_class=Signal,
                  rx_interval=0, bus=None, node_id_adjust=None, parent=None):
@@ -769,20 +784,10 @@ class Neo(QtCanListener):
             for frame in frames:
                 frame.send.connect(bus.send)
 
-        self.frames = frames
+        self.frames = tuple(frames)
 
     def frame_by_id(self, id):
-        found = (
-            f for f in self.frames
-            if f.id == id and f.mux_name is None
-        )
-
-        try:
-            frame, = found
-        except ValueError:
-            return None
-
-        return frame
+        return frame_by_id(id, self.frames)
 
     def frame_by_name(self, name):
         try:
