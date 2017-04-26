@@ -755,17 +755,28 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     comment = ''
                 return '\n'.join(textwrap.wrap(comment, 60))
 
+    def dynamic_columns_changed(self, node):
+        columns = (
+            Columns.indexes.value,
+            Columns.indexes.saturate,
+            Columns.indexes.reset,
+            Columns.indexes.clear,
+        )
+
+        for column in columns:
+            self.changed(node, column, node, column, [])
+
     def saturate_node(self, node):
         node.saturate()
-        self.changed(node, 0, node, len(Columns()), [])
+        self.dynamic_columns_changed(node)
 
     def reset_node(self, node):
         node.reset()
-        self.changed(node, 0, node, len(Columns()), [])
+        self.dynamic_columns_changed(node)
 
     def clear_node(self, node):
         node.clear()
-        self.changed(node, 0, node, len(Columns()), [])
+        self.dynamic_columns_changed(node)
 
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.value:
