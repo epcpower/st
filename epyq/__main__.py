@@ -75,7 +75,8 @@ class Window(QtWidgets.QMainWindow):
         else:
             ui_file = ui
         ui_file = QFile(ui_file)
-        ui_file.open(QFile.ReadOnly | QFile.Text)
+        if not ui_file.open(QFile.ReadOnly | QFile.Text):
+            raise Exception('Unable to open: {}'.format(ui_file.fileName()))
         ts = QTextStream(ui_file)
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
@@ -227,6 +228,11 @@ def main(args=None):
                       .format(Qt.TextBrowserInteraction))
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
+
+    # https://github.com/kivy/kivy/issues/4182#issuecomment-253159955
+    # fix for pyinstaller packages app to avoid ReactorAlreadyInstalledError
+    if 'twisted.internet.reactor' in sys.modules:
+        del sys.modules['twisted.internet.reactor']
 
     import qt5reactor
     qt5reactor.install()
