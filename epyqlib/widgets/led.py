@@ -206,7 +206,11 @@ class Led(epyqlib.widgets.abstractwidget.AbstractWidget):
         self.ui.label.setVisible(self.ui.label.isVisibleTo(self))
         height = self.relative_height * self.ui.label.fontMetrics().height()
 
-        width = height / self.ui.value.ratio()
+        ratio = self.ui.value.ratio()
+        if ratio != 0:
+            width = height / ratio
+        else:
+            width = 0
 
         self.ui.value.setFixedSize(width, height)
 

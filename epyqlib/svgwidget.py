@@ -35,6 +35,9 @@ class SvgWidget(QSvgWidget):
         svg_dx = bounds.width()
         svg_dy = bounds.height()
 
+        if svg_dx == 0:
+            return 0
+
         return svg_dy / svg_dx
 
     def paintEvent(self, event):
