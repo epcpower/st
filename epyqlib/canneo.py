@@ -26,7 +26,7 @@ class NotFoundError(Exception):
 
 
 @functools.lru_cache(4096)
-def pack_bitstring(length, is_float, value):
+def pack_bitstring(length, is_float, value, signed):
     if is_float:
         # TODO: CAMPid 097897541967932453154321546542175421549
         types = {
@@ -47,7 +47,7 @@ def pack_bitstring(length, is_float, value):
         bitstring = ''.join('{:08b}'.format(b) for b in x)
     else:
         b = value.to_bytes(math.ceil(length/8), byteorder='big',
-                             signed=True)
+                             signed=signed)
         b = '{:0{}b}'.format(int.from_bytes(b, byteorder='big'),
                              length)
         bitstring = b[:length]
@@ -431,7 +431,7 @@ class Signal(QObject):
         if value is None:
             value = 0
 
-        return pack_bitstring(self.signal_size, self.float, value)
+        return pack_bitstring(self.signal_size, self.float, value, self.signed)
 
     def unpack_bitstring(self, bits):
         return unpack_bitstring(self.signal_size, self.float, self.signed, bits)
