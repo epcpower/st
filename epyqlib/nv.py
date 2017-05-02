@@ -711,7 +711,10 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     def data_sort(self, index):
         node = self.node_from_index(index)
 
-        return isinstance(node, Group), self.data_display(index)
+        return '{}{}'.format(
+            'a' if isinstance(node, Group) else 'b',
+            self.data_display(index),
+        )
 
     def data_font(self, index):
         icon = self.icons[index.column()]
