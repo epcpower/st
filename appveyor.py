@@ -19,6 +19,7 @@ s = subprocess.check_output(
         'ls-tree',
         '{}:sub'.format(os.environ['APPVEYOR_REPO_BRANCH']),
     ],
+    encoding='utf-8'
 )
 
 hash = s.split()[2]
