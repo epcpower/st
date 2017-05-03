@@ -22,7 +22,6 @@ setup(
         'PyQt5==5.8.2',
         'PyQtChart==5.8.0',
         'SIP==4.19.2',
-        'PyInstaller==3.2.1',
         *conditional_requires
     ],
     setup_requires=['vcversioner==2.16.0.0'],
