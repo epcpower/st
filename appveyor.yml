@@ -6,7 +6,7 @@ init:
 
 build_script:
   - git clone https://github.com/altendky/st sub/epyqlib
-  - "git -C sub/epyqlib checkout $(git ls-tree master:sub | python -c 'import sys; line = sys.stdin.readline(); print(line.split()[2])')"
+  - ps: git -C sub/epyqlib checkout $(git ls-tree master:sub | python -c 'import sys; line = sys.stdin.readline(); print(line.split()[2])')
   - c:\\python36\\python venv.py
   - copy c:\\python36\\python3.dll venv\\Scripts
   - venv\\Scripts\\python pinsis.py
