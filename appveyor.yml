@@ -7,7 +7,7 @@ init:
 build_script:
   - git config --global advice.detachedHead false
   - git clone https://github.com/altendky/st sub/epyqlib
-  - ps: git -C sub/epyqlib checkout $(git ls-tree ${Env:APPVEYOR_REPO_BRANCH}:sub | python -c 'import sys; line = sys.stdin.readline(); print(line.split()[2])') 2>&1
+  - ps: try { git -C sub/epyqlib checkout $(git ls-tree ${Env:APPVEYOR_REPO_BRANCH}:sub | python -c 'import sys; line = sys.stdin.readline(); print(line.split()[2])') } catch {}
   - c:\\python36\\python venv.py
   - copy c:\\python36\\python3.dll venv\\Scripts
   - venv\\Scripts\\python pinsis.py
