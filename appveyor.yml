@@ -6,7 +6,7 @@ init:
 
 build_script:
   - git clone https://github.com/altendky/st sub/epyqlib
-  - ps: git -C sub checkout $(git ls-tree ${Env:APPVEYOR_REPO_BRANCH}:sub | python -c 'import sys; line = sys.stdin.readline(); print(line.split()[2])')
+  - ps: git -C sub/epyqlib checkout $(git ls-tree ${Env:APPVEYOR_REPO_BRANCH}:sub | python -c 'import sys; line = sys.stdin.readline(); print(line.split()[2])')
   - c:\\python36\\python venv.py
   - copy c:\\python36\\python3.dll venv\\Scripts
   - venv\\Scripts\\python pinsis.py
