@@ -32,18 +32,3 @@ subprocess.check_call(
         'checkout', hash,
     ],
 )
-
-peak = 'PeakOemDrv.exe'
-r = requests.get('http://www.peak-system.com/produktcd/Drivers/PeakOemDrv.exe')
-b = io.BytesIO(r.content)
-with open(peak, 'wb') as f:
-    f.write(b.read())
-
-subprocess.check_call(
-    [
-        peak,
-        '/exenoui',
-        '/qn',
-        'ADDLOCAL=F_PNP_DVRS,F_PCANBASIC',
-    ],
-)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import io
 import os
 import shutil
 import stat
@@ -30,6 +31,12 @@ def rmtree(path, retries=5):
             else:
                 break
 
+
+peak = 'PCANBasic.dll'
+r = requests.get('http://www.peak-system.com/produktcd//Develop/PC%20interfaces/Windows/PCAN-Basic%20API/Win32/PCANBasic.dll')
+b = io.BytesIO(r.content)
+with open(peak, 'wb') as f:
+    f.write(b.read())
 
 rmtree(os.path.join('dist'))
 pyinstaller = os.path.join('venv', 'Scripts', 'pyinstaller')
