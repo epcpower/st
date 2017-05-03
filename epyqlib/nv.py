@@ -200,6 +200,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                         'NV status signal not found for {}:{}'.format(nv.frame.mux_name, nv.name)
                     )
                 nv.status_signal.set_signal = nv
+                nv.changed.connect(self.changed)
 
 
         unreferenced_paths = set(self.nv_by_path)
@@ -510,6 +511,8 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
 
 class Nv(epyqlib.canneo.Signal, TreeNode):
+    changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
+
     def __init__(self, signal, frame, parent=None):
         epyqlib.canneo.Signal.__init__(self, signal=signal, frame=frame,
                                     parent=parent)
@@ -532,6 +535,19 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             max=self.format_float(value=self.max),
             default=self.format_strings(value=int(default))[0],
             comment=self.comment,
+        )
+
+    def _changed(self, column_start=None, column_end=None, roles=(
+            Columns.indexes.value,)):
+        if column_start is None:
+            column_start = Columns.indexes.value
+        if column_end is None:
+            column_end = column_start
+
+        self.changed.emit(
+            self, column_start,
+            self, column_end,
+            list(roles),
         )
 
     def signal_path(self):
@@ -568,6 +584,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
                                         force=force,
                                         check_range=check_range)
         self.fields.value = self.full_string
+        self._changed()
 
     def set_data(self, data, mark_modified=False, check_range=True):
         # self.fields.value = value
