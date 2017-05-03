@@ -1,16 +1,6 @@
 #!/usr/bin/env python3
 
-import io
-import itertools
-import os
-import platform
-import shutil
-import stat
 import subprocess
-import sys
-import zipfile
-
-import requests
 
 
 subprocess.check_call(
