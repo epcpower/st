@@ -5,6 +5,7 @@ init:
   - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
 
 build_script:
+  - git config --global advice.detachedHead false
   - git clone https://github.com/altendky/st sub/epyqlib
   - ps: git -C sub/epyqlib checkout $(git ls-tree ${Env:APPVEYOR_REPO_BRANCH}:sub | python -c 'import sys; line = sys.stdin.readline(); print(line.split()[2])')
   - c:\\python36\\python venv.py
