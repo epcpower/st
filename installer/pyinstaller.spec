@@ -43,7 +43,7 @@ for dir_name, subdirs, files in os.walk(search_in):
 for format in canmatrix.formats.moduleList:
     hidden_imports.add('canmatrix.' + format)
 
-data_files.append((os.path.join('c:/', 'Windows', 'SysWOW64', 'PCANBasic.dll'), ''))
+data_files.append(('PCANBasic.dll', ''))
 
 a = Analysis(
     [os.path.join('..', 'epyq', '__main__.py')],

@@ -2,6 +2,7 @@
 
 import io
 import os
+import requests
 import shutil
 import stat
 import subprocess
