@@ -10,7 +10,13 @@ OutFile "..\dist\epyq-${VERSION}.exe"
 !define MUI_HEADERIMAGE_RIGHT
 
 # set desktop as install directory
-InstallDir $DESKTOP\epyq_root
+InstallDir $PROFILE\epyq
+
+PageEx directory
+  DirVar $INSTDIR
+PageExEnd
+
+Page instfiles
 
 # default section start
 Section
