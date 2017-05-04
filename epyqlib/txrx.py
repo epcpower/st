@@ -155,9 +155,9 @@ class MessageNode(epyqlib.canneo.Frame, TreeNode):
 
         self.fields.length = '{} B'.format(message.dlc)
         self.fields.value = epyqlib.canneo.format_data(tuple(message.data))
-        if self.last_time == message.timestamp:
-            raise Exception('message already received {message}'
-                            .format(**locals()))
+        # if self.last_time == message.timestamp:
+        #     raise Exception('message already received {message}'
+        #                     .format(**locals()))
         if self.last_time is None:
             self.fields.dt = '-'
         else:
