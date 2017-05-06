@@ -187,6 +187,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                 if nv.name not in [self.configuration.to_nv_command]:
                     self.nv_by_path[nv.signal_path()] = nv
                     frame.parameter_signals.append(nv)
+                    nv.changed.connect(self.changed)
 
                 nv.frame.status_frame = self.status_frames[value]
                 self.status_frames[value].set_frame = nv.frame
@@ -200,7 +201,6 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                         'NV status signal not found for {}:{}'.format(nv.frame.mux_name, nv.name)
                     )
                 nv.status_signal.set_signal = nv
-                nv.changed.connect(self.changed)
 
 
         unreferenced_paths = set(self.nv_by_path)
