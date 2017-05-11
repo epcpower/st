@@ -48,6 +48,10 @@ for format in canmatrix.formats.moduleList:
     hidden_imports.add('canmatrix.' + format)
 
 data_files.append(('PCANBasic.dll', ''))
+data_files.append((
+    os.path.join('venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'),
+    ''
+))
 
 a = Analysis(
     [os.path.join('..', 'epyq', '__main__.py')],
