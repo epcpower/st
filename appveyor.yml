@@ -20,7 +20,7 @@ build_script:
   - venv\\Scripts\\python pinsis.py --qtif
 
 artifacts:
-  - path: dist\*.exe
+  - path: ..\\*.exe
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 on_finish:
