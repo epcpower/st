@@ -273,7 +273,7 @@ def main(args=None):
         '..', 'venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'
     )
     if not os.path.exists(fontawesome_path):
-        fontawesome_path = '.'
+        fontawesome_path = 'FontAwesome.otf'
 
     font_paths = [
         fontawesome_path
