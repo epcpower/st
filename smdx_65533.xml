@@ -1,47 +1,57 @@
 <sunSpecModels v="1">
-  <!-- 65533: EPC DC-DC -->
-  <model id="65533" len="8" name="epcDCDC">
-    <block len="8">
-      <point id="CmdBits" offset="0" type="bitfield32" access="rw" >
+  <!-- 65533: EPC_Control -->
+  <model id="65533" len="26" name="EPC_Control">
+    <block len="26">
+      <point access="rw" id="CmdBits" offset="0" type="bitfield32">
         <symbol id="En">0</symbol>
         <symbol id="FltClr">1</symbol>
         <symbol id="Ictl">2</symbol>
-        <symbol id="ForceMX1">4</symbol>
-        <symbol id="ForceMX2">5</symbol>
-        <symbol id="ForceK1">6</symbol>
-        <symbol id="ForceK2">7</symbol>
-        <symbol id="ForceFan">8</symbol>
-        <symbol id="InvertHwEnable">9</symbol>
+        <symbol id="ForceMX1">3</symbol>
+        <symbol id="ForceMX2">4</symbol>
+        <symbol id="ForceK1">5</symbol>
+        <symbol id="ForceK2">6</symbol>
+        <symbol id="ForceFan">7</symbol>
+        <symbol id="InvertHwEnable">8</symbol>
+        <symbol id="WrnClr">9</symbol>
       </point>
-      <point id="CmdVout" offset="2" type="uint16" sf="V_SF" units="V" access="rw" />
-	  <point id="V_SF" offset="3" type="sunssf" />
-      <point id="CmdIin" offset="4" type="int16" sf="I_SF" units="A" access="rw" />
-      <point id="I_SF" offset="5" type="sunssf" />
-      <point id="CtlSrc" offset="6" type="enum16" access="rw" >
+      <point access="rw" id="CmdVout" offset="2" sf="V_SF" type="uint16" units="V"/>
+      <point access="r" id="V_SF" offset="3" type="sunssf"/>
+      <point access="rw" id="CmdIin" offset="4" sf="I_SF" type="int16" units="A"/>
+      <point access="r" id="I_SF" offset="5" type="sunssf"/>
+      <point access="rw" id="CtlSrc" offset="6" type="enum16">
         <symbol id="CAN">0</symbol>
         <symbol id="Modbus">1</symbol>
       </point>
-	  <point id="St" offset="7" type="enum16" >
+      <point access="r" id="St" offset="7" type="enum16">
         <symbol id="POR">0</symbol>
         <symbol id="Ready">1</symbol>
-		<symbol id="Enabled">2</symbol>
-		<symbol id="Fault">3</symbol>
+        <symbol id="Enabled">2</symbol>
+        <symbol id="Fault">3</symbol>
       </point>
-	  <point id="Evt1" offset="8" type="bitfield32" >
+      <point access="r" id="Evt1" offset="8" type="bitfield32">
         <symbol id="HARDWARE_ENABLE">0</symbol>
-        <symbol id="PWR_CRCT_EN">3</symbol>
-        <symbol id="MX1">4</symbol>
-        <symbol id="MX2">5</symbol>
-        <symbol id="K1">6</symbol>
-        <symbol id="K2">7</symbol>
-        <symbol id="CTL_MSG_VALID">8</symbol>
-        <symbol id="PWR_CMD_VALID">9</symbol>
+        <symbol id="PWR_CRCT_EN">1</symbol>
+        <symbol id="MX1">2</symbol>
+        <symbol id="MX2">3</symbol>
+        <symbol id="K1">4</symbol>
+        <symbol id="K2">5</symbol>
+        <symbol id="CTL_MSG_VALID">6</symbol>
+        <symbol id="PWR_CMD_VALID">7</symbol>
+        <symbol id="WARNING_STATUS">8</symbol>
+        <symbol id="DI1_STAT">9</symbol>
+        <symbol id="DI2_STAT">10</symbol>
+        <symbol id="DI3_STAT">11</symbol>
+        <symbol id="DI4_STAT">12</symbol>
+        <symbol id="DO1_STAT">13</symbol>
+        <symbol id="DO2_STAT">14</symbol>
+        <symbol id="DO3_STAT">15</symbol>
+        <symbol id="DO4_STAT">16</symbol>
       </point>
-	  <point id="Vo" offset="10" type="uint16" sf="V_SF" units="V" />
-	  <point id="Vi" offset="11" type="uint16" sf="V_SF" units="V" />
-	  <point id="Io" offset="12" type="int16" sf="I_SF" units="A" />
-	  <point id="Ii" offset="13" type="int16" sf="I_SF" units="A" />
-	  <point id="FaultFlags" offset="14" type="bitfield32" >
+      <point access="r" id="Vo" offset="10" sf="V_SF" type="uint16" units="V"/>
+      <point access="r" id="Vi" offset="11" sf="V_SF" type="uint16" units="V"/>
+      <point access="r" id="Io" offset="12" sf="I_SF" type="int16" units="A"/>
+      <point access="r" id="Ii" offset="13" sf="I_SF" type="int16" units="A"/>
+      <point access="r" id="FaultFlags" offset="14" type="bitfield32">
         <symbol id="OCDC">0</symbol>
         <symbol id="OVDC">1</symbol>
         <symbol id="OTPD">2</symbol>
@@ -50,261 +60,683 @@
         <symbol id="UVDC">5</symbol>
         <symbol id="ESTP">6</symbol>
         <symbol id="ILGL">7</symbol>
-		<symbol id="EEH">8</symbol>
-		<symbol id="EES">9</symbol>
-		<symbol id="TOL">10</symbol>
-		<symbol id="THRM">11</symbol>
-		<symbol id="SYS">12</symbol>
+        <symbol id="EEH">8</symbol>
+        <symbol id="EES">9</symbol>
+        <symbol id="TOL">10</symbol>
+        <symbol id="THRM">11</symbol>
+        <symbol id="Fan">12</symbol>
       </point>
-	  <point id="V24" offset="16" type="uint16" sf="CTV_SF" units="V" />
-	  <point id="CTV_SF" offset="17" type="sunssf" />
+      <point access="r" id="V24" offset="16" sf="CTV_SF" type="uint16" units="V"/>
+      <point access="r" id="CTV_SF" offset="17" type="sunssf"/>
+      <point access="rw" id="Spcl" offset="18" type="bitfield32">
+        <symbol id="Save">0</symbol>
+      </point>
+      <point access="r" id="WrnFlgs" offset="20" type="bitfield32">
+        <symbol id="CANW">0</symbol>
+        <symbol id="CANEP">1</symbol>
+        <symbol id="Thrm">2</symbol>
+        <symbol id="Fan">3</symbol>
+      </point>
+      <point access="r" id="SysFlt" offset="21" type="uint16"/>
+      <point access="r" id="TMP_SF" offset="22" type="sunssf"/>
+      <point access="r" id="TmpInt" offset="23" sf="TMP_SF" type="uint16" units="C"/>
+      <point access="r" id="TmpInlet" offset="24" sf="TMP_SF" type="uint16" units="C"/>
     </block>
   </model>
-
   <strings id="65533" locale="en">
     <model>
-      <label>EPC DC-DC</label>
-      <description></description>
+      <label>EPC_Control</label>
+      <description>EPC DC-DC converter interface</description>
       <notes></notes>
     </model>
     <point id="CmdBits">
       <label>Control Bits</label>
-      <description></description>
-      <notes></notes>
+      <description>Operational command flags</description>
+      <notes>Message required at a rate of at least once per second in all states.</notes>
       <symbol id="En">
         <label>Enable</label>
-        <description></description>
+        <description>Run command.  When set to a value of 'Enable', causes converter to boost/buck</description>
         <notes></notes>
       </symbol>
       <symbol id="FltClr">
         <label>Fault Clear</label>
-        <description></description>
+        <description>Clears latched fault status. </description>
         <notes></notes>
       </symbol>
       <symbol id="Ictl">
         <label>Enable Current Control Mode</label>
-        <description></description>
+        <description>If set to true, control input current instead of output voltage.</description>
         <notes></notes>
       </symbol>
       <symbol id="ForceMX1">
         <label>Close MX1</label>
-        <description></description>
+        <description>If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.</description>
         <notes></notes>
       </symbol>
       <symbol id="ForceMX2">
         <label>Close MX2</label>
-        <description></description>
+        <description>If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.</description>
         <notes></notes>
       </symbol>
       <symbol id="ForceK1">
         <label>Close K1</label>
-        <description></description>
+        <description>If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.</description>
         <notes></notes>
       </symbol>
       <symbol id="ForceK2">
         <label>Close K2</label>
-        <description></description>
+        <description>If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.</description>
         <notes></notes>
       </symbol>
       <symbol id="ForceFan">
         <label>Force Fan On</label>
-        <description></description>
+        <description>Forces cooling fan on (air cooled units only)</description>
         <notes></notes>
       </symbol>
       <symbol id="InvertHwEnable">
         <label>Invert Hardware Enable</label>
-        <description></description>
+        <description>Inverts the logic of the Hardware Enable input.</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="WrnClr">
+        <label>Warning Clear</label>
+        <description>Clears latched warning status.</description>
         <notes></notes>
       </symbol>
     </point>
     <point id="CmdVout">
       <label>Output Voltage Setpoint</label>
+      <description>Commanded output voltage setpoint</description>
+      <notes>Message required at a rate of at least once per second in grid following mode.</notes>
+    </point>
+    <point id="V_SF">
+      <label></label>
       <description></description>
       <notes></notes>
     </point>
     <point id="CmdIin">
       <label>Input Current Setpoint</label>
+      <description>Input current setpoint command.  Only applicable in current control mode</description>
+      <notes>Message required at a rate of at least once per second in grid following mode.</notes>
+    </point>
+    <point id="I_SF">
+      <label></label>
       <description></description>
       <notes></notes>
     </point>
     <point id="CtlSrc">
       <label>Control Source</label>
-      <description></description>
+      <description>Master control source for the inverter</description>
       <notes></notes>
       <symbol id="CAN">
         <label>CAN control</label>
-        <description></description>
+        <description>CAN is the primary control source, though Modbus monitoring is still active</description>
         <notes></notes>
       </symbol>
       <symbol id="Modbus">
         <label>Modbus control</label>
-        <description></description>
+        <description>Modbus is the primary control source, though CAN communication is still active.</description>
         <notes></notes>
       </symbol>
     </point>
-	<point id="St">
+    <point id="St">
       <label>Operating State</label>
-      <description></description>
+      <description>operating state code</description>
       <notes></notes>
       <symbol id="POR">
         <label>por</label>
-        <description></description>
+        <description>Power On Reset</description>
         <notes></notes>
       </symbol>
       <symbol id="Ready">
         <label>Ready</label>
-        <description></description>
+        <description>Device is in standby mode</description>
         <notes></notes>
       </symbol>
-	  <symbol id="Enabled">
+      <symbol id="Enabled">
         <label>Enabled</label>
-        <description></description>
+        <description>Device power stage producing power</description>
         <notes></notes>
       </symbol>
       <symbol id="Fault">
         <label>Fault</label>
-        <description></description>
+        <description>One or more faults exist</description>
         <notes></notes>
       </symbol>
     </point>
-	<point id="Evt1">
+    <point id="Evt1">
       <label>Event1</label>
-      <description></description>
+      <description>Bitmask value. Event fields</description>
       <notes></notes>
       <symbol id="HARDWARE_ENABLE">
         <label>Hardware enable status</label>
-        <description></description>
+        <description>Status of the hardware enable.</description>
         <notes></notes>
       </symbol>
       <symbol id="PWR_CRCT_EN">
         <label>Power Circuit Enabled</label>
-        <description></description>
+        <description>Indicates whether the switching devices are active.</description>
         <notes></notes>
       </symbol>
       <symbol id="MX1">
         <label>MX1 relay status</label>
-        <description></description>
+        <description>MX1 relay status</description>
         <notes></notes>
       </symbol>
       <symbol id="MX2">
         <label>MX2 relay status</label>
-        <description></description>
+        <description>MX2 relay status</description>
         <notes></notes>
       </symbol>
       <symbol id="K1">
-        <label>Precharge relay status</label>
-        <description></description>
+        <label>Precharge status</label>
+        <description>K1 precharge relay status.</description>
         <notes></notes>
       </symbol>
       <symbol id="K2">
-        <label>K2 relay status</label>
-        <description></description>
+        <label>K2 Relay status</label>
+        <description>K2 DC Run relay status.</description>
         <notes></notes>
       </symbol>
       <symbol id="CTL_MSG_VALID">
         <label>Control commands valid</label>
-        <description></description>
+        <description>Indicates the validity of the control bits. Message must be received at least once per second and parameter data within range to be considered valid.</description>
         <notes></notes>
       </symbol>
       <symbol id="PWR_CMD_VALID">
         <label>Power command valid</label>
-        <description></description>
+        <description>Indicates the validity of the power commands.  Message must be received at least once per second and parameter data within range to be considered valid.</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="WARNING_STATUS">
+        <label>Warning Status</label>
+        <description>Indicates if a warning is active.</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="DI1_STAT">
+        <label>DI1 Status</label>
+        <description>Status of digital input 1</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="DI2_STAT">
+        <label>DI2 Status</label>
+        <description>Status of digital input 2</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="DI3_STAT">
+        <label>DI3 Status</label>
+        <description>Status of digital input 3</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="DI4_STAT">
+        <label>DI4 Status</label>
+        <description>Status of digital input 4</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="DO1_STAT">
+        <label>DO1 Status</label>
+        <description>Status of digital output 1</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="DO2_STAT">
+        <label>DO2 Status</label>
+        <description>Status of digital output 2</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="DO3_STAT">
+        <label>DO3 Status</label>
+        <description>Status of digital output 3</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="DO4_STAT">
+        <label>DO4 Status</label>
+        <description>Status of digital output 4</description>
         <notes></notes>
       </symbol>
     </point>
-	<point id="Vo">
-      <label>Output voltage</label>
-      <description></description>
-      <notes></notes>
+    <point id="Vo">
+      <label>Output Voltage</label>
+      <description>Measured output voltage</description>
+      <notes>Message required at a rate of at least once per second in grid following mode.</notes>
     </point>
-	<point id="Vi">
-      <label>Input voltage</label>
-      <description></description>
-      <notes></notes>
+    <point id="Vi">
+      <label>Input Voltage</label>
+      <description>Measured input voltage</description>
+      <notes>Message required at a rate of at least once per second in grid following mode.</notes>
     </point>
-	<point id="Io">
-      <label>Output current</label>
-      <description></description>
-      <notes></notes>
+    <point id="Io">
+      <label>Output Current</label>
+      <description>Measured output current</description>
+      <notes>Message required at a rate of at least once per second in grid following mode.</notes>
     </point>
-	<point id="Ii">
-      <label>Input current</label>
-      <description></description>
-      <notes></notes>
+    <point id="Ii">
+      <label>Input Current</label>
+      <description>Measured input current</description>
+      <notes>Message required at a rate of at least once per second in grid following mode.</notes>
     </point>
-	<point id="FaultFlags">
+    <point id="FaultFlags">
       <label>Fault Flags</label>
-      <description></description>
-      <notes></notes>
+      <description>Latched fault flags</description>
+      <notes>Message required at a rate of at least once per second in all states.</notes>
       <symbol id="OCDC">
         <label>DC Overcurrent</label>
-        <description></description>
+        <description>Overcurrent</description>
         <notes></notes>
       </symbol>
       <symbol id="OVDC">
         <label>DC Overvoltage</label>
-        <description></description>
+        <description>Overvoltage</description>
         <notes></notes>
       </symbol>
       <symbol id="OTPD">
         <label>Power Device OT</label>
-        <description></description>
+        <description>Power device over temperature</description>
         <notes></notes>
       </symbol>
       <symbol id="OTInt">
         <label>Internal OT</label>
-        <description></description>
+        <description>Internal over temperature</description>
         <notes></notes>
       </symbol>
       <symbol id="CtlMsg">
         <label>Invalid Ctl Msg</label>
-        <description></description>
+        <description>Invalid control message</description>
         <notes></notes>
       </symbol>
       <symbol id="UVDC">
         <label>DC Undervoltage</label>
-        <description></description>
+        <description>Under voltage</description>
         <notes></notes>
       </symbol>
       <symbol id="ESTP">
         <label>E-Stop</label>
-        <description></description>
+        <description>Emergency stop</description>
         <notes></notes>
       </symbol>
       <symbol id="ILGL">
         <label>Illegal Transition</label>
-        <description></description>
+        <description>Illegal state transition requested</description>
         <notes></notes>
       </symbol>
       <symbol id="EEH">
         <label>Invalid EE header</label>
-        <description></description>
+        <description>Invalid EE header</description>
         <notes></notes>
       </symbol>
-	  <symbol id="EES">
-        <label>Invalid EE section</label>
-        <description></description>
+      <symbol id="EES">
+        <label>Invalid EE Section</label>
+        <description>Invalid EE Section</description>
         <notes></notes>
       </symbol>
-	  <symbol id="TOL">
+      <symbol id="TOL">
         <label>Timed Overload</label>
-        <description></description>
+        <description>Timed overload trip</description>
         <notes></notes>
       </symbol>
-	  <symbol id="THRM">
+      <symbol id="THRM">
         <label>Thermal Overload</label>
-        <description></description>
+        <description>Timed overload digital input active</description>
         <notes></notes>
       </symbol>
-	  <symbol id="SYS">
-        <label>System fault</label>
-        <description></description>
+      <symbol id="Fan">
+        <label>Fan Circuit</label>
+        <description>Fan Circuit</description>
         <notes></notes>
       </symbol>
     </point>
-	<point id="V24">
+    <point id="V24">
       <label>Control Voltage</label>
+      <description>24V control voltage source</description>
+      <notes>Message required at a rate of at least once per second in grid following mode.</notes>
+    </point>
+    <point id="CTV_SF">
+      <label></label>
       <description></description>
+      <notes></notes>
+    </point>
+    <point id="Spcl">
+      <label>Special operations</label>
+      <description>Special operation command flags</description>
+      <notes>Message required at a rate of at least once per second in all states.</notes>
+      <symbol id="Save">
+        <label>Save NV</label>
+        <description>Store non-volatile parameters to memory (present settings will persist power cycle.</description>
+        <notes></notes>
+      </symbol>
+    </point>
+    <point id="WrnFlgs">
+      <label>Warning Flags</label>
+      <description>Warning status</description>
+      <notes>Message required at a rate of at least once per second in all states.</notes>
+      <symbol id="CANW">
+        <label>CAN Warning</label>
+        <description>CAN Warning</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="CANEP">
+        <label>CAN Error Passive</label>
+        <description>CAN Error Passive</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="Thrm">
+        <label>Thermal Overload</label>
+        <description>Thermal Overload Input</description>
+        <notes></notes>
+      </symbol>
+      <symbol id="Fan">
+        <label>Fan Circuit</label>
+        <description>Fan Circuit</description>
+        <notes></notes>
+      </symbol>
+    </point>
+    <point id="SysFlt">
+      <label>System Fault Code</label>
+      <description>Fault code (if non-0, indicates that 1 or more system faults is active)</description>
+      <notes></notes>
+    </point>
+    <point id="TMP_SF">
+      <label></label>
+      <description></description>
+      <notes></notes>
+    </point>
+    <point id="TmpInt">
+      <label>Internal Temp</label>
+      <description>Coolant inlet temperature</description>
+      <notes></notes>
+    </point>
+    <point id="TmpInlet">
+      <label>Inlet Temp</label>
+      <description>Internal ambient temperature</description>
+      <notes></notes>
+    </point>
+    <point id="">
+      <label></label>
+      <description></description>
+      <notes></notes>
+    </point>
+    <point id="En">
+      <label>Enable</label>
+      <description>Run command.  When set to a value of 'Enable', causes converter to boost/buck</description>
+      <notes></notes>
+    </point>
+    <point id="FltClr">
+      <label>Fault Clear</label>
+      <description>Clears latched fault status. </description>
+      <notes></notes>
+    </point>
+    <point id="Ictl">
+      <label>Enable Current Control Mode</label>
+      <description>If set to true, control input current instead of output voltage.</description>
+      <notes></notes>
+    </point>
+    <point id="ForceMX1">
+      <label>Close MX1</label>
+      <description>If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.</description>
+      <notes></notes>
+    </point>
+    <point id="ForceMX2">
+      <label>Close MX2</label>
+      <description>If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.</description>
+      <notes></notes>
+    </point>
+    <point id="ForceK1">
+      <label>Close K1</label>
+      <description>If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.</description>
+      <notes></notes>
+    </point>
+    <point id="ForceK2">
+      <label>Close K2</label>
+      <description>If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.</description>
+      <notes></notes>
+    </point>
+    <point id="ForceFan">
+      <label>Force Fan On</label>
+      <description>Forces cooling fan on (air cooled units only)</description>
+      <notes></notes>
+    </point>
+    <point id="InvertHwEnable">
+      <label>Invert Hardware Enable</label>
+      <description>Inverts the logic of the Hardware Enable input.</description>
+      <notes></notes>
+    </point>
+    <point id="WrnClr">
+      <label>Warning Clear</label>
+      <description>Clears latched warning status.</description>
+      <notes></notes>
+    </point>
+    <point id="">
+      <label></label>
+      <description></description>
+      <notes></notes>
+    </point>
+    <point id="CAN">
+      <label>CAN control</label>
+      <description>CAN is the primary control source, though Modbus monitoring is still active</description>
+      <notes></notes>
+    </point>
+    <point id="Modbus">
+      <label>Modbus control</label>
+      <description>Modbus is the primary control source, though CAN communication is still active.</description>
+      <notes></notes>
+    </point>
+    <point id="">
+      <label></label>
+      <description></description>
+      <notes></notes>
+    </point>
+    <point id="POR">
+      <label>por</label>
+      <description>Power On Reset</description>
+      <notes></notes>
+    </point>
+    <point id="Ready">
+      <label>Ready</label>
+      <description>Device is in standby mode</description>
+      <notes></notes>
+    </point>
+    <point id="Enabled">
+      <label>Enabled</label>
+      <description>Device power stage producing power</description>
+      <notes></notes>
+    </point>
+    <point id="Fault">
+      <label>Fault</label>
+      <description>One or more faults exist</description>
+      <notes></notes>
+    </point>
+    <point id="">
+      <label></label>
+      <description></description>
+      <notes></notes>
+    </point>
+    <point id="HARDWARE_ENABLE">
+      <label>Hardware enable status</label>
+      <description>Status of the hardware enable.</description>
+      <notes></notes>
+    </point>
+    <point id="PWR_CRCT_EN">
+      <label>Power Circuit Enabled</label>
+      <description>Indicates whether the switching devices are active.</description>
+      <notes></notes>
+    </point>
+    <point id="MX1">
+      <label>MX1 relay status</label>
+      <description>MX1 relay status</description>
+      <notes></notes>
+    </point>
+    <point id="MX2">
+      <label>MX2 relay status</label>
+      <description>MX2 relay status</description>
+      <notes></notes>
+    </point>
+    <point id="K1">
+      <label>Precharge status</label>
+      <description>K1 precharge relay status.</description>
+      <notes></notes>
+    </point>
+    <point id="K2">
+      <label>K2 Relay status</label>
+      <description>K2 DC Run relay status.</description>
+      <notes></notes>
+    </point>
+    <point id="CTL_MSG_VALID">
+      <label>Control commands valid</label>
+      <description>Indicates the validity of the control bits. Message must be received at least once per second and parameter data within range to be considered valid.</description>
+      <notes></notes>
+    </point>
+    <point id="PWR_CMD_VALID">
+      <label>Power command valid</label>
+      <description>Indicates the validity of the power commands.  Message must be received at least once per second and parameter data within range to be considered valid.</description>
+      <notes></notes>
+    </point>
+    <point id="WARNING_STATUS">
+      <label>Warning Status</label>
+      <description>Indicates if a warning is active.</description>
+      <notes></notes>
+    </point>
+    <point id="DI1_STAT">
+      <label>DI1 Status</label>
+      <description>Status of digital input 1</description>
+      <notes></notes>
+    </point>
+    <point id="DI2_STAT">
+      <label>DI2 Status</label>
+      <description>Status of digital input 2</description>
+      <notes></notes>
+    </point>
+    <point id="DI3_STAT">
+      <label>DI3 Status</label>
+      <description>Status of digital input 3</description>
+      <notes></notes>
+    </point>
+    <point id="DI4_STAT">
+      <label>DI4 Status</label>
+      <description>Status of digital input 4</description>
+      <notes></notes>
+    </point>
+    <point id="DO1_STAT">
+      <label>DO1 Status</label>
+      <description>Status of digital output 1</description>
+      <notes></notes>
+    </point>
+    <point id="DO2_STAT">
+      <label>DO2 Status</label>
+      <description>Status of digital output 2</description>
+      <notes></notes>
+    </point>
+    <point id="DO3_STAT">
+      <label>DO3 Status</label>
+      <description>Status of digital output 3</description>
+      <notes></notes>
+    </point>
+    <point id="DO4_STAT">
+      <label>DO4 Status</label>
+      <description>Status of digital output 4</description>
+      <notes></notes>
+    </point>
+    <point id="">
+      <label></label>
+      <description></description>
+      <notes></notes>
+    </point>
+    <point id="OCDC">
+      <label>DC Overcurrent</label>
+      <description>Overcurrent</description>
+      <notes></notes>
+    </point>
+    <point id="OVDC">
+      <label>DC Overvoltage</label>
+      <description>Overvoltage</description>
+      <notes></notes>
+    </point>
+    <point id="OTPD">
+      <label>Power Device OT</label>
+      <description>Power device over temperature</description>
+      <notes></notes>
+    </point>
+    <point id="OTInt">
+      <label>Internal OT</label>
+      <description>Internal over temperature</description>
+      <notes></notes>
+    </point>
+    <point id="CtlMsg">
+      <label>Invalid Ctl Msg</label>
+      <description>Invalid control message</description>
+      <notes></notes>
+    </point>
+    <point id="UVDC">
+      <label>DC Undervoltage</label>
+      <description>Under voltage</description>
+      <notes></notes>
+    </point>
+    <point id="ESTP">
+      <label>E-Stop</label>
+      <description>Emergency stop</description>
+      <notes></notes>
+    </point>
+    <point id="ILGL">
+      <label>Illegal Transition</label>
+      <description>Illegal state transition requested</description>
+      <notes></notes>
+    </point>
+    <point id="EEH">
+      <label>Invalid EE header</label>
+      <description>Invalid EE header</description>
+      <notes></notes>
+    </point>
+    <point id="EES">
+      <label>Invalid EE Section</label>
+      <description>Invalid EE Section</description>
+      <notes></notes>
+    </point>
+    <point id="TOL">
+      <label>Timed Overload</label>
+      <description>Timed overload trip</description>
+      <notes></notes>
+    </point>
+    <point id="THRM">
+      <label>Thermal Overload</label>
+      <description>Timed overload digital input active</description>
+      <notes></notes>
+    </point>
+    <point id="Fan">
+      <label>Fan Circuit</label>
+      <description>Fan Circuit</description>
+      <notes></notes>
+    </point>
+    <point id="">
+      <label></label>
+      <description></description>
+      <notes></notes>
+    </point>
+    <point id="Save">
+      <label>Save NV</label>
+      <description>Store non-volatile parameters to memory (present settings will persist power cycle.</description>
+      <notes></notes>
+    </point>
+    <point id="">
+      <label></label>
+      <description></description>
+      <notes></notes>
+    </point>
+    <point id="CANW">
+      <label>CAN Warning</label>
+      <description>CAN Warning</description>
+      <notes></notes>
+    </point>
+    <point id="CANEP">
+      <label>CAN Error Passive</label>
+      <description>CAN Error Passive</description>
+      <notes></notes>
+    </point>
+    <point id="Thrm">
+      <label>Thermal Overload</label>
+      <description>Thermal Overload Input</description>
+      <notes></notes>
+    </point>
+    <point id="Fan">
+      <label>Fan Circuit</label>
+      <description>Fan Circuit</description>
       <notes></notes>
     </point>
   </strings>
