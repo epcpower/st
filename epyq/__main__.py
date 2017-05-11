@@ -269,10 +269,8 @@ def main(args=None):
             logging.getLogger(module).setLevel(logging.DEBUG)
 
     fontawesome_path = os.path.join(
-        QtCore.QFileInfo.absolutePath(
-            QFileInfo(__file__),
-            '..', 'venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'
-        ),
+        QtCore.QFileInfo.absolutePath(QFileInfo(__file__)),
+        '..', 'venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'
     )
     if not os.exists(fontawesome_path):
         fontawesome_path = '.'
