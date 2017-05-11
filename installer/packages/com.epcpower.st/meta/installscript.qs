@@ -10,7 +10,6 @@ Component.prototype.createOperations = function()
         component.createOperations();
         if (systemInfo.productType == "windows") { 
             try {
-                component.addElevatedOperation("Execute", "@TargetDir@/vcredist_x86-2010-sp1.exe", "/quiet", "/norestart");
                 component.addOperation("CreateShortcut", "@TargetDir@/maintenancetool.exe", "@StartMenuDir@/Uninstall.lnk",
                     "workingDirectory=@TargetDir@", "iconPath=%SystemRoot%/system32/SHELL32.dll",
                     "iconId=2");
