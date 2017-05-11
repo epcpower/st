@@ -15,7 +15,7 @@ build_script:
   - pip install --user requests
   - python appveyor.py
   - python venv.py
-  - copy \"%PYTHON%\"\\python3.dll venv\\Scripts
+  - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   - venv\\Scripts\\pip install https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809de74a5ddbaa.zip
   - venv\\Scripts\\python pinsis.py --qtif
 
