@@ -1,18 +1,22 @@
 image: Visual Studio 2015
 
+environment:
+  global:
+    PYTHON: "C:\\Python36"
+
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
   - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
 
 build_script:
-  - c:\python36\Scripts\pip install --user tox
-  - c:\python36\Scripts\pip install --user virtualenv
-  - c:\python36\Scripts\pip install --user requests
-  - c:\\python36\\python appveyor.py
-  - c:\\python36\\python venv.py
+  - \"%PYTHON%\"\\Scripts\\pip install --user tox
+  - \"%PYTHON%\"\Scripts\\pip install --user virtualenv
+  - \"%PYTHON%\"\\Scripts\\pip install --user requests
+  - \"%PYTHON%\"\\python appveyor.py
+  - \"%PYTHON%\"\\python venv.py
   - venv\\Scripts\\pip install https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809de74a5ddbaa.zip
-  - copy c:\\python36\\python3.dll venv\\Scripts
-  - venv\\Scripts\\python pinsis.py --qtifw
+  - copy \"%PYTHON%\"\\python3.dll venv\\Scripts
+  - venv\\Scripts\\python pinsis.py --qtif
 
 artifacts:
   - path: dist\*.exe
