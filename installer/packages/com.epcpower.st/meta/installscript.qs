@@ -22,7 +22,7 @@ Component.prototype.createOperations = function()
 
                 component.addOperation("CreateShortcut", "@TargetDir@/EPyQ.exe", "@DesktopDir@/EPyQ.lnk",
                     "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/EPyQ.exe",
-                    "iconId=1");
+                    "iconId=0");
                    
                 component.addOperation("RegisterFileType",
                                        "epc",
