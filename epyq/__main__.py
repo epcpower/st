@@ -272,7 +272,7 @@ def main(args=None):
         QtCore.QFileInfo.absolutePath(QFileInfo(__file__)),
         '..', 'venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'
     )
-    if not os.exists(fontawesome_path):
+    if not os.path.exists(fontawesome_path):
         fontawesome_path = '.'
 
     font_paths = [
