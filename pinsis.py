@@ -58,5 +58,5 @@ if args.nsis:
     nsi_script = os.path.join('installer', 'script.nsi')
     subprocess.check_call([makensis, nsi_script])
 elif args.qtifw:
-    deploy = os.path.join('venv', 'Scripts', 'python sub', 'epyqlib', 'deploy_win.py')
+    deploy = os.path.join('venv', 'Scripts', 'python', 'sub', 'epyqlib', 'deploy_win.py')
     subprocess.check_call([deploy, '--name', 'epyq'])
