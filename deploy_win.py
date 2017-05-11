@@ -22,6 +22,7 @@ except ImportError:
 import epyq
 import epyqlib.tee
 import glob
+import io
 import json
 import os
 import stat
@@ -105,14 +106,10 @@ import zipfile
 
 import subprocess
 
-default_sysroot = os.path.abspath(
-    os.path.join('..', '..', 'sysroot')
-)
 
 parser =  argparse.ArgumentParser()
 parser.add_argument('--device-file', '-d', type=str, default=None)
 parser.add_argument('--name', '-n', type=str, required=True)
-parser.add_argument('--sysroot', '-s', type=str)
 
 args = parser.parse_args()
 
@@ -138,25 +135,6 @@ qt_root = os.path.join('C:/', 'Qt', 'Qt5.7.0')
 env = os.environ
 
 env['INTERPRETER'] = sys.executable
-env['CL'] = '/MP'
-env['PATH'] = ';'.join([
-        os.path.join(qt_root, '5.7', 'msvc2015', 'bin'),
-        os.environ['PATH']
-    ])
-env['QMAKESPEC'] = 'win32-msvc2015'
-if 'SYSROOT' not in env:
-    if args.sysroot is None:
-        env['SYSROOT'] = default_sysroot
-    else:
-        env['SYSROOT'] = args.sysroot
-
-env = get_environment_from_batch_command(
-    [
-        os.path.join('C:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'vcvarsall.bat'),
-        'x86'
-    ],
-    initial=env
-)
 
 # TODO: CAMPid 0238493420143087667542054268097120437916848
 # http://stackoverflow.com/a/21263493/228539
@@ -183,10 +161,7 @@ def pip_install(package, no_ssl_verify, site=False, parameters=[]):
     pip_parameters.append(package)
     return pip.main(pip_parameters)
 
-# pip_install('hg+http://www.riverbankcomputing.com/hg/pyqtdeploy@bef6017b100c#egg=pyqtdeploy', no_ssl_verify=False, site=True, parameters=['--upgrade'])
-pip_install('pyqtdeploy==1.3.2', no_ssl_verify=False, site=True, parameters=['--upgrade'])
-
-resource_files = glob.glob(os.path.join('sub', 'epyqlib', 'epyqlib', 'resources', '*.qrc'))
+resource_files = []#glob.glob(os.path.join('sub', 'epyqlib', 'epyqlib', 'resources', '*.qrc'))
 for f in resource_files:
     print('Starting pyrcc5')
     runit(
@@ -197,31 +172,6 @@ for f in resource_files:
         ]
     )
 
-print('Starting pyqtdeploycli')
-runit(
-    args=[
-        'pyqtdeploycli',
-        '--project', 'epyq.pdy',
-        '--timeout', '600',
-        'build'
-    ],
-    env=env,
-)
-
-runit(
-    args=[
-        'qmake',
-    ],
-    cwd='build',
-    env=env,
-)
-
-runit(args='nmake', cwd='build', env=env)
-
-runit(args=[
-    os.path.join('c:/', 'Qt', 'Qt5.7.0', '5.7', 'msvc2015', 'bin', 'windeployqt.exe'),
-    os.path.join('build', 'release', 'epyq.exe')
-])
 
 files = []
 
@@ -252,16 +202,6 @@ if args.device_file is not None:
                     )
 
 
-for extension in ['svg']:
-    files.extend(glob.glob('*.' + extension))
-files.append(os.path.join('c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'redist', 'x86', 'Microsoft.VC140.CRT', 'msvcp140.dll'))
-files.append(os.path.join('d:/', 'vcredist_x86-2010-sp1.exe'))
-files.append(os.path.join('c:/', 'Windows', 'SysWOW64', 'PCANBasic.dll'))
-files.extend(glob.glob(os.path.join('venv', 'Lib', 'site-packages', 'win32', '*.pyd')))
-files.extend(glob.glob(os.path.join('venv', 'Lib', 'site-packages', 'pypiwin32_system32', '*.dll')))
-for file in files:
-    shutil.copy(file, os.path.join('build', 'release'))
-
 shutil.copytree('installer', os.path.join('build', 'installer'))
 
 def copy_files(src, dst):
@@ -274,7 +214,7 @@ def copy_files(src, dst):
         else:
             shutil.copytree(full_file_name, os.path.join(dst, file_name))
 
-copy_files(os.path.join('build', 'release'), os.path.join('build', 'installer', 'packages', 'com.epcpower.st', 'data'))
+copy_files(os.path.join('dist', 'epyq'), os.path.join('build', 'installer', 'packages', 'com.epcpower.st', 'data'))
 
 shutil.copy('COPYING', os.path.join('build', 'installer', 'packages', 'com.epcpower.st', 'meta', 'epyq-COPYING.txt'))
 
@@ -298,20 +238,39 @@ def write_license(name, contents, url, collapse_double_newlines):
 pip_install('requests', no_ssl_verify=False, site=True)
 import requests
 
+pyqt5_license_path = os.path.join('build', 'PyQt5_LICENSE')
+qt_license_path = os.path.join('build', 'Qt_LICENSE')
+zipped_licenses = (
+    (
+        pyqt5_license_path,
+        'https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.8.2/PyQt5_gpl-5.8.2.zip',
+        'PyQt5_gpl-5.8.2/LICENSE',
+    ),
+)
+
+for zipped in zipped_licenses:
+    r = requests.get(zipped[1])
+    with zipfile.ZipFile(io.BytesIO(r.content)) as z:
+        with z.open(zipped[2]) as i:
+            with open(zipped[0], 'wb') as o:
+                o.write(i.read())
+
 # The Qt Installer Framework (QtIFW) likes to do a few things to license files...
 #  * '\n' -> '\r\n'
 #   * even such that '\r\n' -> '\r\r\n'
 #  * Recodes to something else (probably cp-1251)
 #
 # So, we'll just try force '\n' can become something still acceptable after being messed with
+if 'PYTHON' not in os.environ:
+    os.environ['PYTHON'] = os.path.join('c:/', 'Program Files (x86)', 'python35-32')
 with open(third_party_license, 'w', encoding='utf-8', newline='\n') as out:
     licenses = [
         ('bitstruct', ('venv', 'src', 'bitstruct', 'LICENSE'), None, False),
         ('canmatrix', ('venv', 'src', 'canmatrix', 'LICENSE'), None, False),
         ('python-can', ('venv', 'src', 'python-can', 'LICENSE.txt'), None, False),
-        ('Python', ('c:/', 'Program Files (x86)', 'python35-32', 'LICENSE.txt'), None, False),
-        ('PyQt5', ('$SYSROOT', '..', 'src', 'PyQt5_gpl-5.7', 'LICENSE'), None, False),
-        ('Qt', ('c:/', 'Qt', 'Qt5.7.0', 'Licenses', 'LICENSE'), None, True),
+        ('Python', (os.environ['PYTHON'], 'LICENSE.txt'), None, False),
+        ('PyQt5', (pyqt5_license_path,), None, False),
+        ('Qt', (), 'https://www.gnu.org/licenses/gpl-3.0.txt', True),
         ('PEAK-System', ('installer', 'peak-system.txt'), 'http://www.peak-system.com/produktcd/Develop/PC%20interfaces/Windows/API-ReadMe.txt', False),
         ('Microsoft Visual C++ Build Tools', ('installer', 'microsoft_visual_cpp_build_tools_eula.html'), 'https://www.visualstudio.com/en-us/support/legal/mt644918', False),
         ('Microsoft Visual C++ 2010 x86 Redistributable SP1', ('installer', 'microsoft_visual_cpp_2010_x86_redistributable_setup_sp1.rtf'), None, False),
@@ -390,7 +349,7 @@ for path in os.listdir(base):
     )
 
 runit(args=[
-    os.path.join('c:/', 'Qt', 'QtIFW2.0.3', 'bin', 'binarycreator.exe'),
+    os.path.join('c:/', 'Qt', 'QtIFW2.0.1', 'bin', 'binarycreator.exe'),
     '-c', os.path.join('installer', 'config', 'config.xml'),
     '-p', os.path.join('installer', 'packages'),
     'epyq.exe'],
