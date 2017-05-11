@@ -31,6 +31,10 @@ data_files.extend(collect(prefix, search_in, '.ui'))
 
 prefix = os.path.join('sub', 'epyqlib', '')
 search_in = os.path.join(prefix, 'epyqlib')
+data_files.extend(collect(prefix, search_in, '.svg'))
+
+prefix = os.path.join('sub', 'epyqlib', '')
+search_in = os.path.join(prefix, 'epyqlib')
 extension = '.py'
 for dir_name, subdirs, files in os.walk(search_in):
     for py in (f for f in files if f.endswith(extension)):
