@@ -36,8 +36,8 @@ def rmtree(path, retries=5):
 
 parser =  argparse.ArgumentParser()
 installer_group = parser.add_mutually_exclusive_group(required=True)
-installer_group.add_argument('--qtifw')
-installer_group.add_argument('--nsis')
+installer_group.add_argument('--qtifw', action='store_true')
+installer_group.add_argument('--nsis', action='store_true')
 
 args = parser.parse_args()
 
