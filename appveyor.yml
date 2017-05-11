@@ -17,10 +17,11 @@ build_script:
   - python venv.py
   - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   - venv\\Scripts\\pip install https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809de74a5ddbaa.zip
-  - venv\\Scripts\\python pinsis.py --qtif
+  - venv\\Scripts\\python pinsis.py --qtifw
+  - move ..\\*.exe .
 
 artifacts:
-  - path: ..\\*.exe
+  - path: '*.exe'
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 on_finish:
