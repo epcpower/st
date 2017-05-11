@@ -12,10 +12,10 @@ build_script:
   - c:\\python36\\python venv.py
   - venv\\Scripts\\pip install https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809de74a5ddbaa.zip
   - copy c:\\python36\\python3.dll venv\\Scripts
-  - venv\\Scripts\\python sub\\epyqlib\\deploy_win.py --name epyq
+  - venv\\Scripts\\python pinsis.py --qtifw
 
 artifacts:
-  - path: ..\*.exe
+  - path: dist\*.exe
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 on_finish:

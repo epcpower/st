@@ -33,6 +33,13 @@ def rmtree(path, retries=5):
                 break
 
 
+parser =  argparse.ArgumentParser()
+installer_group = parser.add_mutually_exclusive_group(required=True)
+installer_group.add_argument('--qtifw')
+installer_group.add_argument('--nsis')
+
+args = parser.parse_args()
+
 peak = 'PCANBasic.dll'
 r = requests.get('http://www.peak-system.com/produktcd//Develop/PC%20interfaces/Windows/PCAN-Basic%20API/Win32/PCANBasic.dll')
 b = io.BytesIO(r.content)
@@ -45,6 +52,10 @@ spec_file = os.path.join('installer', 'pyinstaller.spec')
 subprocess.check_call([pyinstaller, spec_file])
 
 
-makensis = os.path.join('c:/', 'program files (x86)', 'nsis', 'bin', 'makensis.exe')
-nsi_script = os.path.join('installer', 'script.nsi')
-subprocess.check_call([makensis, nsi_script])
+if args.nsis:
+    makensis = os.path.join('c:/', 'program files (x86)', 'nsis', 'bin', 'makensis.exe')
+    nsi_script = os.path.join('installer', 'script.nsi')
+    subprocess.check_call([makensis, nsi_script])
+elif args.qtifw:
+    deploy = os.path.join('venv', 'Scripts', 'python sub', 'epyqlib', 'deploy_win.py')
+    subprocess.check_call([deploy, '--name', 'epyq'])
