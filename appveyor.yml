@@ -9,13 +9,14 @@ init:
   - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
 
 build_script:
-  - \"%PYTHON%\"\\Scripts\\pip install --user tox
-  - \"%PYTHON%\"\Scripts\\pip install --user virtualenv
-  - \"%PYTHON%\"\\Scripts\\pip install --user requests
-  - \"%PYTHON%\"\\python appveyor.py
-  - \"%PYTHON%\"\\python venv.py
-  - venv\\Scripts\\pip install https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809de74a5ddbaa.zip
+  - SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+  - pip install --user tox
+  - pip install --user virtualenv
+  - pip install --user requests
+  - python appveyor.py
+  - python venv.py
   - copy \"%PYTHON%\"\\python3.dll venv\\Scripts
+  - venv\\Scripts\\pip install https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809de74a5ddbaa.zip
   - venv\\Scripts\\python pinsis.py --qtif
 
 artifacts:
