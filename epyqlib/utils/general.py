@@ -147,3 +147,38 @@ class AutoNumberIntEnum(enum.IntEnum):
         obj = int.__new__(cls, value)
         obj._value_ = value
         return obj
+
+
+class TextTable:
+    def __init__(self, format_string=None):
+        self.format = format_string
+        self.rows = []
+        self.widths = ()
+
+    def append(self, *row):
+        row = tuple(str(c) for c in row)
+        self.rows.append(row)
+        widths = tuple(len(c) for c in row)
+        self.widths = tuple(
+            max(a, b) for a, b
+            in itertools.zip_longest(self.widths, widths, fillvalue=0)
+        )
+
+    def extend(self, rows):
+        for row in rows:
+            self.append(*row)
+
+    def __str__(self):
+        if len(self.rows) == 0:
+            return ''
+
+        f = self.format
+        if f is None:
+            f = ' '.join(('{{:{}}}',) * len(self.widths))
+
+        f = f.format(*(max(w, 1) for w in self.widths))
+
+        return '\n'.join((
+            f.format(*(row + (('',) * (len(self.widths) - len(row)))))
+            for row in self.rows
+        ))
