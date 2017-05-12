@@ -14,12 +14,14 @@ setup(
             'collectdevices = epyqlib.collectdevices:main',
             'contiguouscommits = epyqlib.utils.contiguouscommits:_entry_point',
             'epyqflash = epyqlib.flash:_entry_point',
-            'patchvenv = epyqlib.patchvenv:main'
+            'patchvenv = epyqlib.patchvenv:main',
+            'cangenmanual = epyqlib.cangenmanual:_entry_point',
         ]
     },
     install_requires=[
         'dulwich',
         'gitpython',
-        'PyQt5'
+        'PyQt5',
+        'click',
     ]
 )
