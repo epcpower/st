@@ -23,5 +23,6 @@ setup(
         'gitpython',
         'PyQt5',
         'click',
+        'python-docx',
     ]
 )
