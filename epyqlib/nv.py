@@ -468,8 +468,22 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         self.save_signal.set_value(self.save_value)
         self.save_frame.update_from_signals()
         d = self.protocol.write(self.save_signal, passive=True)
+        d.addBoth(
+            epyqlib.utils.twisted.detour_result,
+            self.module_to_nv_off,
+        )
         d.addCallback(self._module_to_nv_response)
+        d.addErrback(
+            epyqlib.utils.twisted.detour_result,
+            self._module_to_nv_response,
+            0,
+        )
         d.addErrback(epyqlib.utils.twisted.errbackhook)
+
+    def module_to_nv_off(self):
+        self.save_signal.set_value(not self.save_value)
+        d = self.protocol.write(self.save_signal, passive=True)
+        d.addErrback(lambda _: None)
 
     def _module_to_nv_response(self, result):
         if result == 1:
