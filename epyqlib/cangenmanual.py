@@ -7,7 +7,9 @@ import canmatrix.formats
 import click
 import docx
 import docx.enum.section
+import docx.enum.table
 import docx.enum.text
+import docx.shared
 import docx.table
 
 import epyqlib.utils.general
@@ -20,30 +22,70 @@ __license__ = 'GPLv2+'
 logger = logging.getLogger(__name__)
 
 
+def docx_ancestor(element, target_type=docx.document.Document):
+    while not isinstance(element, target_type) and element is not None:
+        element = element._parent
+
+    return element
+
+
 @attr.s
 class Table:
     title = attr.ib()
     headings = attr.ib()
+    widths = attr.ib()
+    total_width = attr.ib(default=10)
     comment = attr.ib(default='')
     rows = attr.ib(default=attr.Factory(list))
 
     def fill_docx(self, table):
+        table.alignment = docx.enum.table.WD_TABLE_ALIGNMENT.CENTER
+        # table.autofit = True
+        # table.style = 'CAN Table'
+
         row = table.add_row()
-        row.cells[0].merge(row.cells[-1])
         row.cells[0].text = self.title
-        row.cells[0].paragraphs[0].alignment = (
+        title_paragraph = row.cells[0].paragraphs[0]
+        title_paragraph.paragraph_format.keep_with_next = True
+        title_paragraph.style = 'CAN Table Title'
+        title_paragraph.alignment = (
             docx.enum.text.WD_PARAGRAPH_ALIGNMENT.CENTER)
+
         if len(self.comment) > 0:
             row = table.add_row()
             row.cells[0].merge(row.cells[-1])
             row.cells[0].text = self.comment
+            row.cells[0].paragraphs[0].paragraph_format.keep_with_next = True
+
         row = table.add_row()
         for cell, heading in zip(row.cells, self.headings):
             cell.text = heading
+            cell.paragraphs[0].style = 'CAN Table Heading'
+            cell.paragraphs[0].paragraph_format.keep_with_next = True
+
         for r in self.rows:
             row = table.add_row()
             for cell, text in zip(row.cells, r):
                 cell.text = str(text)
+                cell.paragraphs[0].style = 'CAN Table Contents'
+                cell.paragraphs[0].paragraph_format.keep_with_next = True
+
+        remaining_width = (
+            self.total_width - sum(w for w in self.widths if w is not None)
+        )
+        each_width = remaining_width / sum(1 for w in self.widths if w is None)
+        widths = [each_width if w is None else w for w in self.widths]
+        widths = [
+            w if w is None else docx.shared.Inches(w)
+            for w in widths
+        ]
+        for column, width in zip(table.columns, widths):
+            column.width = width
+        for row in table.rows:
+            for cell, width in zip(row.cells, widths):
+                cell.width = width
+
+        table.rows[0].cells[0].merge(table.rows[0].cells[-1])
 
 
 def id_string(id):
@@ -108,7 +150,7 @@ def main(can, verbose):
     ).values()
 
     mux_table_header = (
-        'Mux Name', 'Mux ID', 'Name', 'Start', 'Length', 'Scaling', 'Units',
+        'Mux Name', 'Mux ID', 'Name', 'Start', 'Length', 'Factor', 'Units',
         'Enumeration', 'Comment'
     )
     mux_table = epyqlib.utils.general.TextTable()
@@ -116,12 +158,18 @@ def main(can, verbose):
     mux_table_header = mux_table_header[2:]
 
     frame_table_header = (
-        'Frame', 'ID', 'Name', 'Start', 'Length', 'Scaling', 'Units',
+        'Frame', 'ID', 'Name', 'Start', 'Length', 'Factor', 'Units',
         'Enumeration', 'Comment'
     )
+
     frame_table = epyqlib.utils.general.TextTable()
     frame_table.append(frame_table_header)
     frame_table_header = frame_table_header[2:]
+
+    widths = [0.625] * len(frame_table_header)
+    widths[0] = 1.75
+    widths[-2] = 1.5
+    widths[-1] = None
 
     enum_table_header = ('Value', 'Name')
 
@@ -139,6 +187,7 @@ def main(can, verbose):
             title='{} ({})'.format(frame.name, id_string(frame.id)),
             comment=frame.comment,
             headings=frame_table_header,
+            widths=widths,
         )
         frame_tables.append(a_ft)
 
@@ -178,6 +227,7 @@ def main(can, verbose):
                     ),
                     # comment=frame.comment,
                     headings=mux_table_header,
+                    widths=widths,
                 )
                 multiplex_tables.append(a_mt)
 
@@ -205,10 +255,13 @@ def main(can, verbose):
 
     enumeration_table = epyqlib.utils.general.TextTable()
     enumeration_table.append('Name', '', 'Value')
+    widths = (1.5, None)
     for name, values in sorted(matrix.valueTables.items()):
         a_et = Table(
             title=name,
             headings=enum_table_header,
+            widths=widths,
+            total_width=5,
         )
         enumeration_tables.append(a_et)
         a_et.rows.extend(sorted(values.items()))
@@ -220,15 +273,35 @@ def main(can, verbose):
     print('\n\n - - - - - - - Enumerations\n')
     print(enumeration_table)
 
-    doc = docx.Document()
-    for tables in (frame_tables, multiplex_tables, enumeration_tables):
-        # section = doc.add_section()
-        # section.orientation = docx.enum.section.WD_ORIENT.LANDSCAPE
+    with open('template.docx', 'rb') as f:
+        doc = docx.Document(f)
+
+    table_sets = {
+        'frames': frame_tables,
+        'multiplexers': multiplex_tables,
+        'enumerations': enumeration_tables,
+    }
+    for tag, tables in table_sets.items():
+        full_tag = '<gen_{}>'.format(tag)
+        for paragraph in doc.paragraphs:
+            if paragraph.text == full_tag:
+                break
+        else:
+            raise Exception('Tag not found: {}'.format(full_tag))
+
         for table in tables:
             doc_table = doc.add_table(rows=0, cols=len(table.headings))
-            doc.add_paragraph()
+            doc_paragraph = doc.add_paragraph()
+
+            paragraph._p.addprevious(doc_table._tbl)
+            paragraph._p.addprevious(doc_paragraph._p)
 
             table.fill_docx(doc_table)
+
+        # TODO: Would rather delete the tag paragraph but that breaks the
+        #       template's landscape page format for some reason
+        # paragraph._p.getparent().remove(paragraph._p)
+        paragraph.clear()
     doc.save('doc.docx')
     pass
 
