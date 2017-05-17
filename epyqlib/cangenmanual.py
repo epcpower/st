@@ -284,8 +284,11 @@ def main(can, verbose):
     for tag, tables in table_sets.items():
         full_tag = '<gen_{}>'.format(tag)
         for paragraph in doc.paragraphs:
-            if paragraph.text == full_tag:
+            if paragraph.text.strip() == full_tag:
                 break
+            elif full_tag in paragraph.text:
+                f = 'Tag {} found, expected as only text in paragraph: {}'
+                raise Exception(f.format(full_tag, repr(paragraph.text)))
         else:
             raise Exception('Tag not found: {}'.format(full_tag))
 
