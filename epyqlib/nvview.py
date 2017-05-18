@@ -64,7 +64,7 @@ class NvView(QtWidgets.QWidget):
         self.ui.tree_view.clicked.connect(self.clicked)
         self.ui.tree_view.header().setMinimumSectionSize(0)
 
-        self.progress = epyqlib.utils.qt.Progress()
+        self.progress = None
 
     # TODO: CAMPid 07943342700734207878034207087
     def nonproxy_model(self):
@@ -172,6 +172,7 @@ class NvView(QtWidgets.QWidget):
     @pyqtSlot(str)
     def activity_started(self, string):
         self.ui.status_label.setText(string)
+        self.progress = epyqlib.utils.qt.Progress()
         self.progress.connect(
             progress=epyqlib.utils.qt.progress_dialog(parent=self),
             label_text=string,
@@ -180,7 +181,9 @@ class NvView(QtWidgets.QWidget):
     @pyqtSlot(str)
     def activity_ended(self, string):
         self.ui.status_label.setText(string)
-        self.progress.complete()
+        if self.progress is not None:
+            self.progress.complete()
+            self.progress = None
 
     def context_menu(self, position):
         proxy = self.ui.tree_view.model()
