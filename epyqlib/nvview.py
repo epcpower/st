@@ -3,6 +3,7 @@
 #TODO: """DocString if there is one"""
 
 import epyqlib.nv
+import epyqlib.utils.qt
 import functools
 import io
 import os
@@ -62,6 +63,8 @@ class NvView(QtWidgets.QWidget):
 
         self.ui.tree_view.clicked.connect(self.clicked)
         self.ui.tree_view.header().setMinimumSectionSize(0)
+
+        self.progress = epyqlib.utils.qt.Progress()
 
     # TODO: CAMPid 07943342700734207878034207087
     def nonproxy_model(self):
@@ -169,10 +172,15 @@ class NvView(QtWidgets.QWidget):
     @pyqtSlot(str)
     def activity_started(self, string):
         self.ui.status_label.setText(string)
+        self.progress.connect(
+            progress=epyqlib.utils.qt.progress_dialog(parent=self),
+            label_text=string,
+        )
 
     @pyqtSlot(str)
     def activity_ended(self, string):
         self.ui.status_label.setText(string)
+        self.progress.complete()
 
     def context_menu(self, position):
         proxy = self.ui.tree_view.model()
