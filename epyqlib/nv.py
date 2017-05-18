@@ -77,7 +77,8 @@ class Group(TreeNode):
 
 class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
     changed = pyqtSignal(TreeNode, int, TreeNode, int, list)
-    set_status_string = pyqtSignal(str)
+    activity_started = pyqtSignal(str)
+    activity_ended = pyqtSignal(str)
 
     def __init__(self, neo, bus, stop_cyclic=None, start_cyclic=None,
                  configuration=None, hierarchy=None, parent=None):
@@ -316,7 +317,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         activity = ('Reading from device' if read
                     else 'Writing to device')
 
-        self.set_status_string.emit('{}...'.format(activity))
+        self.activity_started.emit('{}...'.format(activity))
         d = twisted.internet.defer.Deferred()
         d.callback(None)
 
@@ -390,10 +391,10 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                 handle_frame(frame=frame, signals=signals)
 
         d.addCallback(epyqlib.utils.twisted.detour_result,
-                      self.set_status_string.emit,
+                      self.activity_ended.emit,
                       'Finished {}...'.format(activity.lower()))
         d.addErrback(epyqlib.utils.twisted.detour_result,
-                     self.set_status_string.emit,
+                     self.activity_ended.emit,
                      'Failed while {}...'.format(activity.lower()))
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
@@ -464,7 +465,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                   "defaults from dict".format(name))
 
     def module_to_nv(self):
-        self.set_status_string.emit('Requested save to NV...')
+        self.activity_started.emit('Requested save to NV...')
         self.save_signal.set_value(self.save_value)
         self.save_frame.update_from_signals()
         d = self.protocol.write(self.save_signal, passive=True)
@@ -493,7 +494,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                 self.confirm_save_signal.full_string
             )
 
-        self.set_status_string.emit(feedback)
+        self.activity_ended.emit(feedback)
 
     def logger_set_frames(self):
         frames = [frame for frame in self.set_frames.values()
@@ -688,7 +689,8 @@ class Icon:
 
 
 class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
-    set_status_string = pyqtSignal(str)
+    activity_started = pyqtSignal(str)
+    activity_ended = pyqtSignal(str)
 
     def __init__(self, root, parent=None):
         editable_columns = Columns.fill(False)
@@ -705,7 +707,8 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                                default='Default',
                                comment='Comment')
 
-        root.set_status_string.connect(self.set_status_string)
+        root.activity_started.connect(self.activity_started)
+        root.activity_ended.connect(self.activity_ended)
 
         self.icons = Columns(
             reset=Icon(character='\uf0e2', check='can_be_reset'),
@@ -856,7 +859,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 file.write(s)
                 file.write('\n')
 
-                self.set_status_string.emit(
+                self.activity_ended.emit(
                     'Saved to "{}"'.format(filename)
                 )
 
@@ -877,7 +880,7 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 d = json.loads(s)
                 self.root.from_dict(d)
 
-                self.set_status_string.emit(
+                self.activity_ended.emit(
                     'Loaded from "{}"'.format(filename)
                 )
 

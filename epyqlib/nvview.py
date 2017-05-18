@@ -104,7 +104,8 @@ class NvView(QtWidgets.QWidget):
         self.ui.tree_view.setModel(proxy)
 
         model = self.nonproxy_model()
-        model.set_status_string.connect(self.set_status_string)
+        model.activity_started.connect(self.activity_started)
+        model.activity_ended.connect(self.activity_ended)
 
         self.ui.module_to_nv.connect(model.module_to_nv)
 
@@ -166,7 +167,11 @@ class NvView(QtWidgets.QWidget):
                 model.clear_node(node)
 
     @pyqtSlot(str)
-    def set_status_string(self, string):
+    def activity_started(self, string):
+        self.ui.status_label.setText(string)
+
+    @pyqtSlot(str)
+    def activity_ended(self, string):
         self.ui.status_label.setText(string)
 
     def context_menu(self, position):
