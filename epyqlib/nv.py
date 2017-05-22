@@ -674,8 +674,13 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
         else:
             return self.name, self.mux_name
 
-    def update_from_signals(self, for_read=False, function=None):
-        epyqlib.canneo.Frame.update_from_signals(self, function=function)
+    def update_from_signals(self, for_read=False, data=None, function=None,
+                            only_return=False):
+        return super().update_from_signals(
+            data=data,
+            function=function,
+            only_return=only_return,
+        )
 
     def send_now(self):
         self._send.emit()

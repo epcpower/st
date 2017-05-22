@@ -8,7 +8,6 @@ import epyqlib.cmemoryparser
 import epyqlib.pyqabstractitemmodel
 import epyqlib.treenode
 import epyqlib.twisted.cancalibrationprotocol as ccp
-import epyqlib.twisted.nvs as nv_protocol
 import epyqlib.utils.qt
 import epyqlib.utils.twisted
 import functools
