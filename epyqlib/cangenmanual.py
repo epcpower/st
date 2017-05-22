@@ -1,3 +1,4 @@
+import collections
 import logging
 import os
 import signal
@@ -63,12 +64,21 @@ class Table:
             cell.paragraphs[0].style = 'CAN Table Heading'
             cell.paragraphs[0].paragraph_format.keep_with_next = True
 
+        styles = collections.OrderedDict((
+            (0, 'CAN Table Contents'),
+            (1, 'CAN Table Contents Shaded'),
+        ))
+
+        style = 0
+
         for r in self.rows:
             row = table.add_row()
             for cell, text in zip(row.cells, r):
                 cell.text = str(text)
-                cell.paragraphs[0].style = 'CAN Table Contents'
+                cell.paragraphs[0].style = styles[style]
                 cell.paragraphs[0].paragraph_format.keep_with_next = True
+
+            style = (style + 1) % len(styles)
 
         remaining_width = (
             self.total_width - sum(w for w in self.widths if w is not None)
@@ -167,7 +177,7 @@ def main(can, verbose):
     frame_table_header = frame_table_header[2:]
 
     widths = [0.625] * len(frame_table_header)
-    widths[0] = 1.75
+    widths[0] = 2
     widths[-2] = 1.5
     widths[-1] = None
 
