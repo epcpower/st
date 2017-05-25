@@ -149,8 +149,9 @@ def doc_signals(signals):
 
 @click.command()
 @click.option('--can', '-c', type=click.File('rb'), required=True)
+@click.option('--template', '-t', type=click.File('rb'), required=True)
 @click.option('--verbose', '-v', count=True)
-def main(can, verbose):
+def main(can, template, verbose):
     if verbose >= 1:
         logger.setLevel(logging.DEBUG)
 
@@ -283,8 +284,7 @@ def main(can, verbose):
     print('\n\n - - - - - - - Enumerations\n')
     print(enumeration_table)
 
-    with open('template.docx', 'rb') as f:
-        doc = docx.Document(f)
+    doc = docx.Document(template)
 
     table_sets = {
         'frames': frame_tables,
