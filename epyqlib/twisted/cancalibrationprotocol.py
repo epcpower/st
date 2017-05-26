@@ -73,7 +73,7 @@ class HandlerState(enum.Enum):
 class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
     messages_sent = pyqtSignal(int)
 
-    def __init__(self, tx_id=bootloader_can_id, rx_id=bootloader_can_id,
+    def __init__(self, endianness, tx_id=bootloader_can_id, rx_id=bootloader_can_id,
                  extended=True, parent=None):
         QObject.__init__(self, parent=parent)
         self._deferred = None
@@ -103,6 +103,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         self._messages_sent = 0
 
         self.request_memory = None
+
+        self.endianness = endianness
 
     @property
     def state(self):
@@ -138,6 +140,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
                              arbitration_id=self._tx_id)
         # TODO: shouldn't be needed, just makes it agree with oz
         #       for cleaner diff
+        # packet.payload[0:1] = station_address.to_bytes(2, 'little')
         packet.payload[0] = station_address
         self._send(packet=packet,
                    state=HandlerState.connecting,
@@ -191,7 +194,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         # always zero for Oz bootloader
         packet.payload[0] = 0
         packet.payload[1] = address_extension
-        packet.payload[2:6] = address.to_bytes(4, 'big')
+        packet.payload[2:6] = address.to_bytes(4, self.endianness)
 
         self._send(packet=packet, state=HandlerState.setting_mta)
 
@@ -214,7 +217,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         packet = HostCommand(code=CommandCode.unlock,
                              arbitration_id=self._tx_id)
         packet.payload[0] = 2
-        packet.payload[1:3] = section.value.to_bytes(2, 'big')
+        packet.payload[1:3] = section.value.to_bytes(2, self.endianness)
 
         self._send(packet=packet, state=HandlerState.unlocking)
 
@@ -334,9 +337,9 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
         packet = HostCommand(code=CommandCode.build_checksum,
                              arbitration_id=self._tx_id)
         logger.debug('{}, {}'.format(type(length), type(checksum)))
-        logger.debug((length.to_bytes(4, 'big'), checksum.to_bytes(2, 'big')))
-        packet.payload[:4] = length.to_bytes(4, 'big')
-        packet.payload[4:] = checksum.to_bytes(2, 'big')
+        logger.debug((length.to_bytes(4, self.endianness), checksum.to_bytes(2, self.endianness)))
+        packet.payload[:4] = length.to_bytes(4, self.endianness)
+        packet.payload[4:] = checksum.to_bytes(2, self.endianness)
         logger.debug(packet)
 
         self._send(packet=packet, state=HandlerState.building_checksum)
@@ -360,7 +363,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         packet = HostCommand(code=CommandCode.clear_memory,
                              arbitration_id=self._tx_id)
-        packet.payload[:4] = length.to_bytes(4, 'big')
+        packet.payload[:4] = length.to_bytes(4, self.endianness)
 
         self._send(packet=packet, state=HandlerState.clearing_memory)
 

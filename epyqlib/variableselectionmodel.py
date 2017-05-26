@@ -322,7 +322,12 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.pull_log_progress = epyqlib.utils.qt.Progress()
 
-        self.protocol = ccp.Handler(tx_id=tx_id, rx_id=rx_id)
+        signal = self.nvs.neo.signal_by_path('CCP', 'Connect', 'CommandCounter')
+        self.protocol = ccp.Handler(
+            endianness='little' if signal.little_endian else 'big',
+            tx_id=tx_id,
+            rx_id=rx_id
+        )
         from twisted.internet import reactor
         self.transport = epyqlib.twisted.busproxy.BusProxy(
             protocol=self.protocol,

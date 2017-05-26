@@ -33,7 +33,12 @@ class DataLogger:
     rx_id = attr.ib(default=0x1FFFFFF7)
 
     def __attrs_post_init__(self):
-        self.ccp_protocol = ccp.Handler(tx_id=self.tx_id, rx_id=self.rx_id)
+        signal = self.nvs.neo.signal_by_path('CCP', 'Connect', 'CommandCounter')
+        self.ccp_protocol = ccp.Handler(
+            endianness='little' if signal.little_endian else 'big',
+            tx_id=self.tx_id,
+            rx_id=self.rx_id,
+        )
         from twisted.internet import reactor
         self.ccp_transport = epyqlib.twisted.busproxy.BusProxy(
             protocol=self.ccp_protocol,
