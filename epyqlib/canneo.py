@@ -540,8 +540,16 @@ class Frame(QtCanListener):
         except StopIteration:
             return None
 
-    def update_from_signals(self, function=None):
-        self.data = self.pack(self, function=function)
+    def update_from_signals(self, function=None, data=None, only_return=False):
+        if data is None:
+            data = self
+
+        data = self.pack(data, function=function)
+
+        if not only_return:
+            self.data = data
+
+        return data
 
     def pack(self, data, function=None):
         if data == self:
@@ -621,11 +629,14 @@ class Frame(QtCanListener):
                 if not self.timer.isActive():
                     self.timer.start()
 
-    def to_message(self):
+    def to_message(self, data=None):
+        if data is None:
+            data = self.data
+
         return can.Message(extended_id=self.extended,
                            arbitration_id=self.id,
                            dlc=self.size,
-                           data=self.data)
+                           data=data)
 
     @pyqtSlot(can.Message)
     def message_received(self, msg):
@@ -766,7 +777,7 @@ class Neo(QtCanListener):
                     matrix_frame.addSignal(matrix_signal)
 
                     for signal in frame._signals:
-                        if str(signal._multiplex) == multiplex_value:
+                        if signal._multiplex == multiplex_value:
                             matrix_frame.addSignal(signal)
 
                     neo_frame = frame_class(
@@ -775,10 +786,10 @@ class Neo(QtCanListener):
                     )
                     for signal in neo_frame.signals:
                         if signal.multiplex is True:
-                            signal.set_value(int(multiplex_value))
+                            signal.set_value(multiplex_value)
                     frames.append(neo_frame)
                     multiplex_neo_frame.\
-                        multiplex_frames[int(multiplex_value)] = neo_frame
+                        multiplex_frames[multiplex_value] = neo_frame
 
         if bus is not None:
             for frame in frames:

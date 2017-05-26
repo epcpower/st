@@ -3,6 +3,7 @@
 #TODO: """DocString if there is one"""
 
 import epyqlib.nv
+import epyqlib.utils.qt
 import functools
 import io
 import os
@@ -63,6 +64,8 @@ class NvView(QtWidgets.QWidget):
         self.ui.tree_view.clicked.connect(self.clicked)
         self.ui.tree_view.header().setMinimumSectionSize(0)
 
+        self.progress = None
+
     # TODO: CAMPid 07943342700734207878034207087
     def nonproxy_model(self):
         model = self.ui.tree_view.model()
@@ -104,7 +107,8 @@ class NvView(QtWidgets.QWidget):
         self.ui.tree_view.setModel(proxy)
 
         model = self.nonproxy_model()
-        model.set_status_string.connect(self.set_status_string)
+        model.activity_started.connect(self.activity_started)
+        model.activity_ended.connect(self.activity_ended)
 
         self.ui.module_to_nv.connect(model.module_to_nv)
 
@@ -166,8 +170,20 @@ class NvView(QtWidgets.QWidget):
                 model.clear_node(node)
 
     @pyqtSlot(str)
-    def set_status_string(self, string):
+    def activity_started(self, string):
         self.ui.status_label.setText(string)
+        self.progress = epyqlib.utils.qt.Progress()
+        self.progress.connect(
+            progress=epyqlib.utils.qt.progress_dialog(parent=self),
+            label_text=string,
+        )
+
+    @pyqtSlot(str)
+    def activity_ended(self, string):
+        self.ui.status_label.setText(string)
+        if self.progress is not None:
+            self.progress.complete()
+            self.progress = None
 
     def context_menu(self, position):
         proxy = self.ui.tree_view.model()

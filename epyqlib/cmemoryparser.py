@@ -994,9 +994,14 @@ def process_file(filename):
         name = die.attributes.get('DW_AT_name', None)
         if name is not None:
             name = name.value.decode('utf-8')
+        byte_size_attribute = die.attributes.get('DW_AT_byte_size')
+        if byte_size_attribute is None:
+            print('Skipping DW_TAG_structure_type due to lack of '
+                  'DW_AT_byte_size', name)
+            continue
         struct = Struct(
             name=name,
-            bytes=die.attributes['DW_AT_byte_size'].value
+            bytes=byte_size_attribute.value
         )
         structure_types.append(struct)
         offsets[die.offset] = struct
@@ -1025,9 +1030,14 @@ def process_file(filename):
         name = die.attributes.get('DW_AT_name', None)
         if name is not None:
             name = name.value.decode('utf-8')
+        byte_size_attribute = die.attributes.get('DW_AT_byte_size')
+        if byte_size_attribute is None:
+            print('Skipping DW_TAG_union_type due to lack of '
+                  'DW_AT_byte_size', name)
+            continue
         union = Union(
             name=name,
-            bytes=die.attributes['DW_AT_byte_size'].value
+            bytes=byte_size_attribute.value
         )
         union_types.append(union)
         offsets[die.offset] = union

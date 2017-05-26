@@ -145,6 +145,7 @@ class Progress(QtCore.QObject):
         self._label_text_replace = label_text
 
         self.progress.setMinimumDuration(0)
+        self.progress.setValue(0)
         # Default to a busy indicator, progress maximum can be set later
         self.progress.setMinimum(0)
         self.progress.setMaximum(0)

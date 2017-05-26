@@ -41,7 +41,7 @@ class Flasher(QObject):
 
         self.completed.connect(self.done)
 
-        self.protocol = ccp.Handler()
+        self.protocol = ccp.Handler(endianness='big')
         self.protocol.messages_sent.connect(self.update_progress)
         from twisted.internet import reactor
         self.transport = epyqlib.twisted.busproxy.BusProxy(
