@@ -1,4 +1,5 @@
 import collections
+import itertools
 import logging
 import os
 import signal
@@ -12,6 +13,7 @@ import docx.enum.table
 import docx.enum.text
 import docx.shared
 import docx.table
+import lxml.etree
 
 import epyqlib.utils.general
 
@@ -30,6 +32,23 @@ def docx_ancestor(element, target_type=docx.document.Document):
     return element
 
 
+def w(s):
+    return '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}' + s
+
+
+def shd_element(fill):
+    e = lxml.etree.Element(w('shd'))
+    # <w:shd w:val="clear" w:color="auto" w:fill="D9D9D9" w:themeFill="background1" w:themeFillShade="D9"/>
+
+    e.attrib[w('fill')] = fill
+
+    return e
+
+
+def shade(cell, fill):
+    cell._tc.tcPr.append(shd_element(fill=fill))
+
+
 @attr.s
 class Table:
     title = attr.ib()
@@ -42,15 +61,14 @@ class Table:
     def fill_docx(self, table):
         table.alignment = docx.enum.table.WD_TABLE_ALIGNMENT.CENTER
         # table.autofit = True
-        # table.style = 'CAN Table'
+        # table.style = 'CAN Table Base'
 
         row = table.add_row()
         row.cells[0].text = self.title
         title_paragraph = row.cells[0].paragraphs[0]
         title_paragraph.paragraph_format.keep_with_next = True
         title_paragraph.style = 'CAN Table Title'
-        title_paragraph.alignment = (
-            docx.enum.text.WD_PARAGRAPH_ALIGNMENT.CENTER)
+        shade(row.cells[0], fill="000000")
 
         if len(self.comment) > 0:
             row = table.add_row()
@@ -64,21 +82,19 @@ class Table:
             cell.paragraphs[0].style = 'CAN Table Heading'
             cell.paragraphs[0].paragraph_format.keep_with_next = True
 
-        styles = collections.OrderedDict((
-            (0, 'CAN Table Contents'),
-            (1, 'CAN Table Contents Shaded'),
-        ))
+        shadings = (
+            {'fill': 'D9D9D9'},
+            None,
+        )
 
-        style = 0
-
-        for r in self.rows:
+        for r, shading in zip(self.rows, itertools.cycle(shadings)):
             row = table.add_row()
             for cell, text in zip(row.cells, r):
                 cell.text = str(text)
-                cell.paragraphs[0].style = styles[style]
+                if shading is not None:
+                    shade(cell, **shading)
+                cell.paragraphs[0].style = 'CAN Table Contents'
                 cell.paragraphs[0].paragraph_format.keep_with_next = True
-
-            style = (style + 1) % len(styles)
 
         remaining_width = (
             self.total_width - sum(w for w in self.widths if w is not None)
