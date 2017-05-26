@@ -25,13 +25,6 @@ __license__ = 'GPLv2+'
 logger = logging.getLogger(__name__)
 
 
-def docx_ancestor(element, target_type=docx.document.Document):
-    while not isinstance(element, target_type) and element is not None:
-        element = element._parent
-
-    return element
-
-
 def w(s):
     return '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}' + s
 
