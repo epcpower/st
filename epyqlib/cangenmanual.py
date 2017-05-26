@@ -166,8 +166,9 @@ def doc_signals(signals):
 @click.command()
 @click.option('--can', '-c', type=click.File('rb'), required=True)
 @click.option('--template', '-t', type=click.File('rb'), required=True)
+@click.option('--output', '-o', type=click.File('wb'), required=True)
 @click.option('--verbose', '-v', count=True)
-def main(can, template, verbose):
+def main(can, template, output, verbose):
     if verbose >= 1:
         logger.setLevel(logging.DEBUG)
 
@@ -331,7 +332,7 @@ def main(can, template, verbose):
         #       template's landscape page format for some reason
         # paragraph._p.getparent().remove(paragraph._p)
         paragraph.clear()
-    doc.save('doc.docx')
+    doc.save(output)
     pass
 
 
