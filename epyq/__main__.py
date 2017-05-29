@@ -102,6 +102,16 @@ class Window(QtWidgets.QMainWindow):
 
         self.subwindows = set()
 
+        self.set_title()
+
+    def set_title(self, detail=None):
+        title = 'EPyQ v{}'.format(epyq.__version__)
+
+        if detail is not None:
+            title = ' - '.join((title, detail))
+
+        self.setWindowTitle(title)
+
     def closeEvent(self, event):
         self.device_tree_model.terminate()
 
@@ -214,6 +224,7 @@ class Window(QtWidgets.QMainWindow):
     def set_current_device(self, device):
         self.ui.stacked.addWidget(device.ui)
         self.ui.stacked.setCurrentWidget(device.ui)
+        self.set_title(detail=device.name)
 
 
 def main(args=None):
