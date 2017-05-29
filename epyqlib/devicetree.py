@@ -350,6 +350,21 @@ class Model(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
 
         self.device_removed.emit(device.device)
 
+    def device_from_widget(self, widget):
+        def check(node, matches, widget=widget):
+            if isinstance(node, Device) and node.device.ui is widget:
+                matches.append(node.device)
+
+        matches = []
+        self.root.traverse(call_this=check, payload=matches)
+
+        if len(matches) == 0:
+            return None
+
+        device, = matches
+
+        return device
+
 if __name__ == '__main__':
     import sys
 
