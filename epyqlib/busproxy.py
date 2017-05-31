@@ -95,11 +95,14 @@ class BusProxy(QObject):
 
                 # TODO: I would use message=message (or msg=msg) but:
                 #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
-                sent = self.bus.send(msg)
+                self.bus.send(msg)
+
+                # TODO: get a real value for sent, but for now python-can
+                #       doesn't provide that info.  also, it would be async...
+                sent = True
+
                 time.sleep(0.0005)
-                # TODO: get a real value from send() instead of just None
-                # if sent and on_success is not None:
-                if on_success is not None:
+                if sent and on_success is not None:
                     on_success()
             else:
                 # TODO: I would use message=message (or msg=msg) but:
