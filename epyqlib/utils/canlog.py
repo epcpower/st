@@ -86,11 +86,17 @@ class Message:
 
     @property
     def ms(self):
+        if self.time is None:
+            return self.time
+
         return self.time * 1000
 
     @ms.setter
     def ms(self, value):
-        self.time = value / 1000
+        if value is not None:
+            value = value / 1000
+
+        self.time = value
 
     @property
     def data_string_spaced(self):
