@@ -23,6 +23,8 @@ else:
 import logging
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 
+import attr
+import can
 import copy
 import epyq
 import epyqlib.canneo
@@ -30,6 +32,7 @@ import epyqlib.csvwindow
 from epyqlib.svgwidget import SvgWidget
 import epyqlib.txrx
 import epyqlib.utils.qt
+import epyqlib.utils.canlog
 import epyqlib.widgets.progressbar
 import epyqlib.widgets.lcd
 import epyqlib.widgets.led
@@ -87,6 +90,11 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.action_chart_log.triggered.connect(self.chart_log)
 
+        self.ui.action_start_can_log.triggered.connect(self.start_can_log)
+        self.ui.action_stop_can_log.triggered.connect(self.stop_can_log)
+        self.ui.action_export_can_log.triggered.connect(self.export_can_log)
+        self.can_logs = {}
+
         device_tree = epyqlib.devicetree.Tree()
         self.device_tree_model = epyqlib.devicetree.Model(root=device_tree)
         self.device_tree_model.device_removed.connect(self._remove_device)
@@ -105,6 +113,76 @@ class Window(QtWidgets.QMainWindow):
         self.set_title()
 
         self.ui.stacked.currentChanged.connect(self.device_widget_changed)
+
+    def start_can_log(self):
+        self.stop_can_log()
+
+        self.can_logs = {}
+        for bus in self.device_tree_model.root.children:
+            if bus.interface is not None:
+                real_bus = can.interface.Bus(
+                    bustype=bus.interface,
+                    channel=bus.channel,
+                    bitrate=bus.bitrate,
+                )
+                proxy_bus = epyqlib.busproxy.BusProxy(bus=real_bus)
+
+                name = bus.fields.name
+                log = epyqlib.utils.canlog.Log(name=name)
+                proxy_bus.notifier.add(log)
+                self.can_logs[proxy_bus] = log
+
+                log.start()
+
+    def stop_can_log(self):
+        for bus, log in self.can_logs.items():
+            log.stop()
+            bus.notifier.discard(log)
+
+    def export_can_log(self):
+        nonempty_logs = {
+            bus: log for bus, log in self.can_logs.items()
+            if len(log.messages) > 0
+        }
+
+        if len(nonempty_logs) == 0:
+            # TODO: notify user that nothing will be done
+            return
+
+        first_message_time = min(
+            log.messages[0].time
+            for log in nonempty_logs.values()
+            if len(log.messages) > 0
+        )
+
+        for bus, log in nonempty_logs.items():
+            if len(log.messages) > 0:
+                QMessageBox.information(
+                    self,
+                    'EPyQ',
+                    "Pick a file to save log of '{}'".format(log.name),
+                )
+
+                filters = [
+                    ('PCAN', ['trc']),
+                    ('All Files', ['*'])
+                ]
+                filename = epyqlib.utils.qt.file_dialog(
+                    filters=filters,
+                    parent=self,
+                    save=True,
+                )
+
+                if filename is not None:
+                    messages = (
+                        attr.assoc(
+                            message,
+                            time=message.time - first_message_time,
+                        )
+                        for message in log.messages
+                    )
+                    with open(filename, 'w') as f:
+                        epyqlib.utils.canlog.to_trc_v1_1(messages, f)
 
     def device_widget_changed(self, index):
         device = self.device_tree_model.device_from_widget(
