@@ -29,6 +29,7 @@ class BusProxy(QObject):
         self.timeout = timeout
         self.notifier = NotifierProxy(self)
         self.real_notifier = None
+        self.tx_notifier = NotifierProxy(None)
         self.bus = None
         self.set_bus(bus)
 
@@ -112,6 +113,9 @@ class BusProxy(QObject):
             if self.auto_disconnect:
                 self.verify_bus_ok()
 
+            if sent:
+                self.tx_notifier.message_received(message=msg)
+
             # TODO: since send() doesn't always report failures this won't either
             #       fix that
             return sent
@@ -157,6 +161,7 @@ class BusProxy(QObject):
                 time.sleep(1.1 * self.timeout)
             else:
                 self.bus.notifier.remove(self.notifier)
+                self.bus.tx_notifier.remove(self.tx_notifier)
             self.bus.shutdown()
         self.bus = bus
 
@@ -169,6 +174,7 @@ class BusProxy(QObject):
                     timeout=self.timeout)
             else:
                 self.bus.notifier.add(self.notifier)
+                self.bus.tx_notifier.add(self.tx_notifier)
                 self.real_notifier = None
         else:
             self.real_notifier = None
@@ -180,10 +186,12 @@ class BusProxy(QObject):
 
         if isinstance(self.bus, can.BusABC):
             self.notifier.moveToThread(None)
+            self.tx_notifier.moveToThread(None)
         else:
             app = QApplication.instance()
             if app is not None:
                 self.notifier.moveToThread(app.thread())
+                self.tx_notifier.moveToThread(app.thread())
 
     def reset(self):
         if self.bus is not None:
