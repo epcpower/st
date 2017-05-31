@@ -50,6 +50,14 @@ class Log(epyqlib.canneo.QtCanListener):
         self.clear()
         self.start()
 
+    def minimum_timestamp(self):
+        timestamps = (m.time for m in self.messages if m.time is not None)
+
+        for t in timestamps:
+            return t
+
+        return None
+
 
 @attr.s
 class Id:
