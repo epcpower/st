@@ -89,6 +89,10 @@ class BusProxy(QObject):
             # (1469135699.758894) can0 00FFAB80#0000000000000000
 
             if isinstance(self.bus, can.BusABC):
+                # TODO: this is a hack to allow detection of transmitted
+                #       messages later
+                msg.timestamp = None
+
                 # TODO: I would use message=message (or msg=msg) but:
                 #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
                 sent = self.bus.send(msg)
