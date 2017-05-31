@@ -120,17 +120,11 @@ class Window(QtWidgets.QMainWindow):
         self.can_logs = {}
         for bus in self.device_tree_model.root.children:
             if bus.interface is not None:
-                real_bus = can.interface.Bus(
-                    bustype=bus.interface,
-                    channel=bus.channel,
-                    bitrate=bus.bitrate,
-                )
-                proxy_bus = epyqlib.busproxy.BusProxy(bus=real_bus)
-
                 name = bus.fields.name
                 log = epyqlib.utils.canlog.Log(name=name)
-                proxy_bus.notifier.add(log)
-                self.can_logs[proxy_bus] = log
+                bus.bus.notifier.add(log)
+                bus.bus.tx_notifier.add(log)
+                self.can_logs[bus.bus] = log
 
                 log.start()
 
@@ -150,7 +144,7 @@ class Window(QtWidgets.QMainWindow):
             return
 
         first_message_time = min(
-            log.messages[0].time
+            log.minimum_timestamp()
             for log in nonempty_logs.values()
             if len(log.messages) > 0
         )
@@ -177,7 +171,16 @@ class Window(QtWidgets.QMainWindow):
                     messages = (
                         attr.assoc(
                             message,
-                            time=message.time - first_message_time,
+                            time=(
+                                message.time - first_message_time
+                                if message.time is not None
+                                else 0
+                            ),
+                            type=(
+                                epyqlib.utils.canlog.MessageType.Rx
+                                if message.time is not None
+                                else epyqlib.utils.canlog.MessageType.Tx
+                            ),
                         )
                         for message in log.messages
                     )
