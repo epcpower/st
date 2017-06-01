@@ -17,6 +17,7 @@ build_script:
   - python venv.py
   - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   - venv\\Scripts\\pip install https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809de74a5ddbaa.zip
+  - ps: if (Get-ChildItem Env:PHRASE -ErrorAction SilentlyContinue) {echo $Env:PHRASE > sub/epyqlib/epyqlib/resources/code}
   - venv\\Scripts\\python pinsis.py --qtifw
   - move ..\\*.exe .
 
