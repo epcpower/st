@@ -40,6 +40,7 @@ import functools
 import io
 import math
 import platform
+import signal
 import threading
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
@@ -319,8 +320,14 @@ class Window(QtWidgets.QMainWindow):
         self.ui.stacked.setCurrentWidget(device.ui)
 
 
+def sigint_handler(signal_number, stack_frame):
+    QApplication.exit(128 + signal_number)
+
+
 def main(args=None):
     print('starting epyq')
+
+    signal.signal(signal.SIGINT, sigint_handler)
 
     # TODO: CAMPid 9757656124812312388543272342377
     app = QApplication(sys.argv)
@@ -330,6 +337,10 @@ def main(args=None):
                       .format(Qt.TextBrowserInteraction))
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
+
+    os_signal_timer = QtCore.QTimer()
+    os_signal_timer.start(200)
+    os_signal_timer.timeout.connect(lambda: None)
 
     import qt5reactor
     qt5reactor.install()
