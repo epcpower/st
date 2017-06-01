@@ -23,6 +23,8 @@ else:
 import logging
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 
+import attr
+import can
 import copy
 import epyq
 import epyqlib.canneo
@@ -30,6 +32,7 @@ import epyqlib.csvwindow
 from epyqlib.svgwidget import SvgWidget
 import epyqlib.txrx
 import epyqlib.utils.qt
+import epyqlib.utils.canlog
 import epyqlib.widgets.progressbar
 import epyqlib.widgets.lcd
 import epyqlib.widgets.led
@@ -37,6 +40,7 @@ import functools
 import io
 import math
 import platform
+import signal
 import threading
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
@@ -88,6 +92,11 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.action_chart_log.triggered.connect(self.chart_log)
 
+        self.ui.action_start_can_log.triggered.connect(self.start_can_log)
+        self.ui.action_stop_can_log.triggered.connect(self.stop_can_log)
+        self.ui.action_export_can_log.triggered.connect(self.export_can_log)
+        self.can_logs = {}
+
         device_tree = epyqlib.devicetree.Tree()
         self.device_tree_model = epyqlib.devicetree.Model(root=device_tree)
         self.device_tree_model.device_removed.connect(self._remove_device)
@@ -102,6 +111,101 @@ class Window(QtWidgets.QMainWindow):
         self.ui.collapse_button.setMaximumSize(size_hint)
 
         self.subwindows = set()
+
+        self.set_title()
+
+        self.ui.stacked.currentChanged.connect(self.device_widget_changed)
+
+    def start_can_log(self):
+        self.stop_can_log()
+
+        self.can_logs = {}
+        for bus in self.device_tree_model.root.children:
+            if bus.interface is not None:
+                name = bus.fields.name
+                log = epyqlib.utils.canlog.Log(name=name)
+                bus.bus.notifier.add(log)
+                bus.bus.tx_notifier.add(log)
+                self.can_logs[bus.bus] = log
+
+                log.start()
+
+    def stop_can_log(self):
+        for bus, log in self.can_logs.items():
+            log.stop()
+            bus.notifier.discard(log)
+
+    def export_can_log(self):
+        nonempty_logs = {
+            bus: log for bus, log in self.can_logs.items()
+            if len(log.messages) > 0
+        }
+
+        if len(nonempty_logs) == 0:
+            # TODO: notify user that nothing will be done
+            return
+
+        first_message_time = min(
+            log.minimum_timestamp()
+            for log in nonempty_logs.values()
+            if len(log.messages) > 0
+        )
+
+        for bus, log in nonempty_logs.items():
+            if len(log.messages) > 0:
+                QMessageBox.information(
+                    self,
+                    'EPyQ',
+                    "Pick a file to save log of '{}'".format(log.name),
+                )
+
+                filters = [
+                    ('PCAN', ['trc']),
+                    ('All Files', ['*'])
+                ]
+                filename = epyqlib.utils.qt.file_dialog(
+                    filters=filters,
+                    parent=self,
+                    save=True,
+                )
+
+                if filename is not None:
+                    messages = (
+                        attr.assoc(
+                            message,
+                            time=(
+                                message.time - first_message_time
+                                if message.time is not None
+                                else 0
+                            ),
+                            type=(
+                                epyqlib.utils.canlog.MessageType.Rx
+                                if message.time is not None
+                                else epyqlib.utils.canlog.MessageType.Tx
+                            ),
+                        )
+                        for message in log.messages
+                    )
+                    with open(filename, 'w') as f:
+                        epyqlib.utils.canlog.to_trc_v1_1(messages, f)
+
+    def device_widget_changed(self, index):
+        device = self.device_tree_model.device_from_widget(
+            widget=self.ui.stacked.widget(index))
+
+        detail = None
+        if device is not None:
+            detail = device.name
+
+        self.set_title(detail=detail)
+
+    def set_title(self, detail=None):
+        title = 'EPyQ v{}'.format(epyq.__version__)
+
+        if detail is not None:
+            title = ' - '.join((title, detail))
+
+        self.setWindowTitle(title)
 
     def closeEvent(self, event):
         self.device_tree_model.terminate()
@@ -217,8 +321,14 @@ class Window(QtWidgets.QMainWindow):
         self.ui.stacked.setCurrentWidget(device.ui)
 
 
+def sigint_handler(signal_number, stack_frame):
+    QApplication.exit(128 + signal_number)
+
+
 def main(args=None):
     print('starting epyq')
+
+    signal.signal(signal.SIGINT, sigint_handler)
 
     # TODO: CAMPid 9757656124812312388543272342377
     app = QApplication(sys.argv)
@@ -228,6 +338,11 @@ def main(args=None):
                       .format(Qt.TextBrowserInteraction))
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
+
+
+    os_signal_timer = QtCore.QTimer()
+    os_signal_timer.start(200)
+    os_signal_timer.timeout.connect(lambda: None)
 
     # https://github.com/kivy/kivy/issues/4182#issuecomment-253159955
     # fix for pyinstaller packages app to avoid ReactorAlreadyInstalledError
