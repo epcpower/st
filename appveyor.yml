@@ -20,6 +20,7 @@ build_script:
   - ps: if (Get-ChildItem Env:PHRASE -ErrorAction SilentlyContinue) {echo $Env:PHRASE > sub/epyqlib/epyqlib/resources/code}
   - venv\\Scripts\\python pinsis.py --qtifw
   - move ..\\*.exe .
+  - ps: Update-AppveyorBuild -Version v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end="")')
 
 artifacts:
   - path: '*.exe'
