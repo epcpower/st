@@ -166,7 +166,7 @@ for f in resource_files:
     print('Starting pyrcc5')
     runit(
         args=[
-            'pyrcc5',
+            os.path.join('venv', 'Scripts', 'pyrcc5'),
             '-o', os.path.splitext(f)[0] + '.py',
             f
         ]
