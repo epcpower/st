@@ -532,6 +532,13 @@ class Frame(QtCanListener):
 
         self.signals = tuple(self.signals)
 
+        self.mux_value = None
+        if self.mux_name is not None:
+            for signal in self.signals:
+                if not isinstance(signal.multiplex, bool):
+                    self.mux_value = signal.multiplex
+                    break
+
     def _update_and_send(self):
         if not self.block_cyclic:
             self._send(update=True)
