@@ -253,11 +253,19 @@ class Device:
         self.node_id_type = d.get('node_id_type',
                                   next(iter(node_id_types))).lower()
         self.node_id = d.get('node_id')
-        if self.node_id is not None:
-            self.node_id = int(self.node_id)
-        self.controller_id = d.get('controller_id')
-        if self.controller_id is not None:
-            self.controller_id = int(self.controller_id)
+        if self.node_id is None and self.node_id_type == 'j1939':
+            self.node_id, ok = QInputDialog.getInt(
+                None,
+                *(('Converter Node ID',) * 2),
+                247,
+                0,
+                247,
+            )
+
+            if not ok:
+                raise CancelError('User canceled node ID dialog')
+        self.node_id = int(self.node_id)
+        self.controller_id = int(d.get('controller_id', 65))
         self.node_id_adjust = functools.partial(
             node_id_types[self.node_id_type],
             device_id=self.node_id,
