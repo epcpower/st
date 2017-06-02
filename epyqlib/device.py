@@ -21,6 +21,7 @@ import epyqlib.twisted.loopingset
 import epyqlib.txrx
 import epyqlib.txrxview
 import epyqlib.utils.qt
+import epyqlib.utils.j1939
 import epyqlib.variableselectionmodel
 import functools
 import importlib.util
@@ -76,15 +77,32 @@ class Tabs(Enum):
         return set(cls) - set((cls.variables,))
 
 
-def j1939_node_id_adjust(message_id, node_id):
-    if node_id == 0:
+def j1939_node_id_adjust(message_id, device_id, to_device, controller_id):
+    # TODO: get the CCP stuff in bounds instead of hacking it like this
+    if message_id > 0x1FFFFF00:
         return message_id
 
-    raise Exception('J1939 node id adjustment not yet implemented')
+    id = epyqlib.utils.j1939.Id.unpack(message_id)
+
+    if to_device:
+        source = controller_id
+        destination = device_id
+    else:
+        source = device_id
+        destination = controller_id
+
+    if id.is_pdu1():
+        if destination is not None:
+            id.destination_address = destination
+
+    if source is not None:
+        id.source_address = source
+
+    return id.pack()
 
 
-def simple_node_id_adjust(message_id, node_id):
-    return message_id + node_id
+def simple_node_id_adjust(message_id, device_id, to_device, controller_id):
+    return message_id + device_id
 
 
 node_id_types = OrderedDict([
@@ -234,10 +252,16 @@ class Device:
 
         self.node_id_type = d.get('node_id_type',
                                   next(iter(node_id_types))).lower()
-        self.node_id = int(d.get('node_id', 0))
+        self.node_id = d.get('node_id')
+        if self.node_id is not None:
+            self.node_id = int(self.node_id)
+        self.controller_id = d.get('controller_id')
+        if self.controller_id is not None:
+            self.controller_id = int(self.controller_id)
         self.node_id_adjust = functools.partial(
             node_id_types[self.node_id_type],
-            node_id=self.node_id
+            device_id=self.node_id,
+            controller_id=self.controller_id,
         )
 
         self.referenced_files = [

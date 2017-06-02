@@ -485,6 +485,8 @@ class Frame(QtCanListener):
         # self._attributes = frame._attributes # {dict} {'GenMsgCycleTime': '200'}
         self.cycle_time = frame._attributes.get('GenMsgCycleTime', None)
         self.mux_name = frame._attributes.get('mux_name', None)
+        self.sendable = frame._attributes.get('Sendable') == 'True'
+        self.receivable = frame._attributes.get('Receivable') == 'True'
         self.comment = frame._comment # {str} 'Operational commands are received by the module via control bits within this message.'
         if self.comment is None:
             self.comment = ''
@@ -692,7 +694,12 @@ class Neo(QtCanListener):
 
         for frame in matrix._fl._list:
             if node_id_adjust is not None:
-                frame._Id = node_id_adjust(frame._Id)
+                frame._Id = node_id_adjust(
+                    message_id=frame._Id,
+                    to_device=(
+                        frame.attributes['Receivable'].casefold() == 'false'
+                    ),
+                )
             multiplex_signal = None
             for signal in frame._signals:
                 if signal._multiplex == 'Multiplexor':
