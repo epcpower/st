@@ -600,7 +600,7 @@ class Frame(QtCanListener):
         if update:
             self.data = self.pack(self)
 
-        self.send.emit(self.to_message(), self._sent)
+        self.send.emit(self.to_message(), None)
 
     def _sent(self):
         pass
