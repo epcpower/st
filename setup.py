@@ -16,6 +16,7 @@ setup(
             'epyqflash = epyqlib.flash:_entry_point',
             'patchvenv = epyqlib.patchvenv:main',
             'cangenmanual = epyqlib.cangenmanual:_entry_point',
+            'updateepc = epyqlib.updateepc:main',
         ]
     },
     install_requires=[

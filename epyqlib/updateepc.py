@@ -1,4 +1,5 @@
 import collections
+import distutils.dir_util
 import importlib
 import json
 import logging
@@ -8,9 +9,11 @@ import tempfile
 import textwrap
 
 import attr
+import click
 import lxml.etree
 
 import epyqlib.utils.general
+import epyqlib.utils.click
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
@@ -226,6 +229,10 @@ def cf(self, source_directory, source_file_name, destination_path):
     return destination_device_file
 
 
+def just_copy(source_directory, source_file_name, destination_path):
+    distutils.dir_util.copy_tree(source_directory, destination_path)
+
+
 def conversion_summaries():
     return tuple(
         '{} -> {}: {}'.format(c.old_version, c.new_version, c.description)
@@ -288,10 +295,14 @@ def get_converter_chain(old_version, new_version=current_version):
     return converter_chain
 
 
-def convert(source_path, destination_path, destination_version=current_version):
+def convert(source_path, destination_path, destination_version=None):
+    if destination_version is None:
+        destination_version = current_version
+
     source_version = version(source_path)
 
     chain = get_converter_chain(source_version, destination_version)
+    chain.append(just_copy)
 
     temporary_directories = tuple(
         tempfile.TemporaryDirectory() for _ in range(len(chain) - 1)
@@ -306,7 +317,11 @@ def convert(source_path, destination_path, destination_version=current_version):
     directory_pairs = tuple(epyqlib.utils.general.pairwise(directories))
 
     for c, (source, destination) in zip(chain, directory_pairs):
-        logging.info('Converting {} -> {}'.format(c.old_version, c.new_version))
+        if c is not just_copy:
+            logging.info(
+                'Converting {} -> {}'.format(c.old_version, c.new_version)
+            )
+
         c(
             source_directory=source,
             source_file_name=os.path.basename(source_path),
@@ -321,11 +336,26 @@ def convert(source_path, destination_path, destination_version=current_version):
     return os.path.join(destination_path, os.path.basename(source_path))
 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+@click.command()
+@epyqlib.utils.click.verbose_option
+@click.option('--target-version', '-t', default=None)
+@click.argument('epc', type=click.Path(exists=True), required=True)
+@click.argument('destination', type=click.Path(exists=True),
+                required=True)
+def main(epc, destination, target_version):
+    if target_version is not None:
+        target_version = tuple(
+            int(s) for s in target_version.rstrip('0.').split('.')
+        )
 
-    for summary in conversion_summaries():
-        logging.info(summary)
-
-    convert("interface/distributed_generation_factory.epc", "blue")
-    convert("interface/distributed_generation.epc", "blue")
+    epc_version = version(epc)
+    if epc_version == current_version:
+        logging.warning('Already at latest version (v{})'.format(
+                '.'.join(str(s) for s in epc_version)
+        ))
+    else:
+        convert(
+            source_path=epc,
+            destination_path=destination,
+            destination_version=target_version,
+        )
