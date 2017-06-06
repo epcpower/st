@@ -148,9 +148,10 @@ class AbstractWidget(QtWidgets.QWidget):
         if len(path) > len(self._signal_path):
             raise Exception(
                 'Passed path has length {} which is longer than the supported '
-                'limit of {}'.format(
+                'limit of {}: {}'.format(
                     len(path),
-                    len(self._signal_path)
+                    len(self._signal_path),
+                    path,
                 )
             )
 
