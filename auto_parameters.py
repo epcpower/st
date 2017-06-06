@@ -13,6 +13,10 @@ __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+def referenced_files(raw_dict):
+    return (raw_dict['auto_parameters'],)
+
+
 class DeviceExtension:
     def __init__(self, device):
         self.device = device
@@ -25,9 +29,6 @@ class DeviceExtension:
         self.parameter_dict = None
 
     def post(self):
-        self.device.referenced_files.append(
-            self.device.raw_dict['auto_parameters'])
-
         self.ui = self.device.uis['Factory']
         self.ui.load_parameters_button.clicked.connect(
             self.load_parameters)
