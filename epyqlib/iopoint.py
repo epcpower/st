@@ -66,84 +66,30 @@ class IoPoint(QWidget):
         # TODO: if not empty then do something
 
     @pyqtProperty('QString')
-    def status_signal_path_element_0(self):
-        return self.ui.status.signal_path_element_0
+    def status_signal_path(self):
+        return self.ui.status.signal_path
 
-    @status_signal_path_element_0.setter
-    def status_signal_path_element_0(self, value):
-        self.ui.status.signal_path_element_0 = value
+    @status_signal_path.setter
+    def status_signal_path(self, value):
+        self.ui.status.signal_path = value
         self.update_configuration()
 
     @pyqtProperty('QString')
-    def status_signal_path_element_1(self):
-        return self.ui.status.signal_path_element_1
+    def set_signal_path(self):
+        return self.ui.set.signal_path
 
-    @status_signal_path_element_1.setter
-    def status_signal_path_element_1(self, value):
-        self.ui.status.signal_path_element_1 = value
+    @set_signal_path.setter
+    def set_signal_path(self, value):
+        self.ui.set.signal_path = value
         self.update_configuration()
 
     @pyqtProperty('QString')
-    def status_signal_path_element_2(self):
-        return self.ui.status.signal_path_element_2
+    def override_signal_path(self):
+        return self.ui.override.signal_path
 
-    @status_signal_path_element_2.setter
-    def status_signal_path_element_2(self, value):
-        self.ui.status.signal_path_element_2 = value
-        self.update_configuration()
-
-    @pyqtProperty('QString')
-    def set_signal_path_element_0(self):
-        return self.ui.set.signal_path_element_0
-
-    @set_signal_path_element_0.setter
-    def set_signal_path_element_0(self, value):
-        self.ui.set.signal_path_element_0 = value
-        self.update_configuration()
-
-    @pyqtProperty('QString')
-    def set_signal_path_element_1(self):
-        return self.ui.set.signal_path_element_1
-
-    @set_signal_path_element_1.setter
-    def set_signal_path_element_1(self, value):
-        self.ui.set.signal_path_element_1 = value
-        self.update_configuration()
-
-    @pyqtProperty('QString')
-    def set_signal_path_element_2(self):
-        return self.ui.set.signal_path_element_2
-
-    @set_signal_path_element_2.setter
-    def set_signal_path_element_2(self, value):
-        self.ui.set.signal_path_element_2 = value
-        self.update_configuration()
-
-    @pyqtProperty('QString')
-    def override_signal_path_element_0(self):
-        return self.ui.override.signal_path_element_0
-
-    @override_signal_path_element_0.setter
-    def override_signal_path_element_0(self, value):
-        self.ui.override.signal_path_element_0 = value
-        self.update_configuration()
-
-    @pyqtProperty('QString')
-    def override_signal_path_element_1(self):
-        return self.ui.override.signal_path_element_1
-
-    @override_signal_path_element_1.setter
-    def override_signal_path_element_1(self, value):
-        self.ui.override.signal_path_element_1 = value
-        self.update_configuration()
-
-    @pyqtProperty('QString')
-    def override_signal_path_element_2(self):
-        return self.ui.override.signal_path_element_2
-
-    @override_signal_path_element_2.setter
-    def override_signal_path_element_2(self, value):
-        self.ui.override.signal_path_element_2 = value
+    @override_signal_path.setter
+    def override_signal_path(self, value):
+        self.ui.override.signal_path = value
         self.update_configuration()
 
     def update_configuration(self):

@@ -41,6 +41,7 @@ setDebugging(True)
 from collections import OrderedDict
 from enum import Enum, unique
 from epyqlib.busproxy import BusProxy
+import epyqlib.updateepc
 from epyqlib.widgets.abstractwidget import AbstractWidget
 from PyQt5 import uic
 from PyQt5.QtCore import (pyqtSlot, Qt, QFile, QFileInfo, QTextStream, QObject,
@@ -172,8 +173,20 @@ class Device:
             except TypeError:
                 return
             else:
+                converted_directory = None
+                if not epyqlib.updateepc.is_latest(file.name):
+                    converted_directory = tempfile.TemporaryDirectory()
+                    file = open(epyqlib.updateepc.convert(
+                        file.name,
+                        converted_directory.name,
+                    ))
+                self.config_path = os.path.abspath(file.name)
+
                 self._load_config(file=file, only_for_files=only_for_files,
                                   **kwargs)
+
+                if converted_directory is not None:
+                    converted_directory.cleanup()
         else:
             self._init_from_zip(zip_file, **kwargs)
 
@@ -193,14 +206,14 @@ class Device:
         self.module_path = d.get('module', None)
         self.plugin = None
         if self.module_path is None:
-            extension_class = epyqlib.deviceextension.DeviceExtension
+            module = epyqlib.deviceextension
         else:
             spec = importlib.util.spec_from_file_location(
                 'extension', self.absolute_path(self.module_path))
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
 
-            extension_class = module.DeviceExtension
+        extension_class = module.DeviceExtension
 
         import weakref
         self.extension = extension_class(device=weakref.ref(self))
@@ -248,30 +261,6 @@ class Device:
         if Tabs.nv not in tabs:
             self.elements.discard(Elements.nv)
 
-        self.can_path = os.path.join(path, d['can_path'])
-
-        self.node_id_type = d.get('node_id_type',
-                                  next(iter(node_id_types))).lower()
-        self.node_id = d.get('node_id')
-        if self.node_id is None and self.node_id_type == 'j1939':
-            self.node_id, ok = QInputDialog.getInt(
-                None,
-                *(('Converter Node ID',) * 2),
-                247,
-                0,
-                247,
-            )
-
-            if not ok:
-                raise CancelError('User canceled node ID dialog')
-        self.node_id = int(self.node_id)
-        self.controller_id = int(d.get('controller_id', 65))
-        self.node_id_adjust = functools.partial(
-            node_id_types[self.node_id_type],
-            device_id=self.node_id,
-            controller_id=self.controller_id,
-        )
-
         self.referenced_files = [
             f for f in [
                 d.get('module', None),
@@ -279,7 +268,8 @@ class Device:
                 d.get('compatibility', None),
                 d.get('parameter_defaults', None),
                 d.get('parameter_hierarchy', None),
-                *self.ui_paths.values()
+                *self.ui_paths.values(),
+                *module.referenced_files(self.raw_dict),
             ]
             if f is not None
         ]
@@ -296,6 +286,30 @@ class Device:
             self.shas.extend(c.get('shas', []))
 
         if not only_for_files:
+            self.can_path = os.path.join(path, d['can_path'])
+
+            self.node_id_type = d.get('node_id_type',
+                                      next(iter(node_id_types))).lower()
+            self.node_id = d.get('node_id')
+            if self.node_id is None and self.node_id_type == 'j1939':
+                self.node_id, ok = QInputDialog.getInt(
+                    None,
+                    *(('Converter Node ID',) * 2),
+                    247,
+                    0,
+                    247,
+                )
+
+                if not ok:
+                    raise CancelError('User canceled node ID dialog')
+            self.node_id = int(self.node_id)
+            self.controller_id = int(d.get('controller_id', 65))
+            self.node_id_adjust = functools.partial(
+                node_id_types[self.node_id_type],
+                device_id=self.node_id,
+                controller_id=self.controller_id,
+            )
+
             self._init_from_parameters(
                 uis=self.ui_paths,
                 serial_number=d.get('serial_number', ''),
@@ -336,9 +350,18 @@ class Device:
             if f.endswith(".epc"):
                 file = os.path.join(path, f)
         self.config_path = os.path.abspath(file)
+
+        converted_directory = None
+        if not epyqlib.updateepc.is_latest(file):
+            converted_directory = tempfile.TemporaryDirectory()
+            file = epyqlib.updateepc.convert(file, converted_directory.name)
+            self.config_path = os.path.abspath(file)
+
         with open(file, 'r') as file:
             self._load_config(file, rx_interval=rx_interval, **kwargs)
 
+        if converted_directory is not None:
+            converted_directory.cleanup()
         shutil.rmtree(path)
 
     def _init_from_parameters(self, uis, serial_number, name, bus=None,
