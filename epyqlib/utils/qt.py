@@ -1,3 +1,4 @@
+import functools
 import io
 import os
 import sys
@@ -50,21 +51,17 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
         sections = [separator, timeString, separator, errmsg, separator, tbinfo]
         message = '\n'.join(s.strip() for s in sections)
 
-    errorbox = QtWidgets.QMessageBox(parent=parent)
-    errorbox.setWindowTitle("EPyQ")
-    errorbox.setIcon(QtWidgets.QMessageBox.Critical)
-
-    # TODO: CAMPid 980567566238416124867857834291346779
-    ico_file = os.path.join(
-        QtCore.QFileInfo.absolutePath(QtCore.QFileInfo(__file__)), 'icon.ico')
-    ico = QtGui.QIcon(ico_file)
-    errorbox.setWindowIcon(ico)
-
     complete = str(notice) + str(message) + str(versionInfo)
 
     sys.stderr.write(complete + '\n')
-    errorbox.setText(complete)
-    errorbox.exec_()
+
+    dialog(
+        parent=parent,
+        title='EPyQ Exception',
+        message=complete,
+        scrollable=True,
+        icon=QtWidgets.QMessageBox.Critical,
+    )
 
 
 # http://stackoverflow.com/a/35902894/228539
@@ -234,3 +231,99 @@ def progress_dialog(parent=None, cancellable=False):
     progress.setMaximum(0)
 
     return progress
+
+
+def dialog(parent, title, message, scrollable=False, icon=None):
+    post_show = None
+
+    if not scrollable:
+        box = QtWidgets.QMessageBox(parent=parent)
+        box.setText(message)
+        if icon is not None:
+            box.setIcon(icon)
+    else:
+        box = QtWidgets.QInputDialog(parent=parent)
+        box.setOptions(QtWidgets.QInputDialog.UsePlainTextEditForTextInput)
+        box.setTextValue(message)
+        box.setLabelText('')
+
+        text_edit = box.findChildren(QtWidgets.QPlainTextEdit)[0]
+
+        metric = text_edit.fontMetrics()
+        line_widths = sorted([metric.width(line) for line
+                              in message.splitlines()])
+
+        index = int(0.95 * len(line_widths))
+        width = line_widths[index]
+
+        desktops = QtWidgets.QApplication.desktop()
+        screen_number = desktops.screenNumber(parent)
+        geometry = desktops.screenGeometry(screen_number)
+
+        width = min(width * 1.1, geometry.width() * 0.7)
+
+        text_edit.setReadOnly(True)
+
+        default_width = box.minimumWidth()
+        default_height = box.minimumHeight()
+
+        number_of_lines = message.count('\n') + 1
+        height = number_of_lines * metric.lineSpacing()
+        height = min(height * 1.1, geometry.height() * 0.7)
+
+        def post_show():
+            text_edit.moveCursor(QtGui.QTextCursor.Start)
+            text_edit.setMinimumWidth(width)
+            text_edit.setMinimumHeight(height)
+
+            def g():
+                text_edit.setMinimumWidth(default_width)
+                text_edit.setMinimumHeight(default_height)
+
+            QtCore.QTimer.singleShot(100, g)
+
+        if icon is not None:
+            horizontal_layout = QtWidgets.QHBoxLayout()
+            vertical_layout = text_edit.parent().layout()
+            vertical_layout.insertLayout(0, horizontal_layout)
+
+            vertical_layout.removeWidget(text_edit)
+            pixmap = QtWidgets.QMessageBox.standardIcon(icon)
+            label = QtWidgets.QLabel()
+            label.setPixmap(pixmap)
+            horizontal_layout.addWidget(label)
+            horizontal_layout.addWidget(text_edit)
+
+    box.setWindowTitle(title)
+
+    if post_show is not None:
+        QtCore.QTimer.singleShot(100, post_show)
+
+    box.exec_()
+
+
+def dialog_from_file(parent, title, file_name):
+    # The Qt Installer Framework (QtIFW) likes to do a few things to license files...
+    #  * '\n' -> '\r\n'
+    #   * even such that '\r\n' -> '\r\r\n'
+    #  * Recodes to something else (probably cp-1251)
+    #
+    # So, we'll just try different encodings and hope one of them works.
+
+    encodings = [None, 'utf-8']
+
+    for encoding in encodings:
+        try:
+            with open(os.path.join('Licenses', file_name), encoding=encoding) as in_file:
+                message = in_file.read()
+        except UnicodeDecodeError:
+            pass
+        else:
+            break
+
+    dialog(
+        parent=parent,
+        title=title,
+        message=message,
+        scrollable=True,
+    )
