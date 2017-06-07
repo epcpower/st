@@ -88,15 +88,21 @@ def cf(self, source_directory, source_file_name, destination_path):
             return ()
         ''')
 
-        logging.info('Adding referenced_files() to module')
         with open(os.path.join(source_directory, module)) as f_in:
             with open(os.path.join(destination_path, module), 'w') as f_out:
-                written = False
+                written = any(
+                    l.startswith('def referenced_files(') for l in f_in
+                )
+
+                f_in.seek(0)
 
                 for line in f_in:
                     if not written and line.startswith(('class ', 'def ')):
+                        logging.info('Adding referenced_files() to module')
+
                         f_out.write(referenced_files_string)
                         f_out.write('\n\n')
+
                         written = True
 
                     f_out.write(line)
