@@ -174,16 +174,20 @@ class Device:
                 return
             else:
                 converted_directory = None
+                final_file = file
                 if not epyqlib.updateepc.is_latest(file.name):
                     converted_directory = tempfile.TemporaryDirectory()
-                    file = open(epyqlib.updateepc.convert(
+                    final_file = open(epyqlib.updateepc.convert(
                         file.name,
                         converted_directory.name,
                     ))
-                self.config_path = os.path.abspath(file.name)
+                self.config_path = os.path.abspath(final_file.name)
 
-                self._load_config(file=file, only_for_files=only_for_files,
+                self._load_config(file=final_file, only_for_files=only_for_files,
                                   **kwargs)
+
+                if final_file is not file:
+                    final_file.close()
 
                 if converted_directory is not None:
                     converted_directory.cleanup()
