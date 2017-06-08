@@ -57,9 +57,8 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
 
     dialog(
         parent=parent,
-        title='EPyQ Exception',
+        title='Exception',
         message=complete,
-        scrollable=True,
         icon=QtWidgets.QMessageBox.Critical,
     )
 
@@ -233,73 +232,135 @@ def progress_dialog(parent=None, cancellable=False):
     return progress
 
 
-def dialog(parent, title, message, scrollable=False, icon=None):
-    post_show = None
+class FittedTextBrowser(QtWidgets.QTextBrowser):
+    def sizeHint(self):
+        default = super().sizeHint()
 
-    if not scrollable:
-        box = QtWidgets.QMessageBox(parent=parent)
-        box.setText(message)
-        if icon is not None:
-            box.setIcon(icon)
-    else:
-        box = QtWidgets.QInputDialog(parent=parent)
-        box.setOptions(QtWidgets.QInputDialog.UsePlainTextEditForTextInput)
-        box.setTextValue(message)
-        box.setLabelText('')
+        if not default.isValid():
+            return default
 
-        text_edit = box.findChildren(QtWidgets.QPlainTextEdit)[0]
-
-        metric = text_edit.fontMetrics()
-        line_widths = sorted([metric.width(line) for line
-                              in message.splitlines()])
-
-        index = int(0.95 * len(line_widths))
-        width = line_widths[index]
+        document_size = self.document().size()
 
         desktops = QtWidgets.QApplication.desktop()
-        screen_number = desktops.screenNumber(parent)
+        screen_number = desktops.screenNumber(self.parent())
         geometry = desktops.screenGeometry(screen_number)
 
-        width = min(width * 1.1, geometry.width() * 0.7)
+        if document_size.width() == 0:
+            document_size.setWidth(geometry.width() * 0.25)
+        if document_size.height() == 0:
+            document_size.setHeight(geometry.height() * 0.4)
 
-        text_edit.setReadOnly(True)
+        scrollbar_width = QtWidgets.QApplication.style().pixelMetric(
+            QtWidgets.QStyle.PM_ScrollBarExtent
+        )
 
-        default_width = box.minimumWidth()
-        default_height = box.minimumHeight()
+        width = sum((
+            document_size.width(),
+            self.contentsMargins().left(),
+            self.contentsMargins().right(),
+            scrollbar_width,
+        ))
 
-        number_of_lines = message.count('\n') + 1
-        height = number_of_lines * metric.lineSpacing()
-        height = min(height * 1.1, geometry.height() * 0.7)
+        height = sum((
+            document_size.height(),
+            self.contentsMargins().top(),
+            self.contentsMargins().bottom(),
+            scrollbar_width,
+        ))
 
-        def post_show():
-            text_edit.moveCursor(QtGui.QTextCursor.Start)
-            text_edit.setMinimumWidth(width)
-            text_edit.setMinimumHeight(height)
+        return QtCore.QSize(width, height)
 
-            def g():
-                text_edit.setMinimumWidth(default_width)
-                text_edit.setMinimumHeight(default_height)
 
-            QtCore.QTimer.singleShot(100, g)
+class Dialog(QtWidgets.QDialog):
+    def __init__(self, *args, cancellable=False, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        if icon is not None:
-            horizontal_layout = QtWidgets.QHBoxLayout()
-            vertical_layout = text_edit.parent().layout()
-            vertical_layout.insertLayout(0, horizontal_layout)
+        self.layout = QtWidgets.QGridLayout(self)
+        self.icon = QtWidgets.QLabel(self)
+        self.message = FittedTextBrowser(self)
+        self.buttons = QtWidgets.QDialogButtonBox(self)
 
-            vertical_layout.removeWidget(text_edit)
-            pixmap = QtWidgets.QMessageBox.standardIcon(icon)
-            label = QtWidgets.QLabel()
-            label.setPixmap(pixmap)
-            horizontal_layout.addWidget(label)
-            horizontal_layout.addWidget(text_edit)
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
 
-    box.setWindowTitle(title)
+        self.setLayout(self.layout)
+        self.layout.addWidget(self.icon, 0, 0)
+        self.layout.addWidget(self.message, 0, 1)
+        self.layout.addWidget(self.buttons, 1, 0, 1, 2)
 
-    if post_show is not None:
-        QtCore.QTimer.singleShot(100, post_show)
+        self.layout.setRowStretch(0, 1)
+        self.layout.setColumnStretch(1, 1)
 
-    box.exec_()
+        buttons = QtWidgets.QDialogButtonBox.Ok
+        if cancellable:
+            buttons |= QtWidgets.QDialogButtonBox.Cancel
+
+        self.buttons.setStandardButtons(buttons)
+
+        self.text = None
+        self.html = None
+
+        self.cached_maximum_size = self.maximumSize()
+
+        desktops = QtWidgets.QApplication.desktop()
+        screen_number = desktops.screenNumber(self.parent())
+        geometry = desktops.screenGeometry(screen_number)
+
+        self.setMaximumHeight(geometry.height() * 0.7)
+        self.setMaximumWidth(geometry.width() * 0.7)
+
+    def set_text(self, text):
+        self.message.setPlainText(text)
+
+        self.html = None
+        self.text = text
+
+        self.message.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
+
+    def set_html(self, html):
+        self.message.setHtml(html)
+
+        self.html = html
+        self.text = None
+
+        self.message.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+
+    def set_message_box_icon(self, icon):
+        self.icon.setPixmap(QtWidgets.QMessageBox.standardIcon(icon))
+
+    def exec(self):
+        QtCore.QTimer.singleShot(10, functools.partial(
+                self.setMaximumSize,
+                self.cached_maximum_size,
+        ))
+
+        return super().exec()
+
+
+def dialog(parent, message, title=None, icon=None,
+           rich_text=False, cancellable=False):
+    box = Dialog(parent=parent, cancellable=cancellable)
+
+    if rich_text:
+        box.set_html(message)
+    else:
+        box.set_text(message)
+
+    box.set_message_box_icon(icon)
+
+    if title is not None:
+        parent_title = QtWidgets.QApplication.instance().applicationName()
+
+        if len(parent_title) > 0:
+            title = ' - '.join((
+                parent_title,
+                title,
+            ))
+
+
+        box.setWindowTitle(title)
+
+    return box.exec()
 
 
 def dialog_from_file(parent, title, file_name):
@@ -325,5 +386,4 @@ def dialog_from_file(parent, title, file_name):
         parent=parent,
         title=title,
         message=message,
-        scrollable=True,
     )
