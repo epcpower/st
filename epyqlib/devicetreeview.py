@@ -232,11 +232,6 @@ class DeviceTreeView(QtWidgets.QWidget):
         file = epyqlib.utils.qt.file_dialog(filters, parent=self)
 
         if file is not None:
-            message_box = QMessageBox(parent=self)
-            message_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            message_box.setDefaultButton(QMessageBox.Cancel)
-            message_box.setTextFormat(Qt.RichText)
-
             text = textwrap.dedent('''\
             Flashing {file}
 
@@ -276,11 +271,16 @@ class DeviceTreeView(QtWidgets.QWidget):
             </ol>
             '''.format(file=file))
 
-            message_box.setText(text)
+            accepted = epyqlib.utils.qt.dialog(
+                parent=self,
+                title='Flashing',
+                message=text,
+                icon=QtWidgets.QMessageBox.Information,
+                rich_text=True,
+                cancellable=True,
+            )
 
-            result = message_box.exec()
-
-            if result == QMessageBox.Ok:
+            if accepted:
                 with open(file, 'rb') as f:
                     real_bus = can.interface.Bus(bustype=interface,
                                                  channel=channel,

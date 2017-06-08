@@ -100,9 +100,14 @@ if sys.platform == 'win32':
 
     print('')
     print('')
-    print('    I have not been programmed to detect it but you may need:')
+    print('    I have not been programmed to detect it but you may need the right')
+    print('    redist (x86 or x64) to match your Python install:')
     print('')
-    print('        https://download.microsoft.com/download/5/B/C/5BC5DBB3-652D-4DCE-B14A-475AB85EEF6E/vcredist_x86.exe')
+    print('        https://www.microsoft.com/en-us/download/details.aspx?id=52685')
+    print('')
+    print('    Similarly:')
+    print('')
+    print('        https://www.microsoft.com/en-us/download/details.aspx?id=8328')
     print
 
 

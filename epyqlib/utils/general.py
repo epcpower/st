@@ -182,3 +182,24 @@ class TextTable:
             f.format(*(row + (('',) * (len(self.widths) - len(row)))))
             for row in self.rows
         ))
+
+
+@attr.s
+class Collector(list):
+    cls = attr.ib()
+    payload_attribute = attr.ib()
+
+    def append(self, *args, **kwargs):
+        s = super()
+
+        def f(payload):
+            payload_dict = {self.payload_attribute: payload}
+            s.append(self.cls(
+                *args,
+                **kwargs,
+                **{self.payload_attribute: payload},
+            ))
+
+            return payload
+
+        return f

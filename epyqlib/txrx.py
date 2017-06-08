@@ -183,6 +183,9 @@ class MessageNode(epyqlib.canneo.Frame, TreeNode):
                 self, Columns.indexes.count,
                 [Qt.DisplayRole])
 
+    @pyqtSlot(can.Message)
+    def message_received(self, msg):
+        super().message_received(msg=msg)
 
     def unique(self):
         return id(self)
@@ -222,6 +225,12 @@ class TxRx(TreeNode, epyqlib.canneo.QtCanListener):
         if self.tx:
             for frame in self.neo.frames:
                 self.add_message_node(node=frame)
+
+        if self.bus is not None:
+            self.remapper = epyqlib.canneo.QtCanListener(
+                receiver=self.message_sent)
+            self.bus.tx_notifier.add(self.remapper)
+            self.sent_messages = {}
 
         # TODO: this should probably be done in the view but this is easier for now
         #       Tx can't be added to later (yet)
@@ -323,6 +332,25 @@ class TxRx(TreeNode, epyqlib.canneo.QtCanListener):
         #         child, Columns.indexes.value,
         #         child, Columns.indexes.value,
         #         [Qt.DisplayRole])
+
+    @pyqtSlot(can.Message)
+    def message_sent(self, message):
+        id = self.generate_id(message=message)
+
+        node = self.sent_messages.get(id)
+
+        if node is None:
+            for node in self.children:
+                if (node.id, node.extended, node.mux_value) == id:
+                    self.sent_messages[id] = node
+                    break
+            else:
+                # not recognized
+                self.sent_messages[id] = None
+                return
+
+        if node is not None:
+            node._sent()
 
     def unique(self):
         # TODO: actually identify the object

@@ -1,3 +1,4 @@
+import functools
 import io
 import os
 import sys
@@ -50,21 +51,16 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
         sections = [separator, timeString, separator, errmsg, separator, tbinfo]
         message = '\n'.join(s.strip() for s in sections)
 
-    errorbox = QtWidgets.QMessageBox(parent=parent)
-    errorbox.setWindowTitle("EPyQ")
-    errorbox.setIcon(QtWidgets.QMessageBox.Critical)
-
-    # TODO: CAMPid 980567566238416124867857834291346779
-    ico_file = os.path.join(
-        QtCore.QFileInfo.absolutePath(QtCore.QFileInfo(__file__)), 'icon.ico')
-    ico = QtGui.QIcon(ico_file)
-    errorbox.setWindowIcon(ico)
-
     complete = str(notice) + str(message) + str(versionInfo)
 
     sys.stderr.write(complete + '\n')
-    errorbox.setText(complete)
-    errorbox.exec_()
+
+    dialog(
+        parent=parent,
+        title='Exception',
+        message=complete,
+        icon=QtWidgets.QMessageBox.Critical,
+    )
 
 
 # http://stackoverflow.com/a/35902894/228539
@@ -234,3 +230,160 @@ def progress_dialog(parent=None, cancellable=False):
     progress.setMaximum(0)
 
     return progress
+
+
+class FittedTextBrowser(QtWidgets.QTextBrowser):
+    def sizeHint(self):
+        default = super().sizeHint()
+
+        if not default.isValid():
+            return default
+
+        document_size = self.document().size()
+
+        desktops = QtWidgets.QApplication.desktop()
+        screen_number = desktops.screenNumber(self.parent())
+        geometry = desktops.screenGeometry(screen_number)
+
+        if document_size.width() == 0:
+            document_size.setWidth(geometry.width() * 0.25)
+        if document_size.height() == 0:
+            document_size.setHeight(geometry.height() * 0.4)
+
+        scrollbar_width = QtWidgets.QApplication.style().pixelMetric(
+            QtWidgets.QStyle.PM_ScrollBarExtent
+        )
+
+        width = sum((
+            document_size.width(),
+            self.contentsMargins().left(),
+            self.contentsMargins().right(),
+            scrollbar_width,
+        ))
+
+        height = sum((
+            document_size.height(),
+            self.contentsMargins().top(),
+            self.contentsMargins().bottom(),
+            scrollbar_width,
+        ))
+
+        return QtCore.QSize(width, height)
+
+
+class Dialog(QtWidgets.QDialog):
+    def __init__(self, *args, cancellable=False, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.layout = QtWidgets.QGridLayout(self)
+        self.icon = QtWidgets.QLabel(self)
+        self.message = FittedTextBrowser(self)
+        self.buttons = QtWidgets.QDialogButtonBox(self)
+
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
+
+        self.setLayout(self.layout)
+        self.layout.addWidget(self.icon, 0, 0)
+        self.layout.addWidget(self.message, 0, 1)
+        self.layout.addWidget(self.buttons, 1, 0, 1, 2)
+
+        self.layout.setRowStretch(0, 1)
+        self.layout.setColumnStretch(1, 1)
+
+        buttons = QtWidgets.QDialogButtonBox.Ok
+        if cancellable:
+            buttons |= QtWidgets.QDialogButtonBox.Cancel
+
+        self.buttons.setStandardButtons(buttons)
+
+        self.text = None
+        self.html = None
+
+        self.cached_maximum_size = self.maximumSize()
+
+        desktops = QtWidgets.QApplication.desktop()
+        screen_number = desktops.screenNumber(self.parent())
+        geometry = desktops.screenGeometry(screen_number)
+
+        self.setMaximumHeight(geometry.height() * 0.7)
+        self.setMaximumWidth(geometry.width() * 0.7)
+
+    def set_text(self, text):
+        self.message.setPlainText(text)
+
+        self.html = None
+        self.text = text
+
+        self.message.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
+
+    def set_html(self, html):
+        self.message.setHtml(html)
+
+        self.html = html
+        self.text = None
+
+        self.message.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+
+    def set_message_box_icon(self, icon):
+        self.icon.setPixmap(QtWidgets.QMessageBox.standardIcon(icon))
+
+    def exec(self):
+        QtCore.QTimer.singleShot(10, functools.partial(
+                self.setMaximumSize,
+                self.cached_maximum_size,
+        ))
+
+        return super().exec()
+
+
+def dialog(parent, message, title=None, icon=None,
+           rich_text=False, cancellable=False):
+    box = Dialog(parent=parent, cancellable=cancellable)
+
+    if rich_text:
+        box.set_html(message)
+    else:
+        box.set_text(message)
+
+    box.set_message_box_icon(icon)
+
+    if title is not None:
+        parent_title = QtWidgets.QApplication.instance().applicationName()
+
+        if len(parent_title) > 0:
+            title = ' - '.join((
+                parent_title,
+                title,
+            ))
+
+
+        box.setWindowTitle(title)
+
+    return box.exec()
+
+
+def dialog_from_file(parent, title, file_name):
+    # The Qt Installer Framework (QtIFW) likes to do a few things to license files...
+    #  * '\n' -> '\r\n'
+    #   * even such that '\r\n' -> '\r\r\n'
+    #  * Recodes to something else (probably cp-1251)
+    #
+    # So, we'll just try different encodings and hope one of them works.
+
+    encodings = [None, 'utf-8']
+
+    for encoding in encodings:
+        try:
+            with open(os.path.join('Licenses', file_name), encoding=encoding) as in_file:
+                message = in_file.read()
+        except UnicodeDecodeError:
+            pass
+        else:
+            break
+
+    dialog(
+        parent=parent,
+        title=title,
+        message=message,
+    )

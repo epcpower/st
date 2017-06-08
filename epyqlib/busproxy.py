@@ -103,8 +103,12 @@ class BusProxy(QObject):
                 sent = True
 
                 time.sleep(0.0005)
-                if sent and on_success is not None:
-                    on_success()
+
+                if sent:
+                    self.tx_notifier.message_received(message=msg)
+
+                    if on_success is not None:
+                        on_success()
             else:
                 # TODO: I would use message=message (or msg=msg) but:
                 #       https://bitbucket.org/hardbyte/python-can/issues/52/inconsistent-send-signatures
@@ -112,9 +116,6 @@ class BusProxy(QObject):
 
             if self.auto_disconnect:
                 self.verify_bus_ok()
-
-            if sent:
-                self.tx_notifier.message_received(message=msg)
 
             # TODO: since send() doesn't always report failures this won't either
             #       fix that

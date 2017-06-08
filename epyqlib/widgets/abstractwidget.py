@@ -52,6 +52,15 @@ event_type_to_name = {
     if isinstance(getattr(QEvent, t), QEvent.Type)
 }
 
+
+def signal_path_to_string(path):
+    return ';'.join(s.strip() for s in path)
+
+
+def string_to_signal_path(s):
+    return [se.strip() for se in s.split(';')]
+
+
 class AbstractWidget(QtWidgets.QWidget):
     trigger_action = pyqtSignal()
 
@@ -148,39 +157,22 @@ class AbstractWidget(QtWidgets.QWidget):
         if len(path) > len(self._signal_path):
             raise Exception(
                 'Passed path has length {} which is longer than the supported '
-                'limit of {}'.format(
+                'limit of {}: {}'.format(
                     len(path),
-                    len(self._signal_path)
+                    len(self._signal_path),
+                    path,
                 )
             )
 
         self._signal_path = list(path) + [''] * (len(self._signal_path) - len(path))
 
     @pyqtProperty('QString')
-    def signal_path_element_0(self):
-        return self._signal_path[0]
+    def signal_path(self):
+        return signal_path_to_string(self._signal_path)
 
-    @signal_path_element_0.setter
-    def signal_path_element_0(self, value):
-        self._signal_path[0] = value
-        self.update_metadata()
-
-    @pyqtProperty('QString')
-    def signal_path_element_1(self):
-        return self._signal_path[1]
-
-    @signal_path_element_1.setter
-    def signal_path_element_1(self, value):
-        self._signal_path[1] = value
-        self.update_metadata()
-
-    @pyqtProperty('QString')
-    def signal_path_element_2(self):
-        return self._signal_path[2]
-
-    @signal_path_element_2.setter
-    def signal_path_element_2(self, value):
-        self._signal_path[2] = value
+    @signal_path.setter
+    def signal_path(self, value):
+        self.set_signal_path(string_to_signal_path(value))
         self.update_metadata()
 
     @pyqtProperty(int)

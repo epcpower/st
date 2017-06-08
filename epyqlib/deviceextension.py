@@ -9,6 +9,10 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+def referenced_files(raw_dict):
+    return ()
+
+
 class DeviceExtension:
     def __init__(self, device):
         self.device = device

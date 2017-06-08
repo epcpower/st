@@ -44,38 +44,6 @@ class CompoundToggle(QWidget):
             self.ui.status_off.set_value(self.ui.status_off.on_value)
             self.ui.status_on.set_value(self.ui.status_off.on_value)
 
-    @pyqtProperty(str, designable=False)
-    def command_frame(self):
-        return ''
-
-    @command_frame.setter
-    def command_frame(self, value):
-        self.command_signal_path_element_0 = value
-
-    @pyqtProperty(str, designable=False)
-    def command_signal(self):
-        return ''
-
-    @command_signal.setter
-    def command_signal(self, value):
-        self.command_signal_path_element_1 = value
-
-    @pyqtProperty(str, designable=False)
-    def status_frame(self):
-        return ''
-
-    @status_frame.setter
-    def status_frame(self, value):
-        self.status_signal_path_element_0 = value
-
-    @pyqtProperty(str, designable=False)
-    def status_signal(self):
-        return ''
-
-    @status_signal.setter
-    def status_signal(self, value):
-        self.status_signal_path_element_1 = value
-
     @pyqtProperty(str)
     def box_title(self):
         return self.ui.box.title()
@@ -85,55 +53,21 @@ class CompoundToggle(QWidget):
         self.ui.box.setTitle(title)
 
     @pyqtProperty('QString')
-    def command_signal_path_element_0(self):
-        return self.ui.command.signal_path_element_0
+    def command_signal_path(self):
+        return self.ui.command.signal_path
 
-    @command_signal_path_element_0.setter
-    def command_signal_path_element_0(self, value):
-        self.ui.command.signal_path_element_0 = value
-
-    @pyqtProperty('QString')
-    def command_signal_path_element_1(self):
-        return self.ui.command.signal_path_element_1
-
-    @command_signal_path_element_1.setter
-    def command_signal_path_element_1(self, value):
-        self.ui.command.signal_path_element_1 = value
+    @command_signal_path.setter
+    def command_signal_path(self, value):
+        self.ui.command.signal_path = value
 
     @pyqtProperty('QString')
-    def command_signal_path_element_2(self):
-        return self.ui.command.signal_path_element_2
+    def status_signal_path(self):
+        return self.ui.status_off.signal_path
 
-    @command_signal_path_element_2.setter
-    def command_signal_path_element_2(self, value):
-        self.ui.command.signal_path_element_2 = value
-
-    @pyqtProperty('QString')
-    def status_signal_path_element_0(self):
-        return self.ui.status_off.signal_path_element_0
-
-    @status_signal_path_element_0.setter
-    def status_signal_path_element_0(self, value):
-        self.ui.status_off.signal_path_element_0 = value
-        self.ui.status_on.signal_path_element_0 = value
-
-    @pyqtProperty('QString')
-    def status_signal_path_element_1(self):
-        return self.ui.status_off.signal_path_element_1
-
-    @status_signal_path_element_1.setter
-    def status_signal_path_element_1(self, value):
-        self.ui.status_off.signal_path_element_1 = value
-        self.ui.status_on.signal_path_element_1 = value
-
-    @pyqtProperty('QString')
-    def status_signal_path_element_2(self):
-        return self.ui.status_off.signal_path_element_2
-
-    @status_signal_path_element_2.setter
-    def status_signal_path_element_2(self, value):
-        self.ui.status_off.signal_path_element_2 = value
-        self.ui.status_on.signal_path_element_2 = value
+    @status_signal_path.setter
+    def status_signal_path(self, value):
+        self.ui.status_off.signal_path = value
+        self.ui.status_on.signal_path = value
 
     @pyqtProperty(int)
     def on_value(self):
