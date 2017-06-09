@@ -346,7 +346,8 @@ def dialog(parent, message, title=None, icon=None,
     else:
         box.set_text(message)
 
-    box.set_message_box_icon(icon)
+    if icon is not None:
+        box.set_message_box_icon(icon)
 
     if title is not None:
         parent_title = QtWidgets.QApplication.instance().applicationName()
