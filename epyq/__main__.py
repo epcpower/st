@@ -54,7 +54,7 @@ import time
 import traceback
 
 # See file COPYING in this source tree
-__copyright__ = 'Copyright 2016, EPC Power Corp.'
+__copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
