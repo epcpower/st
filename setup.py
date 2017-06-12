@@ -17,6 +17,7 @@ setup(
             'patchvenv = epyqlib.patchvenv:main',
             'cangenmanual = epyqlib.cangenmanual:_entry_point',
             'updateepc = epyqlib.updateepc:main',
+            'genbuildinfo = epyqlib.genbuildinfo:write_build_file',
         ]
     },
     install_requires=[
