@@ -5,8 +5,8 @@ requests
 -e git+https://github.com/altendky/python-can@d9e3190486af0000256820400516fe0a0423d0bb#egg=python-can
 -e git+https://github.com/ebroecker/canmatrix@336a8937c3fbdf4ba0d26cf4275aca4ee5486d31#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
-twisted==16.5.0
+twisted==17.1.0
 -e git+https://github.com/altendky/qt5reactor@a52c0d0c289c8e08680c0204974081c541504d41#egg=qt5reactor
-pypiwin32; sys_platform == 'win32'
+pypiwin32==220; sys_platform == 'win32'
 -e git+https://github.com/eliben/pyelftools@2300c1ffbe0f12f8bcd8f68ff1b1c6bdd0258c73#egg=pyelftools
 attrs==16.3.0

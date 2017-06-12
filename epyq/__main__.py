@@ -54,12 +54,12 @@ import time
 import traceback
 
 # See file COPYING in this source tree
-__copyright__ = 'Copyright 2016, EPC Power Corp.'
+__copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
 print(epyq.__version_tag__)
-
+print(epyq.__build_tag__)
 
 # TODO: CAMPid 9756562638416716254289247326327819
 class Window(QtWidgets.QMainWindow):
@@ -79,7 +79,8 @@ class Window(QtWidgets.QMainWindow):
         else:
             ui_file = ui
         ui_file = QFile(ui_file)
-        ui_file.open(QFile.ReadOnly | QFile.Text)
+        if not ui_file.open(QFile.ReadOnly | QFile.Text):
+            raise Exception('Unable to open: {}'.format(ui_file.fileName()))
         ts = QTextStream(ui_file)
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
@@ -232,7 +233,8 @@ class Window(QtWidgets.QMainWindow):
         message = [
             __copyright__,
             __license__,
-            epyq.__version_tag__
+            'Version Tag: {}'.format(epyq.__version_tag__),
+            'Build Tag: {}'.format(epyq.__build_tag__),
         ]
 
         message = '\n'.join(message)
@@ -292,9 +294,15 @@ def main(args=None):
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
 
+
     os_signal_timer = QtCore.QTimer()
     os_signal_timer.start(200)
     os_signal_timer.timeout.connect(lambda: None)
+
+    # https://github.com/kivy/kivy/issues/4182#issuecomment-253159955
+    # fix for pyinstaller packages app to avoid ReactorAlreadyInstalledError
+    if 'twisted.internet.reactor' in sys.modules:
+        del sys.modules['twisted.internet.reactor']
 
     import qt5reactor
     qt5reactor.install()
@@ -330,11 +338,15 @@ def main(args=None):
         for module in can_logger_modules:
             logging.getLogger(module).setLevel(logging.DEBUG)
 
+    fontawesome_path = os.path.join(
+        QtCore.QFileInfo.absolutePath(QFileInfo(__file__)),
+        '..', 'venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'
+    )
+    if not os.path.exists(fontawesome_path):
+        fontawesome_path = 'FontAwesome.otf'
 
     font_paths = [
-        os.path.join(
-            QtCore.QFileInfo.absolutePath(QFileInfo(__file__)),
-            '..', 'venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'),
+        fontawesome_path
     ]
 
     for font_path in font_paths:
@@ -352,6 +364,7 @@ def main(args=None):
     sys.excepthook = functools.partial(
         epyqlib.utils.qt.exception_message_box,
         version_tag=epyq.__version_tag__,
+        build_tag=epyq.__build_tag__,
         parent=window
     )
 
