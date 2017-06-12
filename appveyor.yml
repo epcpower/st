@@ -13,7 +13,8 @@ build_script:
   - pip install --user tox
   - pip install --user virtualenv
   - pip install --user requests
-  - python appveyor.py
+  - copy /y .gitmodules.github .gitmodules
+  - git submodule update --init
   - python venv.py
   - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   - venv\\Scripts\\genbuildinfo "epyq\\_build.py"

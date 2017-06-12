@@ -1,0 +1,4 @@
+[submodule "sub/epyqlib"]
+	path = sub/epyqlib
+	url = https://github.com/altendky/st
+	branch = lib
