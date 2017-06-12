@@ -356,7 +356,12 @@ runit(args=[
     cwd='build'
 )
 
-installer_file = '{}-{}.exe'.format(args.name, epyq.__version_tag__)
+installer_file = '{}-{}-{}.exe'.format(
+    args.name,
+    epyq.__version_tag__,
+    epyq.__build_tag__,
+)
+
 shutil.copy(
     os.path.join('build', 'epyq.exe'),
     os.path.join('..', installer_file)
