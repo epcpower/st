@@ -20,7 +20,8 @@ log = os.path.join(os.getcwd(), 'epyq.log')
 #       http://die-offenbachs.homelinux.org:48888/hg/eric/file/a1e53a9ffcf3/eric6.py#l134
 
 def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
-                          message=None, version_tag=None, parent=None):
+                          message=None, version_tag=None, build_tag=None,
+                          parent=None):
     """
     Global function to catch unhandled exceptions.
 
@@ -31,18 +32,19 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
     separator = '-' * 70
     email = "kyle.altendorf@epcpower.com"
 
+    version = ''
     if version_tag is not None:
         version = '\n\nVersion Tag: {}\n\n'.format(version_tag)
-    else:
-        version = ''
+
+    build = ''
+    if build_tag is not None:
+        build = '\n\nBuild Tag: {}\n\n'.format(build_tag)
 
     notice = \
         """An unhandled exception occurred. Please report the problem via email to:\n"""\
-        """\t\t{email}{version}"""\
+        """\t\t{email}{version}{build}"""\
         """A log has been written to "{log}".\n\nError information:\n""".format(
-        email=email, version=version, log=log)
-    # TODO: add something for version
-    versionInfo=""
+        email=email, version=version, build=build, log=log)
     timeString = time.strftime("%Y-%m-%d, %H:%M:%S")
 
     if message is None:
@@ -51,7 +53,7 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
         sections = [separator, timeString, separator, errmsg, separator, tbinfo]
         message = '\n'.join(s.strip() for s in sections)
 
-    complete = str(notice) + str(message) + str(versionInfo)
+    complete = str(notice) + str(message)
 
     sys.stderr.write(complete + '\n')
 
