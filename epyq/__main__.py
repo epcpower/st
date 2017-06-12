@@ -59,7 +59,7 @@ __license__ = 'GPLv2+'
 
 
 print(epyq.__version_tag__)
-
+print(epyq.__build_tag__)
 
 # TODO: CAMPid 9756562638416716254289247326327819
 class Window(QtWidgets.QMainWindow):
@@ -233,7 +233,8 @@ class Window(QtWidgets.QMainWindow):
         message = [
             __copyright__,
             __license__,
-            epyq.__version_tag__
+            epyq.__version_tag__,
+            epyq.__build_tag__,
         ]
 
         message = '\n'.join(message)
@@ -363,6 +364,7 @@ def main(args=None):
     sys.excepthook = functools.partial(
         epyqlib.utils.qt.exception_message_box,
         version_tag=epyq.__version_tag__,
+        build_tag=epyq.__build_tag__,
         parent=window
     )
 
