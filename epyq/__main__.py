@@ -233,8 +233,8 @@ class Window(QtWidgets.QMainWindow):
         message = [
             __copyright__,
             __license__,
-            epyq.__version_tag__,
-            epyq.__build_tag__,
+            'Version Tag: {}'.format(epyq.__version_tag__),
+            'Build Tag: {}'.format(epyq.__build_tag__),
         ]
 
         message = '\n'.join(message)
