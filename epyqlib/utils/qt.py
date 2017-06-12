@@ -271,31 +271,44 @@ class FittedTextBrowser(QtWidgets.QTextBrowser):
         return QtCore.QSize(width, height)
 
 
-class Dialog(QtWidgets.QDialog):
-    def __init__(self, *args, cancellable=False, **kwargs):
-        super().__init__(*args, **kwargs)
+class DialogUi:
+    def __init__(self, parent):
+        self.layout = QtWidgets.QGridLayout(parent)
+        self.icon = QtWidgets.QLabel(parent)
+        self.message = FittedTextBrowser(parent)
+        self.copy = QtWidgets.QPushButton(parent)
+        self.buttons = QtWidgets.QDialogButtonBox(parent)
 
-        self.layout = QtWidgets.QGridLayout(self)
-        self.icon = QtWidgets.QLabel(self)
-        self.message = FittedTextBrowser(self)
-        self.buttons = QtWidgets.QDialogButtonBox(self)
+        self.copy.setText('Copy To Clipboard')
 
-        self.buttons.accepted.connect(self.accept)
-        self.buttons.rejected.connect(self.reject)
-
-        self.setLayout(self.layout)
         self.layout.addWidget(self.icon, 0, 0)
-        self.layout.addWidget(self.message, 0, 1)
-        self.layout.addWidget(self.buttons, 1, 0, 1, 2)
+        self.layout.addWidget(self.message, 0, 1, 1, 2)
+        self.layout.addWidget(self.copy, 1, 1)
+        self.layout.addWidget(self.buttons, 1, 2)
+
+        self.layout.setAlignment(self.copy, QtCore.Qt.AlignLeft)
 
         self.layout.setRowStretch(0, 1)
         self.layout.setColumnStretch(1, 1)
 
+
+class Dialog(QtWidgets.QDialog):
+    def __init__(self, *args, cancellable=False, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.ui = DialogUi(parent=self)
+
+        self.ui.buttons.accepted.connect(self.accept)
+        self.ui.buttons.rejected.connect(self.reject)
+
+        self.ui.copy.clicked.connect(self.copy)
+
+        self.setLayout(self.ui.layout)
         buttons = QtWidgets.QDialogButtonBox.Ok
         if cancellable:
             buttons |= QtWidgets.QDialogButtonBox.Cancel
 
-        self.buttons.setStandardButtons(buttons)
+        self.ui.buttons.setStandardButtons(buttons)
 
         self.text = None
         self.html = None
@@ -309,24 +322,29 @@ class Dialog(QtWidgets.QDialog):
         self.setMaximumHeight(geometry.height() * 0.7)
         self.setMaximumWidth(geometry.width() * 0.7)
 
+    def copy(self):
+        QtWidgets.QApplication.clipboard().setText(
+            self.ui.message.toPlainText() + '\n'
+        )
+
     def set_text(self, text):
-        self.message.setPlainText(text)
+        self.ui.message.setPlainText(text)
 
         self.html = None
         self.text = text
 
-        self.message.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
+        self.ui.message.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
 
     def set_html(self, html):
-        self.message.setHtml(html)
+        self.ui.message.setHtml(html)
 
         self.html = html
         self.text = None
 
-        self.message.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+        self.ui.message.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
 
     def set_message_box_icon(self, icon):
-        self.icon.setPixmap(QtWidgets.QMessageBox.standardIcon(icon))
+        self.ui.icon.setPixmap(QtWidgets.QMessageBox.standardIcon(icon))
 
     def exec(self):
         QtCore.QTimer.singleShot(10, functools.partial(
