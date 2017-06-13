@@ -2,16 +2,11 @@
 <Package>
     <DisplayName>EPC Power Service Tool</DisplayName>
     <Description>The EPC Power Service Tool.  Also known as EPyQ.</Description>
-    <Version>0.0.1-1</Version>
+    <Version>**VERSION**</Version>
     <ReleaseDate>2016-02-08</ReleaseDate>
     <Licenses>
         <License name="EPyQ" file="epyq-COPYING.txt" />
-        <License name="bitstruct" file="bitstruct-LICENSE.txt" />
-        <License name="canmatrix" file="canmatrix-LICENSE.txt" />
-        <License name="python-can" file="python-can-LICENSE.txt" />
-        <License name="Python" file="python-LICENSE.txt" />
-        <License name="Qt" file="qt-LICENSE.txt" />
-        <License name="PyQt" file="pyqt-LICENSE.txt" />
+        <License name="Third Party Code Licenses" file="third_party-LICENSE.txt" />
     </Licenses>
     <Default>true</Default>
     <Script>installscript.qs</Script>

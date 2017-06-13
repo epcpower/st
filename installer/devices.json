@@ -1,0 +1,62 @@
+{
+    "DCDC 246 Factory": {
+        "repository": "https://epc-phab.exana.io/diffusion/DCDC",
+        "branch": "Feature_LC12_6",
+        "file": "interface/DCDC_ID246_FACTORY.epc",
+        "groups": ["factory"]
+    },
+    "DCDC 247 Factory": {
+        "repository": "https://epc-phab.exana.io/diffusion/DCDC",
+        "branch": "Feature_LC12_6",
+        "file": "interface/DCDC_ID247_FACTORY.epc",
+        "groups": ["factory"]
+    },
+    "UL1741 Distributed Generation Factory": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "UL1741",
+        "file": "interface/distributed_generation_factory.epc",
+        "groups": ["dev", "factory"]
+    },
+    "Hydra": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "AFE",
+        "file": "interface/hydra.epc",
+        "groups": ["dev"]
+    },
+    "Hydra Factory": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "Imergy",
+        "file": "interface/hydra_factory.epc",
+        "groups": ["factory"]
+    },
+    "Distributed Generation": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "TUV_UUTapp",
+        "file": "interface/distributed_generation.epc",
+        "groups": ["release"]
+    },
+    "ICU": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "RS11_Cleanup",
+        "file": "interface/icu.epc",
+        "groups": ["release"]
+    },
+    "Microgrid": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "AFE",
+        "file": "interface/microgrid.epc",
+        "groups": ["release"]
+    },
+    "Microgrid Factory": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "AFE",
+        "file": "interface/microgrid_factory.epc",
+        "groups": ["factory"]
+    },
+    "Data Logger (DG)": {
+        "repository": "https://epc-phab.exana.io/diffusion/ICU",
+        "branch": "t416_data_logger",
+        "file": "interface/distributed_generation_factory.epc",
+        "groups": ["dev", "factory"]
+    }
+}

@@ -4,6 +4,7 @@
 
 import sys
 import time
+import epyq
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2015, EPC Power Corp.'
@@ -14,7 +15,8 @@ def main(template, output):
     with open(template, 'r') as template_file:
         config = template_file.read()
         replacements = {
-            'VERSION_EPOCH': str(int(round(time.time())))
+            'VERSION_EPOCH': str(int(round(time.time()))),
+            'VERSION': epyq.__version__.replace('.post', '-')
         }
 
         for key, value in replacements.items():

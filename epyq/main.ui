@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>865</width>
+    <width>316</width>
     <height>792</height>
    </rect>
   </property>
@@ -15,24 +15,31 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <item>
-     <widget class="QSplitter" name="splitter">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+     <widget class="QToolButton" name="collapse_button">
+      <property name="text">
+       <string/>
       </property>
-      <property name="childrenCollapsible">
-       <bool>false</bool>
+      <property name="arrowType">
+       <enum>Qt::LeftArrow</enum>
       </property>
-      <widget class="DeviceTreeView" name="device_tree">
-       <property name="toolTip">
-        <string>Buses!</string>
-       </property>
-       <property name="whatsThis">
-        <string>A DeviceTreeView</string>
-       </property>
-      </widget>
-      <widget class="QStackedWidget" name="stacked"/>
      </widget>
+    </item>
+    <item>
+     <widget class="DeviceTreeView" name="device_tree">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QStackedWidget" name="stacked"/>
     </item>
    </layout>
   </widget>
@@ -41,16 +48,31 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>865</width>
-     <height>39</height>
+     <width>316</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="action_About"/>
+    <addaction name="action_license"/>
+    <addaction name="action_third_party_licenses"/>
+    <addaction name="separator"/>
+    <addaction name="action_about"/>
+    <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="action_chart_log"/>
+    <addaction name="separator"/>
+    <addaction name="action_start_can_log"/>
+    <addaction name="action_stop_can_log"/>
+    <addaction name="action_export_can_log"/>
+   </widget>
+   <addaction name="menu_Tools"/>
    <addaction name="menuAbout"/>
   </widget>
   <action name="bus__select">
@@ -58,9 +80,39 @@
     <string>&amp;Select...</string>
    </property>
   </action>
-  <action name="action_About">
+  <action name="action_about">
    <property name="text">
     <string>&amp;About...</string>
+   </property>
+  </action>
+  <action name="action_license">
+   <property name="text">
+    <string>License...</string>
+   </property>
+  </action>
+  <action name="action_third_party_licenses">
+   <property name="text">
+    <string>Third Party Licenses...</string>
+   </property>
+  </action>
+  <action name="action_chart_log">
+   <property name="text">
+    <string>&amp;Chart Log...</string>
+   </property>
+  </action>
+  <action name="action_start_can_log">
+   <property name="text">
+    <string>Start CAN Log</string>
+   </property>
+  </action>
+  <action name="action_stop_can_log">
+   <property name="text">
+    <string>Stop CAN Log</string>
+   </property>
+  </action>
+  <action name="action_export_can_log">
+   <property name="text">
+    <string>Export CAN Log...</string>
    </property>
   </action>
  </widget>
@@ -68,7 +120,7 @@
   <customwidget>
    <class>DeviceTreeView</class>
    <extends>QWidget</extends>
-   <header>epyq.devicetreeview</header>
+   <header>epyqlib.devicetreeview</header>
   </customwidget>
  </customwidgets>
  <resources/>

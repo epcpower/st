@@ -1,15 +1,21 @@
 /venv/
-/activate
-/activate.bat
+/activate*
 generated/
 *.stats
-EPyQ-*.exe
+*.exe
+/designer*
+epyq/_version.py
+version.txt
 
 # PyCharm
 .idea/workspace.xml
 
 # vi
 *.swp
+
+# Conflicts
+*.rej
+*.orig
 
 # https://github.com/github/gitignore/blob/da00310ccba9de9a988cc973ef5238ad2c1460e9/Python.gitignore
 

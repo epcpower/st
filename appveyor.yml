@@ -1,0 +1,32 @@
+image: Visual Studio 2015
+
+environment:
+  global:
+    PYTHON: "C:\\Python36"
+
+# https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
+init:
+  - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
+
+build_script:
+  - SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+  - pip install --user tox
+  - pip install --user virtualenv
+  - pip install --user requests
+  - copy /y .gitmodules.github .gitmodules
+  - git submodule update --init
+  - python venv.py
+  - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
+  - venv\\Scripts\\genbuildinfo "epyq\\_build.py"
+  - venv\\Scripts\\pip install https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809de74a5ddbaa.zip
+  - ps: if (Get-ChildItem Env:PHRASE -ErrorAction SilentlyContinue) {echo $Env:PHRASE > sub/epyqlib/epyqlib/resources/code}
+  - venv\\Scripts\\python pinsis.py --qtifw
+  - move ..\\*.exe .
+  - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
+
+artifacts:
+  - path: '*.exe'
+
+# https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
+on_finish:
+  - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {$blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}

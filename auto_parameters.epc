@@ -1,0 +1,14 @@
+{
+    "can_path": "auto_parameters.sym",
+    "name": "Auto Parameters",
+    "tabs": {
+        "txrx": 0,
+        "variables": 0,
+        "nv": 0
+    },
+    "ui_paths": {
+        "Factory": "auto_parameters.ui"
+    },
+    "module": "auto_parameters.py",
+    "auto_parameters": "auto_parameters.json"
+}

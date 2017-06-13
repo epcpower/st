@@ -3,66 +3,68 @@
 # TODO: get some docstrings in here!
 
 # TODO: CAMPid 98852142341263132467998754961432
-import epyq.tee
+import epyqlib.tee
 import os
 import sys
 
-log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8')
+# TODO: CAMPid 953295425421677545429542967596754
+log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', buffering=1)
 
 if sys.stdout is None:
     sys.stdout = log
 else:
-    sys.stdout = epyq.tee.Tee([sys.stdout, log])
+    sys.stdout = epyqlib.tee.Tee([sys.stdout, log])
 
 if sys.stderr is None:
     sys.stderr = log
 else:
-    sys.stderr = epyq.tee.Tee([sys.stderr, log])
+    sys.stderr = epyqlib.tee.Tee([sys.stderr, log])
 
-try:
-    import epyq.revision
-except ImportError:
-    pass
-else:
-    print(epyq.revision.hash)
+import logging
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 
+import attr
 import can
 import copy
-import epyq.busproxy
-import epyq.canneo
-import epyq.nv
-from epyq.svgwidget import SvgWidget
-import epyq.txrx
-import epyq.widgets.progressbar
-import epyq.widgets.lcd
-import epyq.widgets.led
+import epyq
+import epyqlib.canneo
+import epyqlib.csvwindow
+from epyqlib.svgwidget import SvgWidget
+import epyqlib.txrx
+import epyqlib.utils.qt
+import epyqlib.utils.canlog
+import epyqlib.widgets.progressbar
+import epyqlib.widgets.lcd
+import epyqlib.widgets.led
 import functools
 import io
 import math
 import platform
-
-from epyq.device import Device
+import signal
+import threading
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
-                          QSettings, Qt, pyqtSlot, QMarginsF)
+                          Qt, pyqtSlot, QMarginsF)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
-                             QListWidgetItem, QAction, QMenu)
-from PyQt5.QtGui import QPixmap, QPicture
+                             QListWidgetItem, QAction, QMenu, QInputDialog,
+                             QPlainTextEdit)
+from PyQt5.QtGui import QPixmap, QPicture, QTextCursor
 import time
 import traceback
 
 # See file COPYING in this source tree
-__copyright__ = 'Copyright 2016, EPC Power Corp.'
+__copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+print(epyq.__version_tag__)
+print(epyq.__build_tag__)
+
 # TODO: CAMPid 9756562638416716254289247326327819
 class Window(QtWidgets.QMainWindow):
-    def __init__(self, ui_file, bus, devices=[], parent=None):
+    def __init__(self, ui_file, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
-
-        self.bus = bus
 
         # TODO: CAMPid 980567566238416124867857834291346779
         ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
@@ -77,122 +79,233 @@ class Window(QtWidgets.QMainWindow):
         else:
             ui_file = ui
         ui_file = QFile(ui_file)
-        ui_file.open(QFile.ReadOnly | QFile.Text)
+        if not ui_file.open(QFile.ReadOnly | QFile.Text):
+            raise Exception('Unable to open: {}'.format(ui_file.fileName()))
         ts = QTextStream(ui_file)
         sio = io.StringIO(ts.readAll())
         self.ui = uic.loadUi(sio, self)
 
-        self.ui.action_About.triggered.connect(self.about)
+        self.ui.action_about.triggered.connect(self.about_dialog)
+        self.ui.action_license.triggered.connect(self.license_dialog)
+        self.ui.action_third_party_licenses.triggered.connect(
+            self.third_party_licenses_dialog)
 
-        device_tree = epyq.devicetree.Tree()
-        device_tree_model = epyq.devicetree.Model(root=device_tree)
-        device_tree_model.device_removed.connect(self._remove_device)
-        self.ui.device_tree.setModel(device_tree_model)
+        self.ui.action_chart_log.triggered.connect(self.chart_log)
 
+        self.ui.action_start_can_log.triggered.connect(self.start_can_log)
+        self.ui.action_stop_can_log.triggered.connect(self.stop_can_log)
+        self.ui.action_export_can_log.triggered.connect(self.export_can_log)
+        self.can_logs = {}
+
+        device_tree = epyqlib.devicetree.Tree()
+        self.device_tree_model = epyqlib.devicetree.Model(root=device_tree)
+        self.device_tree_model.device_removed.connect(self._remove_device)
+        self.ui.device_tree.setModel(self.device_tree_model)
         self.ui.device_tree.device_selected.connect(self.set_current_device)
 
-    def about(self):
-        box = QMessageBox()
-        box.setWindowTitle("About EPyQ")
+        self.ui.collapse_button.clicked.connect(self.collapse_expand)
+        size_hint = self.ui.collapse_button.sizeHint()
+        size_hint.setWidth(0.75 * size_hint.width())
+        size_hint.setHeight(6 * size_hint.width())
+        self.ui.collapse_button.setMinimumSize(size_hint)
+        self.ui.collapse_button.setMaximumSize(size_hint)
 
-        # TODO: CAMPid 980567566238416124867857834291346779
-        ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
-        ico = QtGui.QIcon(ico_file)
-        box.setWindowIcon(ico)
+        self.subwindows = set()
 
+        self.set_title()
+
+        self.ui.stacked.currentChanged.connect(self.device_widget_changed)
+
+    def start_can_log(self):
+        self.stop_can_log()
+
+        self.can_logs = {}
+        for bus in self.device_tree_model.root.children:
+            if bus.interface is not None:
+                name = bus.fields.name
+                log = epyqlib.utils.canlog.Log(name=name)
+                bus.bus.notifier.add(log)
+                bus.bus.tx_notifier.add(log)
+                self.can_logs[bus.bus] = log
+
+                log.start()
+
+    def stop_can_log(self):
+        for bus, log in self.can_logs.items():
+            log.stop()
+            bus.notifier.discard(log)
+
+    def export_can_log(self):
+        nonempty_logs = {
+            bus: log for bus, log in self.can_logs.items()
+            if len(log.messages) > 0
+        }
+
+        if len(nonempty_logs) == 0:
+            # TODO: notify user that nothing will be done
+            return
+
+        first_message_time = min(
+            log.minimum_timestamp()
+            for log in nonempty_logs.values()
+            if len(log.messages) > 0
+        )
+
+        for bus, log in nonempty_logs.items():
+            if len(log.messages) > 0:
+                QMessageBox.information(
+                    self,
+                    'EPyQ',
+                    "Pick a file to save log of '{}'".format(log.name),
+                )
+
+                filters = [
+                    ('PCAN', ['trc']),
+                    ('All Files', ['*'])
+                ]
+                filename = epyqlib.utils.qt.file_dialog(
+                    filters=filters,
+                    parent=self,
+                    save=True,
+                )
+
+                if filename is not None:
+                    messages = (
+                        attr.assoc(
+                            message,
+                            time=(
+                                message.time - first_message_time
+                                if message.time is not None
+                                else 0
+                            ),
+                            type=(
+                                epyqlib.utils.canlog.MessageType.Rx
+                                if message.time is not None
+                                else epyqlib.utils.canlog.MessageType.Tx
+                            ),
+                        )
+                        for message in log.messages
+                    )
+                    with open(filename, 'w') as f:
+                        epyqlib.utils.canlog.to_trc_v1_1(messages, f)
+
+    def device_widget_changed(self, index):
+        device = self.device_tree_model.device_from_widget(
+            widget=self.ui.stacked.widget(index))
+
+        detail = None
+        if device is not None:
+            detail = device.name
+
+        self.set_title(detail=detail)
+
+    def set_title(self, detail=None):
+        title = 'EPyQ v{}'.format(epyq.__version__)
+
+        if detail is not None:
+            title = ' - '.join((title, detail))
+
+        self.setWindowTitle(title)
+
+    def closeEvent(self, event):
+        self.device_tree_model.terminate()
+
+    def collapse_expand(self):
+        self.ui.device_tree.setVisible(not self.ui.device_tree.isVisible())
+        self.ui.collapse_button.setArrowType(
+            Qt.LeftArrow if self.ui.device_tree.isVisible() else Qt.RightArrow)
+
+    def license_dialog(self):
+        epyqlib.utils.qt.dialog_from_file(
+            parent=self,
+            title='EPyQ License',
+            file_name='epyq-COPYING.txt',
+        )
+
+    def third_party_licenses_dialog(self):
+        epyqlib.utils.qt.dialog_from_file(
+            parent=self,
+            title='Third Party Licenses',
+            file_name='third_party-LICENSE.txt',
+        )
+
+    def about_dialog(self):
         message = [
             __copyright__,
-            __license__
+            __license__,
+            'Version Tag: {}'.format(epyq.__version_tag__),
+            'Build Tag: {}'.format(epyq.__build_tag__),
         ]
-        
-        try:
-            import epyq.revision
-        except ImportError:
-            pass
-        else:
-            message.append(epyq.revision.hash)
 
-        box.setText('\n'.join(message))
-        box.exec_()
+        message = '\n'.join(message)
 
-    @pyqtSlot(epyq.device.Device)
+        epyqlib.utils.qt.dialog(
+            parent=self,
+            title='About EPyQ',
+            message=message,
+        )
+
+    def chart_log(self):
+        filters = [
+            ('CSV', ['csv']),
+            ('All Files', ['*'])
+        ]
+        filename = epyqlib.utils.qt.file_dialog(filters, parent=self)
+
+        if filename is not None:
+            data = epyqlib.csvwindow.read_csv(filename)
+            window = epyqlib.csvwindow.QtChartWindow(data=data)
+            self.subwindows.add(window)
+            window.closing.connect(
+                functools.partial(
+                    self.subwindows.discard,
+                    window
+                )
+            )
+            window.show()
+
+    @pyqtSlot(object)
     def _remove_device(self, device):
         self.ui.stacked.removeWidget(device.ui)
+        device.ui.setParent(None)
+        device.terminate()
 
-    @pyqtSlot(epyq.device.Device)
+    @pyqtSlot(object)
     def set_current_device(self, device):
         self.ui.stacked.addWidget(device.ui)
         self.ui.stacked.setCurrentWidget(device.ui)
 
 
-# TODO: Consider updating from...
-#       http://die-offenbachs.homelinux.org:48888/hg/eric/file/a1e53a9ffcf3/eric6.py#l134
-
-# TODO: deal with licensing for swiped code (GPL3)
-#       http://die-offenbachs.homelinux.org:48888/hg/eric/file/a1e53a9ffcf3/LICENSE.GPL3
-
-def excepthook(excType, excValue, tracebackobj):
-    """
-    Global function to catch unhandled exceptions.
-
-    @param excType exception type
-    @param excValue exception value
-    @param tracebackobj traceback object
-    """
-    separator = '-' * 70
-    email = "kyle.altendorf@epcpower.com"
-
-    try:
-        hash = 'Revision Hash: {}\n\n'.format(epyq.revision.hash)
-    except:
-        hash = ''
-
-    notice = \
-        """An unhandled exception occurred. Please report the problem via email to:\n"""\
-        """\t\t{email}\n\n{hash}"""\
-        """A log has been written to "{log}".\n\nError information:\n""".format(
-        email=email, hash=hash, log=log.name)
-    # TODO: add something for version
-    versionInfo=""
-    timeString = time.strftime("%Y-%m-%d, %H:%M:%S")
-
-    tbinfofile = io.StringIO()
-    traceback.print_tb(tracebackobj, None, tbinfofile)
-    tbinfofile.seek(0)
-    tbinfo = tbinfofile.read()
-    errmsg = '%s: \n%s' % (str(excType), str(excValue))
-    sections = [separator, timeString, separator, errmsg, separator, tbinfo]
-    msg = '\n'.join(sections)
-
-    errorbox = QMessageBox()
-    errorbox.setWindowTitle("EPyQ FAIL!")
-    errorbox.setIcon(QMessageBox.Critical)
-
-    # TODO: CAMPid 980567566238416124867857834291346779
-    ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
-    ico = QtGui.QIcon(ico_file)
-    errorbox.setWindowIcon(ico)
-
-    complete = str(notice) + str(msg) + str(versionInfo)
-
-    sys.stderr.write(complete)
-    errorbox.setText(complete)
-    errorbox.exec_()
+def sigint_handler(signal_number, stack_frame):
+    QApplication.exit(128 + signal_number)
 
 
 def main(args=None):
     print('starting epyq')
 
+    signal.signal(signal.SIGINT, sigint_handler)
+
     # TODO: CAMPid 9757656124812312388543272342377
     app = QApplication(sys.argv)
-    sys.excepthook = excepthook
+    sys.excepthook = epyqlib.utils.qt.exception_message_box
+    QtCore.qInstallMessageHandler(epyqlib.utils.qt.message_handler)
     app.setStyleSheet('QMessageBox {{ messagebox-text-interaction-flags: {}; }}'
                       .format(Qt.TextBrowserInteraction))
     app.setOrganizationName('EPC Power Corp.')
     app.setApplicationName('EPyQ')
 
-    settings = QSettings(app.organizationName(),
-                         app.applicationName())
+
+    os_signal_timer = QtCore.QTimer()
+    os_signal_timer.start(200)
+    os_signal_timer.timeout.connect(lambda: None)
+
+    # https://github.com/kivy/kivy/issues/4182#issuecomment-253159955
+    # fix for pyinstaller packages app to avoid ReactorAlreadyInstalledError
+    if 'twisted.internet.reactor' in sys.modules:
+        del sys.modules['twisted.internet.reactor']
+
+    import qt5reactor
+    qt5reactor.install()
 
     if args is None:
         import argparse
@@ -200,107 +313,75 @@ def main(args=None):
         ui_default = 'main.ui'
 
         parser = argparse.ArgumentParser()
-
-        default_interfaces = {
-            'Linux': 'socketcan',
-            'Windows': 'pcan'
-        }
-        parser.add_argument('--interface',
-                            default=default_interfaces[platform.system()])
-
-        parser.add_argument('--channel', default=None)
         parser.add_argument('--ui', default=ui_default)
-        parser.add_argument('--generate', '-g', action='store_true')
-        parser.add_argument('devices', nargs='*')
+        parser.add_argument('--verbose', '-v', action='count', default=0)
         args = parser.parse_args()
 
-    if args.channel is None:
-        interface = 'offline'
-        channel = ''
-    else:
-        interface = args.interface
-        channel = args.channel
+    can_logger_modules = ('can', 'can.socketcan.native')
 
-    # TODO: find the 'proper' way to handle both quoted and non-quoted paths
-    for i, arg in enumerate(args.devices):
-        if arg[0] == arg[-1] and len(arg) >= 2:
-            if arg[0] in ['"', "'"]:
-                args.devices[i] = arg[1:-1]
+    for module in can_logger_modules:
+        logging.getLogger(module).setLevel(logging.WARNING)
 
-    # TODO: CAMPid 9756652312918432656896822
-    if interface != 'offline':
-        real_bus = can.interface.Bus(bustype=interface, channel=channel)
-    else:
-        real_bus = None
-    bus = epyq.busproxy.BusProxy(bus=real_bus)
+    if args.verbose >= 1:
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.DEBUG)
 
-    if args.generate:
-        print('generating')
-        start_time = time.monotonic()
+    if args.verbose >= 2:
+        import twisted.internet.defer
+        twisted.internet.defer.setDebugging(True)
 
-        frame_name = 'StatusControlVolts2'
-        signal_name = 'n15V_Supply'
-        frame = epyq.canneo.Frame(matrix_tx.frameByName(frame_name))
-        signal = epyq.canneo.Signal(frame.frame.signalByName(signal_name), frame)
+    if args.verbose >= 3:
+        logging.getLogger().setLevel(logging.DEBUG)
 
-        message = can.Message(extended_id=frame.frame._extended,
-                              arbitration_id=frame.frame._Id,
-                              dlc=frame.frame._Size)
+    if args.verbose >= 4:
+        logging.getLogger().setLevel(logging.INFO)
+        for module in can_logger_modules:
+            logging.getLogger(module).setLevel(logging.DEBUG)
 
-        messages = [
-            can.Message(extended_id=True,
-                        arbitration_id=486517239,
-                        dlc=8,
-                        data=bytearray([0, 1, 0, 160, 7, 208, 5, 220])),
-            can.Message(extended_id=True,
-                        arbitration_id=486517239,
-                        dlc=8,
-                        data=bytearray([0, 4, 0, 160, 1, 77, 0, 160])),
-            can.Message(extended_id=True,
-                        arbitration_id=218082369,
-                        dlc=8,
-                        data=bytearray([0, 0, 0, 3, 0, 0, 0, 42]))
-        ]
+    fontawesome_path = os.path.join(
+        QtCore.QFileInfo.absolutePath(QFileInfo(__file__)),
+        '..', 'venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'
+    )
+    if not os.path.exists(fontawesome_path):
+        fontawesome_path = 'FontAwesome.otf'
 
-        # Copy from PCAN generated and logged messages
-        # Bus=2,ID=486517239x,Type=D,DLC=8,DA=0,Data=0 1 0 160 7 208 5 220 ,
-        # Bus=2,ID=486517239x,Type=D,DLC=8,DA=0,Data=0 4 0 160 1 77 0 160 ,
-        # Bus=2,ID=218082369x,Type=D,DLC=8,DA=0,Data=0 0 0 3 0 0 0 42 ,
+    font_paths = [
+        fontawesome_path
+    ]
 
-        last_send = 0
-        while True:
-            time.sleep(0.010)
-            now = time.monotonic()
-            if now - last_send > 0.100:
-                last_send = now
-                elapsed_time = time.monotonic() - start_time
-                value = math.sin(elapsed_time) / 2
-                value *= 2
-                nominal = -15
-                value += nominal
-                human_value = value
-                value /= float(signal.signal._factor)
-                value = round(value)
-                print('{:.3f}: {}'.format(elapsed_time, value))
-                message.data = frame.pack([value, 0, 1, 2])
-                bus.send(message)
+    for font_path in font_paths:
+        # TODO: CAMPid 9549757292917394095482739548437597676742
+        if not QtCore.QFileInfo(font_path).isAbsolute():
+            font_path = os.path.join(
+                QtCore.QFileInfo.absolutePath(QtCore.QFileInfo(__file__)),
+                font_path
+            )
 
-                bus.send(can.Message(extended_id=True,
-                                     arbitration_id=0xFF9B41,
-                                     dlc=8,
-                                     data=bytearray([0, 0, 0, 0, 0, 0, 0,
-                                         int(human_value > nominal)])))
+        QtGui.QFontDatabase.addApplicationFont(font_path)
 
-                for m in messages:
-                    bus.send(m)
-        sys.exit(0)
+    window = Window(ui_file=args.ui)
 
-    devices = [os.path.abspath(f) for f in args.devices]
-
-    window = Window(ui_file=args.ui, devices=devices, bus=bus)
+    sys.excepthook = functools.partial(
+        epyqlib.utils.qt.exception_message_box,
+        version_tag=epyq.__version_tag__,
+        build_tag=epyq.__build_tag__,
+        parent=window
+    )
 
     window.show()
-    return app.exec_()
+
+    from twisted.internet import reactor
+    reactor.runReturn()
+    result = app.exec()
+    if reactor.threadpool is not None:
+        reactor._stopThreadPool()
+        logging.debug('Thread pool stopped')
+    logging.debug('Application ended')
+    reactor.stop()
+    logging.debug('Reactor stopped')
+
+    return result
+
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -1,5 +1,5 @@
 import cProfile
-import epyq.__main__
+import epyqlib.__main__
 import os
 
 # See file COPYING in this source tree
@@ -21,7 +21,7 @@ def main():
         '..', 'epyq', 'AFE_CAN_ID247_FACTORY.sym')
     args = Bunch(can=can_file, generate=False)
     pr.enable()
-    exit_value = epyq.__main__.main(args=args)
+    exit_value = epyqlib.__main__.main(args=args)
     pr.disable()
     pr.dump_stats('cprofile.stats')
     return exit_value

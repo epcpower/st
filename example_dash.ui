@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Form</class>
- <widget class="QWidget" name="Form">
+ <widget class="EpcForm" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -425,10 +425,10 @@
           <bool>false</bool>
          </property>
          <property name="minimum" stdset="0">
-          <double>50.000000000000000</double>
+          <double>45.000000000000000</double>
          </property>
          <property name="maximum" stdset="0">
-          <double>60.000000000000000</double>
+          <double>65.000000000000000</double>
          </property>
         </widget>
        </item>
@@ -456,34 +456,40 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>EpcForm</class>
+   <extends>QWidget</extends>
+   <header>epyqlib.form</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>Button</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.button</header>
+   <header>epyqlib.widgets.button</header>
   </customwidget>
   <customwidget>
    <class>Check</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.check</header>
+   <header>epyqlib.widgets.check</header>
   </customwidget>
   <customwidget>
    <class>Epc</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.epc</header>
+   <header>epyqlib.widgets.epc</header>
   </customwidget>
   <customwidget>
    <class>HorizontalSlider</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.horizontalslider</header>
+   <header>epyqlib.widgets.horizontalslider</header>
   </customwidget>
   <customwidget>
    <class>Led</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.led</header>
+   <header>epyqlib.widgets.led</header>
   </customwidget>
   <customwidget>
    <class>Scale</class>
    <extends>QWidget</extends>
-   <header>epyq.widgets.scale</header>
+   <header>epyqlib.widgets.scale</header>
   </customwidget>
  </customwidgets>
  <resources/>
