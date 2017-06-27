@@ -15,9 +15,9 @@ setup(
         'PyQtChart==5.8.0',
         'SIP==4.19.2',
     ],
-    extras_require=[
+    extras_require={
         ':sys_platform == "win32"': ['pyqt5-tools'],
-    ],
+    },
     setup_requires=[
         'vcversioner==2.16.0.0',
     ],
