@@ -1,12 +1,4 @@
-import platform
-
 from setuptools import setup, find_packages
-
-conditional_requires = []
-
-# arch = platform.architecture()
-# if arch[1].lower().startswith('win'):
-#     conditional_requires.append('pyqt5-tools')
 
 setup(
     name="EPyQ",
@@ -22,9 +14,13 @@ setup(
         'PyQt5==5.8.2',
         'PyQtChart==5.8.0',
         'SIP==4.19.2',
-        *conditional_requires
     ],
-    setup_requires=['vcversioner==2.16.0.0'],
+    extras_require=[
+        ':sys_platform == "win32"': ['pyqt5-tools'],
+    ],
+    setup_requires=[
+        'vcversioner==2.16.0.0',
+    ],
     vcversioner={
         'version_module_paths': ['epyq/_version.py'],
         'vcs_args': ['git', '--git-dir', '%(root)s/.git', 'describe',
