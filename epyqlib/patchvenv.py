@@ -150,7 +150,7 @@ def write_activate_shortcuts(root, bin):
                     target = target.replace('\\', '/')
                 else:
                     target = 'source ' + target
-                f.write(target + '\n')
+                f.write('"{}"\n'.format(target))
 
 
 def copy_designer_files(root):
