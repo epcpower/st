@@ -209,7 +209,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
                     s = s.set_signal
                     if s in request.frame.parameter_signals:
                         if s not in data:
-                            data[s] = v
+                            data[s] = s.from_human(v)
 
                 return self.write_multiple(
                     nv_signals=data,
