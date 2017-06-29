@@ -398,6 +398,8 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                      'Failed while {}...'.format(activity.lower()))
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
+        return d
+
     @pyqtSlot(can.Message)
     def message_received(self, msg):
         if (msg.arbitration_id == self.status_frames[0].id
@@ -797,13 +799,14 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     comment = ''
                 return '\n'.join(textwrap.wrap(comment, 60))
 
-    def dynamic_columns_changed(self, node, roles=(Qt.DisplayRole,)):
-        columns = (
-            Columns.indexes.value,
-            Columns.indexes.saturate,
-            Columns.indexes.reset,
-            Columns.indexes.clear,
-        )
+    def dynamic_columns_changed(self, node, columns=None, roles=(Qt.DisplayRole,)):
+        if columns is None:
+            columns = (
+                Columns.indexes.value,
+                Columns.indexes.saturate,
+                Columns.indexes.reset,
+                Columns.indexes.clear,
+            )
 
         for column in columns:
             self.changed(node, column, node, column, roles)

@@ -92,14 +92,19 @@ class NvView(QtWidgets.QWidget):
                                        only_these=only_these)
 
     def read_from_module(self):
+        resize_mode = self.ui.tree_view.header().sectionResizeMode(epyqlib.nv.Columns.indexes.value)
+        self.ui.tree_view.header().setSectionResizeMode(
+            epyqlib.nv.Columns.indexes.value, QtWidgets.QHeaderView.Fixed)
         model = self.nonproxy_model()
         only_these = [nv for nv in model.all_nv()]
         callback = functools.partial(
             self.update_signals,
             only_these=only_these
         )
-        model.root.read_all_from_device(callback=callback,
-                                        only_these=only_these)
+        d = model.root.read_all_from_device(callback=callback,
+                                            only_these=only_these)
+        d.addBoth(lambda _: self.ui.tree_view.header().setSectionResizeMode(
+            epyqlib.nv.Columns.indexes.value, resize_mode))
 
     def setModel(self, model):
         proxy = model
@@ -273,7 +278,10 @@ class NvView(QtWidgets.QWidget):
                 signal.set_data(value, check_range=False)
 
         for signal in frame.set_frame.parameter_signals:
-            model.dynamic_columns_changed(signal)
+            model.dynamic_columns_changed(
+                signal,
+                columns=(epyqlib.nv.Columns.indexes.value,)
+            )
 
 
 if __name__ == '__main__':
