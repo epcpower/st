@@ -52,7 +52,7 @@ def create_combo(index, node, parent):
     widget = QtWidgets.QComboBox(parent=parent)
 
     # TODO: use the userdata to make it easier to get in and out
-    widget.addItems(node.enumeration_strings())
+    widget.addItems(node.enumeration_strings(include_values=True))
 
     present_string = str(node.fields[index.column()])
     index = widget.findText(present_string)
