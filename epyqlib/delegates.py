@@ -61,6 +61,11 @@ def create_combo(index, node, parent):
     else:
         widget.setCurrentIndex(index)
 
+    view = widget.view()
+    policy = view.sizePolicy()
+    view.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+    view.setSizePolicy(QtWidgets.QSizePolicy.Fixed, policy.verticalPolicy())
+
     event = QMouseEvent(QEvent.MouseButtonPress,
                         QPoint(),
                         Qt.LeftButton,
