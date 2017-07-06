@@ -4,9 +4,7 @@
 
 import canmatrix.formats
 import epyqlib.canneo
-import epyqlib.utils.qt
 import epyqlib.widgets.abstractwidget
-import functools
 import math
 import os
 import sys
@@ -22,12 +20,6 @@ __license__ = 'GPLv2+'
 class EpcForm(QWidget):
     def __init__(self, parent=None, in_designer=False):
         self.in_designer = in_designer
-
-        if self.in_designer:
-            sys.excepthook = functools.partial(
-                epyqlib.utils.qt.exception_message_box,
-                stderr=False,
-            )
 
         QWidget.__init__(self, parent=parent)
 

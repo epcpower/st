@@ -2,13 +2,24 @@
 
 #TODO: """DocString if there is one"""
 
+import functools
+import epyqlib.utils.qt
 from PyQt5 import QtGui, QtDesigner
 import os
-from PyQt5.QtCore import QFileInfo
+from PyQt5.QtCore import QFileInfo, qDebug
+import sys
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
+
+
+if sys.excepthook == sys.__excepthook__:
+    qDebug('Enabling EPC sys.excepthook')
+    sys.excepthook = functools.partial(
+        epyqlib.utils.qt.exception_message_box,
+        stderr=False,
+    )
 
 
 class AbstractPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
