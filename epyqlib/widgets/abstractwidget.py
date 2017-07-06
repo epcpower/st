@@ -54,7 +54,7 @@ event_type_to_name = {
 
 
 def signal_path_to_string(path):
-    return ';'.join(s.strip() for s in path)
+    return ';'.join(s.strip() for s in path).rstrip(';')
 
 
 def string_to_signal_path(s):
