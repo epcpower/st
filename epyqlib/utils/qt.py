@@ -21,7 +21,7 @@ log = os.path.join(os.getcwd(), 'epyq.log')
 
 def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
                           message=None, version_tag=None, build_tag=None,
-                          parent=None):
+                          parent=None, stderr=True):
     """
     Global function to catch unhandled exceptions.
 
@@ -55,7 +55,8 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
 
     complete = str(notice) + str(message)
 
-    sys.stderr.write(complete + '\n')
+    if stderr:
+        sys.stderr.write(complete + '\n')
 
     dialog(
         parent=parent,
