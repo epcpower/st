@@ -4,9 +4,12 @@
 
 import canmatrix.formats
 import epyqlib.canneo
+import epyqlib.utils.qt
 import epyqlib.widgets.abstractwidget
+import functools
 import math
 import os
+import sys
 
 from PyQt5.QtCore import pyqtProperty, QTimer
 from PyQt5.QtWidgets import QWidget
@@ -19,6 +22,13 @@ __license__ = 'GPLv2+'
 class EpcForm(QWidget):
     def __init__(self, parent=None, in_designer=False):
         self.in_designer = in_designer
+
+        if self.in_designer:
+            sys.excepthook = functools.partial(
+                epyqlib.utils.qt.exception_message_box,
+                stderr=False,
+            )
+
         QWidget.__init__(self, parent=parent)
 
         self._can_file = ''
@@ -88,7 +98,19 @@ class EpcForm(QWidget):
 
             try:
                 imported = list(canmatrix.formats.loadp(can_file).values())
-            except (FileNotFoundError, IsADirectoryError):
+            except (FileNotFoundError, IsADirectoryError, OSError):
+                # Windows raises an OSError for at least my VirtualBox
+                # network drive.
+                #
+                # >>> f = open('W:/t/603/Hydra_06092017 - old\\'); f.close()
+                # Traceback (most recent call last):
+                #   File "<stdin>", line 1, in <module>
+                # OSError: [Errno 22] Invalid argument: 'W:/t/603/Hydra_06092017 - old\\'
+                # >>> f = open('C:/t/603/Hydra_06092017 - old\\'); f.close()
+                # Traceback (most recent call last):
+                #   File "<stdin>", line 1, in <module>
+                # FileNotFoundError: [Errno 2] No such file or directory: 'C:/t/603/Hydra_06092017 - old\\'
+
                 pass
 
         widgets = self.findChildren(
