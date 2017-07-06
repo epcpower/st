@@ -43,7 +43,8 @@ class CompoundScale(QWidget):
         self.update_echo_visibility()
 
     def update_echo_visibility(self):
-        self.ui.echo.setHidden(self.echo_signal_path[0] in {None, ''})
+        hidden = len(self.echo_signal_path) == 0
+        self.ui.echo.setHidden(hidden)
         self.ui.echo.ignore = True
 
     @pyqtProperty('QString')
@@ -56,7 +57,7 @@ class CompoundScale(QWidget):
 
     @pyqtProperty('QString')
     def echo_signal_path(self):
-        return ';'.join(self.ui.echo.signal_path)
+        return self.ui.echo.signal_path
 
     @echo_signal_path.setter
     def echo_signal_path(self, value):
