@@ -161,17 +161,6 @@ def pip_install(package, no_ssl_verify, site=False, parameters=[]):
     pip_parameters.append(package)
     return pip.main(pip_parameters)
 
-resource_files = glob.glob(os.path.join('sub', 'epyqlib', 'epyqlib', 'resources', '*.qrc'))
-for f in resource_files:
-    print('Starting pyrcc5')
-    runit(
-        args=[
-            os.path.join('venv', 'Scripts', 'pyrcc5'),
-            '-o', os.path.splitext(f)[0] + '.py',
-            f
-        ]
-    )
-
 
 files = []
 
