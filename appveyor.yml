@@ -19,7 +19,7 @@ build_script:
   - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   - venv\\Scripts\\genbuildinfo "epyq\\_build.py"
   - venv\\Scripts\\pip install https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809de74a5ddbaa.zip
-  - ps: if (Get-ChildItem Env:PHRASE -ErrorAction SilentlyContinue) {$Env:PHRASE | Out-File sub/epyqlib/epyqlib/resources/code -NoNewline}
+  - ps: if (Get-ChildItem Env:PHRASE -ErrorAction SilentlyContinue) {$Env:PHRASE | Out-File sub/epyqlib/epyqlib/resources/code -Encoding ascii -NoNewline}
   - venv\\Scripts\\python pinsis.py --qtifw
   - move ..\\*.exe .
   - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
