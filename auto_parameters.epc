@@ -10,5 +10,5 @@
         "Factory": "auto_parameters.ui"
     },
     "module": "auto_parameters.py",
-    "auto_parameters": "auto_parameters.json"
+    "auto_parameters": "auto_parameters.epp"
 }
