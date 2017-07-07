@@ -69,7 +69,6 @@ class DeviceExtension:
     @twisted.internet.defer.inlineCallbacks
     def _load_parameters(self):
         self.nvs.from_dict(self.parameter_dict)
-        sent_frames = set()
 
         parameter_names = [k.split(':') for k in self.parameter_dict.keys()]
 
@@ -85,18 +84,16 @@ class DeviceExtension:
         except ValueError:
             pass
         else:
-            sent_frames.add(factory_frame)
-
             factory_signal = self.nvs.signal_from_names(
                 factory_frame, factory_signal)
             yield self.nv_protocol.write(nv_signal=factory_signal)
 
-        for frame, signal in parameter_names:
-            if frame not in sent_frames:
-                sent_frames.add(frame)
-
-                signal = self.nvs.signal_from_names(frame, signal)
-                yield self.nv_protocol.write(nv_signal=signal)
+        selected_nodes = tuple(
+            self.nvs.signal_from_names(f, s)
+            for f, s in parameter_names
+            if s != factory_signal_name
+        )
+        yield self.nvs.write_all_to_device(only_these=selected_nodes)
 
         if factory_frame is not None and factory_signal is not None:
             # don't pick zero as a code...
