@@ -1,4 +1,7 @@
 {
+    "format_version": [
+        1
+    ],
     "can_path": "auto_parameters.sym",
     "name": "Auto Parameters",
     "tabs": {
