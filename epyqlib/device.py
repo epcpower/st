@@ -382,6 +382,8 @@ class Device:
 
         self.bus = BusProxy(bus=bus)
 
+        self.nv_looping_set = None
+
         self.rx_interval = rx_interval
         self.serial_number = serial_number
         self.name = '{name} :{id}'.format(name=name,
@@ -804,8 +806,13 @@ class Device:
 
     def terminate(self):
         self.neo_frames.terminate()
-        self.ui.tabs.currentChanged.disconnect()
-        self.nv_looping_set.stop()
+        try:
+            self.ui.tabs.currentChanged.disconnect()
+        except TypeError:
+            # We don't really mind if there aren't any slots connect
+            pass
+        if self.nv_looping_set is not None:
+            self.nv_looping_set.stop()
         logging.debug('{} terminated'.format(object.__repr__(self)))
 
 
