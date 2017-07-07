@@ -3,6 +3,8 @@
         1
     ],
     "can_path": "auto_parameters.sym",
+    "can_configuration": "j1939",
+    "nv_configuration": "j1939",
     "name": "Auto Parameters",
     "tabs": {
         "txrx": 0,

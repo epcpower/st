@@ -1,7 +1,7 @@
 import collections
 import json
 
-import canmatrix.importany
+import canmatrix.formats
 import twisted.internet.defer
 
 import epyqlib.canneo
@@ -29,28 +29,32 @@ class DeviceExtension:
         self.parameter_dict = None
 
     def post(self):
-        self.ui = self.device.uis['Factory']
+        self.ui = self.device().uis['Factory']
         self.ui.load_parameters_button.clicked.connect(
             self.load_parameters)
 
         matrix_nv = list(
-            canmatrix.importany.importany(self.device.can_path).values())[0]
+            canmatrix.formats.loadp(self.device().can_path).values())[0]
         self.frames_nv = epyqlib.canneo.Neo(
             matrix=matrix_nv,
             frame_class=epyqlib.nv.Frame,
             signal_class=epyqlib.nv.Nv,
-            node_id_adjust=self.device.node_id_adjust
+            node_id_adjust=self.device().node_id_adjust
         )
-        self.nvs = epyqlib.nv.Nvs(self.frames_nv, self.device.bus)
+        self.nvs = epyqlib.nv.Nvs(
+            neo=self.frames_nv,
+            bus=self.device().bus,
+            configuration=self.device().raw_dict['nv_configuration'],
+        )
         self.nv_protocol = epyqlib.twisted.nvs.Protocol()
         from twisted.internet import reactor
         self.transport = epyqlib.twisted.busproxy.BusProxy(
             protocol=self.nv_protocol,
             reactor=reactor,
-            bus=self.device.bus)
+            bus=self.device().bus)
 
-        parameter_path = self.device.raw_dict['auto_parameters']
-        parameter_path = self.device.absolute_path(parameter_path)
+        parameter_path = self.device().raw_dict['auto_parameters']
+        parameter_path = self.device().absolute_path(parameter_path)
         with open(parameter_path, 'r') as file:
             s = file.read()
             self.parameter_dict = json.loads(
