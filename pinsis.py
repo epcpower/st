@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import glob
 import io
 import os
 import requests
@@ -48,6 +49,18 @@ with open(peak, 'wb') as f:
     f.write(b.read())
 
 rmtree(os.path.join('dist'))
+
+resource_files = glob.glob(os.path.join('sub', 'epyqlib', 'epyqlib', 'resources', '*.qrc'))
+for f in resource_files:
+    print('Starting pyrcc5')
+    subprocess.check_call(
+        [
+            os.path.join('venv', 'Scripts', 'pyrcc5'),
+            '-o', os.path.splitext(f)[0] + '.py',
+            f
+        ]
+    )
+
 pyinstaller = os.path.join('venv', 'Scripts', 'pyinstaller')
 spec_file = os.path.join('installer', 'pyinstaller.spec')
 subprocess.check_call([pyinstaller, spec_file])
