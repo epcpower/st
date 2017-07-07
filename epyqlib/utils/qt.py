@@ -212,7 +212,7 @@ def get_code():
     code_file = QtCore.QFile(':/code')
     if code_file.open(QtCore.QIODevice.ReadOnly):
         code = bytes(code_file.readAll())
-        code = code.decode('utf-8').strip().encode('ascii')
+        code = code.decode('ascii').strip().encode('ascii')
         code_file.close()
 
     return code
