@@ -136,7 +136,7 @@ class Bus(TreeNode):
             ', '.join(bitrates.values())
         ))
 
-    def enumeration_strings(self):
+    def enumeration_strings(self, include_values=False):
         return bitrates.values()
 
     def unique(self):
