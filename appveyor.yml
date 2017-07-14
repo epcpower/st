@@ -10,6 +10,7 @@ init:
 
 build_script:
   - SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+  - python -c 'import sys; print(sys.version)'
   - pip install --user tox
   - pip install --user virtualenv
   - pip install --user requests
