@@ -757,9 +757,6 @@ class Device:
             undefined_signals = sorted(self.dash_missing_signals)
             logger.error('\n'.join(undefined_signals))
 
-            box = QMessageBox()
-            box.setWindowTitle("EPyQ")
-
             message = ('The following signals are referenced by the .ui '
                        'files but were not found in the loaded CAN '
                        'database.  The widgets will show `{}`.'
@@ -772,8 +769,11 @@ class Device:
             ''').format(message=message,
                         signals='\n\n'.join(undefined_signals))
 
-            box.setText(message)
-            box.exec_()
+            epyqlib.utils.qt.dialog(
+                parent=None,
+                message=message,
+                icon=QMessageBox.Information,
+            )
 
         self.extension.post()
 
