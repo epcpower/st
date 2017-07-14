@@ -12,6 +12,7 @@ import attr
 import click
 import lxml.etree
 
+import epyqlib.deviceextension
 import epyqlib.utils.general
 import epyqlib.utils.click
 
@@ -53,7 +54,120 @@ def get_ui_paths_0(device_dict):
 
 
 @converters.append(
-    old_version=(0,),
+    old_version=(0,8),
+    new_version=(0,9),
+    description='_frame/_signal -> _signal_path_element_...')
+def cf(self, source_directory, source_file_name, destination_path):
+    with open(os.path.join(source_directory, source_file_name)) as f:
+        device_dict = json.load(f, object_pairs_hook=collections.OrderedDict)
+
+    ui_paths = get_ui_paths_0(device_dict)
+
+    module_path = device_dict.get('module', None)
+    if module_path is None:
+        module = epyqlib.deviceextension
+    else:
+        spec = importlib.util.spec_from_file_location(
+            'extension', os.path.join(source_directory, module_path))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+    referenced_files = (
+        source_file_name,
+        *(
+            device_dict.get(name) for name in
+            (
+                'module',
+                'can_path',
+                'compatibility',
+                'parameter_defaults',
+                'parameter_hierarchy',
+            )
+            if name in device_dict
+        ),
+        *ui_paths.values(),
+        *module.referenced_files(device_dict),
+    )
+
+    referenced_files = {f: False for f in referenced_files}
+
+    for ui in referenced_files:
+        if os.path.splitext(ui)[1].casefold() != '.ui':
+            continue
+
+        with open(os.path.join(source_directory, ui)) as f:
+            root = lxml.etree.parse(f)
+
+        widgets = root.xpath(
+            "//widget[property[re:match(@name, '(_|^)(signal|frame)')]]",
+            namespaces={"re": "http://exslt.org/regular-expressions"},
+        )
+
+        for widget in widgets:
+            logging.debug('Widget: {}'.format(widget.get('name')))
+            signal_paths = widget.xpath(
+                "property[re:match(@name, '(_|^)(signal|frame)')]",
+                namespaces={"re": "http://exslt.org/regular-expressions"},
+            )
+            full_names = tuple(e.get('name') for e in signal_paths)
+
+            signal_path_names = set()
+            for name in full_names:
+                left, underscore, right = name.rpartition('_')
+                if len(underscore) > 0:
+                    signal_path_names.add(left)
+                else:
+                    signal_path_names.add(right)
+
+            for name in signal_path_names:
+                logging.debug('  Signal path name: {}'.format(name))
+                xpath = "property[contains(@name, '{}')]".format(name)
+                properties = widget.xpath(xpath)
+                logging.debug('    Properties: {}'.format(
+                    tuple(e.get('name') for e in properties),
+                ))
+
+                for i, p in enumerate(properties):
+                    left, underscore, right = p.get('name').rpartition('_')
+                    p.set(
+                        'name',
+                        ''.join((
+                            left,
+                            underscore,
+                            'signal_path_element_',
+                            str(i),
+                        ))
+                    )
+
+        with open(os.path.join(destination_path, ui), 'wb') as f:
+            root.write(f, xml_declaration=True, encoding='UTF-8')
+            f.write('\n'.encode('utf-8'))
+
+        logging.info('Updated {}'.format(ui))
+        referenced_files[ui] = True
+
+    device_dict['format_version'] = self.new_version
+    device_dict.move_to_end('format_version', last=False)
+
+    destination_device_file = os.path.join(destination_path, source_file_name)
+    with open(destination_device_file, 'w') as f:
+        json.dump(device_dict, f, indent=4)
+        f.write('\n')
+    referenced_files[source_file_name] = True
+
+    for f, handled in referenced_files.items():
+        if not handled:
+            logging.info('Copying {}'.format(f))
+            shutil.copy(
+                src=os.path.join(source_directory, f),
+                dst=destination_path,
+            )
+
+    return destination_device_file
+
+
+@converters.append(
+    old_version=(0,9),
     new_version=(1,),
     description='signal_path_element_0,1,2 to ; delimited signal_path '
                 'properties in .ui')
@@ -252,7 +366,55 @@ def version(path):
     with open(path) as f:
         device_dict = json.load(f, object_pairs_hook=collections.OrderedDict)
 
-    return tuple(device_dict.get('format_version', (0,)))
+    v = device_dict.get('format_version', None)
+
+    ui_paths = get_ui_paths_0(device_dict)
+
+    module_path = device_dict.get('module', None)
+    if module_path is None:
+        module = epyqlib.deviceextension
+    else:
+        spec = importlib.util.spec_from_file_location(
+            'extension', os.path.join(source_directory, module_path))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+    referenced_files = (
+        path,
+        *(
+            device_dict.get(name) for name in
+            (
+                'module',
+                'can_path',
+                'compatibility',
+                'parameter_defaults',
+                'parameter_hierarchy',
+            )
+            if name in device_dict
+        ),
+        *ui_paths.values(),
+        *module.referenced_files(device_dict),
+    )
+
+    ui_files = tuple(
+        f
+        for f in referenced_files
+        if f.endswith('.ui')
+    )
+
+    if v is None:
+        fragment = '_path_element_'
+
+        for ui in ui_files:
+            with open(os.path.join(os.path.dirname(path), ui)) as f:
+                if any(fragment in line for line in f):
+                    v = (0,9)
+                    break
+
+    if v is None:
+        v = (0,8)
+
+    return tuple(v)
 
 
 # TODO: calculate by largest version number in converts?
