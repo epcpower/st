@@ -547,6 +547,11 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             message_box.setText(text)
 
             message_box.exec()
+            epyqlib.utils.qt.dialog(
+                parent=parent,
+                message=text,
+                icon=QMessageBox.Warning,
+            )
 
         for chunk, frame in itertools.zip_longest(
                 chunks, set_frames, fillvalue=cache.new_chunk(0, 0)):
