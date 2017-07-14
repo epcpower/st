@@ -193,11 +193,15 @@ class DeviceTreeView(QtWidgets.QWidget):
 
     def compatibility_notification(self, message, compatible):
         if compatible:
-            messagebox = QtWidgets.QMessageBox.information
+            icon = QtWidgets.QMessageBox.Information
         else:
-            messagebox = QtWidgets.QMessageBox.warning
+            icon = QtWidgets.QMessageBox.Warning
 
-        messagebox(self, 'EPyQ', message)
+        epyqlib.utils.qt.dialog(
+            parent=self,
+            message=message,
+            icon=icon,
+        )
 
     def pull_raw_log(self, node):
         bus_node = node.tree_parent
