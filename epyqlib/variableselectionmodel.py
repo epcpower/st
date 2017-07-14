@@ -339,10 +339,10 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                    'This has happened to `{}`[{}].'.format(
             maximum_children, name, length
         ))
-        QMessageBox.information(
-            None,
-            'EPyQ',
-            message
+        epyqlib.utils.qt.dialog(
+            parent=None,
+            message=message,
+            icon=QMessageBox.Information,
         )
 
     def setData(self, index, data, role=None):
