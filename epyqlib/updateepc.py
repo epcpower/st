@@ -375,7 +375,7 @@ def version(path):
         module = epyqlib.deviceextension
     else:
         spec = importlib.util.spec_from_file_location(
-            'extension', os.path.join(source_directory, module_path))
+            'extension', os.path.join(os.path.dirname(path), module_path))
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
@@ -393,8 +393,12 @@ def version(path):
             if name in device_dict
         ),
         *ui_paths.values(),
-        *module.referenced_files(device_dict),
     )
+
+    try:
+        referenced_files += tuple(module.referenced_files(device_dict))
+    except:
+        pass
 
     ui_files = tuple(
         f
