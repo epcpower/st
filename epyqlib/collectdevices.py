@@ -74,7 +74,12 @@ def collect(devices, output_directory, dry_run, groups=None, device_path=None):
                 all_devices.add((values['repository'], values['branch'], values['file']))
             else:
                 dir = os.path.dirname(device_path)
-                sha = 'local'
+                repo = git.Repo(dir, search_parent_directories=True)
+
+                sha = '{dirty}-{sha}'.format(
+                    sha=repo.head.commit.hexsha,
+                    dirty='local{}'.format('_dirty' if repo.is_dirty() else ''),
+                )
 
             device_groups = values.get('groups', [])
             if set(device_groups).isdisjoint(set(groups)):
