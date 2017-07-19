@@ -2,21 +2,6 @@
 
 import sys
 
-# TODO: CAMPid 097541134161236179854863478319
-try:
-    import pip
-except ImportError:
-    print('')
-    print('')
-    print('    pip not installed:')
-    print('')
-    print('        Use your package manager to install')
-    print('')
-    print('        e.g. sudo apt-get install python3-pip')
-    print('')
-
-    sys.exit(1)
-
 
 # TODO: CAMPid 98852142341263132467998754961432
 import epyq
@@ -148,24 +133,10 @@ def del_rw(action, name, exc):
 if os.path.isdir('build'):
     shutil.rmtree('build', onerror=del_rw)
 
-# TODO: CAMPid 9811163648546549994313612126896
-def pip_install(package, no_ssl_verify, site=False, parameters=[]):
-    pip_parameters = ['install']
-    if no_ssl_verify:
-        pip_parameters.append('--index-url=http://pypi.python.org/simple/')
-        pip_parameters.append('--trusted-host')
-        pip_parameters.append('pypi.python.org')
-    if not site:
-        pip_parameters.append('--user')
-    pip_parameters.extend(parameters)
-    pip_parameters.append(package)
-    return pip.main(pip_parameters)
-
 
 files = []
 
 if args.device_file is not None:
-    pip_install('gitpython', no_ssl_verify=False, site=True)
     os.environ['PATH'] = os.pathsep.join([
         os.environ['PATH'],
         os.path.join('c:/', 'Program Files', 'Git', 'bin')
@@ -224,7 +195,6 @@ def write_license(name, contents, url, collapse_double_newlines):
         out.write(contents)
         out.write('\n\n\n')
 
-pip_install('requests', no_ssl_verify=False, site=True)
 import requests
 
 pyqt5_license_path = os.path.join('build', 'PyQt5_LICENSE')

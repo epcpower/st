@@ -26,5 +26,13 @@ setup(
         'PyQt5',
         'click',
         'python-docx',
-    ]
+    ],
+    extras_requires={
+        'deploy': [
+            'gitpython',
+            'requests',
+            'https://github.com/pyinstaller/pyinstaller/archive/'
+            '964547cd92cabe28150d52c2ca809de74a5ddbaa.zip',
+        ],
+    },
 )
