@@ -515,7 +515,7 @@ class Device:
                 )
                 with open(parameter_defaults_path) as f:
                     self.nvs.defaults_from_dict(json.load(f))
-                    for nv in self.nvs.children:
+                    for nv in self.nvs.all_nv():
                         if isinstance(nv, epyqlib.nv.Nv):
                             nv.fields.default = nv.format_strings(
                                 value=int(nv.default_value))[0]
