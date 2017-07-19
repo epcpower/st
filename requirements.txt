@@ -1,6 +1,7 @@
 requests
 
--e sub/epyqlib
+# TODO: shouldn't be deploy here for all cases
+-e sub/epyqlib[deploy]
 
 -e git+https://github.com/altendky/python-can@d9e3190486af0000256820400516fe0a0423d0bb#egg=python-can
 -e git+https://github.com/ebroecker/canmatrix@336a8937c3fbdf4ba0d26cf4275aca4ee5486d31#egg=canmatrix
