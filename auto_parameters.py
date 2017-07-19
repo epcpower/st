@@ -4,9 +4,12 @@ import json
 import canmatrix.formats
 import twisted.internet.defer
 
+import PyQt5.QtWidgets
+
 import epyqlib.canneo
 import epyqlib.nv
 import epyqlib.twisted.nvs
+import epyqlib.utils.qt
 import epyqlib.utils.twisted
 
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
@@ -27,6 +30,7 @@ class DeviceExtension:
         self.nv_protocol = None
         self.transport = None
         self.parameter_dict = None
+        self.progress = None
 
     def post(self):
         self.ui = self.device().uis['Factory']
@@ -62,9 +66,31 @@ class DeviceExtension:
 
     def load_parameters(self):
         d = self._load_parameters()
+        self._started()
+        d.addBoth(epyqlib.utils.twisted.detour_result, self._ended)
+        d.addCallback(epyqlib.utils.twisted.detour_result, self._finished)
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
         return d
+
+    def _started(self):
+        self.progress = epyqlib.utils.qt.Progress()
+        self.progress.connect(
+            progress=epyqlib.utils.qt.progress_dialog(parent=self.device().ui),
+            label_text='Writing to device...',
+        )
+
+    def _ended(self):
+        if self.progress is not None:
+            self.progress.complete()
+            self.progress = None
+
+    def _finished(self):
+        epyqlib.utils.qt.dialog(
+            parent=self.device().ui,
+            message='Parameters successfully written to device',
+            icon=PyQt5.QtWidgets.QMessageBox.Information,
+        )
 
     @twisted.internet.defer.inlineCallbacks
     def _load_parameters(self):
