@@ -34,17 +34,19 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
 
     version = ''
     if version_tag is not None:
-        version = '\n\nVersion Tag: {}\n\n'.format(version_tag)
+        version = 'Version Tag: {}'.format(version_tag)
 
     build = ''
     if build_tag is not None:
-        build = '\n\nBuild Tag: {}\n\n'.format(build_tag)
+        build = 'Build Tag: {}'.format(build_tag)
+
+    info = '\n\n'.join(s for s in (email, version, build) if len(s) > 0)
 
     notice = \
         """An unhandled exception occurred. Please report the problem via email to:\n"""\
-        """\t\t{email}{version}{build}"""\
+        """\t\t{email_version_build}\n\n"""\
         """A log has been written to "{log}".\n\nError information:\n""".format(
-        email=email, version=version, build=build, log=log)
+        email_version_build=info, log=log)
     timeString = time.strftime("%Y-%m-%d, %H:%M:%S")
 
     if message is None:
