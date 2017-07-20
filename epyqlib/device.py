@@ -517,8 +517,9 @@ class Device:
                     self.nvs.defaults_from_dict(json.load(f))
                     for nv in self.nvs.all_nv():
                         if isinstance(nv, epyqlib.nv.Nv):
-                            nv.fields.default = nv.format_strings(
-                                value=int(nv.default_value))[0]
+                            if nv.default_value is not None:
+                                nv.fields.default = nv.format_strings(
+                                    value=int(nv.default_value))[0]
 
             self.widget_frames_nv = epyqlib.canneo.Neo(
                 matrix=matrix_nv,
