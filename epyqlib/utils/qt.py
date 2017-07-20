@@ -50,33 +50,38 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
     def join(iterable):
         return ''.join(iterable).strip()
 
+    if message is None:
+        message = join(traceback.format_exception_only(
+            etype=excType,
+            value=excValue
+        ))
+
     notice = textwrap.dedent('''\
         An unhandled exception occurred. Please report the problem via email to:
                         {email}
 
-        {exception}
+        {message}
 
         {info}A log has been written to "{log}".
-        {time_string}
-        {separator}
-        {traceback}
-        ''')
+        {time_string}''')
+
     complete = notice.format(
         email=email,
         info=info,
         log=log,
         time_string=time_string,
-        exception=join(traceback.format_exception_only(
-            etype=excType,
-            value=excValue
-        )),
-        separator='-' * 70,
-        traceback=join(traceback.format_exception(
-            etype=excType,
-            value=excValue,
-            tb=tracebackobj,
-        )),
+        message=message,
     )
+
+    if excType is not None:
+        complete += '\n{separator}\n{traceback}'.format(
+            separator='-' * 70,
+            traceback=join(traceback.format_exception(
+                etype=excType,
+                value=excValue,
+                tb=tracebackobj,
+            )),
+        )
 
     if stderr:
         sys.stderr.write(complete + '\n')
