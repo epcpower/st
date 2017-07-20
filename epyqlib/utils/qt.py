@@ -2,6 +2,7 @@ import functools
 import io
 import os
 import sys
+import textwrap
 import time
 import traceback
 
@@ -29,7 +30,6 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
     @param excValue exception value
     @param tracebackobj traceback object
     """
-    separator = '-' * 70
     email = "kyle.altendorf@epcpower.com"
 
     version = ''
@@ -40,22 +40,43 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
     if build_tag is not None:
         build = 'Build Tag: {}'.format(build_tag)
 
-    info = '\n\n'.join(s for s in (email, version, build) if len(s) > 0)
+    info = (version, build)
+    info = '\n'.join(s for s in info if len(s) > 0)
+    if len(info) > 0:
+        info += '\n\n'
 
-    notice = \
-        """An unhandled exception occurred. Please report the problem via email to:\n"""\
-        """\t\t{email_version_build}\n\n"""\
-        """A log has been written to "{log}".\n\nError information:\n""".format(
-        email_version_build=info, log=log)
-    timeString = time.strftime("%Y-%m-%d, %H:%M:%S")
+    time_string = time.strftime("%Y-%m-%d, %H:%M:%S %Z")
 
-    if message is None:
-        tbinfo = ''.join(traceback.format_tb(tracebackobj))
-        errmsg = ''.join(traceback.format_exception_only(excType, excValue))
-        sections = [separator, timeString, separator, errmsg, separator, tbinfo]
-        message = '\n'.join(s.strip() for s in sections)
+    def join(iterable):
+        return ''.join(iterable).strip()
 
-    complete = str(notice) + str(message)
+    notice = textwrap.dedent('''\
+        An unhandled exception occurred. Please report the problem via email to:
+                        {email}
+
+        {exception}
+
+        {info}A log has been written to "{log}".
+        {time_string}
+        {separator}
+        {traceback}
+        ''')
+    complete = notice.format(
+        email=email,
+        info=info,
+        log=log,
+        time_string=time_string,
+        exception=join(traceback.format_exception_only(
+            etype=excType,
+            value=excValue
+        )),
+        separator='-' * 70,
+        traceback=join(traceback.format_exception(
+            etype=excType,
+            value=excValue,
+            tb=tracebackobj,
+        )),
+    )
 
     if stderr:
         sys.stderr.write(complete + '\n')
