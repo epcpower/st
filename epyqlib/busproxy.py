@@ -134,11 +134,10 @@ class BusProxy(QObject):
                 if not ok:
                     self.set_bus()
             else:
-                try:
+                ok = True
+                # TODO: support socketcan
+                if hasattr(self.bus, 'verify_bus_ok'):
                     ok = self.bus.verify_bus_ok()
-                except AttributeError:
-                    # TODO: support socketcan
-                    ok = True
 
         return ok
 
@@ -203,11 +202,9 @@ class BusProxy(QObject):
                 # send failures
                 time.sleep(0.500)
             else:
-                try:
+                # TODO: support socketcan
+                if hasattr(self.bus, 'reset'):
                     self.bus.reset()
-                except AttributeError:
-                    # TODO: support socketcan
-                    pass
 
     def set_filters(self, filters):
         self.filters = filters

@@ -628,12 +628,8 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
             return
 
         self.set_data(None, mark_modified=mark_modified)
-        try:
-            status_signal = self.status_signal
-        except AttributeError:
-            pass
-        else:
-            status_signal.set_value(None)
+        if hasattr(self, 'status_signal'):
+            self.status_signal.set_value(None)
 
     def is_factory(self):
         return self.factory

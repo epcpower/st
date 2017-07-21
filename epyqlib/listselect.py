@@ -63,10 +63,9 @@ class ListSelect(QWidget):
             self.ui.menu_view.select_node(selected)
 
         self.action = action
-        try:
-            self.parent().setCurrentWidget(self)
-        except AttributeError:
-            pass
+        parent = self.parent()
+        if hasattr(parent, 'setCurrentWidget'):
+            parent.setCurrentWidget(self)
         focused_widget = self.focusWidget()
         if focused_widget is not None:
             focused_widget.clearFocus()
