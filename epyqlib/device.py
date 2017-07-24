@@ -449,10 +449,13 @@ class Device:
         if Elements.rx in self.elements:
             # TODO: the repetition here is not so pretty
             matrix_rx = list(canmatrix.formats.loadp(self.can_path).values())[0]
-            neo_rx = epyqlib.canneo.Neo(matrix=matrix_rx,
-                                     frame_class=epyqlib.txrx.MessageNode,
-                                     signal_class=epyqlib.txrx.SignalNode,
-                                     node_id_adjust=self.node_id_adjust)
+            neo_rx = epyqlib.canneo.Neo(
+                matrix=matrix_rx,
+                frame_class=epyqlib.txrx.MessageNode,
+                signal_class=epyqlib.txrx.SignalNode,
+                node_id_adjust=self.node_id_adjust,
+                strip_summary=False,
+            )
 
             rx = epyqlib.txrx.TxRx(tx=False, neo=neo_rx)
             notifiees.append(rx)
@@ -496,7 +499,8 @@ class Device:
                 matrix=matrix_nv,
                 frame_class=epyqlib.nv.Frame,
                 signal_class=epyqlib.nv.Nv,
-                node_id_adjust=self.node_id_adjust
+                node_id_adjust=self.node_id_adjust,
+                strip_summary=False,
             )
 
             self.nv_looping_set = epyqlib.twisted.loopingset.Set()

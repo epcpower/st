@@ -48,12 +48,13 @@ class SignalNode(epyqlib.canneo.Signal, TreeNode):
 class MessageNode(epyqlib.canneo.Frame, TreeNode):
     def __init__(self, message=None, tx=False, frame=None,
                  multiplex_value=None, signal_class=SignalNode,
-                 mux_frame=None, parent=None):
+                 mux_frame=None, parent=None, **kwargs):
         epyqlib.canneo.Frame.__init__(self, frame=frame,
                                    multiplex_value=multiplex_value,
                                    signal_class=signal_class,
                                    mux_frame=mux_frame,
-                                   parent=parent)
+                                   parent=parent,
+                                   **kwargs)
         TreeNode.__init__(self, parent)
 
         self.fields = Columns()

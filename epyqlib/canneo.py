@@ -168,6 +168,8 @@ class Signal(QObject):
         self.comment = signal._comment # {str} 'Run command.  When set to a value of \\'Enable\\', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to \\'Disable\\' to leave POR or FAULTED state.'
         if self.comment is None:
             self.comment = ''
+        # TODO: CAMPid 03549854754276996754265427 (repeated <summary> check)
+        self.is_summary = '<summary>' in self.comment
         # TODO: maybe not use a string, but used to help with decimal places
         self.factor = signal._factor
         try:
@@ -479,7 +481,7 @@ class Frame(QtCanListener):
 
     def __init__(self, frame, multiplex_value=None,
                  signal_class=Signal, set_value_to_default=True,
-                 mux_frame=None, parent=None):
+                 mux_frame=None, strip_summary=True, parent=None):
         QtCanListener.__init__(self, self.message_received, parent=parent)
 
         self.mux_frame = mux_frame
@@ -513,7 +515,13 @@ class Frame(QtCanListener):
 
         self.signals = []
         for signal in frame._signals:
-            if signal._comment is not None and '<summary>' in signal._comment:
+            # TODO: CAMPid 03549854754276996754265427 (repeated <summary> check)
+            skipping_summary_signal = (
+                strip_summary
+                and signal._comment is not None
+                and '<summary>' in signal._comment
+            )
+            if skipping_summary_signal:
                 continue
 
             if (multiplex_value is None or
@@ -697,7 +705,8 @@ def frame_by_id(id, frames):
 
 class Neo(QtCanListener):
     def __init__(self, matrix, frame_class=Frame, signal_class=Signal,
-                 rx_interval=0, bus=None, node_id_adjust=None, parent=None):
+                 rx_interval=0, bus=None, node_id_adjust=None,
+                 strip_summary=True, parent=None):
         QtCanListener.__init__(self, self.message_received, parent=parent)
 
         self.frame_rx_timestamps = {}
@@ -720,7 +729,10 @@ class Neo(QtCanListener):
                     break
 
             if multiplex_signal is None:
-                neo_frame = frame_class(frame=frame)
+                neo_frame = frame_class(
+                    frame=frame,
+                    strip_summary=strip_summary,
+                )
                 # for signal in frame._signals:
                 #     signal = signal_class(signal=signal, frame=neo_frame)
                 #     signal.set_human_value(signal.default_value *
@@ -755,7 +767,10 @@ class Neo(QtCanListener):
                         unit=multiplex_signal._unit,
                         multiplex=multiplex_signal._multiplex)
                 multiplex_frame.addSignal(matrix_signal)
-                multiplex_neo_frame = frame_class(frame=multiplex_frame)
+                multiplex_neo_frame = frame_class(
+                    frame=multiplex_frame,
+                    strip_summary=strip_summary,
+                )
                 multiplex_neo_frame.mux_frame = multiplex_neo_frame
                 frames.append(multiplex_neo_frame)
 
@@ -802,7 +817,8 @@ class Neo(QtCanListener):
 
                     neo_frame = frame_class(
                         frame=matrix_frame,
-                        mux_frame=multiplex_neo_frame
+                        mux_frame=multiplex_neo_frame,
+                        strip_summary=strip_summary,
                     )
                     for signal in neo_frame.signals:
                         if signal.multiplex is True:

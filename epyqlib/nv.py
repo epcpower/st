@@ -635,7 +635,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
         return self.factory
 
     def is_read_only(self):
-        return self.frame.read_write.min > 0
+        return self.frame.read_write.min > 0 or self.is_summary
 
     def unique(self):
         # TODO: make it more unique
@@ -647,13 +647,14 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
 
     def __init__(self, message=None, tx=False, frame=None,
                  multiplex_value=None, signal_class=Nv, mux_frame=None,
-                 parent=None):
+                 parent=None, **kwargs):
         epyqlib.canneo.Frame.__init__(self, frame=frame,
                                    multiplex_value=multiplex_value,
                                    signal_class=signal_class,
                                    set_value_to_default=False,
                                    mux_frame=mux_frame,
-                                   parent=parent)
+                                   parent=parent,
+                                   **kwargs)
         TreeNode.__init__(self, parent)
 
         for signal in self.signals:
