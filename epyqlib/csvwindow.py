@@ -265,6 +265,10 @@ class QtChartWindow(QtWidgets.QMainWindow):
             layout = QtWidgets.QVBoxLayout()
             layout.addWidget(checkable_chart.check_box)
             layout.addWidget(checkable_chart.scaling_spin_box)
+            checkable_chart.scaling_spin_box.setSizePolicy(
+                QtWidgets.QSizePolicy.Fixed,
+                checkable_chart.scaling_spin_box.sizePolicy().verticalPolicy()
+            )
 
             self.grid_layout.addLayout(
                 layout,
