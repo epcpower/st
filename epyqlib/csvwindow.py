@@ -261,8 +261,13 @@ class QtChartWindow(QtWidgets.QMainWindow):
             checkable_chart = CheckableChart()
             checkable_chart.name = name
             row = self.grid_layout.rowCount()
-            self.grid_layout.addWidget(
-                checkable_chart.check_box,
+
+            layout = QtWidgets.QVBoxLayout()
+            layout.addWidget(checkable_chart.check_box)
+            layout.addWidget(checkable_chart.scaling_spin_box)
+
+            self.grid_layout.addLayout(
+                layout,
                 row,
                 0,
                 1,
@@ -270,14 +275,9 @@ class QtChartWindow(QtWidgets.QMainWindow):
                 QtCore.Qt.AlignLeft
             )
             self.grid_layout.addWidget(
-                checkable_chart.scaling_spin_box,
-                row,
-                1
-            )
-            self.grid_layout.addWidget(
                 checkable_chart.view,
                 row,
-                2
+                1
             )
 
             chart = checkable_chart.chart
