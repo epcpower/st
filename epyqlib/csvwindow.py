@@ -172,6 +172,14 @@ class CheckableChart:
     def _check_changed(self, state):
         self.view.setVisible(state == QtCore.Qt.Checked)
 
+    def set_data(self, data):
+        polygons = QtGui.QPolygonF((QtCore.QPointF(x, y) for x, y in data))
+        series = QtChart.QLineSeries()
+        series.setName(self.name)
+        series.append(polygons)
+        self.chart.addSeries(series)
+        self.chart.createDefaultAxes()
+
 
 class QtChartWindow(QtWidgets.QMainWindow):
     closing = QtCore.pyqtSignal()
@@ -246,22 +254,12 @@ class QtChartWindow(QtWidgets.QMainWindow):
             view.setRubberBand(QtChart.QChartView.HorizontalRubberBand)
             view.setRenderHint(QtGui.QPainter.Antialiasing)
 
-            series = QtChart.QLineSeries()
-            series.setName(name)
             if '.time' in data:
                 d = zip(data['.time'], values)
             else:
                 d = enumerate(values)
-            polygons = QtGui.QPolygonF((QtCore.QPointF(x, y) for x, y in d))
-            series.append(polygons)
-            chart.addSeries(series)
-            chart.createDefaultAxes()
-            # self.charts.append(chart)
-            # self.views.append(view)
+            checkable_chart.set_data(data=d)
             self.x_axes.append(chart.axisX())
-            # self.y_axes.append(y_axis)
-            # self.series.append(series)
-            # self.polygons.append(polygons)
             self.checkable_charts.append(checkable_chart)
 
         for axis in self.x_axes:
