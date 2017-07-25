@@ -144,6 +144,7 @@ class CheckableChart:
         # TODO: set a useful width without limiting the range
         # self.scaling_spin_box.setRange(-math.inf, math.inf)
         self.scaling_spin_box.setRange(-100000, 100000)
+        self.scaling_spin_box.setDecimals(3)
         self.scaling_spin_box.setValue(1)
         self.scaling_spin_box.valueChanged.connect(self.scaling_changed)
 
