@@ -35,11 +35,25 @@ bitrates = OrderedDict([
 
 default_bitrate = 500000
 
+
+def monkey_patch_for_pcan_lanusb():
+    import can.interfaces.PCANBasic
+
+    for n in range(1, 0x11):
+        setattr(
+            can.interfaces.PCANBasic,
+            'PCAN_LANBUS{}'.format(n),
+            can.interfaces.PCANBasic.TPCANHandle(0x800 + n),
+        )
+
+
 def available_buses():
     valid = []
 
     for interface in can.interface.VALID_INTERFACES:
         if interface == 'pcan':
+            monkey_patch_for_pcan_lanusb()
+
             for n in range(1, 9):
                 channel = 'PCAN_USBBUS{}'.format(n)
                 try:
@@ -50,6 +64,18 @@ def available_buses():
                     bus.shutdown()
                     valid.append({'interface': interface,
                                   'channel': channel})
+
+            for n in range(1, 17):
+                channel = 'PCAN_LANBUS{}'.format(n)
+                try:
+                    bus = can.interface.Bus(bustype=interface, channel=channel)
+                except:
+                    pass
+                else:
+                    bus.shutdown()
+                    valid.append({'interface': interface,
+                                  'channel': channel})
+
         elif interface == 'kvaser':
             # TODO: get the actual number of available devices rather
             #       than hard coding?
