@@ -5,6 +5,7 @@
 import argparse
 import csv
 import logging
+#import math
 import signal
 import sys
 
@@ -139,7 +140,18 @@ class CheckableChart:
         self.check_box.setCheckState(QtCore.Qt.Checked)
         self.check_box.stateChanged.connect(self._check_changed)
 
+        self.scaling_spin_box = QtWidgets.QDoubleSpinBox()
+        # TODO: set a useful width without limiting the range
+        # self.scaling_spin_box.setRange(-math.inf, math.inf)
+        self.scaling_spin_box.setRange(-100000, 100000)
+        self.scaling_spin_box.setValue(1)
+        self.scaling_spin_box.valueChanged.connect(self.scaling_changed)
+
         self.chart = QtChart.QChart()
+        self.series = QtChart.QLineSeries()
+        self.chart.addSeries(self.series)
+        self.chart.createDefaultAxes()
+
         # self.chart.plotAreaChanged.connect(self._plot_area_changed)
         self.original_area = None
 
@@ -149,6 +161,8 @@ class CheckableChart:
         self._name = None
         self.name = '<unnamed>'
 
+        self.data = ()
+
     @property
     def name(self):
         return self._name
@@ -157,6 +171,7 @@ class CheckableChart:
     def name(self, new):
         self._name = new
         self.check_box.setText(self.name)
+        self.series.setName(self.name)
 
     # def _plot_area_changed(self, area):
     #     if self.original_area is None:
@@ -173,12 +188,25 @@ class CheckableChart:
         self.view.setVisible(state == QtCore.Qt.Checked)
 
     def set_data(self, data):
-        polygons = QtGui.QPolygonF((QtCore.QPointF(x, y) for x, y in data))
-        series = QtChart.QLineSeries()
-        series.setName(self.name)
-        series.append(polygons)
-        self.chart.addSeries(series)
-        self.chart.createDefaultAxes()
+        self.data = tuple(data)
+        self.update()
+
+    def scaling_changed(self, _):
+        self.update()
+
+    def update(self):
+        scale = self.scaling_spin_box.value()
+
+        self.series.replace(QtGui.QPolygonF((
+            QtCore.QPointF(x, y * scale)
+            for x, y in self.data
+        )))
+
+        if len(self.data) > 0:
+            self.chart.axisY().setRange(
+                min(y for _, y in self.data) * scale,
+                max(y for _, y in self.data) * scale,
+            )
 
 
 class QtChartWindow(QtWidgets.QMainWindow):
@@ -242,9 +270,14 @@ class QtChartWindow(QtWidgets.QMainWindow):
                 QtCore.Qt.AlignLeft
             )
             self.grid_layout.addWidget(
-                checkable_chart.view,
+                checkable_chart.scaling_spin_box,
                 row,
                 1
+            )
+            self.grid_layout.addWidget(
+                checkable_chart.view,
+                row,
+                2
             )
 
             chart = checkable_chart.chart
