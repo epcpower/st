@@ -38,7 +38,7 @@ def main(args=None):
     if args.verbose >= 2:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    data = read_csv(args.file)
+    data = read_csv(args.file.name)
 
     qtc(data=data)
 
