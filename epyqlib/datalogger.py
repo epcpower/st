@@ -6,6 +6,7 @@ import textwrap
 
 import attr
 import twisted.internet.defer
+import twisted.internet.task
 
 from PyQt5 import QtCore, QtWidgets
 
@@ -63,14 +64,37 @@ class DataLogger:
 
     @twisted.internet.defer.inlineCallbacks
     def _pull_raw_log(self):
+        unsupported = UnsupportedError(
+                'Pull of raw log is not supported for this device',
+        )
+
         try:
-            signal = self.nvs.signal_from_names(
+            recording_signal = self.nvs.signal_from_names(
+                'DataloggerStatus', 'DataloggerRecording')
+        except epyqlib.nv.NotFoundError as e:
+            raise unsupported from e
+
+        try:
+            readable_octets_signal = self.nvs.signal_from_names(
                 'LoggerStatus01', 'ReadableOctets')
         except epyqlib.nv.NotFoundError as e:
-            raise UnsupportedError(
-                'Pull of raw log is not supported for this device') from e
+            raise unsupported from e
 
-        readable_octets = yield self.nv_protocol.read(signal)
+        from twisted.internet import reactor
+        while True:
+            recording = yield self.nv_protocol.read(recording_signal)
+            recording = int(recording)
+
+            if not recording:
+                break
+
+            yield twisted.internet.task.deferLater(
+                clock=reactor,
+                delay=0.2,
+                callable=lambda: None,
+            )
+
+        readable_octets = yield self.nv_protocol.read(readable_octets_signal)
         readable_octets = int(readable_octets)
 
         self.progress.configure(maximum=readable_octets)
