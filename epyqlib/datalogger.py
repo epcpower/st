@@ -83,7 +83,7 @@ class DataLogger:
             octets=readable_octets,
             progress=self.progress
         )
-        yield self.ccp_protocol.disconnect()
+        yield self.ccp_protocol.disconnect(end_of_session=1)
 
         seconds = self.progress.elapsed()
 

@@ -149,7 +149,7 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         return self._deferred
 
-    def disconnect(self):
+    def disconnect(self, end_of_session=0):
         logger.debug('Entering disconnect()')
         if self._active:
             raise Exception('self._active is True')
@@ -164,6 +164,8 @@ class Handler(QObject, twisted.protocols.policies.TimeoutMixin):
 
         packet = HostCommand(code=CommandCode.disconnect,
                              arbitration_id=self._tx_id)
+        # EndOfSession rather than a temporary disconnect
+        packet.payload[0] = end_of_session
         self._send(packet, state=HandlerState.disconnecting)
 
         logger.debug('disconnecting')
