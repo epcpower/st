@@ -46,11 +46,8 @@ def retry(function, times, acceptable=None):
             result = yield function()
         except Exception as e:
             if type(e) not in acceptable:
-                logger.debug('green')
                 raise
-            logger.debug('blue')
         else:
-            logger.debug('red')
             twisted.internet.defer.returnValue(result)
 
         remaining -= 1
