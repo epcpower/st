@@ -17,28 +17,52 @@ __license__ = 'GPLv2+'
 # TODO: CAMPid 953295425421677545429542967596754
 log = os.path.join(os.getcwd(), 'epyq.log')
 
-# TODO: Consider updating from...
-#       http://die-offenbachs.homelinux.org:48888/hg/eric/file/a1e53a9ffcf3/eric6.py#l134
 
-def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
-                          message=None, version_tag=None, build_tag=None,
-                          parent=None, stderr=True):
-    """
-    Global function to catch unhandled exceptions.
+_version_tag = None
+_build_tag = None
 
-    @param excType exception type
-    @param excValue exception value
-    @param tracebackobj traceback object
-    """
+
+def exception_message_box_register_versions(version_tag, build_tag):
+    global _version_tag
+    global _build_tag
+
+    _version_tag = version_tag
+    _build_tag = build_tag
+
+
+def exception_message_box(excType=None, excValue=None, tracebackobj=None,
+                          parent=None):
+    def join(iterable):
+        return ''.join(iterable).strip()
+
+    brief = join(traceback.format_exception_only(
+        etype=excType,
+        value=excValue
+    ))
+
+    extended = join(traceback.format_exception(
+        etype=excType,
+        value=excValue,
+        tb=tracebackobj,
+    ))
+
+    custom_exception_message_box(
+        brief=brief,
+        extended=extended,
+        parent=parent,
+    )
+
+
+def custom_exception_message_box(brief, extended='', parent=None, stderr=True):
     email = "kyle.altendorf@epcpower.com"
 
     version = ''
-    if version_tag is not None:
-        version = 'Version Tag: {}'.format(version_tag)
+    if _version_tag is not None:
+        version = 'Version Tag: {}'.format(_version_tag)
 
     build = ''
-    if build_tag is not None:
-        build = 'Build Tag: {}'.format(build_tag)
+    if _build_tag is not None:
+        build = 'Build Tag: {}'.format(_build_tag)
 
     info = (version, build)
     info = '\n'.join(s for s in info if len(s) > 0)
@@ -47,20 +71,11 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
 
     time_string = time.strftime("%Y-%m-%d, %H:%M:%S %Z")
 
-    def join(iterable):
-        return ''.join(iterable).strip()
-
-    if message is None:
-        message = join(traceback.format_exception_only(
-            etype=excType,
-            value=excValue
-        ))
-
     notice = textwrap.dedent('''\
         An unhandled exception occurred. Please report the problem via email to:
                         {email}
 
-        {message}
+        {brief}
 
         {info}A log has been written to "{log}".
         {time_string}''')
@@ -70,18 +85,12 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
         info=info,
         log=log,
         time_string=time_string,
-        message=message,
+        brief=brief,
+        extended=extended,
     )
 
-    if excType is not None:
-        complete += '\n{separator}\n{traceback}'.format(
-            separator='-' * 70,
-            traceback=join(traceback.format_exception(
-                etype=excType,
-                value=excValue,
-                tb=tracebackobj,
-            )),
-        )
+    if len(extended) > 0:
+        complete = '\n'.join(s.strip() for s in (complete, '-' * 70, extended))
 
     if stderr:
         sys.stderr.write(complete + '\n')
