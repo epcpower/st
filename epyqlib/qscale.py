@@ -211,8 +211,6 @@ class QScale(QtWidgets.QWidget):
         wLabel = boundingRect.width() if self.m_labelsVisible else 0
         hLabel = boundingRect.height() if self.m_labelsVisible else 0
 
-
-
         # Swap width and height values if the widget is vertical.
         if vertical:
             wWidget, hWidget = hWidget, wWidget
@@ -224,19 +222,6 @@ class QScale(QtWidgets.QWidget):
 
         hScale = 0.5*hWidget - hLabel - self.m_borderWidth
 
-        # painter.drawText(QtCore.QRect(0,0,50,50), QtCore.Qt.AlignHCenter, '{}'.format(wWidget))
-        # painter.drawText(QtCore.QRect(0,0,100,50), QtCore.Qt.AlignHCenter, '{}'.format(hWidget))
-        # painter.drawText(QtCore.QRect(0,0,150,50), QtCore.Qt.AlignHCenter, '{}'.format(wLabel))
-        # painter.drawText(QtCore.QRect(0,0,200,50), QtCore.Qt.AlignHCenter, '{}'.format(hLabel))
-        # painter.drawText(QtCore.QRect(0,0,300,50), QtCore.Qt.AlignHCenter, '{}'.format(wScale))
-        # painter.drawText(QtCore.QRect(0,0,400,50), QtCore.Qt.AlignHCenter, '{}'.format(hScale))
-
-        # painter.drawText(QtCore.QRect(50,0,50,50), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, '{}'.format(wWidget))
-        # painter.drawText(QtCore.QRect(100,0,50,50), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, '{}'.format(hWidget))
-        # painter.drawText(QtCore.QRect(150,0,50,50), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, '{}'.format(wLabel))
-        # painter.drawText(QtCore.QRect(200,0,50,50), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, '{}'.format(hLabel))
-        # painter.drawText(QtCore.QRect(50,25,50,50), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, '{}'.format(wScale))
-        # painter.drawText(QtCore.QRect(100,25,50,50), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, '{}'.format(hScale))
         # Acquire the radius of the drawn scale based off of the width and height of the scale.
         radius = 0.125*wScale**2/hScale + 0.5*hScale
 
@@ -250,14 +235,8 @@ class QScale(QtWidgets.QWidget):
         else:
             center = QtCore.QPointF(0.5*wWidget,radius+hLabel+self.m_borderWidth)
 
-        # painter.drawText(QtCore.QRect(150,25,150,50), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, '{}'.format(radius))
-
-        # TODO: Need to understand purpose of angleSpan, angleStart, valueSpan, majorStep, minorStep
         angleSpan = -360.0/pi*asin(wScale/(2.0*radius))
         angleStart = 90.0 - 0.5*angleSpan
-
-        # painter.drawText(QtCore.QRect(300,25,50,50), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, '{}'.format(angleSpan))
-        # painter.drawText(QtCore.QRect(350,25,150,50), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, '{}'.format(angleStart))
 
         valueSpan = self.m_maximum - self.m_minimum
         majorStep = abs(valueSpan)*self.max(wLabel,1.5*boundingRect.height())/wScale
@@ -281,7 +260,6 @@ class QScale(QtWidgets.QWidget):
             majorStep = 2*10**order
             minorSteps = 4
 
-        # These next 4 lines don't do anything as m_majorStepSize and m_MinorStepCount are always 0 and are never updated.
         if self.m_majorStepSize > 0:
             majorStep = self.m_majorStepSize
         if self.m_minorStepCount > 0:
@@ -349,7 +327,6 @@ class QScale(QtWidgets.QWidget):
 
             offsetCount = (minorSteps-ceil(self.m_minimum%majorStep)/float(majorStep)*minorSteps)%minorSteps
 
-            # for i in range(0, floor(minorSteps*valueSpan/majorStep)+1):
             for i in range(0, floor(minorSteps * abs(valueSpan) / majorStep)+1):
                 if i%minorSteps == offsetCount:
                     painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,radius,0))
@@ -357,7 +334,6 @@ class QScale(QtWidgets.QWidget):
                     painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,
                                                    radius-minorScaleWidth,0))
 
-                # painter.rotate(majorStep*angleSpan/(-valueSpan*minorSteps))
                 painter.rotate(majorStep*angleSpan/(-abs(valueSpan)*minorSteps))
 
             painter.resetTransform()
@@ -365,7 +341,6 @@ class QScale(QtWidgets.QWidget):
 
         # draw labels
         if self.m_labelsVisible and majorStep != 0:
-            # x= range(int(ceil(self.m_minimum/majorStep)), int(self.m_maximum/majorStep)+1)
             x = range(int(ceil(self.min(self.m_minimum, self.m_maximum) / majorStep)), 
                       int(self.max(self.m_minimum, self.m_maximum) / majorStep) + 1)
 
@@ -378,47 +353,38 @@ class QScale(QtWidgets.QWidget):
                                             self.width(),self.height()+2*radius*cos(u))
                 else:
                     align = QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom
-                    # position = QtCore.QRect(0,0,2.0*(center.x()+radius*cos(u)),
-                    #                         center.y()-radius*sin(u))
                     position = QtCore.QRect(0,0,2.0*(center.x()+radius*cos(u)),
                                             center.y()-radius*sin(u))
                 painter.resetTransform()
                 # TODO: add usage of m_labelsFormat and m_labelsPrecision
 
-                # TODO: Need to modify this more. Need to sync other elements including the needle.
                 if vertical:
                     painter.drawText(position, align, '{}'.format((x.stop + x.start - i - 1) * majorStep))
                 else:
                     painter.drawText(position, align, '{}'.format(i*majorStep))
-        # painter.drawText(QtCore.QRect(0,0,50,50), align, '{}'.format(x.start))
-        # painter.drawText(QtCore.QRect(0,0,150,50), align, '{}'.format(x.stop))
-
 
         #draw needle
         if vertical:
-            painter.rotate(90) # Focus
-            painter.translate(0,-hWidget+wLabel/4.0) # Focus
+            painter.rotate(90) 
+            painter.translate(0,-hWidget+wLabel/4.0) 
 
-        painter.translate(center) # Focus
+        painter.translate(center) 
         # ok
         if vertical:
-            painter.rotate((-self.m_maximum + self.m_value)/float(valueSpan)*angleSpan-angleStart) # Focus
-            # painter.rotate((self.m_value-self.m_maximum)/float(valueSpan)*angleSpan-angleStart) # Focus
+            painter.rotate((-self.m_maximum + self.m_value)/float(valueSpan)*angleSpan-angleStart) 
         else:
-            painter.rotate((self.m_minimum-self.m_value)/float(valueSpan)*angleSpan-angleStart) # Focus
+            painter.rotate((self.m_minimum-self.m_value)/float(valueSpan)*angleSpan-angleStart) 
         painter.setPen(QtCore.Qt.NoPen)
         painter.setBrush(self.palette().color(QtGui.QPalette.Text))
         self.polygon = QtGui.QPolygon()
-        # en python no se necesita el primer parametro (numero de puntos)
+
         # python does not need the first parameter (number of points)
         self.polygon.setPoints(0,-2,int(radius)-10,-2,int(radius),0,
-                          int(radius)-10,2,0,2) # Focus
+                          int(radius)-10,2,0,2) 
 
-        #points = [0,-2,int(radius)-10,-2,int(radius),0,int(radius)-10,2,0,2]
-        #self.polygon.setPoints(points)
         painter.drawConvexPolygon(self.polygon)
         painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Base),2)) 
-        painter.drawLine(0,0,radius-15,0) # Focus
+        painter.drawLine(0,0,radius-15,0) 
         painter.resetTransform()
 
         # draw cover
@@ -436,7 +402,7 @@ class QScale(QtWidgets.QWidget):
 
         u = self.max(u,0.25*radius)
         u = min(u, (radius-scaleWidth)-minorScaleWidth)
-        painter.drawEllipse(center,u,u) # TODO: Figure out how it draws only half of the ellipse
+        painter.drawEllipse(center,u,u) 
 
     def updateLabelSample(self):
         margin = self.max(abs(self.m_minimum),abs(self.m_maximum))
