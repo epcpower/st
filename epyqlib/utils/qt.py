@@ -205,6 +205,19 @@ class Progress(QtCore.QObject):
         self.updated.emit(value)
 
 
+def complete_filter_type(extension):
+    if extension == '*':
+        return extension
+
+    return '*.' + extension
+
+def create_filter_string(name, extensions):
+    return '{} ({})'.format(
+        name,
+        ' '.join((complete_filter_type(e) for e in extensions)),
+     )
+
+
 def file_dialog(filters, default=0, save=False, parent=None):
     # TODO: CAMPid 9857216134675885472598426718023132
     # filters = [
@@ -213,9 +226,7 @@ def file_dialog(filters, default=0, save=False, parent=None):
     # ]
     # TODO: CAMPid 97456612391231265743713479129
 
-    filter_strings = ['{} ({})'.format(f[0],
-                                       ' '.join(['*.'+e for e in f[1]])
-                                       ) for f in filters]
+    filter_strings = [create_filter_string(f[0], f[1]) for f in filters]
     filter_string = ';;'.join(filter_strings)
 
     if save:
