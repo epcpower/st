@@ -704,6 +704,8 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                 self, root=root, editable_columns=editable_columns,
                 alignment=Qt.AlignVCenter | Qt.AlignLeft, parent=parent)
 
+        self.check_range = True
+
         self.headers = Columns(name='Name',
                                value='Value',
                                min='Min',
@@ -820,11 +822,18 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         node.clear()
         self.dynamic_columns_changed(node)
 
+    def check_range_changed(self, state):
+        self.check_range = state == Qt.Checked
+
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.value:
             if role == Qt.EditRole:
                 node = self.node_from_index(index)
-                success = node.set_data(data, mark_modified=True)
+                success = node.set_data(
+                    data,
+                    mark_modified=True,
+                    check_range=self.check_range,
+                )
 
                 self.dataChanged.emit(index, index)
                 return success

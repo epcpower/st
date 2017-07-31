@@ -115,6 +115,13 @@ class NvView(QtWidgets.QWidget):
         model.activity_started.connect(self.activity_started)
         model.activity_ended.connect(self.activity_ended)
 
+        self.ui.enforce_range_limits_check_box.stateChanged.connect(
+            model.check_range_changed,
+        )
+        model.check_range_changed(
+            self.ui.enforce_range_limits_check_box.checkState(),
+        )
+
         self.ui.module_to_nv.connect(model.module_to_nv)
 
         read_from_file = functools.partial(
