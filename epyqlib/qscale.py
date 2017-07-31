@@ -1,5 +1,6 @@
 import itertools
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import pyqtProperty
 import sys
 from math import pi, isinf, sqrt, asin, ceil, cos, sin, floor, ceil
 
@@ -40,6 +41,8 @@ class QScale(QtWidgets.QWidget):
 
         self.m_invertedAppearance = False
         self.m_orientations = QtCore.Qt.Horizontal | QtCore.Qt.Vertical
+
+        self.vertically_flipped = False # New property specifying if flipped.
 
         self.setBackgroundRole(QtGui.QPalette.Base)
 
@@ -428,6 +431,15 @@ class QScale(QtWidgets.QWidget):
 
     def min(self,val1,val2):
         return val1 if val1 < val2 else val2
+
+    # New functions help determining flip status.
+    @pyqtProperty(bool)
+    def flipped(self):
+        return self.vertically_flipped;
+
+    @flipped.setter
+    def flipped(self, value):
+        self.vertically_flipped = value
 
 
 if __name__ == '__main__':
