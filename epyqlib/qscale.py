@@ -275,6 +275,8 @@ class QScale(QtWidgets.QWidget):
             painter.rotate(90)
             painter.translate(0,-hWidget+wLabel/4.0)
 
+        # Decided not to do anything with color ranges for now.
+
         # draw color ranges
         if len(self.colors) > 0:
             transform = painter.transform()
@@ -321,12 +323,23 @@ class QScale(QtWidgets.QWidget):
         painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Text),1))
         if self.m_scaleVisible and majorStep != 0:
             if vertical:
-                painter.rotate(90)
-                painter.translate(0,-hWidget+wLabel/4.0)
+                if not self.vertically_flipped:
+                    painter.rotate(90)
+                    painter.translate(0,-hWidget+wLabel/4.0)
+                else:
+                    painter.rotate(90) 
+                    painter.translate(0, -self.width())
+                    painter.translate(0, -(-hWidget + wLabel / 4.0)) 
 
-            painter.translate(center)
+            if vertical and self.vertically_flipped:
+                painter.translate(center.x(), -center.y())
+            else:
+                painter.translate(center) 
 
-            painter.rotate(self.m_minimum%ceil(float(majorStep)/float(minorSteps))/float(valueSpan)*angleSpan-angleStart)
+            if vertical and self.vertically_flipped:
+                painter.rotate(self.m_minimum%ceil(float(majorStep)/float(minorSteps))/float(valueSpan)*angleSpan-angleStart + 180)
+            else:
+                painter.rotate(self.m_minimum%ceil(float(majorStep)/float(minorSteps))/float(valueSpan)*angleSpan-angleStart)
 
             offsetCount = (minorSteps-ceil(self.m_minimum%majorStep)/float(majorStep)*minorSteps)%minorSteps
 
@@ -351,30 +364,48 @@ class QScale(QtWidgets.QWidget):
                 u = pi/180.0*((majorStep*i-self.m_minimum)/float(valueSpan)*angleSpan+angleStart)
                 position = QtCore.QRect()
                 if vertical:
-                    align = QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter
-                    position = QtCore.QRect(self.width()-center.y()+radius*sin(u),0,
-                                            self.width(),self.height()+2*radius*cos(u))
+                    if not self.vertically_flipped:
+                        align = QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter
+                        position = QtCore.QRect(self.width() - center.y() + radius * sin(u), 0,
+                                                self.width(), self.height() + 2 * radius * cos(u))
+                    else:
+                        align = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
+                        position = QtCore.QRect(center.y() - radius * sin(u) - self.width(), 0,
+                                                self.width(), self.height() + 2 * radius * cos(u))
                 else:
                     align = QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom
-                    position = QtCore.QRect(0,0,2.0*(center.x()+radius*cos(u)),
-                                            center.y()-radius*sin(u))
+                    position = QtCore.QRect(0, 0, 2.0 * (center.x() + radius * cos(u)),
+                                            center.y() - radius * sin(u))
                 painter.resetTransform()
                 # TODO: add usage of m_labelsFormat and m_labelsPrecision
 
                 if vertical:
                     painter.drawText(position, align, '{}'.format((x.stop + x.start - i - 1) * majorStep))
                 else:
-                    painter.drawText(position, align, '{}'.format(i*majorStep))
+                    painter.drawText(position, align, '{}'.format(i * majorStep))
 
-        #draw needle
+        # draw needle
         if vertical:
-            painter.rotate(90) 
-            painter.translate(0,-hWidget+wLabel/4.0) 
+            if not self.vertically_flipped:
+                painter.rotate(90) 
+                painter.translate(0,-hWidget+wLabel/4.0) 
+            else:
+                painter.rotate(90) 
+                painter.translate(0, -self.width())
+                painter.translate(0, -(-hWidget + wLabel / 4.0)) 
 
-        painter.translate(center) 
+        if vertical and self.vertically_flipped:
+            painter.translate(center.x(), -center.y())
+        else:
+            painter.translate(center) 
+
         # ok
         if vertical:
-            painter.rotate((-self.m_maximum + self.m_value)/float(valueSpan)*angleSpan-angleStart) 
+            if not self.vertically_flipped:
+                painter.rotate((-self.m_maximum + self.m_value)/float(valueSpan)*angleSpan-angleStart) 
+            else:
+                painter.rotate((self.m_minimum - self.m_value) / float(valueSpan) * angleSpan - angleStart) 
+                painter.rotate(180) 
         else:
             painter.rotate((self.m_minimum-self.m_value)/float(valueSpan)*angleSpan-angleStart) 
         painter.setPen(QtCore.Qt.NoPen)
@@ -395,9 +426,14 @@ class QScale(QtWidgets.QWidget):
         painter.setBrush(self.palette().color(QtGui.QPalette.Mid))
 
         if vertical:
-            painter.drawRect(QtCore.QRect(0,0,self.m_borderWidth,self.height()))
+            if self.vertically_flipped:
+                painter.drawRect(QtCore.QRect(self.width() - self.m_borderWidth, 0, self.m_borderWidth, self.height()))
+            else:
+                painter.drawRect(QtCore.QRect(0,0,self.m_borderWidth,self.height()))
             center = QtCore.QPoint(self.width()-center.y()-wLabel/4.0,0.5*self.height())
             u = 0.25*(hWidget-wLabel)-center.x()-self.m_borderWidth
+            if self.vertically_flipped:
+                center = QtCore.QPoint(-center.x() + self.width(), center.y())
         else:
             pass
             painter.drawRect(QtCore.QRect(0,hWidget,wWidget, -self.m_borderWidth))
