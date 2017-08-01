@@ -15,15 +15,17 @@ __license__ = 'GPLv2+'
 
 
 class CompoundScale(QWidget):
+
+
     def __init__(self, parent=None, in_designer=False):
+
         QWidget.__init__(self, parent=parent)
 
         self.in_designer = in_designer
 
         self.cs_vertically_flipped = False
 
-        ui = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
-                          'compoundscale.ui')
+        ui = self.getPath()
 
         # TODO: CAMPid 9549757292917394095482739548437597676742
         if not QFileInfo(ui).isAbsolute():
@@ -44,7 +46,9 @@ class CompoundScale(QWidget):
 
         self.update_echo_visibility()
 
-
+    def getPath(self):
+        return os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
+                          'compoundscale.ui')
 
     def update_echo_visibility(self):
         hidden = len(self.echo_signal_path) == 0
