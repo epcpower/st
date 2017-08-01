@@ -20,6 +20,8 @@ class CompoundScale(QWidget):
 
         self.in_designer = in_designer
 
+        self.cs_vertically_flipped = False
+
         ui = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                           'compoundscale.ui')
 
@@ -41,6 +43,8 @@ class CompoundScale(QWidget):
         self.ui.numeric_status.in_designer = in_designer
 
         self.update_echo_visibility()
+
+
 
     def update_echo_visibility(self):
         hidden = len(self.echo_signal_path) == 0
@@ -104,6 +108,17 @@ class CompoundScale(QWidget):
     @status_label.setter
     def status_label(self, label):
         self.ui.numeric_status.label_override = label
+
+    # cs_flipped function allows for the qscale to be flipped or not when
+    # in vertical orientation
+    @pyqtProperty(bool)
+    def cs_flipped(self):
+        return self.cs_vertically_flipped;
+
+    @cs_flipped.setter
+    def cs_flipped(self, value):
+        self.cs_vertically_flipped = value
+        self.ui.status.scale.vertically_flipped = value
 
 
 if __name__ == '__main__':
