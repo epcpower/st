@@ -17,6 +17,9 @@ __license__ = 'GPLv2+'
 class Scale(epyqlib.widgets.abstractwidget.AbstractWidget,
             epyqlib.mixins.OverrideRange):
     def __init__(self, parent=None, in_designer=False):
+
+        self.s_vertically_flipped = False
+        
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'scale.ui')
 
@@ -160,6 +163,16 @@ class Scale(epyqlib.widgets.abstractwidget.AbstractWidget,
 
         self.repaint()
 
+    # s_flipped function allows for the qscale to be flipped or not when
+    # in vertical orientation
+    @pyqtProperty(bool)
+    def s_flipped(self):
+        return self.s_vertically_flipped;
+
+    @s_flipped.setter
+    def s_flipped(self, value):
+        self.s_vertically_flipped = value
+        self.ui.scale.vertically_flipped = value
 
 if __name__ == '__main__':
     import sys
