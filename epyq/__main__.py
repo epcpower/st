@@ -289,8 +289,6 @@ def main(args=None):
     app = QApplication(sys.argv)
     sys.excepthook = functools.partial(
         epyqlib.utils.qt.exception_message_box,
-        version_tag=epyq.__version_tag__,
-        build_tag=epyq.__build_tag__,
     )
     QtCore.qInstallMessageHandler(epyqlib.utils.qt.message_handler)
     app.setStyleSheet('QMessageBox {{ messagebox-text-interaction-flags: {}; }}'
@@ -367,8 +365,6 @@ def main(args=None):
 
     sys.excepthook = functools.partial(
         epyqlib.utils.qt.exception_message_box,
-        version_tag=epyq.__version_tag__,
-        build_tag=epyq.__build_tag__,
         parent=window
     )
 
