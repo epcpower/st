@@ -287,6 +287,10 @@ def main(args=None):
 
     # TODO: CAMPid 9757656124812312388543272342377
     app = QApplication(sys.argv)
+    epyqlib.utils.qt.exception_message_box_register_versions(
+        version_tag=epyq.__version_tag__,
+        build_tag=epyq.__build_tag__,
+    )
     sys.excepthook = functools.partial(
         epyqlib.utils.qt.exception_message_box,
     )
@@ -362,11 +366,7 @@ def main(args=None):
         QtGui.QFontDatabase.addApplicationFont(font_path)
 
     window = Window(ui_file=args.ui)
-
-    sys.excepthook = functools.partial(
-        epyqlib.utils.qt.exception_message_box,
-        parent=window
-    )
+    epyqlib.utils.qt.exception_message_box_register_parent(parent=window)
 
     window.show()
 
