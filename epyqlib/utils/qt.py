@@ -156,6 +156,7 @@ class Progress(QtCore.QObject):
         self.average = None
 
         self.updated.disconnect(self.progress.setValue)
+        self.progress.close()
         self.progress.deleteLater()
         self.progress = None
 
