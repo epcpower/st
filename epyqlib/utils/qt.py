@@ -20,6 +20,7 @@ log = os.path.join(os.getcwd(), 'epyq.log')
 
 _version_tag = None
 _build_tag = None
+_parent = None
 
 
 def exception_message_box_register_versions(version_tag, build_tag):
@@ -30,8 +31,13 @@ def exception_message_box_register_versions(version_tag, build_tag):
     _build_tag = build_tag
 
 
-def exception_message_box(excType=None, excValue=None, tracebackobj=None,
-                          parent=None):
+def exception_message_box_register_parent(parent):
+    global _parent
+
+    _parent = parent
+
+
+def exception_message_box(excType=None, excValue=None, tracebackobj=None):
     def join(iterable):
         return ''.join(iterable).strip()
 
@@ -49,11 +55,10 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None,
     custom_exception_message_box(
         brief=brief,
         extended=extended,
-        parent=parent,
     )
 
 
-def custom_exception_message_box(brief, extended='', parent=None, stderr=True):
+def custom_exception_message_box(brief, extended='', stderr=True):
     email = "kyle.altendorf@epcpower.com"
 
     version = ''
@@ -96,7 +101,7 @@ def custom_exception_message_box(brief, extended='', parent=None, stderr=True):
         sys.stderr.write(complete + '\n')
 
     dialog(
-        parent=parent,
+        parent=_parent,
         title='Exception',
         message=complete,
         icon=QtWidgets.QMessageBox.Critical,
