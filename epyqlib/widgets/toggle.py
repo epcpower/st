@@ -24,7 +24,6 @@ class Toggle(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
 
         self.ui.value.installEventFilter(self)
         # TODO: CAMPid 398956661298765098124690765
-        self.ui.value.valueChanged.connect(self.widget_value_changed)
 
         self._frame = None
         self._signal = None
@@ -65,10 +64,9 @@ class Toggle(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
         self.ui.value.setSliderPosition(value)
 
     def toggle_released(self):
-        if self.ui.value.sliderPosition():
-            self.ui.value.setSliderPosition(False)
-        else:
-            self.ui.value.setSliderPosition(True)
+        new_value = self.ui.value.sliderPosition() == 0
+        self.ui.value.setSliderPosition(new_value)
+        self.widget_value_changed(new_value)
 
     def set_signal(self, signal=None, force_update=False):
         if signal is not self.signal_object or force_update:
