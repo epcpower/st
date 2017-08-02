@@ -185,6 +185,9 @@ class QScale(QtWidgets.QWidget):
         super(QScale,self).resizeEvent(re)
 
     def paintEvent(self, paintEvent):
+
+        # Set the values.
+        
         painter = QtGui.QPainter(self)
 
         painter.setRenderHint(QtGui.QPainter.Antialiasing,True)
@@ -277,55 +280,122 @@ class QScale(QtWidgets.QWidget):
 
         # Decided not to do anything with color ranges for now.
 
-        # draw color ranges
-        if len(self.colors) > 0:
-            transform = painter.transform()
-            valueSpan = self.m_maximum - self.m_minimum
-            rangeValueStart = self.m_minimum
-            for breakpoint, color in itertools.zip_longest(self.breakpoints, self.colors):
-                # Consider color for range [rangeValueStart, breakpoint]
-                if breakpoint is None or breakpoint > rangeValueStart:
-                    if rangeValueStart < self.m_maximum:
-                        rangeAngleStart = angleStart + angleSpan * (rangeValueStart - self.m_minimum) / valueSpan
-                        try:
-                            rangeAngleEnd = angleStart + angleSpan * (breakpoint - self.m_minimum) / valueSpan
-                        except TypeError:
-                            rangeAngleEnd = angleStart + angleSpan
-                        # max because of angles going counter clockwise...
-                        rangeAngleEnd = max(rangeAngleEnd, angleStart + angleSpan)
-                        rangeAngleSpan = rangeAngleEnd - rangeAngleStart
 
-                        painter.setPen(color)
-                        painter.setBrush(color)
-                        qpp = QtGui.QPainterPath()
-                        r = radius - 0.8 * scaleWidth
-                        d = 2 * r
-                        x = center.x() - r
-                        y = center.y() - r
-                        qpp.arcMoveTo(x, y, d, d, rangeAngleStart)
-                        qpp.arcTo(x, y, d, d, rangeAngleStart, rangeAngleSpan)
-                        outer = QtGui.QPainterPath()
-                        r = radius - 0.6 * scaleWidth
-                        d = 2 * r
-                        x = center.x() - r
-                        y = center.y() - r
-                        outer.arcMoveTo(x, y, d, d, rangeAngleStart+rangeAngleSpan)
-                        outer.arcTo(x, y, d, d, rangeAngleStart+rangeAngleSpan, -rangeAngleSpan)
-                        qpp.connectPath(outer)
-                        qpp.closeSubpath()
-                        painter.drawPath(qpp)
-                        painter.setTransform(transform)
+        def drawColorRanges(self):
+            # draw color ranges
+            if len(self.colors) > 0:
+                transform = painter.transform()
+                valueSpan = self.m_maximum - self.m_minimum
+                rangeValueStart = self.m_minimum
+                for breakpoint, color in itertools.zip_longest(self.breakpoints, self.colors):
+                    # Consider color for range [rangeValueStart, breakpoint]
+                    if breakpoint is None or breakpoint > rangeValueStart:
+                        if rangeValueStart < self.m_maximum:
+                            rangeAngleStart = angleStart + angleSpan * (rangeValueStart - self.m_minimum) / valueSpan
+                            try:
+                                rangeAngleEnd = angleStart + angleSpan * (breakpoint - self.m_minimum) / valueSpan
+                            except TypeError:
+                                rangeAngleEnd = angleStart + angleSpan
+                            # max because of angles going counter clockwise...
+                            rangeAngleEnd = max(rangeAngleEnd, angleStart + angleSpan)
+                            rangeAngleSpan = rangeAngleEnd - rangeAngleStart
 
-                        rangeValueStart = breakpoint
+                            painter.setPen(color)
+                            painter.setBrush(color)
+                            qpp = QtGui.QPainterPath()
+                            r = radius - 0.8 * scaleWidth
+                            d = 2 * r
+                            x = center.x() - r
+                            y = center.y() - r
+                            qpp.arcMoveTo(x, y, d, d, rangeAngleStart)
+                            qpp.arcTo(x, y, d, d, rangeAngleStart, rangeAngleSpan)
+                            outer = QtGui.QPainterPath()
+                            r = radius - 0.6 * scaleWidth
+                            d = 2 * r
+                            x = center.x() - r
+                            y = center.y() - r
+                            outer.arcMoveTo(x, y, d, d, rangeAngleStart+rangeAngleSpan)
+                            outer.arcTo(x, y, d, d, rangeAngleStart+rangeAngleSpan, -rangeAngleSpan)
+                            qpp.connectPath(outer)
+                            qpp.closeSubpath()
+                            painter.drawPath(qpp)
+                            painter.setTransform(transform)
 
-        painter.resetTransform()
+                            rangeValueStart = breakpoint
 
-        painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Text),1))
-        if self.m_scaleVisible and majorStep != 0:
+            painter.resetTransform()
+
+        def drawScaleMarkers(self):
+            painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Text),1))
+            if self.m_scaleVisible and majorStep != 0:
+                if vertical:
+                    if not self.vertically_flipped:
+                        painter.rotate(90)
+                        painter.translate(0,-hWidget+wLabel/4.0)
+                    else:
+                        painter.rotate(90) 
+                        painter.translate(0, -self.width())
+                        painter.translate(0, -(-hWidget + wLabel / 4.0)) 
+
+                if vertical and self.vertically_flipped:
+                    painter.translate(center.x(), -center.y())
+                else:
+                    painter.translate(center) 
+
+                if vertical and self.vertically_flipped:
+                    painter.rotate(self.m_minimum%ceil(float(majorStep)/float(minorSteps))/float(valueSpan)*angleSpan-angleStart + 180)
+                else:
+                    painter.rotate(self.m_minimum%ceil(float(majorStep)/float(minorSteps))/float(valueSpan)*angleSpan-angleStart)
+
+                offsetCount = (minorSteps-ceil(self.m_minimum%majorStep)/float(majorStep)*minorSteps)%minorSteps
+
+                for i in range(0, floor(minorSteps * abs(valueSpan) / majorStep)+1):
+                    if i%minorSteps == offsetCount:
+                        painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,radius,0))
+                    else:
+                        painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,
+                                                       radius-minorScaleWidth,0))
+
+                    painter.rotate(majorStep*angleSpan/(-abs(valueSpan)*minorSteps))
+
+                painter.resetTransform()
+
+        def drawLabels(self):
+            # draw labels
+            if self.m_labelsVisible and majorStep != 0:
+                x = range(int(ceil(self.min(self.m_minimum, self.m_maximum) / majorStep)), 
+                          int(self.max(self.m_minimum, self.m_maximum) / majorStep) + 1)
+
+                for i in x:
+                    u = pi/180.0*((majorStep*i-self.m_minimum)/float(valueSpan)*angleSpan+angleStart)
+                    position = QtCore.QRect()
+                    if vertical:
+                        if not self.vertically_flipped:
+                            align = QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter
+                            position = QtCore.QRect(self.width() - center.y() + radius * sin(u), 0,
+                                                    self.width(), self.height() + 2 * radius * cos(u))
+                        else:
+                            align = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
+                            position = QtCore.QRect(center.y() - radius * sin(u) - self.width(), 0,
+                                                    self.width(), self.height() + 2 * radius * cos(u))
+                    else:
+                        align = QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom
+                        position = QtCore.QRect(0, 0, 2.0 * (center.x() + radius * cos(u)),
+                                                center.y() - radius * sin(u))
+                    painter.resetTransform()
+                    # TODO: add usage of m_labelsFormat and m_labelsPrecision
+
+                    if vertical:
+                        painter.drawText(position, align, '{}'.format((x.stop + x.start - i - 1) * majorStep))
+                    else:
+                        painter.drawText(position, align, '{}'.format(i * majorStep))
+
+        def drawNeedle(self):
+            # draw needle
             if vertical:
                 if not self.vertically_flipped:
-                    painter.rotate(90)
-                    painter.translate(0,-hWidget+wLabel/4.0)
+                    painter.rotate(90) 
+                    painter.translate(0,-hWidget+wLabel/4.0) 
                 else:
                     painter.rotate(90) 
                     painter.translate(0, -self.width())
@@ -336,90 +406,33 @@ class QScale(QtWidgets.QWidget):
             else:
                 painter.translate(center) 
 
-            if vertical and self.vertically_flipped:
-                painter.rotate(self.m_minimum%ceil(float(majorStep)/float(minorSteps))/float(valueSpan)*angleSpan-angleStart + 180)
-            else:
-                painter.rotate(self.m_minimum%ceil(float(majorStep)/float(minorSteps))/float(valueSpan)*angleSpan-angleStart)
-
-            offsetCount = (minorSteps-ceil(self.m_minimum%majorStep)/float(majorStep)*minorSteps)%minorSteps
-
-            for i in range(0, floor(minorSteps * abs(valueSpan) / majorStep)+1):
-                if i%minorSteps == offsetCount:
-                    painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,radius,0))
+            # ok
+            if vertical:
+                if not self.vertically_flipped:
+                    painter.rotate((-self.m_maximum + self.m_value)/float(valueSpan)*angleSpan-angleStart) 
                 else:
-                    painter.drawLine(QtCore.QLineF(radius-scaleWidth,0,
-                                                   radius-minorScaleWidth,0))
+                    painter.rotate((self.m_minimum - self.m_value) / float(valueSpan) * angleSpan - angleStart) 
+                    painter.rotate(180) 
+            else:
+                painter.rotate((self.m_minimum-self.m_value)/float(valueSpan)*angleSpan-angleStart) 
+            painter.setPen(QtCore.Qt.NoPen)
+            painter.setBrush(self.palette().color(QtGui.QPalette.Text))
+            self.polygon = QtGui.QPolygon()
 
-                painter.rotate(majorStep*angleSpan/(-abs(valueSpan)*minorSteps))
+            # python does not need the first parameter (number of points)
+            self.polygon.setPoints(0,-2,int(radius)-10,-2,int(radius),0,
+                              int(radius)-10,2,0,2) 
 
+            painter.drawConvexPolygon(self.polygon)
+            painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Base),2)) 
+            painter.drawLine(0,0,radius-15,0) 
             painter.resetTransform()
 
+        drawColorRanges(self)
+        drawScaleMarkers(self)
+        drawLabels(self)
+        drawNeedle(self)
 
-        # draw labels
-        if self.m_labelsVisible and majorStep != 0:
-            x = range(int(ceil(self.min(self.m_minimum, self.m_maximum) / majorStep)), 
-                      int(self.max(self.m_minimum, self.m_maximum) / majorStep) + 1)
-
-            for i in x:
-                u = pi/180.0*((majorStep*i-self.m_minimum)/float(valueSpan)*angleSpan+angleStart)
-                position = QtCore.QRect()
-                if vertical:
-                    if not self.vertically_flipped:
-                        align = QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter
-                        position = QtCore.QRect(self.width() - center.y() + radius * sin(u), 0,
-                                                self.width(), self.height() + 2 * radius * cos(u))
-                    else:
-                        align = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
-                        position = QtCore.QRect(center.y() - radius * sin(u) - self.width(), 0,
-                                                self.width(), self.height() + 2 * radius * cos(u))
-                else:
-                    align = QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom
-                    position = QtCore.QRect(0, 0, 2.0 * (center.x() + radius * cos(u)),
-                                            center.y() - radius * sin(u))
-                painter.resetTransform()
-                # TODO: add usage of m_labelsFormat and m_labelsPrecision
-
-                if vertical:
-                    painter.drawText(position, align, '{}'.format((x.stop + x.start - i - 1) * majorStep))
-                else:
-                    painter.drawText(position, align, '{}'.format(i * majorStep))
-
-        # draw needle
-        if vertical:
-            if not self.vertically_flipped:
-                painter.rotate(90) 
-                painter.translate(0,-hWidget+wLabel/4.0) 
-            else:
-                painter.rotate(90) 
-                painter.translate(0, -self.width())
-                painter.translate(0, -(-hWidget + wLabel / 4.0)) 
-
-        if vertical and self.vertically_flipped:
-            painter.translate(center.x(), -center.y())
-        else:
-            painter.translate(center) 
-
-        # ok
-        if vertical:
-            if not self.vertically_flipped:
-                painter.rotate((-self.m_maximum + self.m_value)/float(valueSpan)*angleSpan-angleStart) 
-            else:
-                painter.rotate((self.m_minimum - self.m_value) / float(valueSpan) * angleSpan - angleStart) 
-                painter.rotate(180) 
-        else:
-            painter.rotate((self.m_minimum-self.m_value)/float(valueSpan)*angleSpan-angleStart) 
-        painter.setPen(QtCore.Qt.NoPen)
-        painter.setBrush(self.palette().color(QtGui.QPalette.Text))
-        self.polygon = QtGui.QPolygon()
-
-        # python does not need the first parameter (number of points)
-        self.polygon.setPoints(0,-2,int(radius)-10,-2,int(radius),0,
-                          int(radius)-10,2,0,2) 
-
-        painter.drawConvexPolygon(self.polygon)
-        painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Base),2)) 
-        painter.drawLine(0,0,radius-15,0) 
-        painter.resetTransform()
 
         # draw cover
         painter.setPen(QtCore.Qt.NoPen)

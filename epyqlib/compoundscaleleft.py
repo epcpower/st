@@ -9,16 +9,18 @@ from PyQt5 import uic
 from PyQt5.QtCore import pyqtProperty, QFile, QFileInfo, QTextStream
 from PyQt5.QtWidgets import QWidget
 
-from compoundscale import CompoundScale
+# from epyqlib.compoundscale import CompoundScale
+# from compoundscale import CompoundScale
+import epyqlib.compoundscale
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-class CompoundScaleLeft(CompoundScale):
+class CompoundScaleLeft(epyqlib.compoundscale.CompoundScale):
     def __init__(self, parent=None, in_designer=False):
         # QWidget.__init__(self, parent=parent)
-        CompoundScale.__init__(self, parent, in_designer)
+        epyqlib.compoundscale.CompoundScale.__init__(self, parent, in_designer)
 
     def getPath(self):
         return os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
