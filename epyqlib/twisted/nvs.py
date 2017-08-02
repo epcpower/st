@@ -24,6 +24,10 @@ class ReadOnlyError(Exception):
     pass
 
 
+class SendFailedError(Exception):
+    pass
+
+
 @enum.unique
 class State(enum.Enum):
     idle = 0
@@ -83,6 +87,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._active = True
 
     def _transaction_over(self):
+        self.setTimeout(None)
         import twisted.internet
         twisted.internet.reactor.callLater(0.02, self._transaction_over_after_delay)
         d = self._deferred
@@ -277,10 +282,13 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         else:
             write = self._transport.write
 
-        write(request.frame.to_message(data))
-        self.setTimeout(self._timeout)
-
         self._request_memory = request
+
+        if not write(request.frame.to_message(data)):
+            self.send_failed()
+            return
+
+        self.setTimeout(self._timeout)
 
     def dataReceived(self, msg):
 
@@ -330,6 +338,10 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
         self.callback(value)
 
+    def send_failed(self):
+        deferred = self._transaction_over()
+        deferred.errback(SendFailedError())
+
     def timeoutConnection(self):
         request = self._request_memory
         # TODO: report all requested signals
@@ -358,6 +370,5 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         deferred.errback(payload)
 
     def cancel(self):
-        self.setTimeout(None)
         deferred = self._transaction_over()
         deferred.cancel()

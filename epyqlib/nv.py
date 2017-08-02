@@ -168,7 +168,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             if len(signals) > 0:
                 def ignore_timeout(failure):
                     if failure.type is \
-                            epyqlib.twisted.nvs.RequestTimeoutError:
+                            epyqlib.twisted.nvs.SendFailedError:
                         return None
 
                     return epyqlib.utils.twisted.errbackhook(
