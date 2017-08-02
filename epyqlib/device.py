@@ -683,8 +683,11 @@ class Device:
 
                         if nv_signal.multiplex not in self.nv_looping_reads:
                             def ignore_timeout(failure):
-                                if failure.type is \
-                                        epyqlib.twisted.nvs.SendFailedError:
+                                acceptable_errors = (
+                                    epyqlib.twisted.nvs.RequestTimeoutError,
+                                    epyqlib.twisted.nvs.SendFailedError,
+                                )
+                                if failure.type in acceptable_errors:
                                     return None
 
                                 return epyqlib.utils.twisted.errbackhook(
