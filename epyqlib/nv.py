@@ -177,7 +177,10 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                     return epyqlib.utils.twisted.errbackhook(
                         failure)
 
-                def send(signals=signals):
+                def send(signals=None, all_signals=signals):
+                    if signals is None:
+                        signals = all_signals
+
                     d = self.protocol.write_multiple(
                         nv_signals=signals,
                         priority=epyqlib.twisted.nvs.Priority.user
@@ -646,7 +649,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
 
 
 class Frame(epyqlib.canneo.Frame, TreeNode):
-    _send = pyqtSignal()
+    _send = pyqtSignal(tuple)
 
     def __init__(self, message=None, tx=False, frame=None,
                  multiplex_value=None, signal_class=Nv, mux_frame=None,
@@ -684,8 +687,8 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
             only_return=only_return,
         )
 
-    def send_now(self):
-        self._send.emit()
+    def send_now(self, signals):
+        self._send.emit(signals)
 
 
 @attr.s
