@@ -556,6 +556,15 @@ class Device:
                         order=Qt.AscendingOrder
                     )
 
+                    nv_range_check_overridable = self.raw_dict.get(
+                        'nv_range_check_overridable',
+                        False,
+                    )
+
+                    view.ui.enforce_range_limits_check_box.setVisible(
+                        nv_range_check_overridable,
+                    )
+
         if Elements.variables in self.elements:
             variable_model = epyqlib.variableselectionmodel.VariableModel(
                 nvs=self.nvs,
