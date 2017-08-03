@@ -152,7 +152,10 @@ def pull_raw_log(device, bus=None, parent=None):
     logger = epyqlib.datalogger.DataLogger(
         nvs=device.nvs,
         bus=bus,
-        device=device)
+        device=device,
+        tx_id=device.neo_frames.frame_by_name('CCP').id,
+        rx_id=device.neo_frames.frame_by_name('CCPResponse').id,
+    )
 
     logger.progress.connect(
         progress=progress,

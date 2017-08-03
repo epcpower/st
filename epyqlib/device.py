@@ -79,7 +79,7 @@ class Tabs(Enum):
 
 
 def j1939_node_id_adjust(message_id, device_id, to_device, controller_id):
-    # TODO: get the CCP stuff in bounds instead of hacking it like this
+    # CCP stuff is in bounds now but leave this for backwards compatibility
     if message_id > 0x1FFFFF00:
         return message_id
 
