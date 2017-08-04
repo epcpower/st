@@ -28,6 +28,10 @@ class SendFailedError(Exception):
     pass
 
 
+class CanceledError(Exception):
+    pass
+
+
 @enum.unique
 class State(enum.Enum):
     idle = 0
@@ -65,6 +69,8 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._timeout = timeout
 
         self.requests = queue.PriorityQueue()
+
+        self.cancel_queued = False
 
     @property
     def state(self):
@@ -181,15 +187,21 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
     def _get(self):
         if not self._active:
-            try:
-                request = self.requests.get(block=False)
-            except queue.Empty:
-                pass
-            else:
-                if request.read:
-                    self._read_write(request)
+            while True:
+                try:
+                    request = self.requests.get(block=False)
+                except queue.Empty:
+                    self.cancel_queued = False
                 else:
-                    self._read_before_write(request)
+                    if self.cancel_queued:
+                        request.deferred.errback(CanceledError())
+                    elif request.read:
+                        self._read_write(request)
+                    else:
+                        self._read_before_write(request)
+
+                if not self.cancel_queued:
+                    break
 
     def _read_before_write(self, request):
         nonskip = {
@@ -339,6 +351,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self.callback(value)
 
     def send_failed(self):
+        self.cancel_queued = True
         deferred = self._transaction_over()
         deferred.errback(SendFailedError())
 

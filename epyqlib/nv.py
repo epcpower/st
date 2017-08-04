@@ -170,6 +170,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
                     acceptable_errors = (
                         epyqlib.twisted.nvs.RequestTimeoutError,
                         epyqlib.twisted.nvs.SendFailedError,
+                        epyqlib.twisted.nvs.CanceledError,
                     )
                     if failure.type in acceptable_errors:
                         return None
