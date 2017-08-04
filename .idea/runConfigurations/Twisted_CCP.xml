@@ -3,7 +3,7 @@
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs />
-    <option name="SDK_HOME" value="$PROJECT_DIR$/venv/Scripts/python" />
+    <option name="SDK_HOME" value="$PROJECT_DIR$/../venv/Scripts/python" />
     <option name="WORKING_DIRECTORY" value="" />
     <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -16,11 +16,24 @@
     <option name="TEST_TYPE" value="TEST_SCRIPT" />
     <option name="PATTERN" value="" />
     <option name="USE_PATTERN" value="false" />
-    <option name="testToRun" value="$PROJECT_DIR$/sub/epyqlib/tests/test_twisted_ccp.py" />
+    <option name="testToRun" value="$PROJECT_DIR$/../sub/epyqlib/tests/test_twisted_ccp.py" />
     <option name="keywords" value="" />
     <option name="params" value="" />
     <option name="USE_PARAM" value="true" />
     <option name="USE_KEYWORD" value="false" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="PARENT_ENVS" value="true" />
+    <envs />
+    <option name="SDK_HOME" value="$PROJECT_DIR$/../venv/Scripts/python" />
+    <option name="WORKING_DIRECTORY" value="" />
+    <option name="IS_MODULE_SDK" value="false" />
+    <option name="ADD_CONTENT_ROOTS" value="true" />
+    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <option name="_new_keywords" value="&quot;&quot;" />
+    <option name="_new_additionalArguments" value="&quot;&quot;" />
+    <option name="_new_legacyInformationCopiedToNew" value="true" />
+    <option name="_new_target" value="&quot;$PROJECT_DIR$/../sub/epyqlib/tests/test_twisted_ccp.py&quot;" />
+    <option name="_new_targetType" value="&quot;PATH&quot;" />
     <method />
   </configuration>
 </component>
