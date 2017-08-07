@@ -8,6 +8,7 @@ from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, Qt, QEvent,
                           QTimer)
 from PyQt5.QtGui import QMouseEvent
+import PyQt5.QtWidgets
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -30,6 +31,10 @@ class Toggle(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
         self._value_labels_visible = True
 
         self.ui.value.setFixedHeight(3 * self.ui.on.fontMetrics().height())
+
+        self.cached_value = self.ui.value.sliderPosition()
+        self.ui.value.actionTriggered.connect(self.action_triggered)
+        self.ui.value.valueChanged.connect(self.slider_value_changed)
 
     @pyqtProperty(bool)
     def value_labels_visible(self):
@@ -64,9 +69,27 @@ class Toggle(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
         self.ui.value.setSliderPosition(value)
 
     def toggle_released(self):
-        new_value = self.ui.value.sliderPosition() == 0
-        self.ui.value.setSliderPosition(new_value)
-        self.widget_value_changed(new_value)
+        self.ui.value.triggerAction(
+            PyQt5.QtWidgets.QAbstractSlider.SliderToMinimum
+            if self.ui.value.sliderPosition() else
+            PyQt5.QtWidgets.QAbstractSlider.SliderToMaximum
+        )
+
+    def action_triggered(self, action):
+        interesting_actions = (
+            PyQt5.QtWidgets.QAbstractSlider.SliderSingleStepAdd,
+            PyQt5.QtWidgets.QAbstractSlider.SliderSingleStepSub,
+            PyQt5.QtWidgets.QAbstractSlider.SliderToMinimum,
+            PyQt5.QtWidgets.QAbstractSlider.SliderToMaximum,
+        )
+
+        new_value = self.ui.value.sliderPosition()
+
+        if action in interesting_actions and new_value != self.cached_value:
+            self.widget_value_changed(new_value)
+
+    def slider_value_changed(self, value):
+        self.cached_value = value
 
     def set_signal(self, signal=None, force_update=False):
         if signal is not self.signal_object or force_update:
