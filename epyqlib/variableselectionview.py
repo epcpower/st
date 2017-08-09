@@ -7,6 +7,8 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import QFile, QFileInfo, QTextStream, Qt
 from PyQt5.QtWidgets import QHeaderView
 
+import epyqlib.pyqabstractitemmodel
+
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -33,6 +35,7 @@ class VariableSelectionView(QtWidgets.QWidget):
 
     def set_model(self, model):
         self.ui.tree_view.setModel(model)
+        model.setSortRole(epyqlib.pyqabstractitemmodel.UserRoles.sort)
 
         header = self.ui.tree_view.header()
         header.setStretchLastSection(False)

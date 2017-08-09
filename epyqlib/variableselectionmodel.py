@@ -15,6 +15,7 @@ import io
 import itertools
 import json
 import math
+import natsort
 import sys
 import textwrap
 import time
@@ -333,6 +334,18 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             protocol=self.protocol,
             reactor=reactor,
             bus=self.bus)
+
+        # TODO: consider using locale?  but maybe not since it's C code not
+        #       raw strings
+        self.sort_key = natsort.natsort_keygen(alg=natsort.ns.IGNORECASE)
+        self.role_functions[epyqlib.pyqabstractitemmodel.UserRoles.sort] = (
+            self.data_sort
+        )
+
+    def data_sort(self, index):
+        node = self.node_from_index(index)
+
+        return self.sort_key(node.fields[index.column()])
 
     def array_truncated_message(self, maximum_children, name, length):
         message = ('Arrays over {} elements are truncated.\n'

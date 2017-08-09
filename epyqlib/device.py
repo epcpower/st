@@ -573,7 +573,7 @@ class Device:
                 rx_id=self.neo_frames.frame_by_name('CCPResponse').id
             )
 
-            proxy = QSortFilterProxyModel()
+            proxy = epyqlib.utils.qt.PySortFilterProxyModel()
             proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
             proxy.setSourceModel(variable_model)
             self.ui.variable_selection.set_model(proxy)
