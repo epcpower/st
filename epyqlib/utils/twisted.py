@@ -17,6 +17,7 @@ class RequestTimeoutError(TimeoutError):
 def errbackhook(error):
     epyqlib.utils.qt.custom_exception_message_box(
         brief='{}\n{}'.format(error.type.__name__, error.value),
+        extended=error.getTraceback(),
     )
 
     return error
