@@ -189,6 +189,11 @@ class VariableNode(epyqlib.treenode.TreeNode):
             new_members.extend(
                 self.add_pointer_members(base_type, address))
 
+        if isinstance(base_type, epyqlib.cmemoryparser.Union):
+            new_members.extend(
+                self.add_union_members(base_type, address)
+            )
+
         for child in self.children:
             new_members.extend(child.add_members(
                 base_type=epyqlib.cmemoryparser.base_type(child.variable),
@@ -250,6 +255,20 @@ class VariableNode(epyqlib.treenode.TreeNode):
                 address=self.fields.value
             )
             child_node = VariableNode(variable=variable)
+            self.append_child(child_node)
+            new_members.append(child_node)
+
+        return new_members
+
+    def add_union_members(self, base_type, address):
+        new_members = []
+
+        for name, member in base_type.members.items():
+            child_node = VariableNode(
+                variable=member,
+                name=name,
+                address=address,
+            )
             self.append_child(child_node)
             new_members.append(child_node)
 
