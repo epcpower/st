@@ -463,3 +463,22 @@ def dialog_from_file(parent, title, file_name):
         title=title,
         message=message,
     )
+
+
+class PySortFilterProxyModel(QtCore.QSortFilterProxyModel):
+    def lessThan(self, left, right):
+        left_model = left.model()
+        left_data = (
+            left_model.data(left, self.sortRole())
+            if left_model else
+            None
+        )
+
+        right_model = right.model()
+        right_data = (
+            right_model.data(right, self.sortRole())
+            if right_model else
+            None
+        )
+
+        return left_data < right_data
