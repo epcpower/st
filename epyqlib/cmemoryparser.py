@@ -157,7 +157,7 @@ class Type:
                 8: 'd'
             }
             try:
-                type = types[self.bytes * bits_per_byte]
+                type = types[self.bytes * (bits_per_byte / 8)]
             except KeyError:
                 raise Exception(
                     'float type only supports lengths in [{}]'.
