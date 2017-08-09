@@ -537,12 +537,12 @@ class StructMember:
     def unpack(self, data):
         if isinstance(data, bytearray):
             bits = bytearray_to_bits(data)
+            if self.bit_size is not None:
+                bits = bits[self.bit_offset:]
+                bits = bits[:self.bit_size]
         else:
             bits = data
 
-        if self.bit_size is not None:
-            bits = bits[self.bit_offset:]
-            bits = bits[:self.bit_size]
         return base_type(self).unpack(bits)
 
 @attr.s
