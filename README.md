@@ -1,5 +1,14 @@
 # EPyQ [![Build status](https://ci.appveyor.com/api/projects/status/64pjrni37k4wu4jy?svg=true)](https://ci.appveyor.com/project/KyleAltendorf/st)
 
+![EPyQ screenshot](/screenshot.png?raw=true)
+
+## About
+
+EPyQ is a cross-platform PC service tool for [EPC Power](http://epcpower.com/) power conversion modules.  It is distributed for Windows and developed in Linux but has been run once on OSX (to the point of loading the GUI).
+Primary communication is done over CANbus using pythoncan and Twisted.
+The GUI is written in PyQt5.
+Most of the interesting parts of the GUI are loaded from device configuration files including `.ui` Qt GUI files and PEAK PCAN `.sym` files for CANbus message definitions.
+
 ## Running From Source
 
 Instructions are for Python 3.6 but they should work with slight tweaks with 3.5.
