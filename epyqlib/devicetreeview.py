@@ -314,6 +314,7 @@ class DeviceTreeView(QtWidgets.QWidget):
                     '''))
 
                     flasher.done.connect(progress.close)
+                    flasher.done.connect(progress.deleteLater)
                     flasher.done.connect(bus.set_bus)
 
                     completed_format = textwrap.dedent('''\

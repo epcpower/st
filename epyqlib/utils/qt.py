@@ -436,6 +436,8 @@ def dialog(parent, message, title=None, icon=None,
 
         box.setWindowTitle(title)
 
+    box.finished.connect(box.deleteLater)
+
     return box.exec()
 
 
