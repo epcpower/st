@@ -80,30 +80,30 @@ def custom_exception_message_box(brief, extended='', stderr=True):
         An unhandled exception occurred. Please report the problem via email to:
                         {email}
 
-        {brief}
-
-        {info}A log has been written to "{log}".
-        {time_string}''')
-
-    complete = notice.format(
+        {brief}''').format(
         email=email,
+        brief=brief,
+    )
+
+    details = textwrap.dedent('''\
+        {info}A log has been written to "{log}".
+        {time_string}''').format(
         info=info,
         log=log,
         time_string=time_string,
-        brief=brief,
-        extended=extended,
     )
 
     if len(extended) > 0:
-        complete = '\n'.join(s.strip() for s in (complete, '-' * 70, extended))
+        details = '\n'.join(s.strip() for s in (details, '-' * 70, extended))
 
     if stderr:
-        sys.stderr.write(complete + '\n')
+        sys.stderr.write('\n'.join((notice, details, '')))
 
     dialog(
         parent=_parent,
         title='Exception',
-        message=complete,
+        message=notice,
+        details=details,
         icon=QtWidgets.QMessageBox.Critical,
     )
 
@@ -333,32 +333,38 @@ class DialogUi:
         self.layout = QtWidgets.QGridLayout(parent)
         self.icon = QtWidgets.QLabel(parent)
         self.message = FittedTextBrowser(parent)
+        self.details = FittedTextBrowser(parent)
         self.copy = QtWidgets.QPushButton(parent)
+        self.show_details = QtWidgets.QPushButton(parent)
         self.buttons = QtWidgets.QDialogButtonBox(parent)
 
         self.copy.setText('Copy To Clipboard')
+        self.show_details.setText('Details...')
 
-        self.layout.addWidget(self.icon, 0, 0)
-        self.layout.addWidget(self.message, 0, 1, 1, 2)
-        self.layout.addWidget(self.copy, 1, 1)
-        self.layout.addWidget(self.buttons, 1, 2)
+        self.layout.addWidget(self.icon, 0, 0, 2, 1)
+        self.layout.addWidget(self.message, 0, 1, 1, 3)
+        self.layout.addWidget(self.details, 1, 1, 1, 3)
+        self.layout.addWidget(self.copy, 2, 1)
+        self.layout.addWidget(self.show_details, 2, 2)
+        self.layout.addWidget(self.buttons, 2, 3)
 
-        self.layout.setAlignment(self.copy, QtCore.Qt.AlignLeft)
-
-        self.layout.setRowStretch(0, 1)
-        self.layout.setColumnStretch(1, 1)
+        self.layout.setColumnStretch(3, 1)
 
 
 class Dialog(QtWidgets.QDialog):
-    def __init__(self, *args, cancellable=False, **kwargs):
+    def __init__(self, *args, cancellable=False, details=False, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.ui = DialogUi(parent=self)
+
+        self.ui.details.setVisible(False)
+        self.ui.show_details.setVisible(details)
 
         self.ui.buttons.accepted.connect(self.accept)
         self.ui.buttons.rejected.connect(self.reject)
 
         self.ui.copy.clicked.connect(self.copy)
+        self.ui.show_details.clicked.connect(self.show_details)
 
         self.setLayout(self.ui.layout)
         buttons = QtWidgets.QDialogButtonBox.Ok
@@ -369,8 +375,8 @@ class Dialog(QtWidgets.QDialog):
 
         self.text = None
         self.html = None
-
-        self.cached_maximum_size = self.maximumSize()
+        self.details_text = None
+        self.details_html = None
 
         desktops = QtWidgets.QApplication.desktop()
         screen_number = desktops.screenNumber(self.parent())
@@ -378,11 +384,33 @@ class Dialog(QtWidgets.QDialog):
 
         self.setMaximumHeight(geometry.height() * 0.7)
         self.setMaximumWidth(geometry.width() * 0.7)
+        self.minimum_size = self.minimumSize()
+        self.maximum_size = self.maximumSize()
 
     def copy(self):
-        QtWidgets.QApplication.clipboard().setText(
-            self.ui.message.toPlainText() + '\n'
+        f = textwrap.dedent('''\
+            {message}
+            
+             - - - - Details:
+            
+            {details}
+            '''
+        ).format(
+            message=self.ui.message.toPlainText(),
+            details=self.ui.details.toPlainText(),
         )
+
+        QtWidgets.QApplication.clipboard().setText(f)
+
+    def show_details(self):
+        to_be_visible = not self.ui.details.isVisible()
+        self.ui.details.setVisible(to_be_visible)
+        self.set_size()
+
+    def set_size(self):
+        self.setFixedSize(self.sizeHint())
+        self.setMinimumSize(self.minimum_size)
+        self.setMaximumSize(self.maximum_size)
 
     def set_text(self, text):
         self.ui.message.setPlainText(text)
@@ -400,26 +428,44 @@ class Dialog(QtWidgets.QDialog):
 
         self.ui.message.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
 
+    def set_details_text(self, text):
+        self.ui.details.setPlainText(text)
+
+        self.details_html = None
+        self.details_text = text
+
+        self.ui.details.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
+
+    def set_details_html(self, html):
+        self.ui.details.setHtml(html)
+
+        self.details_html = html
+        self.details_text = None
+
+        self.ui.details.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+
     def set_message_box_icon(self, icon):
         self.ui.icon.setPixmap(QtWidgets.QMessageBox.standardIcon(icon))
 
-    def exec(self):
-        QtCore.QTimer.singleShot(10, functools.partial(
-                self.setMaximumSize,
-                self.cached_maximum_size,
-        ))
-
-        return super().exec()
-
 
 def dialog(parent, message, title=None, icon=None,
-           rich_text=False, cancellable=False):
-    box = Dialog(parent=parent, cancellable=cancellable)
+           rich_text=False, details='', details_rich_text=False,
+           cancellable=False):
+    box = Dialog(
+        parent=parent,
+        cancellable=cancellable,
+        details=len(details) > 0,
+    )
 
     if rich_text:
         box.set_html(message)
     else:
         box.set_text(message)
+
+    if details_rich_text:
+        box.set_details_html(details)
+    else:
+        box.set_details_text(details)
 
     if icon is not None:
         box.set_message_box_icon(icon)
