@@ -1,3 +1,4 @@
+import epyqlib.utils.general
 import epyqlib.utils.qt
 import logging
 import sys
@@ -19,6 +20,18 @@ def errbackhook(error):
         brief='{}\n{}'.format(error.type.__name__, error.value),
         extended=error.getTraceback(),
     )
+
+    return error
+
+
+def catch_expected(error):
+    if issubclass(error.type, epyqlib.utils.general.ExpectedException):
+        epyqlib.utils.qt.raw_exception_message_box(
+            brief=error.value.expected_message(),
+            extended=error.getTraceback(),
+        )
+
+        return None
 
     return error
 

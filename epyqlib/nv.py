@@ -403,6 +403,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         d.addErrback(epyqlib.utils.twisted.detour_result,
                      self.activity_ended.emit,
                      'Failed while {}...'.format(activity.lower()))
+        d.addErrback(epyqlib.utils.twisted.catch_expected)
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
         return d

@@ -3,6 +3,7 @@ import enum
 import itertools
 import math
 import os
+import textwrap
 import time
 import zipfile
 
@@ -10,6 +11,19 @@ import attr
 
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
+
+
+class ExpectedException(Exception):
+    def expected_message(self):
+        return 'This is expected: {}'.format(str(self))
+
+
+def multiparagraph_wrap(s, *args, **kwargs):
+    paragraphs = s.split('\n\n')
+    return '\n\n'.join(
+        '\n'.join(textwrap.wrap(p, *args, **kwargs))
+        for p in paragraphs
+    )
 
 
 @attr.s

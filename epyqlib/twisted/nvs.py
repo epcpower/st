@@ -2,6 +2,7 @@ import collections
 import enum
 import logging
 import queue
+import textwrap
 
 import attr
 import twisted.internet.defer
@@ -16,16 +17,36 @@ __license__ = 'GPLv2+'
 logger = logging.getLogger(__name__)
 
 
-class RequestTimeoutError(TimeoutError):
-    pass
+class RequestTimeoutError(epyqlib.utils.general.ExpectedException):
+    def __init__(self, state, item):
+        message = (
+            'Protocol timed out while in state {} handling {}'
+            .format(state.name, item)
+        )
+
+        super().__init__(message)
+        self.state = state
+        self.item = item
+
+    def expected_message(self):
+        return textwrap.dedent('''\
+            Request timed out:
+                {}, {}
+
+            1. Confirm converter and adapter are on the same bus
+            2. Confirm device file was loaded with node ID matching the converter's
+            3. Possible parameter definition mismatch\
+            '''.format(self.state.name, self.item)
+        )
 
 
 class ReadOnlyError(Exception):
     pass
 
 
-class SendFailedError(Exception):
-    pass
+class SendFailedError(epyqlib.utils.general.ExpectedException):
+    def expected_message(self):
+        return 'Send failed, make sure you are connected.'
 
 
 class CanceledError(Exception):
@@ -359,17 +380,15 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         request = self._request_memory
         # TODO: report all requested signals
         signal = tuple(request.signals)[0]
-        message = 'Protocol timed out while in state {} handling ' \
-                  '{} : {}'.format(
-            self.state,
-            signal.frame.mux_name,
-            signal.name
+        e = RequestTimeoutError(
+            state=self.state,
+            item='{}:{}'.format(signal.frame.mux_name, signal.name),
         )
-        logger.debug(message)
+        logger.debug(str(e))
         if self._previous_state in [State.idle]:
             self.state = self._previous_state
         deferred = self._transaction_over()
-        deferred.errback(RequestTimeoutError(message))
+        deferred.errback(e)
 
     def callback(self, payload):
         deferred = self._transaction_over()

@@ -58,9 +58,22 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None):
     )
 
 
-def custom_exception_message_box(brief, extended='', stderr=True):
+def custom_exception_message_box(brief, extended=''):
     email = "kyle.altendorf@epcpower.com"
 
+    brief = textwrap.dedent('''\
+        An unhandled exception occurred. Please report the problem via email to:
+                        {email}
+
+        {brief}''').format(
+        email=email,
+        brief=brief,
+    )
+
+    raw_exception_message_box(brief=brief, extended=extended)
+
+
+def raw_exception_message_box(brief, extended, stderr=True):
     version = ''
     if _version_tag is not None:
         version = 'Version Tag: {}'.format(_version_tag)
@@ -76,15 +89,6 @@ def custom_exception_message_box(brief, extended='', stderr=True):
 
     time_string = time.strftime("%Y-%m-%d, %H:%M:%S %Z")
 
-    notice = textwrap.dedent('''\
-        An unhandled exception occurred. Please report the problem via email to:
-                        {email}
-
-        {brief}''').format(
-        email=email,
-        brief=brief,
-    )
-
     details = textwrap.dedent('''\
         {info}A log has been written to "{log}".
         {time_string}''').format(
@@ -97,12 +101,12 @@ def custom_exception_message_box(brief, extended='', stderr=True):
         details = '\n'.join(s.strip() for s in (details, '-' * 70, extended))
 
     if stderr:
-        sys.stderr.write('\n'.join((notice, details, '')))
+        sys.stderr.write('\n'.join((brief, details, '')))
 
     dialog(
         parent=_parent,
         title='Exception',
-        message=notice,
+        message=brief,
         details=details,
         icon=QtWidgets.QMessageBox.Critical,
     )
