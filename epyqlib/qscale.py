@@ -532,11 +532,13 @@ class QScale(QtWidgets.QWidget):
             u = min(u, (radius - scaleWidth) - minorScaleWidth)
             painter.drawEllipse(center, u, u) 
 
-        drawColorRanges(self)
-        drawScaleMarkers(self)
-        drawLabels(self)
+        if self.m_paintMode == 0 or self.m_paintMode == 1:
+            drawColorRanges(self)
+            drawScaleMarkers(self)
+            drawLabels(self)
         drawNeedle(self)
-        drawCover(self, center)
+        if self.m_paintMode == 0 or self.m_paintMode == 3:
+            drawCover(self, center)
 
 
 

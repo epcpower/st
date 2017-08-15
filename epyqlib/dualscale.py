@@ -49,6 +49,22 @@ class DualScale(QWidget):
         self.stackedLayout.setStackingMode(1)
         self.ui.glayout.addLayout(self.stackedLayout, 0, 0)
 
+        # Trying to figure out how to get lower min and the higher max and change the scale
+        # true_min = min(self.scale1.ui.scale.m_minimum, self.scale2.ui.scale.m_minimum)
+        # true_max = max(self.scale1.ui.scale.m_maximum, self.scale2.ui.scale.m_maximum)
+
+        # self.scale1.minimum = true_min
+        # self.scale2.minimum = true_min
+
+        # self.scale1.maximum = true_max
+        # self.scale2.maximum = true_max
+
+        # self.scale1.override_range = True
+        # self.scale2.override_range = True
+
+        self.scale1.scale.m_paintMode = 1
+        self.scale2.scale.m_paintMode = 3
+
     def getPath(self):
         return os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                           'dualscale.ui')
