@@ -576,9 +576,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     "is limited to {frames}.  Selection has been truncated."
                     .format(chunks=chunk_count, frames=frame_count))
 
-            message_box.setText(text)
-
-            message_box.exec()
             epyqlib.utils.qt.dialog(
                 parent=parent,
                 message=text,
