@@ -33,6 +33,10 @@ class QScale(QtWidgets.QWidget):
         self.m_minimum = 0 # Minimum value of scale; default value 0 
         self.m_maximum = 100 # Maximum value of scale; default value 100
         self.m_value = 0 # Current value (where needle would point); def val = 0
+        self.m_paintMode = 0 # The paint mode, which determines how much of
+                             # the scale is painted.
+                             # 0 = All, 1 = color ranges, scale markers, labels,
+                             # needle. 2 = only needle. 3 = needle, cover.
 
         self.m_labelsVisible = True # Determines if numbers of scale would show
         self.m_scaleVisible = True # Determines if markers of scale would show
@@ -245,7 +249,6 @@ class QScale(QtWidgets.QWidget):
         # Acquire radius of drawn scale based off of width and height of scale.
         radius = 0.125 * wScale ** 2 / hScale + 0.5 * hScale
 
-
         # Acquire the center point and modify radius if needed.
         if radius < hScale + 0.5 * hWidget - self.m_borderWidth:
             radius = ((4.0 * (hLabel + self.m_borderWidth)
@@ -315,7 +318,8 @@ class QScale(QtWidgets.QWidget):
                             if not vertical or self.vertically_flipped:
                                 rangeAngleStart = (angleStart + angleSpan 
                                                    * (rangeValueStart 
-                                                   - self.m_minimum) / valueSpan)
+                                                   - self.m_minimum) 
+                                                   / valueSpan)
                             elif vertical and not self.vertically_flipped:
                                 if breakpoint is None:
                                     breakpoint = self.m_maximum
@@ -325,11 +329,13 @@ class QScale(QtWidgets.QWidget):
                             try:
                                 if not vertical or self.vertically_flipped:
                                     rangeAngleEnd = (angleStart + angleSpan 
-                                                     * (breakpoint - self.m_minimum) 
+                                                     * (breakpoint 
+                                                     - self.m_minimum) 
                                                      / valueSpan)
                                 elif vertical and not self.vertically_flipped:
                                     rangeAngleEnd = (angleStart + angleSpan 
-                                                     * (self.m_maximum - rangeValueStart) 
+                                                     * (self.m_maximum 
+                                                     - rangeValueStart) 
                                                      / valueSpan)
                             except TypeError:
                                 rangeAngleEnd = angleStart + angleSpan
@@ -496,38 +502,43 @@ class QScale(QtWidgets.QWidget):
             painter.drawLine(0, 0, radius - 15, 0) 
             painter.resetTransform()
 
+        def drawCover(self, center):
+            # draw cover
+            painter.setPen(QtCore.Qt.NoPen)
+            painter.setBrush(self.palette().color(QtGui.QPalette.Mid))
+
+            if vertical:
+                if self.vertically_flipped:
+                    painter.drawRect(QtCore.QRect(self.width() 
+                                                  - self.m_borderWidth, 0, 
+                                                  self.m_borderWidth, 
+                                                  self.height()))
+                else:
+                    painter.drawRect(QtCore.QRect(0, 0, self.m_borderWidth, 
+                                                  self.height()))
+                center = QtCore.QPoint(self.width() - center.y() - wLabel / 4.0, 
+                                       0.5 * self.height())
+                u = 0.25 * (hWidget - wLabel) - center.x() - self.m_borderWidth
+                if self.vertically_flipped:
+                    center = QtCore.QPoint(-center.x() + self.width(), 
+                                           center.y())
+            else:
+                pass
+                painter.drawRect(QtCore.QRect(0, hWidget, wWidget, 
+                                             -self.m_borderWidth))
+                u = center.y() - self.m_borderWidth - 0.75 * hWidget
+
+            u = self.max(u, 0.25 * radius)
+            u = min(u, (radius - scaleWidth) - minorScaleWidth)
+            painter.drawEllipse(center, u, u) 
+
         drawColorRanges(self)
         drawScaleMarkers(self)
         drawLabels(self)
         drawNeedle(self)
+        drawCover(self, center)
 
 
-        # draw cover
-        painter.setPen(QtCore.Qt.NoPen)
-        painter.setBrush(self.palette().color(QtGui.QPalette.Mid))
-
-        if vertical:
-            if self.vertically_flipped:
-                painter.drawRect(QtCore.QRect(self.width() - self.m_borderWidth, 
-                                              0, self.m_borderWidth, 
-                                              self.height()))
-            else:
-                painter.drawRect(QtCore.QRect(0, 0, self.m_borderWidth, 
-                                              self.height()))
-            center = QtCore.QPoint(self.width() - center.y() - wLabel / 4.0, 
-                                   0.5 * self.height())
-            u = 0.25 * (hWidget - wLabel) - center.x() - self.m_borderWidth
-            if self.vertically_flipped:
-                center = QtCore.QPoint(-center.x() + self.width(), center.y())
-        else:
-            pass
-            painter.drawRect(QtCore.QRect(0, hWidget, wWidget, 
-                                         -self.m_borderWidth))
-            u = center.y() - self.m_borderWidth - 0.75 * hWidget
-
-        u = self.max(u, 0.25 * radius)
-        u = min(u, (radius - scaleWidth) - minorScaleWidth)
-        painter.drawEllipse(center, u, u) 
 
     def updateLabelSample(self):
         margin = self.max(abs(self.m_minimum), abs(self.m_maximum))
