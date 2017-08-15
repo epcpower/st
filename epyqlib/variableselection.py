@@ -158,10 +158,10 @@ class VariableSelection(QtWidgets.QWidget):
 
                 model = self.nonproxy_model()
 
-                progress = epyqlib.utils.qt.progress_dialog(parent=self)
-                progress.setLabelText('Processing Raw Log...')
+                self.progress = epyqlib.utils.qt.progress_dialog(parent=self)
+                self.progress.setLabelText('Processing Raw Log...')
 
-                progress.show()
+                self.progress.show()
 
                 d = model.parse_log(data=data, csv_path=csv_filename)
                 d.addBoth(epyqlib.utils.twisted.detour_result,
