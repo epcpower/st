@@ -1,24 +1,17 @@
 import logging
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-import os
-
 
 import epyqlib.busproxy
 import epyqlib.device
 import epyqlib.twisted.busproxy
+import epyqlib.tests.common
 
-interface = os.path.join('..', 'control', 'interface')
-
-devices = {
-    'customer': os.path.join(interface, 'distributed_generation.epc'),
-    'factory': os.path.join(interface, 'distributed_generation_factory.epc'),
-}
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def test_range_override_hidden(qtbot):
     device = epyqlib.device.Device(
-        file=devices['customer'],
+        file=epyqlib.tests.common.devices['customer'],
         node_id=247,
     )
 
@@ -28,7 +21,7 @@ def test_range_override_hidden(qtbot):
 
 def test_range_override_visible(qtbot):
     device = epyqlib.device.Device(
-        file=devices['factory'],
+        file=epyqlib.tests.common.devices['factory'],
         node_id=247,
     )
 
@@ -40,7 +33,7 @@ def test_secret_masked(qtbot):
     secret_mask = '<secret>'
 
     device = epyqlib.device.Device(
-        file=devices['factory'],
+        file=epyqlib.tests.common.devices['factory'],
         node_id=247,
     )
 
