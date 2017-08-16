@@ -196,9 +196,11 @@ class Device:
 
     def _load_config(self, file, elements=None,
                      tabs=None, rx_interval=0, edit_actions=None,
-                     only_for_files=False, **kwargs):
+                     only_for_files=False, node_id=None, **kwargs):
         if tabs is None:
             tabs = Tabs.defaults()
+
+        self.node_id = node_id
 
         self.elements = Elements if elements == None else elements
         self.elements = set(Elements)
@@ -294,7 +296,8 @@ class Device:
 
             self.node_id_type = d.get('node_id_type',
                                       next(iter(node_id_types))).lower()
-            self.node_id = d.get('node_id')
+            if self.node_id is None:
+                self.node_id = d.get('node_id')
             if self.node_id is None and self.node_id_type == 'j1939':
                 self.node_id, ok = QInputDialog.getInt(
                     None,
