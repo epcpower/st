@@ -305,6 +305,7 @@ def main(args=None):
     os_signal_timer.start(200)
     os_signal_timer.timeout.connect(lambda: None)
 
+    # TODO: CAMPid 03127876954165421679215396954697
     # https://github.com/kivy/kivy/issues/4182#issuecomment-253159955
     # fix for pyinstaller packages app to avoid ReactorAlreadyInstalledError
     if 'twisted.internet.reactor' in sys.modules:
