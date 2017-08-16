@@ -45,6 +45,7 @@ class DualScale(QWidget):
         self.scale2 = epyqlib.widgets.scale.Scale(self, in_designer)
         self.scale1.scale.m_paintMode = 1
         self.scale2.scale.m_paintMode = 3
+        self.scale2.scale.isBlue = True
         self.stackedLayout = QStackedLayout()
         self.stackedLayout.addWidget(self.scale2)
         self.stackedLayout.addWidget(self.scale1)

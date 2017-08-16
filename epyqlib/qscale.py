@@ -1,6 +1,6 @@
 import itertools
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtProperty
+from PyQt5.QtCore import pyqtProperty, Qt
 import sys
 from math import pi, isinf, sqrt, asin, ceil, cos, sin, floor, ceil
 
@@ -63,6 +63,8 @@ class QScale(QtWidgets.QWidget):
         self.breakpoints = []
         self.colors = []
         self.setMinimumSize()
+
+        self.isBlue = False
 
     def setMinimumSize(self, width = None, height = None, painter = None):
         self.updateLabelSample()
@@ -481,6 +483,7 @@ class QScale(QtWidgets.QWidget):
                                          '{}'.format(i * majorStep))
 
         def drawNeedle(self):
+            painter.resetTransform()
             # CHange the painter's orientation depending on scale's orientation.
             if vertical:
                 if not self.vertically_flipped:
@@ -519,8 +522,12 @@ class QScale(QtWidgets.QWidget):
                               int(radius) - 10, 2, 0, 2) 
 
             painter.drawConvexPolygon(self.polygon)
-            painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Base), 
-                                                           2)) 
+
+            if not self.isBlue:
+                painter.setPen(QtGui.QPen(self.palette().
+                                                color(QtGui.QPalette.Base), 2)) 
+            else:
+                painter.setPen(QtGui.QPen(Qt.blue))
             painter.drawLine(0, 0, radius - 15, 0) 
             painter.resetTransform()
 
