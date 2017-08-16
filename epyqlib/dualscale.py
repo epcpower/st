@@ -43,9 +43,11 @@ class DualScale(QWidget):
 
         self.scale1 = epyqlib.widgets.scale.Scale(self, in_designer)
         self.scale2 = epyqlib.widgets.scale.Scale(self, in_designer)
+        self.scale1.scale.m_paintMode = 1
+        self.scale2.scale.m_paintMode = 3
         self.stackedLayout = QStackedLayout()
-        self.stackedLayout.addWidget(self.scale1)
         self.stackedLayout.addWidget(self.scale2)
+        self.stackedLayout.addWidget(self.scale1)
         self.stackedLayout.setStackingMode(1)
         self.ui.glayout.addLayout(self.stackedLayout, 0, 0)
 
@@ -62,8 +64,6 @@ class DualScale(QWidget):
         # self.scale1.override_range = True
         # self.scale2.override_range = True
 
-        self.scale1.scale.m_paintMode = 1
-        self.scale2.scale.m_paintMode = 3
 
     def getPath(self):
         return os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
