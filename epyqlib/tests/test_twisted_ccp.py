@@ -49,6 +49,7 @@ from PyQt5.QtCore import QTimer
 #                      in enumerate(c.sections) if s.data is not None]))
 
 
+@pytest.mark.skip(reason="requires actual hardware")
 def test_main():
     qt5reactor.install()
     from twisted.internet import reactor
@@ -73,27 +74,23 @@ def test_main():
     reactor.run()
 
 
-# def retry(deferred_function, retries, delay):
-
-
-
 def logit(it):
     logging.debug('logit(): ({}) {}'.format(type(it), it))
 
 
-def test_IdentifierTypeError():
+def test_identifier_type_error():
     with pytest.raises(ccp.IdentifierTypeError):
         ccp.HostCommand(code=ccp.CommandCode.connect,
                         extended_id=False)
 
 
-def test_PayloadLengthError():
-    with pytest.raises(ccp.PayloadLengthError):
+def test_payload_assignment_error():
+    with pytest.raises(AttributeError):
         hc = ccp.HostCommand(code=ccp.CommandCode.connect)
-        hc.payload = [0] * 20
+        hc.payload = 0
 
 
-def test_MessageLengthError():
+def test_message_length_error():
     with pytest.raises(ccp.MessageLengthError):
         ccp.HostCommand(code=ccp.CommandCode.connect,
                         dlc=5)
