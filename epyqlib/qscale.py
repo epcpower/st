@@ -261,10 +261,13 @@ class QScale(QtWidgets.QWidget):
             center = QtCore.QPointF(0.5 * wWidget, 
                                     radius + hLabel + self.m_borderWidth)
 
+        # Calculate where certain things start and their span.
         angleSpan = -360.0 / pi * asin(wScale / (2.0 * radius))
         angleStart = 90.0 - 0.5 * angleSpan
 
         valueSpan = self.m_maximum - self.m_minimum
+
+        # Calculate the size of the tick marks.
         majorStep = abs(valueSpan) * self.max(wLabel, 1.5 
                     * boundingRect.height()) / wScale
         order = 0
@@ -297,6 +300,7 @@ class QScale(QtWidgets.QWidget):
                                        * boundingRect.height())
         minorScaleWidth = scaleWidth * 0.4
 
+        # Change the orientation of the scale if the scale is vertical.
         if vertical:
             painter.rotate(90)
             painter.translate(0, -hWidget + wLabel / 4.0)
@@ -376,7 +380,10 @@ class QScale(QtWidgets.QWidget):
             painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Text), 
                            1))
 
+            # Only draw if the scale is visible and enough space for tick marks.
             if self.m_scaleVisible and majorStep != 0:
+
+                # Rotate the painter to accomodate for vertical scale.
                 if vertical:
                     if not self.vertically_flipped:
                         painter.rotate(90)
@@ -386,11 +393,13 @@ class QScale(QtWidgets.QWidget):
                         painter.translate(0, -self.width())
                         painter.translate(0, -(-hWidget + wLabel / 4.0)) 
 
+                # Account for flipping vertical scales.
                 if vertical and self.vertically_flipped:
                     painter.translate(center.x(), -center.y())
                 else:
                     painter.translate(center) 
 
+                # Turn 180 degrees to account for flipped vertical scales.
                 if vertical and self.vertically_flipped:
                     painter.rotate(self.m_minimum % ceil(float(majorStep) 
                                    / float(minorSteps)) / float(valueSpan) 
@@ -403,33 +412,42 @@ class QScale(QtWidgets.QWidget):
                 offsetCount = (minorSteps - ceil(self.m_minimum % majorStep) 
                                / float(majorStep) * minorSteps) % minorSteps
 
+                # Actual drawing of tick marks done here.
                 for i in range(0, floor(minorSteps * abs(valueSpan) / majorStep) 
                                + 1):
-                    if i%minorSteps == offsetCount:
+                    if i % minorSteps == offsetCount:
+                        # Draw bigger line for like every 5 or 10 or so.
                         painter.drawLine(QtCore.QLineF(radius - scaleWidth, 0, 
                                          radius, 0))
                     else:
+                        # Draw smaller line for the other tick marks.
                         painter.drawLine(QtCore.QLineF(radius - scaleWidth, 0,
                                                        radius - minorScaleWidth, 
                                                        0))
-
+                    # Rotate the painter a bit for the next tick mark.
                     painter.rotate(majorStep * angleSpan 
                                    / (-abs(valueSpan) * minorSteps))
 
                 painter.resetTransform()
 
         def drawLabels(self):
-            # draw labels
+
+            # Draw the numbers on the scale.
             if self.m_labelsVisible and majorStep != 0:
+                # x represents the amount tick marks on the scale.
                 x = range(int(ceil(self.min(self.m_minimum, self.m_maximum) 
                                    / majorStep)), 
                                   int(self.max(self.m_minimum, self.m_maximum) 
                                    / majorStep) + 1)
 
+                # Prep each tick mark, draw right value and at right positioning
                 for i in x:
+                    # Get the particular angle the number should be drawn at.
                     u = pi / 180.0 * ((majorStep * i - self.m_minimum) 
                            / float(valueSpan) * angleSpan + angleStart)
                     position = QtCore.QRect()
+
+                    # Acquire the position of the number based on orientation.
                     if vertical:
                         if not self.vertically_flipped:
                             align = QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter
@@ -452,6 +470,8 @@ class QScale(QtWidgets.QWidget):
                     painter.resetTransform()
                     # TODO: add usage of m_labelsFormat and m_labelsPrecision
 
+                    # Draw the number in an order that depends if the scale is
+                    # vertical or not.
                     if vertical:
                         painter.drawText(position, align, 
                                         '{}'.format((x.stop + x.start - i - 1) 
@@ -461,7 +481,7 @@ class QScale(QtWidgets.QWidget):
                                          '{}'.format(i * majorStep))
 
         def drawNeedle(self):
-            # draw needle
+            # CHange the painter's orientation depending on scale's orientation.
             if vertical:
                 if not self.vertically_flipped:
                     painter.rotate(90) 
@@ -476,7 +496,7 @@ class QScale(QtWidgets.QWidget):
             else:
                 painter.translate(center) 
 
-            # ok
+            # Get the calibration of the needle.
             if vertical:
                 if not self.vertically_flipped:
                     painter.rotate((-self.m_maximum + self.m_value) 
@@ -488,6 +508,8 @@ class QScale(QtWidgets.QWidget):
             else:
                 painter.rotate((self.m_minimum - self.m_value) 
                                 / float(valueSpan) * angleSpan - angleStart) 
+
+            # Actually draw the needle based off of the previous settings set up 
             painter.setPen(QtCore.Qt.NoPen)
             painter.setBrush(self.palette().color(QtGui.QPalette.Text))
             self.polygon = QtGui.QPolygon()
@@ -503,10 +525,12 @@ class QScale(QtWidgets.QWidget):
             painter.resetTransform()
 
         def drawCover(self, center):
-            # draw cover
+
             painter.setPen(QtCore.Qt.NoPen)
             painter.setBrush(self.palette().color(QtGui.QPalette.Mid))
 
+            # Draw rectangle component depending on the orientation of scale.
+            # The circular part of scale also varies on orientation of scale.
             if vertical:
                 if self.vertically_flipped:
                     painter.drawRect(QtCore.QRect(self.width() 
@@ -528,6 +552,8 @@ class QScale(QtWidgets.QWidget):
                                              -self.m_borderWidth))
                 u = center.y() - self.m_borderWidth - 0.75 * hWidget
 
+            # Draw the circular part of scale. It will be a very small portion
+            # of a very large ellipse for the most part.
             u = self.max(u, 0.25 * radius)
             u = min(u, (radius - scaleWidth) - minorScaleWidth)
             painter.drawEllipse(center, u, u) 
