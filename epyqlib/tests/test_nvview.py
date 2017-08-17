@@ -15,8 +15,13 @@ def test_range_override_hidden(qtbot):
         node_id=247,
     )
 
-    for view in device.ui.findChildren(epyqlib.nvview.NvView):
-        assert view.ui.enforce_range_limits_check_box.isHidden()
+    children = device.ui.findChildren(epyqlib.nvview.NvView)
+
+    assert len(children) > 0
+
+    for view in children:
+        checkbox = view.ui.enforce_range_limits_check_box
+        assert not checkbox.isVisibleTo(checkbox.parent())
 
 
 def test_range_override_visible(qtbot):
@@ -25,8 +30,13 @@ def test_range_override_visible(qtbot):
         node_id=247,
     )
 
-    for view in device.ui.findChildren(epyqlib.nvview.NvView):
-        assert not view.ui.enforce_range_limits_check_box.isHidden()
+    children = device.ui.findChildren(epyqlib.nvview.NvView)
+
+    assert len(children) > 0
+
+    for view in children:
+        checkbox = view.ui.enforce_range_limits_check_box
+        assert checkbox.isVisibleTo(checkbox.parent())
 
 
 def test_secret_masked(qtbot):
