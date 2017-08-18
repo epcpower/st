@@ -44,16 +44,12 @@ def test_self_toggling(qtbot):
     tx_signal = device.nvs.neo.signal_by_path(*tx_signal_path)
     rx_signal = tx_signal.status_signal
 
-    receive_count = 0
-    def received():
-        nonlocal receive_count
-        receive_count += 1
-    rx_signal.value_changed.connect(received)
-
     value_changed_count = 0
-    def value_changed(i):
+
+    def value_changed():
         nonlocal value_changed_count
         value_changed_count += 1
+
     widget, = [
         w for w in device.ui.findChildren(epyqlib.widgets.toggle.Toggle)
         if w.signal_path == ';'.join(tx_signal_path)
@@ -61,41 +57,7 @@ def test_self_toggling(qtbot):
 
     widget.value.valueChanged.connect(value_changed)
 
-
-    # can.Message(
-    #     arbitration_id=,
-    #
-    # )
-
-    value = False
-
-    def toggle(n=5):
-        nonlocal value
-
-        if n > 0:
-            value = not value
-            rx_signal.set_value(value)
-            rx_signal.frame.update_from_signals()
-            bus.notifier.message_received(rx_signal.frame.to_message())
-            print(' + - + - receiving message now')
-
-            # rx_signal.frame.send_now()
-            # widget.value.
-            # rx_signal.value_changed.emit()
-            import time
-            print('toggle here', time.monotonic())
-            n -= 1
-
-        if n > 0:
-            QTimer.singleShot(
-                0.010 * 1000,
-                functools.partial(
-                    toggle,
-                    n=n,
-                ),
-            )
-
-    def toggle(n=5):
+    def toggle(n):
         value = False
         for _ in range(n):
             value = not value
@@ -104,15 +66,11 @@ def test_self_toggling(qtbot):
             bus.notifier.message_received(rx_signal.frame.to_message())
             print(' + - + - receiving message now')
 
-            import time
-            print('toggle here', time.monotonic())
-
     toggle_count = 4
     QTimer.singleShot(1 * 1000, functools.partial(toggle, n=toggle_count))
 
     QTimer.singleShot(10 * 1000, reactor.stop)
     reactor.run()
 
-    print('receive_count', receive_count)
     print('value_changed_count', value_changed_count)
     assert value_changed_count < 2 * toggle_count
