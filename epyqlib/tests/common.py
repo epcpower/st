@@ -10,6 +10,11 @@ scripts_path = os.path.join(project_path, 'venv', 'Scripts')
 interface = os.path.join(project_path, '..', 'control', 'interface')
 
 devices = {
-    'customer': os.path.join(interface, 'distributed_generation.epc'),
-    'factory': os.path.join(interface, 'distributed_generation_factory.epc'),
+    'customer': 'distributed_generation.epc',
+    'factory': 'distributed_generation_factory.epc',
+}
+
+devices = {
+    k: os.path.normpath(os.path.join(interface, v))
+    for k, v in devices.items()
 }
