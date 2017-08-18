@@ -30,6 +30,7 @@ import epyq
 import epyqlib.canneo
 import epyqlib.csvwindow
 from epyqlib.svgwidget import SvgWidget
+import epyqlib.tests.common
 import epyqlib.txrx
 import epyqlib.utils.qt
 import epyqlib.utils.canlog
@@ -314,15 +315,19 @@ def main(args=None):
     import qt5reactor
     qt5reactor.install()
 
+    import argparse
+
+    ui_default = 'main.ui'
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ui', default=ui_default)
+    parser.add_argument('--verbose', '-v', action='count', default=0)
+    parser.add_argument('--quit-after', type=float, default=None)
+    parser.add_argument('--load-offline', default=None)
     if args is None:
-        import argparse
-
-        ui_default = 'main.ui'
-
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--ui', default=ui_default)
-        parser.add_argument('--verbose', '-v', action='count', default=0)
         args = parser.parse_args()
+    else:
+        args = parser.parse_args(args)
 
     can_logger_modules = ('can', 'can.socketcan.native')
 
@@ -370,6 +375,34 @@ def main(args=None):
     epyqlib.utils.qt.exception_message_box_register_parent(parent=window)
 
     window.show()
+
+    if args.quit_after is not None:
+        QtCore.QTimer.singleShot(args.quit_after * 1000, app.quit)
+
+    if args.load_offline is not None:
+        def load_offline():
+            bus_node, = [
+                node for node in window.ui.device_tree.model.root.children
+                if node.fields.name == 'Offline'
+            ]
+
+            split = args.load_offline.split('_', maxsplit=1)
+            if split[0] == 'test':
+                path = epyqlib.tests.common.devices[split[1]]
+            else:
+                path = args.load_offline
+
+            window.ui.device_tree.add_device(
+                bus=bus_node,
+                device=epyqlib.device.Device(
+                    file=path,
+                    bus=bus_node.bus,
+                    node_id=247,
+                ),
+            )
+
+        QtCore.QTimer.singleShot(0.5 * 1000, load_offline)
+
 
     from twisted.internet import reactor
     reactor.runReturn()

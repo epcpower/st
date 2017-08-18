@@ -1,30 +1,28 @@
 import subprocess
 import sys
-import textwrap
-
-import PyQt5.QtWidgets
-import pytest
 
 
-@pytest.mark.manual
-def test_exits(qtbot):
-    PyQt5.QtWidgets.QMessageBox.information(
-        None,
-        'EPyQ Manual Test Instructions',
-        textwrap.dedent('''\
-            Testing to confirm the application actually terminates.
-            You have 30 seconds.
-        
-            1. Open device
-            2. Close application'''
-        ),
-    )
-
+def test_exits():
     subprocess.check_call(
         [
             sys.executable,
             '-c',
-            'import sys; import epyq.__main__; sys.exit(epyq.__main__.main())',
+            '; '.join([
+                'import sys',
+                'import epyq.__main__',
+                '''sys.exit(epyq.__main__.main(('--quit-after', '10', '--load-offline', 'test_customer')))''',
+            ]),
+        ],
+        timeout=30,
+    )
+
+
+def test_exits_just_device():
+    subprocess.check_call(
+        [
+            sys.executable,
+            '-c',
+            'import sys; import epyq.tests.run_device; sys.exit(epyq.tests.run_device.run())',
         ],
         # TODO: returns immediately
         # [os.path.join(epyqlib.tests.common.scripts_path, 'epyq.exe')],
