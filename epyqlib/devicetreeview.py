@@ -215,8 +215,10 @@ class DeviceTreeView(QtWidgets.QWidget):
             device=node.device, bus=bus, parent=self)
         d.addBoth(epyqlib.utils.twisted.detour_result, bus.set_bus)
 
-    def add_device(self, bus):
-        device = load_device(parent=self)
+    def add_device(self, bus, device=None):
+        if device is None:
+            device = load_device(parent=self)
+
         if device is not None:
             device = epyqlib.devicetree.Device(device=device)
 
