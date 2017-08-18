@@ -10,7 +10,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <module name="EPyQ" />
     <option name="_new_keywords" value="&quot;&quot;" />
-    <option name="_new_additionalArguments" value="&quot;--run-manual&quot;" />
+    <option name="_new_additionalArguments" value="&quot;&quot;" />
     <option name="_new_target" value="&quot;epyq.tests.test_exits&quot;" />
     <option name="_new_targetType" value="&quot;PYTHON&quot;" />
     <method />
