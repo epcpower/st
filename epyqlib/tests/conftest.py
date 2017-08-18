@@ -8,6 +8,12 @@ def pytest_addoption(parser):
         default=False,
         help='Run tests that require a device be connected'
     )
+    parser.addoption(
+        '--run-factory',
+        action='store_true',
+        default=False,
+        help='Run tests that require a factory device file'
+    )
 
 
 def pytest_collection_modifyitems(config, items):
@@ -18,3 +24,11 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "require_device" in item.keywords:
                 item.add_marker(device_present)
+
+    if not config.getoption("--run-factory"):
+        factory = pytest.mark.skip(
+            reason="need --run-factory option to run",
+        )
+        for item in items:
+            if "factory" in item.keywords:
+                item.add_marker(factory)

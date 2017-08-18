@@ -1,5 +1,7 @@
 import logging
 
+import pytest
+
 import epyqlib.busproxy
 import epyqlib.device
 import epyqlib.twisted.busproxy
@@ -24,6 +26,7 @@ def test_range_override_hidden(qtbot):
         assert not checkbox.isVisibleTo(checkbox.parent())
 
 
+@pytest.mark.factory
 def test_range_override_visible(qtbot):
     device = epyqlib.device.Device(
         file=epyqlib.tests.common.devices['factory'],
@@ -39,6 +42,7 @@ def test_range_override_visible(qtbot):
         assert checkbox.isVisibleTo(checkbox.parent())
 
 
+@pytest.mark.factory
 def test_secret_masked(qtbot):
     secret_mask = '<secret>'
 
