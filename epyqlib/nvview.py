@@ -65,11 +65,16 @@ class NvView(QtWidgets.QWidget):
         self.ui.tree_view.header().setMinimumSectionSize(0)
 
         self.ui.filter_text.textChanged.connect(self.filter_text_changed)
-        # TODO: just on enter
-        # self.ui.search_text.editingFinished.connect(self.search)
-        self.ui.next.clicked.connect(lambda _: self.search())
+        self.ui.filter_text.setHidden(True)
+
+        self.ui.search_text.returnPressed.connect(self.search)
 
         self.progress = None
+
+        self.search_shortcut = QtWidgets.QShortcut(self.ui.tree_view)
+        self.search_shortcut.setKey(Qt.CTRL + Qt.Key_F)
+        self.search_shortcut.activated.connect(self.ui.search_text.setFocus)
+        self.search_shortcut.setContext(Qt.WidgetWithChildrenShortcut)
 
     def search(self, text=None):
         view = self.ui.tree_view
@@ -133,7 +138,9 @@ class NvView(QtWidgets.QWidget):
         if text == '':
             return
 
-        flags = Qt.MatchContains | Qt.MatchRecursive
+        text = '*{}*'.format(text)
+
+        flags = Qt.MatchContains | Qt.MatchRecursive | Qt.MatchWildcard
 
         search_from = view.currentIndex()
         if search_from.isValid():
@@ -187,7 +194,7 @@ class NvView(QtWidgets.QWidget):
         print('reached end')
 
     def filter_text_changed(self, text):
-        self.ui.tree_view.model().setFilterRegExp(text)
+        self.ui.tree_view.model().setFilterWildcard('*{}*'.format(text))
 
     # TODO: CAMPid 07943342700734207878034207087
     def nonproxy_model(self):
