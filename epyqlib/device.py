@@ -549,7 +549,7 @@ class Device:
                 self.nvs.changed.connect(nv_model.changed)
 
                 for view in nv_views:
-                    proxy = QSortFilterProxyModel()
+                    proxy = epyqlib.utils.qt.PySortFilterProxyModel()
                     proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
                     proxy.setSourceModel(nv_model)
                     view.setModel(proxy)

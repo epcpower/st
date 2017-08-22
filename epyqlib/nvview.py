@@ -8,7 +8,7 @@ import functools
 import io
 import os
 import twisted.internet.defer
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QFile, QFileInfo, QTextStream,
                           QCoreApplication, Qt, QItemSelectionModel,
                           QModelIndex, QSortFilterProxyModel)
@@ -64,7 +64,130 @@ class NvView(QtWidgets.QWidget):
         self.ui.tree_view.clicked.connect(self.clicked)
         self.ui.tree_view.header().setMinimumSectionSize(0)
 
+        self.ui.filter_text.textChanged.connect(self.filter_text_changed)
+        # TODO: just on enter
+        # self.ui.search_text.editingFinished.connect(self.search)
+        self.ui.next.clicked.connect(lambda _: self.search())
+
         self.progress = None
+
+    def search(self, text=None):
+        view = self.ui.tree_view
+        model = view.model()
+
+        def index_has_children(index):
+            child = model.index(0, 0, index)
+            return child.isValid()
+
+        def get_first_child(index):
+            return model.index(
+                0,
+                index.column(),
+                index,
+            )
+
+        def next_row(index):
+            return model.index(
+                index.row() + 1,
+                index.column(),
+                index.parent(),
+            )
+
+        def next_index(index, allow_children=True):
+            if allow_children and index_has_children(index):
+                first_child = get_first_child(index)
+
+                if first_child.isValid():
+                    return first_child
+
+            next_ = next_row(index)
+            if not next_.isValid():
+                while True:
+                    parent = index.parent()
+                    if not parent.isValid():
+                        return None
+
+                    index = parent
+                    next_ = next_row(parent)
+                    if next_.isValid():
+                        break
+
+            return next_
+
+        def set_row_column(index, row=None, column=None):
+            if row is None:
+                row = index.row()
+
+            if column is None:
+                column = index.column()
+
+            return model.index(
+                row,
+                column,
+                index.parent(),
+            )
+
+        if text is None:
+            text = self.ui.search_text.text()
+
+        if text == '':
+            return
+
+        flags = Qt.MatchContains | Qt.MatchRecursive
+
+        search_from = view.currentIndex()
+        if search_from.isValid():
+            search_from = next_index(search_from)
+        else:
+            search_from = model.index(0, 0, QModelIndex())
+
+        wrapped = False
+
+        while True:
+            search_from = set_row_column(
+                index=search_from,
+                column=epyqlib.nv.Columns.indexes.name,
+            )
+            next_indexes = model.match(
+                search_from,
+                Qt.DisplayRole,
+                text,
+                1,
+                flags,
+            )
+
+            if len(next_indexes) > 0:
+                next_index, = next_indexes
+
+                self.ui.tree_view.selectionModel().setCurrentIndex(
+                    next_index,
+                    (
+                        QtCore.QItemSelectionModel.ClearAndSelect
+                        | QtCore.QItemSelectionModel.Rows
+                    ),
+                )
+                self.ui.tree_view.setCurrentIndex(
+                    next_index,
+                )
+
+                return
+            elif wrapped:
+                # TODO: report not found and/or wrap
+                print('wrapped and nothing found')
+                return
+
+            search_from = next_index(search_from)
+            if search_from is None:
+                search_from = model.index(0, 0, QModelIndex())
+                wrapped = True
+            elif not search_from.isValid():
+                break
+
+        # TODO: report not found and/or wrap
+        print('reached end')
+
+    def filter_text_changed(self, text):
+        self.ui.tree_view.model().setFilterRegExp(text)
 
     # TODO: CAMPid 07943342700734207878034207087
     def nonproxy_model(self):

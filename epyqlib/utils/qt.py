@@ -534,3 +534,10 @@ class PySortFilterProxyModel(QtCore.QSortFilterProxyModel):
         )
 
         return left_data < right_data
+
+    def filterAcceptsRow(self, row, parent):
+        result = super().filterAcceptsRow(row, parent)
+        index = self.sourceModel().index(row, 0, parent)
+        result |= self.sourceModel().hasChildren(index)
+
+        return result
