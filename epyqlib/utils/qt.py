@@ -541,3 +541,106 @@ class PySortFilterProxyModel(QtCore.QSortFilterProxyModel):
         result |= self.sourceModel().hasChildren(index)
 
         return result
+
+    def index_has_children(self, index):
+        child = self.index(0, 0, index)
+        return child.isValid()
+
+    def get_first_child(self, index):
+        return self.index(
+            0,
+            index.column(),
+            index,
+        )
+
+    def next_row(self, index):
+        return self.index(
+            index.row() + 1,
+            index.column(),
+            index.parent(),
+        )
+
+    def next_index(self, index, allow_children=True):
+        if allow_children and self.index_has_children(index):
+            first_child = self.get_first_child(index)
+
+            if first_child.isValid():
+                return first_child
+
+        next_ = self.next_row(index)
+        if not next_.isValid():
+            while True:
+                parent = index.parent()
+                if not parent.isValid():
+                    return None
+
+                index = parent
+                next_ = self.next_row(parent)
+                if next_.isValid():
+                    break
+
+        return next_
+
+    def search(self, text, search_from):
+        def set_row_column(index, row=None, column=None):
+            if row is None:
+                row = index.row()
+
+            if column is None:
+                column = index.column()
+
+            return self.index(
+                row,
+                column,
+                index.parent(),
+            )
+
+        if text == '':
+            return None
+
+        text = '*{}*'.format(text)
+
+        flags = (
+            QtCore.Qt.MatchContains
+            | QtCore.Qt.MatchRecursive
+            | QtCore.Qt.MatchWildcard
+        )
+
+        if search_from.isValid():
+            search_from = self.next_index(search_from)
+        else:
+            search_from = self.index(0, 0, QtCore.QModelIndex())
+
+        wrapped = False
+
+        while True:
+            search_from = set_row_column(
+                index=search_from,
+                column=epyqlib.nv.Columns.indexes.name,
+            )
+            next_indexes = self.match(
+                search_from,
+                QtCore.Qt.DisplayRole,
+                text,
+                1,
+                flags,
+            )
+
+            if len(next_indexes) > 0:
+                next_index, = next_indexes
+
+                return next_index
+            elif wrapped:
+                # TODO: report not found and/or wrap
+                print('wrapped and nothing found')
+                return
+
+            search_from = self.next_index(search_from)
+            if search_from is None:
+                search_from = self.index(0, 0, QtCore.QModelIndex())
+                wrapped = True
+            elif not search_from.isValid():
+                break
+
+        # TODO: report not found and/or wrap
+        print('reached end')
