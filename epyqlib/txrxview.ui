@@ -13,33 +13,25 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="leftMargin">
-    <number>0</number>
+  <widget class="QTreeView" name="tree_view">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>180</y>
+     <width>256</width>
+     <height>192</height>
+    </rect>
    </property>
-   <property name="topMargin">
-    <number>0</number>
+   <property name="verticalScrollBarPolicy">
+    <enum>Qt::ScrollBarAlwaysOn</enum>
    </property>
-   <property name="rightMargin">
-    <number>0</number>
+   <property name="alternatingRowColors">
+    <bool>true</bool>
    </property>
-   <property name="bottomMargin">
-    <number>0</number>
+   <property name="uniformRowHeights">
+    <bool>true</bool>
    </property>
-   <item>
-    <widget class="QTreeView" name="tree_view">
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
-     </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
-     <property name="uniformRowHeights">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-  </layout>
+  </widget>
  </widget>
  <resources/>
  <connections/>

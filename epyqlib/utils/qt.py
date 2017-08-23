@@ -8,7 +8,9 @@ import traceback
 
 import epyqlib.utils.general
 
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
+import PyQt5.uic
 
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -644,3 +646,34 @@ class PySortFilterProxyModel(QtCore.QSortFilterProxyModel):
 
         # TODO: report not found and/or wrap
         print('reached end')
+
+
+def load_ui(filepath, base_instance):
+    # TODO: CAMPid 9549757292917394095482739548437597676742
+    ui_file = QtCore.QFile(filepath)
+    ui_file.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
+    ts = QtCore.QTextStream(ui_file)
+    sio = io.StringIO(ts.readAll())
+
+    return PyQt5.uic.loadUi(sio, base_instance)
+
+
+def search_view(view, text):
+    model = view.model()
+
+    if text == '':
+        return
+
+    text = '*{}*'.format(text)
+
+    index = model.search(text=text, search_from=view.currentIndex())
+
+    if index is not None:
+        view.selectionModel().setCurrentIndex(
+            index,
+            (
+                QtCore.QItemSelectionModel.ClearAndSelect
+                | QtCore.QItemSelectionModel.Rows
+            ),
+        )
+        view.setCurrentIndex(index)

@@ -61,46 +61,12 @@ class NvView(QtWidgets.QWidget):
             comment=True,
         )
 
+        self.progress = None
+
         self.ui.tree_view.clicked.connect(self.clicked)
         self.ui.tree_view.header().setMinimumSectionSize(0)
 
-        self.ui.filter_text.textChanged.connect(self.filter_text_changed)
-        self.ui.filter_text.setHidden(True)
-
-        self.ui.search_text.returnPressed.connect(self.search)
-
-        self.progress = None
-
-        self.search_shortcut = QtWidgets.QShortcut(self.ui.tree_view)
-        self.search_shortcut.setKey(Qt.CTRL + Qt.Key_F)
-        self.search_shortcut.activated.connect(self.ui.search_text.setFocus)
-        self.search_shortcut.setContext(Qt.WidgetWithChildrenShortcut)
-
-    def search(self, text=None):
-        view = self.ui.tree_view
-        model = view.model()
-
-        if text is None:
-            text = self.ui.search_text.text()
-
-        if text == '':
-            return
-
-        text = '*{}*'.format(text)
-
-        index = model.search(text=text, search_from=view.currentIndex())
-
-        if index is not None:
-            self.ui.tree_view.selectionModel().setCurrentIndex(
-                index,
-                (
-                    QtCore.QItemSelectionModel.ClearAndSelect
-                    | QtCore.QItemSelectionModel.Rows
-                ),
-            )
-            self.ui.tree_view.setCurrentIndex(
-                index,
-            )
+        self.ui.searchbox.connect_to_view(self.ui.tree_view)
 
     def filter_text_changed(self, text):
         self.ui.tree_view.model().setFilterWildcard('*{}*'.format(text))
