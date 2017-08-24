@@ -203,7 +203,6 @@ class QScale(QtWidgets.QWidget):
 
     def paintEvent(self, paintEvent):
 
-        file = open('C:/Users/frank/Downloads/log.txt', "w")
         # Set the values.
         
         painter = QtGui.QPainter(self)
@@ -260,19 +259,10 @@ class QScale(QtWidgets.QWidget):
                        - hLabel - 2.0 * self.m_borderWidth)
             center = QtCore.QPointF(0.5 * wWidget, hWidget 
                                     - self.m_borderWidth)
-            file.write('radius smaller\n')
         else:
             center = QtCore.QPointF(0.5 * wWidget, 
                                     radius + hLabel + self.m_borderWidth)
-            file.write('radius larger\n')
             
-        file.write('wWidget: ' + str(wWidget) + '\n')
-        file.write('hWidget: ' + str(hWidget) + '\n')
-        file.write('wLabel: ' + str(wLabel) + '\n')
-        file.write('hLabel: ' + str(hLabel) + '\n')
-        file.write('wScale: ' + str(wScale) + '\n')
-        file.write('hScale: ' + str(hScale) + '\n')
-
         # Calculate where certain things start and their span.
         angleSpan = -360.0 / pi * asin(wScale / (2.0 * radius))
         angleStart = 90.0 - 0.5 * angleSpan
@@ -321,21 +311,17 @@ class QScale(QtWidgets.QWidget):
 
 
         def drawColorRanges(self):
+
+            # Make starting point be top left corner instead of top right corner
             if vertical and self.vertically_flipped:
-                painter.translate(0, -center.y())
-                # painter.translate(0, -(hWidget - self.m_borderWidth))
-                # painter.translate(0, -(radius + hLabel + self.m_borderWidth))
-            # draw color ranges
+                # Weird. Seems to get the position as if the angle is 0 degrees
+                painter.translate(0, painter.transform().dx())
+
             if len(self.colors) > 0:
                 transform = painter.transform()
                 valueSpan = self.m_maximum - self.m_minimum
                 rangeValueStart = self.m_minimum
 
-                file.write('angleStart: ' + str(angleStart) + '\n')
-                file.write('angleSpan: ' + str(angleSpan) + '\n')
-                file.write('center.x(): ' + str(center.x()) + '\n')
-                file.write('center.y(): ' + str(center.y()) + '\n')
-                file.write('scaleWidth: ' + str(scaleWidth) + '\n')
                 for breakpoint, color in itertools.zip_longest(
                                                 self.breakpoints, self.colors):
                     # Consider color for range [rangeValueStart, breakpoint]
@@ -374,11 +360,6 @@ class QScale(QtWidgets.QWidget):
                                 rangeAngleStart += 180
                                 rangeAngleEnd += 180
 
-                            file.write('\n')
-                            file.write('rangeAngleStart: ' + str(rangeAngleStart) + '\n')
-                            file.write('rangeAngleEnd: ' + str(rangeAngleEnd) + '\n')
-                            file.write('rangeAngleSpan: ' + str(rangeAngleSpan) + '\n')
-
                             painter.setPen(color)
                             painter.setBrush(color)
                             qpp = QtGui.QPainterPath()
@@ -387,29 +368,30 @@ class QScale(QtWidgets.QWidget):
                             x = center.x() - r
                             y = center.y() - r                           
 
-                            file.write('radius: ' + str(radius) + '\n')
-                            file.write('r: ' + str(r) + '\n')
-                            file.write('x: ' + str(x) + '\n')
-                            file.write('y: ' + str(y) + '\n')
-
-                            qpp.arcMoveTo(x, y, d, d, rangeAngleStart)
-                            qpp.arcTo(x, y, d, d, rangeAngleStart, 
-                                      rangeAngleSpan)
+                            if not (vertical and self.vertically_flipped):
+                                qpp.arcMoveTo(x, y, d, d, rangeAngleStart)
+                                qpp.arcTo(x, y, d, d, rangeAngleStart, 
+                                          rangeAngleSpan)
+                            else:
+                                qpp.arcMoveTo(x, -y - d, d, d, rangeAngleStart)
+                                qpp.arcTo(x, -y - d, d, d, rangeAngleStart, 
+                                          rangeAngleSpan)
                             outer = QtGui.QPainterPath()
                             r = radius - 0.6 * scaleWidth
                             d = 2 * r
                             x = center.x() - r
                             y = center.y() - r
 
-                            file.write('radius: ' + str(radius) + '\n')
-                            file.write('r: ' + str(r) + '\n')
-                            file.write('x: ' + str(x) + '\n')
-                            file.write('y: ' + str(y) + '\n')
-
-                            outer.arcMoveTo(x, y, d, d, rangeAngleStart 
-                                            + rangeAngleSpan)
-                            outer.arcTo(x, y, d, d, rangeAngleStart 
-                                        + rangeAngleSpan, -rangeAngleSpan)
+                            if not (vertical and self.vertically_flipped):
+                                outer.arcMoveTo(x, y, d, d, rangeAngleStart 
+                                                + rangeAngleSpan)
+                                outer.arcTo(x, y, d, d, rangeAngleStart 
+                                            + rangeAngleSpan, -rangeAngleSpan)
+                            else:
+                                outer.arcMoveTo(x, -y - d, d, d, rangeAngleStart 
+                                                + rangeAngleSpan)
+                                outer.arcTo(x, -y - d, d, d, rangeAngleStart 
+                                            + rangeAngleSpan, -rangeAngleSpan)
                             qpp.connectPath(outer)
                             qpp.closeSubpath()
                             painter.drawPath(qpp)
