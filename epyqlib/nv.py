@@ -530,7 +530,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             signal, = signal
         except ValueError as e:
             raise NotFoundError(
-                'Signal not found: {}'.format(signal_name)) from e
+                'Signal not found: {}:{}'.format(frame_name, value_name)) from e
 
         return signal
 
