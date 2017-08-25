@@ -70,9 +70,8 @@ class DeviceExtension:
         self._started()
         d.addBoth(epyqlib.utils.twisted.detour_result, self._ended)
         d.addCallback(epyqlib.utils.twisted.detour_result, self._finished)
+        d.addErrback(epyqlib.utils.twisted.catch_expected)
         d.addErrback(epyqlib.utils.twisted.errbackhook)
-
-        return d
 
     def _started(self):
         self.progress = epyqlib.utils.qt.Progress()
