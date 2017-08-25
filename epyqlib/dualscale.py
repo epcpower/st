@@ -7,7 +7,8 @@ import os
 
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtProperty, QFile, QFileInfo, QTextStream
-from PyQt5.QtWidgets import QWidget, QStackedLayout, QLayout, QGridLayout, QSizePolicy
+from PyQt5.QtWidgets import QWidget, QStackedLayout, QLayout 
+from PyQt5.QtGui import QColor
 
 
 import epyqlib.widgets.scale
@@ -112,3 +113,86 @@ class DualScale(QWidget):
         self.d_vertically_flipped = value
         self.scale1.s_flipped = value
         self.scale2.s_flipped = value
+
+
+
+    @pyqtProperty(float)
+    def lower_red_breakpoint(self):
+        return self.scale1._breakpoints[0]
+
+    @lower_red_breakpoint.setter
+    def lower_red_breakpoint(self, breakpoint):
+        self.scale1._breakpoints[0] = breakpoint
+        self.scale1.update_configuration()
+
+    @pyqtProperty(float)
+    def lower_yellow_breakpoint(self):
+        return self.scale1._breakpoints[1]
+
+    @lower_yellow_breakpoint.setter
+    def lower_yellow_breakpoint(self, breakpoint):
+        self.scale1._breakpoints[1] = breakpoint
+        self.scale1.update_configuration()
+
+    @pyqtProperty(float)
+    def upper_yellow_breakpoint(self):
+        return self.scale1._breakpoints[2]
+
+    @upper_yellow_breakpoint.setter
+    def upper_yellow_breakpoint(self, breakpoint):
+        self.scale1._breakpoints[2] = breakpoint
+        self.scale1.update_configuration()
+
+    @pyqtProperty(float)
+    def upper_red_breakpoint(self):
+        return self.scale1._breakpoints[3]
+
+    @upper_red_breakpoint.setter
+    def upper_red_breakpoint(self, breakpoint):
+        self.scale1._breakpoints[3] = breakpoint
+        self.scale1.update_configuration()
+
+    @pyqtProperty(QColor)
+    def lower_red_color(self):
+        return self.scale1._colors[0]
+
+    @lower_red_color.setter
+    def lower_red_color(self, color):
+        self.scale1._colors[0] = color
+        self.scale1.update_configuration()
+
+    @pyqtProperty(QColor)
+    def lower_yellow_color(self):
+        return self.scale1._colors[1]
+
+    @lower_yellow_color.setter
+    def lower_yellow_color(self, color):
+        self.scale1._colors[1] = color
+        self.scale1.update_configuration()
+
+    @pyqtProperty(QColor)
+    def green_color(self):
+        return self.scale1._colors[2]
+
+    @green_color.setter
+    def green_color(self, color):
+        self.scale1._colors[2] = color
+        self.scale1.update_configuration()
+
+    @pyqtProperty(QColor)
+    def upper_yellow_color(self):
+        return self.scale1._colors[3]
+
+    @upper_yellow_color.setter
+    def upper_yellow_color(self, color):
+        self.scale1._colors[3] = color
+        self.scale1.update_configuration()
+
+    @pyqtProperty(QColor)
+    def upper_red_color(self):
+        return self.scale1._colors[4]
+
+    @upper_red_color.setter
+    def upper_red_color(self, color):
+        self.scale1._colors[4] = color
+        self.scale1.update_configuration()

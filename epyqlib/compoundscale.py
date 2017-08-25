@@ -8,6 +8,7 @@ import os
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtProperty, QFile, QFileInfo, QTextStream
 from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QColor
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -124,7 +125,87 @@ class CompoundScale(QWidget):
         self.cs_vertically_flipped = value
         self.ui.status.scale.vertically_flipped = value
 
+    @pyqtProperty(float)
+    def lower_red_breakpoint(self):
+        return self.ui.status._breakpoints[0]
 
+    @lower_red_breakpoint.setter
+    def lower_red_breakpoint(self, breakpoint):
+        self.ui.status._breakpoints[0] = breakpoint
+        self.ui.status.update_configuration()
+
+    @pyqtProperty(float)
+    def lower_yellow_breakpoint(self):
+        return self.ui.status._breakpoints[1]
+
+    @lower_yellow_breakpoint.setter
+    def lower_yellow_breakpoint(self, breakpoint):
+        self.ui.status._breakpoints[1] = breakpoint
+        self.ui.status.update_configuration()
+
+    @pyqtProperty(float)
+    def upper_yellow_breakpoint(self):
+        return self.ui.status._breakpoints[2]
+
+    @upper_yellow_breakpoint.setter
+    def upper_yellow_breakpoint(self, breakpoint):
+        self.ui.status._breakpoints[2] = breakpoint
+        self.ui.status.update_configuration()
+
+    @pyqtProperty(float)
+    def upper_red_breakpoint(self):
+        return self.ui.status._breakpoints[3]
+
+    @upper_red_breakpoint.setter
+    def upper_red_breakpoint(self, breakpoint):
+        self.ui.status._breakpoints[3] = breakpoint
+        self.ui.status.update_configuration()
+
+    @pyqtProperty(QColor)
+    def lower_red_color(self):
+        return self.ui.status._colors[0]
+
+    @lower_red_color.setter
+    def lower_red_color(self, color):
+        self.ui.status._colors[0] = color
+        self.ui.status.update_configuration()
+
+    @pyqtProperty(QColor)
+    def lower_yellow_color(self):
+        return self.ui.status._colors[1]
+
+    @lower_yellow_color.setter
+    def lower_yellow_color(self, color):
+        self.ui.status._colors[1] = color
+        self.ui.status.update_configuration()
+
+    @pyqtProperty(QColor)
+    def green_color(self):
+        return self.ui.status._colors[2]
+
+    @green_color.setter
+    def green_color(self, color):
+        self.ui.status._colors[2] = color
+        self.ui.status.update_configuration()
+
+    @pyqtProperty(QColor)
+    def upper_yellow_color(self):
+        return self.ui.status._colors[3]
+
+    @upper_yellow_color.setter
+    def upper_yellow_color(self, color):
+        self.ui.status._colors[3] = color
+        self.ui.status.update_configuration()
+
+    @pyqtProperty(QColor)
+    def upper_red_color(self):
+        return self.ui.status._colors[4]
+
+    @upper_red_color.setter
+    def upper_red_color(self, color):
+        self.ui.status._colors[4] = color
+        self.ui.status.update_configuration()
+        
 if __name__ == '__main__':
     import sys
 
