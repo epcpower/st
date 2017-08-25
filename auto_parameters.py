@@ -43,7 +43,8 @@ class DeviceExtension:
             matrix=matrix_nv,
             frame_class=epyqlib.nv.Frame,
             signal_class=epyqlib.nv.Nv,
-            node_id_adjust=self.device().node_id_adjust
+            node_id_adjust=self.device().node_id_adjust,
+            strip_summary=False,
         )
         self.nvs = epyqlib.nv.Nvs(
             neo=self.frames_nv,
