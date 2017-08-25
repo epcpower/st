@@ -127,8 +127,12 @@ class NvView(QtWidgets.QWidget):
             self.update_signals,
             only_these=only_these
         )
-        model.root.write_all_to_device(callback=callback,
-                                       only_these=only_these)
+        d = model.root.write_all_to_device(
+            callback=callback,
+            only_these=only_these,
+        )
+        d.addErrback(epyqlib.utils.twisted.catch_expected)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def read_from_module(self):
         resize_mode = self.ui.tree_view.header().sectionResizeMode(epyqlib.nv.Columns.indexes.value)
@@ -142,8 +146,14 @@ class NvView(QtWidgets.QWidget):
         )
         d = model.root.read_all_from_device(callback=callback,
                                             only_these=only_these)
-        d.addBoth(lambda _: self.ui.tree_view.header().setSectionResizeMode(
-            epyqlib.nv.Columns.indexes.value, resize_mode))
+
+        def f():
+            self.ui.tree_view.header().setSectionResizeMode(
+                epyqlib.nv.Columns.indexes.value, resize_mode
+            )
+        d.addBoth(epyqlib.utils.twisted.detour_result, f)
+        d.addErrback(epyqlib.utils.twisted.catch_expected)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def setModel(self, model):
         proxy = model
@@ -296,11 +306,19 @@ class NvView(QtWidgets.QWidget):
         if action is None:
             pass
         elif action is read:
-            model.root.read_all_from_device(only_these=selected_nodes,
-                                            callback=callback)
+            d = model.root.read_all_from_device(
+                only_these=selected_nodes,
+                callback=callback,
+            )
+            d.addErrback(epyqlib.utils.twisted.catch_expected)
+            d.addErrback(epyqlib.utils.twisted.errbackhook)
         elif action is write:
-            model.root.write_all_to_device(only_these=selected_nodes,
-                                           callback=callback)
+            d = model.root.write_all_to_device(
+                only_these=selected_nodes,
+                callback=callback,
+            )
+            d.addErrback(epyqlib.utils.twisted.catch_expected)
+            d.addErrback(epyqlib.utils.twisted.errbackhook)
         elif action is saturate:
             for node in selected_nodes:
                 model.saturate_node(node)

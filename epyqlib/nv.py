@@ -403,8 +403,6 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         d.addErrback(epyqlib.utils.twisted.detour_result,
                      self.activity_ended.emit,
                      'Failed while {}...'.format(activity.lower()))
-        d.addErrback(epyqlib.utils.twisted.catch_expected)
-        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
         return d
 
@@ -856,11 +854,15 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     @pyqtSlot()
     def write_to_module(self):
         # TODO: device or module!?!?
-        self.root.write_all_to_device()
+        d = self.root.write_all_to_device()
+        d.addErrback(epyqlib.utils.twisted.catch_expected)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     @pyqtSlot()
     def read_from_module(self):
-        self.root.read_all_from_device()
+        d = self.root.read_all_from_device()
+        d.addErrback(epyqlib.utils.twisted.catch_expected)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     @pyqtSlot()
     def write_to_file(self, parent=None):
