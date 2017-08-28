@@ -164,9 +164,12 @@ class Device:
             self.bus.set_bus()
 
     def _init_from_file(self, file, only_for_files=False, **kwargs):
-        try:
+        extension = os.path.splitext(file)[1]
+
+        if extension == '.epz':
             zip_file = zipfile.ZipFile(file)
-        except zipfile.BadZipFile:
+            self._init_from_zip(zip_file, **kwargs)
+        elif extension == '.epc':
             try:
                 self.config_path = os.path.abspath(file)
                 file = open(file, 'r')
@@ -191,8 +194,6 @@ class Device:
 
                 if converted_directory is not None:
                     converted_directory.cleanup()
-        else:
-            self._init_from_zip(zip_file, **kwargs)
 
     def _load_config(self, file, elements=None,
                      tabs=None, rx_interval=0, edit_actions=None,
