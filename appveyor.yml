@@ -20,6 +20,7 @@ build_script:
   - ps: if (Get-ChildItem Env:PHRASE -ErrorAction SilentlyContinue) {$Env:PHRASE | Out-File sub/epyqlib/epyqlib/resources/code -Encoding ascii -NoNewline}
   - venv\\Scripts\\python pinsis.py --qtifw
   - move ..\\*.exe .
+  - venv\\Scripts\\pytest --no-qt-log --run-factory sub\\epyqlib\\epyqlib\\tests epyq\\tests\\test_exits.py
   - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
 
 artifacts:
