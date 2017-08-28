@@ -416,7 +416,8 @@ def main(args=None):
 
     # TODO: this should be sys.exit() but something keeps the process
     #       from terminating.  Ref T679
-    os._exit(result)
+    # os._exit(result)
+    return result
 
 
 if __name__ == '__main__':
