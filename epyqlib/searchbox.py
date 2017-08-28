@@ -12,6 +12,8 @@ __license__ = 'GPLv2+'
 
 class SearchBox(QtWidgets.QWidget):
     filter_text_changed = QtCore.pyqtSignal(str)
+    filter_requested = QtCore.pyqtSignal()
+
     search_text_changed = QtCore.pyqtSignal(str)
     search_requested = QtCore.pyqtSignal()
 
@@ -32,9 +34,13 @@ class SearchBox(QtWidgets.QWidget):
         self.search_shortcut = None
         self.view = None
 
+        self.ui_search_text.setPlaceholderText('Search...')
         self.ui_search_text.textChanged.connect(self.search_text_changed)
-        self.ui_filter_text.textChanged.connect(self.filter_text_changed)
         self.ui_search_text.returnPressed.connect(self.search_requested)
+
+        self.ui_filter_text.setPlaceholderText('Filter...')
+        self.ui_filter_text.textChanged.connect(self.filter_text_changed)
+        self.ui_filter_text.textChanged.connect(self.filter_requested)
 
     @QtCore.pyqtProperty(bool)
     def hide_search(self):
@@ -67,12 +73,26 @@ class SearchBox(QtWidgets.QWidget):
     def search_text(self, text):
         self.ui_search_text.setText(text)
 
-    def connect_to_view(self, view):
-        self.filter_text_changed.connect(self.filter_text_changed)
+    @property
+    def filter_text(self):
+        return self.ui_filter_text.text()
 
+    @filter_text.setter
+    def filter_text(self, text):
+        self.ui_filter_text.setText(text)
+
+    def connect_to_view(self, view, column):
         def _search():
-            epyqlib.utils.qt.search_view(view, self.search_text)
+            epyqlib.utils.qt.search_view(
+                view=view,
+                text=self.search_text,
+                column=column,
+            )
         self.search_requested.connect(_search)
+
+        def _filter():
+            view.model().setFilterWildcard(self.filter_text)
+        self.filter_requested.connect(_filter)
 
         self.search_shortcut = QtWidgets.QShortcut(view)
         self.search_shortcut.setKey(QtCore.Qt.CTRL + QtCore.Qt.Key_F)

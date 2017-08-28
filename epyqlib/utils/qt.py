@@ -520,6 +520,15 @@ def dialog_from_file(parent, title, file_name):
 
 
 class PySortFilterProxyModel(QtCore.QSortFilterProxyModel):
+    def __init__(self, *args, filter_column, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # TODO: replace with filterKeyColumn
+        self.filter_column = filter_column
+
+        self.wildcard = QtCore.QRegExp()
+        self.wildcard.setPatternSyntax(QtCore.QRegExp.Wildcard)
+
     def lessThan(self, left, right):
         left_model = left.model()
         left_data = (
@@ -538,52 +547,50 @@ class PySortFilterProxyModel(QtCore.QSortFilterProxyModel):
         return left_data < right_data
 
     def filterAcceptsRow(self, row, parent):
-        result = super().filterAcceptsRow(row, parent)
-        index = self.sourceModel().index(row, 0, parent)
-        result |= self.sourceModel().hasChildren(index)
+        # TODO: do i need to invalidate any time i set the 'regexp'?
+        # http://doc.qt.io/qt-5/qsortfilterproxymodel.html#invalidateFilter
+
+        pattern = self.filterRegExp().pattern()
+        if pattern == '':
+            return True
+
+        pattern = '*{}*'.format(pattern)
+
+        model = self.sourceModel()
+        result = False
+        index = model.index(row, self.filter_column, parent)
+        self_index = self.index(row, self.filter_column, parent)
+        result |= self.hasChildren(self_index)
+        self.wildcard.setPattern(pattern)
+        result |= self.wildcard.exactMatch(model.data(index, QtCore.Qt.DisplayRole))
 
         return result
 
-    def index_has_children(self, index):
-        child = self.index(0, 0, index)
-        return child.isValid()
-
-    def get_first_child(self, index):
-        return self.index(
-            0,
+    def next_row(self, index):
+        return self.sibling(
+            index.row() + 1,
             index.column(),
             index,
         )
 
-    def next_row(self, index):
-        return self.index(
-            index.row() + 1,
-            index.column(),
-            index.parent(),
-        )
-
     def next_index(self, index, allow_children=True):
-        if allow_children and self.index_has_children(index):
-            first_child = self.get_first_child(index)
-
-            if first_child.isValid():
-                return first_child
+        if allow_children and self.hasChildren(index):
+            return self.index(0, index.column(), index), False
 
         next_ = self.next_row(index)
         if not next_.isValid():
             while True:
-                parent = index.parent()
-                if not parent.isValid():
-                    return None
+                index = index.parent()
+                if not index.isValid():
+                    return self.index(0, 0, QtCore.QModelIndex()), True
 
-                index = parent
-                next_ = self.next_row(parent)
+                next_ = self.next_row(index)
                 if next_.isValid():
                     break
 
-        return next_
+        return next_, False
 
-    def search(self, text, search_from):
+    def search(self, text, search_from, column):
         def set_row_column(index, row=None, column=None):
             if row is None:
                 row = index.row()
@@ -608,20 +615,16 @@ class PySortFilterProxyModel(QtCore.QSortFilterProxyModel):
             | QtCore.Qt.MatchWildcard
         )
 
+        wrapped = False
+
         if search_from.isValid():
-            search_from = self.next_index(search_from)
+            search_from, wrapped = self.next_index(search_from)
         else:
             search_from = self.index(0, 0, QtCore.QModelIndex())
 
-        wrapped = False
-
         while True:
-            search_from = set_row_column(
-                index=search_from,
-                column=epyqlib.nv.Columns.indexes.name,
-            )
             next_indexes = self.match(
-                search_from,
+                set_row_column(index=search_from, column=column),
                 QtCore.Qt.DisplayRole,
                 text,
                 1,
@@ -631,21 +634,18 @@ class PySortFilterProxyModel(QtCore.QSortFilterProxyModel):
             if len(next_indexes) > 0:
                 next_index, = next_indexes
 
+                if not next_index.isValid():
+                    break
+
                 return next_index
             elif wrapped:
-                # TODO: report not found and/or wrap
-                print('wrapped and nothing found')
-                return
-
-            search_from = self.next_index(search_from)
-            if search_from is None:
-                search_from = self.index(0, 0, QtCore.QModelIndex())
-                wrapped = True
-            elif not search_from.isValid():
                 break
+
+            search_from, wrapped = self.next_index(search_from)
 
         # TODO: report not found and/or wrap
         print('reached end')
+        return None
 
 
 def load_ui(filepath, base_instance):
@@ -658,22 +658,23 @@ def load_ui(filepath, base_instance):
     return PyQt5.uic.loadUi(sio, base_instance)
 
 
-def search_view(view, text):
+def search_view(view, text, column):
     model = view.model()
 
     if text == '':
         return
 
-    text = '*{}*'.format(text)
-
-    index = model.search(text=text, search_from=view.currentIndex())
+    index = model.search(
+        text=text,
+        column=column,
+        search_from=view.currentIndex(),
+    )
 
     if index is not None:
-        view.selectionModel().setCurrentIndex(
-            index,
-            (
-                QtCore.QItemSelectionModel.ClearAndSelect
-                | QtCore.QItemSelectionModel.Rows
-            ),
-        )
+        parent = index.parent()
+        # TODO: not sure why but this must be set to zero or the row
+        #       won't be highlighted.  it still gets expanded and printing
+        #       the display role data still works.
+        parent = model.index(parent.row(), 0, parent.parent())
+        index = model.index(index.row(), index.column(), parent)
         view.setCurrentIndex(index)

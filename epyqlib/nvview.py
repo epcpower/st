@@ -66,10 +66,13 @@ class NvView(QtWidgets.QWidget):
         self.ui.tree_view.clicked.connect(self.clicked)
         self.ui.tree_view.header().setMinimumSectionSize(0)
 
-        self.ui.searchbox.connect_to_view(self.ui.tree_view)
+        self.ui.searchbox.connect_to_view(
+            view=self.ui.tree_view,
+            column=epyqlib.nv.Columns.indexes.name,
+        )
 
     def filter_text_changed(self, text):
-        self.ui.tree_view.model().setFilterWildcard('*{}*'.format(text))
+        self.ui.tree_view.model().setFilterWildcard(text)
 
     # TODO: CAMPid 07943342700734207878034207087
     def nonproxy_model(self):

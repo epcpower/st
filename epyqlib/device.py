@@ -493,8 +493,23 @@ class Device:
             txrx_views = self.ui.findChildren(epyqlib.txrxview.TxRxView)
             if len(txrx_views) > 0:
                 # TODO: actually find them and actually support multiple
-                self.ui.rx.setModel(rx_model)
-                self.ui.tx.setModel(tx_model)
+                pairs = (
+                    (self.ui.rx, rx_model),
+                    (self.ui.tx, tx_model),
+                )
+                column = epyqlib.txrx.Columns.indexes.name
+                for view, model in pairs:
+                    proxy = epyqlib.utils.qt.PySortFilterProxyModel(
+                        filter_column=column,
+                    )
+                    proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
+                    proxy.setSourceModel(model)
+                    view.setModel(proxy)
+                    view.set_sorting_enabled(True)
+                    view.sort_by_column(
+                        column=column,
+                        order=Qt.AscendingOrder
+                    )
 
         if Elements.nv in self.elements:
             matrix_nv = list(canmatrix.formats.loadp(self.can_path).values())[0]
@@ -548,14 +563,17 @@ class Device:
                 nv_model = epyqlib.nv.NvModel(self.nvs)
                 self.nvs.changed.connect(nv_model.changed)
 
+                column = epyqlib.nv.Columns.indexes.name
                 for view in nv_views:
-                    proxy = epyqlib.utils.qt.PySortFilterProxyModel()
+                    proxy = epyqlib.utils.qt.PySortFilterProxyModel(
+                        filter_column=column,
+                    )
                     proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
                     proxy.setSourceModel(nv_model)
                     view.setModel(proxy)
                     view.set_sorting_enabled(True)
                     view.sort_by_column(
-                        column=epyqlib.nv.Columns.indexes.name,
+                        column=column,
                         order=Qt.AscendingOrder
                     )
 
@@ -576,13 +594,16 @@ class Device:
                 rx_id=self.neo_frames.frame_by_name('CCPResponse').id
             )
 
-            proxy = epyqlib.utils.qt.PySortFilterProxyModel()
+            column = epyqlib.variableselectionmodel.Columns.indexes.name
+            proxy = epyqlib.utils.qt.PySortFilterProxyModel(
+                filter_column=column,
+            )
             proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
             proxy.setSourceModel(variable_model)
             self.ui.variable_selection.set_model(proxy)
             self.ui.variable_selection.set_sorting_enabled(True)
             self.ui.variable_selection.sort_by_column(
-                column=epyqlib.variableselectionmodel.Columns.indexes.name,
+                column=column,
                 order=Qt.AscendingOrder
             )
             self.ui.variable_selection.set_signal_paths(
