@@ -50,7 +50,6 @@ class SearchBox(QtWidgets.QWidget):
     def hide_search(self, hide):
         self._hide_search = hide
         self.ui_search_text.setHidden(self.hide_search)
-        self.ui_search_label.setHidden(self.hide_search)
 
     @QtCore.pyqtProperty(bool)
     def hide_filter(self):
@@ -60,7 +59,6 @@ class SearchBox(QtWidgets.QWidget):
     def hide_filter(self, hide):
         self._hide_filter = hide
         self.ui_filter_text.setHidden(self.hide_filter)
-        self.ui_filter_label.setHidden(self.hide_filter)
 
     def focus_search(self):
         self.ui_search_text.setFocus()

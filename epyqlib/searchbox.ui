@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Form</class>
- <widget class="QWidget" name="ui_Form">
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -30,13 +30,6 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLabel" name="ui_search_label">
-     <property name="text">
-      <string>Search:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QLineEdit" name="ui_search_text">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -61,13 +54,6 @@
       </size>
      </property>
     </spacer>
-   </item>
-   <item>
-    <widget class="QLabel" name="ui_filter_label">
-     <property name="text">
-      <string>Filter:</string>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QLineEdit" name="ui_filter_text">
