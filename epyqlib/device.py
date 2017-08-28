@@ -354,19 +354,27 @@ class Device:
                 break
 
         # TODO error dialog if no .epc found in zip file
-        for f in os.listdir(path):
-            if f.endswith(".epc"):
-                file = os.path.join(path, f)
-        self.config_path = os.path.abspath(file)
+        filename = None
+        for directory, directories, files in os.walk(path):
+            for f in files:
+                print(f)
+                if os.path.splitext(f)[1] == '.epc':
+                    filename = os.path.join(path, directory, f)
+                    break
+
+            if filename is not None:
+                break
+
+        self.config_path = os.path.abspath(filename)
 
         converted_directory = None
-        if not epyqlib.updateepc.is_latest(file):
+        if not epyqlib.updateepc.is_latest(filename):
             converted_directory = tempfile.TemporaryDirectory()
-            file = epyqlib.updateepc.convert(file, converted_directory.name)
+            file = epyqlib.updateepc.convert(filename, converted_directory.name)
             self.config_path = os.path.abspath(file)
 
-        with open(file, 'r') as file:
-            self._load_config(file, rx_interval=rx_interval, **kwargs)
+        with open(filename, 'r') as f:
+            self._load_config(f, rx_interval=rx_interval, **kwargs)
 
         if converted_directory is not None:
             converted_directory.cleanup()
