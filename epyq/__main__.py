@@ -415,7 +415,7 @@ def main(args=None):
     logging.debug('Reactor stopped')
 
     # TODO: this should be sys.exit() but something keeps the process
-    #       from terminating.  Ref T679
+    #       from terminating.  Ref T679  Ref T711
     os._exit(result)
 
 
