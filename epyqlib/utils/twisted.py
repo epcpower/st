@@ -1,3 +1,4 @@
+import epyqlib.utils.general
 import epyqlib.utils.qt
 import logging
 import sys
@@ -15,9 +16,22 @@ class RequestTimeoutError(TimeoutError):
 
 
 def errbackhook(error):
-    epyqlib.utils.qt.exception_message_box(
-        message='{}\n{}'.format(error.type.__name__, error.value),
+    epyqlib.utils.qt.custom_exception_message_box(
+        brief='{}\n{}'.format(error.type.__name__, error.value),
+        extended=error.getTraceback(),
     )
+
+    return error
+
+
+def catch_expected(error):
+    if issubclass(error.type, epyqlib.utils.general.ExpectedException):
+        epyqlib.utils.qt.raw_exception_message_box(
+            brief=error.value.expected_message(),
+            extended=error.getTraceback(),
+        )
+
+        return None
 
     return error
 
@@ -46,11 +60,8 @@ def retry(function, times, acceptable=None):
             result = yield function()
         except Exception as e:
             if type(e) not in acceptable:
-                logger.debug('green')
                 raise
-            logger.debug('blue')
         else:
-            logger.debug('red')
             twisted.internet.defer.returnValue(result)
 
         remaining -= 1

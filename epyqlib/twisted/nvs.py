@@ -2,6 +2,7 @@ import collections
 import enum
 import logging
 import queue
+import textwrap
 
 import attr
 import twisted.internet.defer
@@ -16,11 +17,39 @@ __license__ = 'GPLv2+'
 logger = logging.getLogger(__name__)
 
 
-class RequestTimeoutError(TimeoutError):
-    pass
+class RequestTimeoutError(epyqlib.utils.general.ExpectedException):
+    def __init__(self, state, item):
+        message = (
+            'Protocol timed out while in state {} handling {}'
+            .format(state.name, item)
+        )
+
+        super().__init__(message)
+        self.state = state
+        self.item = item
+
+    def expected_message(self):
+        return textwrap.dedent('''\
+            Request timed out:
+                {}, {}
+
+            1. Confirm converter and adapter are on the same bus
+            2. Confirm device file was loaded with node ID matching the converter's
+            3. Possible parameter definition mismatch\
+            '''.format(self.state.name, self.item)
+        )
 
 
 class ReadOnlyError(Exception):
+    pass
+
+
+class SendFailedError(epyqlib.utils.general.ExpectedException):
+    def expected_message(self):
+        return 'Send failed, make sure you are connected.'
+
+
+class CanceledError(Exception):
     pass
 
 
@@ -62,6 +91,8 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
         self.requests = queue.PriorityQueue()
 
+        self.cancel_queued = False
+
     @property
     def state(self):
         return self._state
@@ -83,6 +114,7 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         self._active = True
 
     def _transaction_over(self):
+        self.setTimeout(None)
         import twisted.internet
         twisted.internet.reactor.callLater(0.02, self._transaction_over_after_delay)
         d = self._deferred
@@ -176,15 +208,21 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
     def _get(self):
         if not self._active:
-            try:
-                request = self.requests.get(block=False)
-            except queue.Empty:
-                pass
-            else:
-                if request.read:
-                    self._read_write(request)
+            while True:
+                try:
+                    request = self.requests.get(block=False)
+                except queue.Empty:
+                    self.cancel_queued = False
                 else:
-                    self._read_before_write(request)
+                    if self.cancel_queued:
+                        request.deferred.errback(CanceledError())
+                    elif request.read:
+                        self._read_write(request)
+                    else:
+                        self._read_before_write(request)
+
+                if not self.cancel_queued:
+                    break
 
     def _read_before_write(self, request):
         nonskip = {
@@ -277,10 +315,13 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         else:
             write = self._transport.write
 
-        write(request.frame.to_message(data))
-        self.setTimeout(self._timeout)
-
         self._request_memory = request
+
+        if not write(request.frame.to_message(data)):
+            self.send_failed()
+            return
+
+        self.setTimeout(self._timeout)
 
     def dataReceived(self, msg):
 
@@ -330,21 +371,24 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
 
         self.callback(value)
 
+    def send_failed(self):
+        self.cancel_queued = True
+        deferred = self._transaction_over()
+        deferred.errback(SendFailedError())
+
     def timeoutConnection(self):
         request = self._request_memory
         # TODO: report all requested signals
         signal = tuple(request.signals)[0]
-        message = 'Protocol timed out while in state {} handling ' \
-                  '{} : {}'.format(
-            self.state,
-            signal.frame.mux_name,
-            signal.name
+        e = RequestTimeoutError(
+            state=self.state,
+            item='{}:{}'.format(signal.frame.mux_name, signal.name),
         )
-        logger.debug(message)
+        logger.debug(str(e))
         if self._previous_state in [State.idle]:
             self.state = self._previous_state
         deferred = self._transaction_over()
-        deferred.errback(RequestTimeoutError(message))
+        deferred.errback(e)
 
     def callback(self, payload):
         deferred = self._transaction_over()
@@ -358,6 +402,5 @@ class Protocol(twisted.protocols.policies.TimeoutMixin):
         deferred.errback(payload)
 
     def cancel(self):
-        self.setTimeout(None)
         deferred = self._transaction_over()
         deferred.cancel()

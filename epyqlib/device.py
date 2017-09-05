@@ -79,7 +79,7 @@ class Tabs(Enum):
 
 
 def j1939_node_id_adjust(message_id, device_id, to_device, controller_id):
-    # TODO: get the CCP stuff in bounds instead of hacking it like this
+    # CCP stuff is in bounds now but leave this for backwards compatibility
     if message_id > 0x1FFFFF00:
         return message_id
 
@@ -164,9 +164,12 @@ class Device:
             self.bus.set_bus()
 
     def _init_from_file(self, file, only_for_files=False, **kwargs):
-        try:
+        extension = os.path.splitext(file)[1]
+
+        if extension == '.epz':
             zip_file = zipfile.ZipFile(file)
-        except zipfile.BadZipFile:
+            self._init_from_zip(zip_file, **kwargs)
+        elif extension == '.epc':
             try:
                 self.config_path = os.path.abspath(file)
                 file = open(file, 'r')
@@ -191,14 +194,14 @@ class Device:
 
                 if converted_directory is not None:
                     converted_directory.cleanup()
-        else:
-            self._init_from_zip(zip_file, **kwargs)
 
     def _load_config(self, file, elements=None,
                      tabs=None, rx_interval=0, edit_actions=None,
-                     only_for_files=False, **kwargs):
+                     only_for_files=False, node_id=None, **kwargs):
         if tabs is None:
             tabs = Tabs.defaults()
+
+        self.node_id = node_id
 
         self.elements = Elements if elements == None else elements
         self.elements = set(Elements)
@@ -294,7 +297,8 @@ class Device:
 
             self.node_id_type = d.get('node_id_type',
                                       next(iter(node_id_types))).lower()
-            self.node_id = d.get('node_id')
+            if self.node_id is None:
+                self.node_id = d.get('node_id')
             if self.node_id is None and self.node_id_type == 'j1939':
                 self.node_id, ok = QInputDialog.getInt(
                     None,
@@ -350,19 +354,27 @@ class Device:
                 break
 
         # TODO error dialog if no .epc found in zip file
-        for f in os.listdir(path):
-            if f.endswith(".epc"):
-                file = os.path.join(path, f)
-        self.config_path = os.path.abspath(file)
+        filename = None
+        for directory, directories, files in os.walk(path):
+            for f in files:
+                print(f)
+                if os.path.splitext(f)[1] == '.epc':
+                    filename = os.path.join(path, directory, f)
+                    break
+
+            if filename is not None:
+                break
+
+        self.config_path = os.path.abspath(filename)
 
         converted_directory = None
-        if not epyqlib.updateepc.is_latest(file):
+        if not epyqlib.updateepc.is_latest(filename):
             converted_directory = tempfile.TemporaryDirectory()
-            file = epyqlib.updateepc.convert(file, converted_directory.name)
+            file = epyqlib.updateepc.convert(filename, converted_directory.name)
             self.config_path = os.path.abspath(file)
 
-        with open(file, 'r') as file:
-            self._load_config(file, rx_interval=rx_interval, **kwargs)
+        with open(filename, 'r') as f:
+            self._load_config(f, rx_interval=rx_interval, **kwargs)
 
         if converted_directory is not None:
             converted_directory.cleanup()
@@ -490,8 +502,23 @@ class Device:
             txrx_views = self.ui.findChildren(epyqlib.txrxview.TxRxView)
             if len(txrx_views) > 0:
                 # TODO: actually find them and actually support multiple
-                self.ui.rx.setModel(rx_model)
-                self.ui.tx.setModel(tx_model)
+                pairs = (
+                    (self.ui.rx, rx_model),
+                    (self.ui.tx, tx_model),
+                )
+                column = epyqlib.txrx.Columns.indexes.name
+                for view, model in pairs:
+                    proxy = epyqlib.utils.qt.PySortFilterProxyModel(
+                        filter_column=column,
+                    )
+                    proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
+                    proxy.setSourceModel(model)
+                    view.setModel(proxy)
+                    view.set_sorting_enabled(True)
+                    view.sort_by_column(
+                        column=column,
+                        order=Qt.AscendingOrder
+                    )
 
         if Elements.nv in self.elements:
             matrix_nv = list(canmatrix.formats.loadp(self.can_path).values())[0]
@@ -545,15 +572,27 @@ class Device:
                 nv_model = epyqlib.nv.NvModel(self.nvs)
                 self.nvs.changed.connect(nv_model.changed)
 
+                column = epyqlib.nv.Columns.indexes.name
                 for view in nv_views:
-                    proxy = QSortFilterProxyModel()
+                    proxy = epyqlib.utils.qt.PySortFilterProxyModel(
+                        filter_column=column,
+                    )
                     proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
                     proxy.setSourceModel(nv_model)
                     view.setModel(proxy)
                     view.set_sorting_enabled(True)
                     view.sort_by_column(
-                        column=epyqlib.nv.Columns.indexes.name,
+                        column=column,
                         order=Qt.AscendingOrder
+                    )
+
+                    nv_range_check_overridable = self.raw_dict.get(
+                        'nv_range_check_overridable',
+                        False,
+                    )
+
+                    view.ui.enforce_range_limits_check_box.setVisible(
+                        nv_range_check_overridable,
                     )
 
         if Elements.variables in self.elements:
@@ -564,13 +603,16 @@ class Device:
                 rx_id=self.neo_frames.frame_by_name('CCPResponse').id
             )
 
-            proxy = QSortFilterProxyModel()
+            column = epyqlib.variableselectionmodel.Columns.indexes.name
+            proxy = epyqlib.utils.qt.PySortFilterProxyModel(
+                filter_column=column,
+            )
             proxy.setSortCaseSensitivity(Qt.CaseInsensitive)
             proxy.setSourceModel(variable_model)
             self.ui.variable_selection.set_model(proxy)
             self.ui.variable_selection.set_sorting_enabled(True)
             self.ui.variable_selection.sort_by_column(
-                column=epyqlib.variableselectionmodel.Columns.indexes.name,
+                column=column,
                 order=Qt.AscendingOrder
             )
             self.ui.variable_selection.set_signal_paths(
@@ -683,8 +725,12 @@ class Device:
 
                         if nv_signal.multiplex not in self.nv_looping_reads:
                             def ignore_timeout(failure):
-                                if failure.type is \
-                                        epyqlib.twisted.nvs.RequestTimeoutError:
+                                acceptable_errors = (
+                                    epyqlib.twisted.nvs.RequestTimeoutError,
+                                    epyqlib.twisted.nvs.SendFailedError,
+                                    epyqlib.twisted.nvs.CanceledError,
+                                )
+                                if failure.type in acceptable_errors:
                                     return None
 
                                 return epyqlib.utils.twisted.errbackhook(

@@ -1,0 +1,16 @@
+{
+    "format_version": [
+        1
+    ],
+    "can_path": "EPC_DG_ID247.sym",
+    "can_configuration": "j1939",
+    "nv_configuration": "j1939",
+    "node_id_type": "j1939",
+    "name": "Distributed Generation",
+    "ui_paths": {
+        "Control": "distributed_generation_control.ui",
+        "Setup and Status": "distributed_generation_setup.ui"
+    },
+    "module": "distributed_generation.py",
+    "parameter_hierarchy": "EPC_DG_ID247.parameters.json"
+}

@@ -8,7 +8,9 @@ import traceback
 
 import epyqlib.utils.general
 
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
+import PyQt5.uic
 
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -17,28 +19,70 @@ __license__ = 'GPLv2+'
 # TODO: CAMPid 953295425421677545429542967596754
 log = os.path.join(os.getcwd(), 'epyq.log')
 
-# TODO: Consider updating from...
-#       http://die-offenbachs.homelinux.org:48888/hg/eric/file/a1e53a9ffcf3/eric6.py#l134
 
-def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
-                          message=None, version_tag=None, build_tag=None,
-                          parent=None, stderr=True):
-    """
-    Global function to catch unhandled exceptions.
+_version_tag = None
+_build_tag = None
+_parent = None
 
-    @param excType exception type
-    @param excValue exception value
-    @param tracebackobj traceback object
-    """
+
+def exception_message_box_register_versions(version_tag, build_tag):
+    global _version_tag
+    global _build_tag
+
+    _version_tag = version_tag
+    _build_tag = build_tag
+
+
+def exception_message_box_register_parent(parent):
+    global _parent
+
+    _parent = parent
+
+
+def exception_message_box(excType=None, excValue=None, tracebackobj=None):
+    def join(iterable):
+        return ''.join(iterable).strip()
+
+    brief = join(traceback.format_exception_only(
+        etype=excType,
+        value=excValue
+    ))
+
+    extended = join(traceback.format_exception(
+        etype=excType,
+        value=excValue,
+        tb=tracebackobj,
+    ))
+
+    custom_exception_message_box(
+        brief=brief,
+        extended=extended,
+    )
+
+
+def custom_exception_message_box(brief, extended=''):
     email = "kyle.altendorf@epcpower.com"
 
+    brief = textwrap.dedent('''\
+        An unhandled exception occurred. Please report the problem via email to:
+                        {email}
+
+        {brief}''').format(
+        email=email,
+        brief=brief,
+    )
+
+    raw_exception_message_box(brief=brief, extended=extended)
+
+
+def raw_exception_message_box(brief, extended, stderr=True):
     version = ''
-    if version_tag is not None:
-        version = 'Version Tag: {}'.format(version_tag)
+    if _version_tag is not None:
+        version = 'Version Tag: {}'.format(_version_tag)
 
     build = ''
-    if build_tag is not None:
-        build = 'Build Tag: {}'.format(build_tag)
+    if _build_tag is not None:
+        build = 'Build Tag: {}'.format(_build_tag)
 
     info = (version, build)
     info = '\n'.join(s for s in info if len(s) > 0)
@@ -47,49 +91,25 @@ def exception_message_box(excType=None, excValue=None, tracebackobj=None, *,
 
     time_string = time.strftime("%Y-%m-%d, %H:%M:%S %Z")
 
-    def join(iterable):
-        return ''.join(iterable).strip()
-
-    if message is None:
-        message = join(traceback.format_exception_only(
-            etype=excType,
-            value=excValue
-        ))
-
-    notice = textwrap.dedent('''\
-        An unhandled exception occurred. Please report the problem via email to:
-                        {email}
-
-        {message}
-
+    details = textwrap.dedent('''\
         {info}A log has been written to "{log}".
-        {time_string}''')
-
-    complete = notice.format(
-        email=email,
+        {time_string}''').format(
         info=info,
         log=log,
         time_string=time_string,
-        message=message,
     )
 
-    if excType is not None:
-        complete += '\n{separator}\n{traceback}'.format(
-            separator='-' * 70,
-            traceback=join(traceback.format_exception(
-                etype=excType,
-                value=excValue,
-                tb=tracebackobj,
-            )),
-        )
+    if len(extended) > 0:
+        details = '\n'.join(s.strip() for s in (details, '-' * 70, extended))
 
     if stderr:
-        sys.stderr.write(complete + '\n')
+        sys.stderr.write('\n'.join((brief, details, '')))
 
     dialog(
-        parent=parent,
+        parent=_parent,
         title='Exception',
-        message=complete,
+        message=brief,
+        details=details,
         icon=QtWidgets.QMessageBox.Critical,
     )
 
@@ -147,6 +167,7 @@ class Progress(QtCore.QObject):
         self.average = None
 
         self.updated.disconnect(self.progress.setValue)
+        self.progress.close()
         self.progress.deleteLater()
         self.progress = None
 
@@ -205,6 +226,19 @@ class Progress(QtCore.QObject):
         self.updated.emit(value)
 
 
+def complete_filter_type(extension):
+    if extension == '*':
+        return extension
+
+    return '*.' + extension
+
+def create_filter_string(name, extensions):
+    return '{} ({})'.format(
+        name,
+        ' '.join((complete_filter_type(e) for e in extensions)),
+     )
+
+
 def file_dialog(filters, default=0, save=False, parent=None):
     # TODO: CAMPid 9857216134675885472598426718023132
     # filters = [
@@ -213,9 +247,7 @@ def file_dialog(filters, default=0, save=False, parent=None):
     # ]
     # TODO: CAMPid 97456612391231265743713479129
 
-    filter_strings = ['{} ({})'.format(f[0],
-                                       ' '.join(['*.'+e for e in f[1]])
-                                       ) for f in filters]
+    filter_strings = [create_filter_string(f[0], f[1]) for f in filters]
     filter_string = ';;'.join(filter_strings)
 
     if save:
@@ -307,32 +339,38 @@ class DialogUi:
         self.layout = QtWidgets.QGridLayout(parent)
         self.icon = QtWidgets.QLabel(parent)
         self.message = FittedTextBrowser(parent)
+        self.details = FittedTextBrowser(parent)
         self.copy = QtWidgets.QPushButton(parent)
+        self.show_details = QtWidgets.QPushButton(parent)
         self.buttons = QtWidgets.QDialogButtonBox(parent)
 
         self.copy.setText('Copy To Clipboard')
+        self.show_details.setText('Details...')
 
-        self.layout.addWidget(self.icon, 0, 0)
-        self.layout.addWidget(self.message, 0, 1, 1, 2)
-        self.layout.addWidget(self.copy, 1, 1)
-        self.layout.addWidget(self.buttons, 1, 2)
+        self.layout.addWidget(self.icon, 0, 0, 2, 1)
+        self.layout.addWidget(self.message, 0, 1, 1, 3)
+        self.layout.addWidget(self.details, 1, 1, 1, 3)
+        self.layout.addWidget(self.copy, 2, 1)
+        self.layout.addWidget(self.show_details, 2, 2)
+        self.layout.addWidget(self.buttons, 2, 3)
 
-        self.layout.setAlignment(self.copy, QtCore.Qt.AlignLeft)
-
-        self.layout.setRowStretch(0, 1)
-        self.layout.setColumnStretch(1, 1)
+        self.layout.setColumnStretch(3, 1)
 
 
 class Dialog(QtWidgets.QDialog):
-    def __init__(self, *args, cancellable=False, **kwargs):
+    def __init__(self, *args, cancellable=False, details=False, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.ui = DialogUi(parent=self)
+
+        self.ui.details.setVisible(False)
+        self.ui.show_details.setVisible(details)
 
         self.ui.buttons.accepted.connect(self.accept)
         self.ui.buttons.rejected.connect(self.reject)
 
         self.ui.copy.clicked.connect(self.copy)
+        self.ui.show_details.clicked.connect(self.show_details)
 
         self.setLayout(self.ui.layout)
         buttons = QtWidgets.QDialogButtonBox.Ok
@@ -343,8 +381,8 @@ class Dialog(QtWidgets.QDialog):
 
         self.text = None
         self.html = None
-
-        self.cached_maximum_size = self.maximumSize()
+        self.details_text = None
+        self.details_html = None
 
         desktops = QtWidgets.QApplication.desktop()
         screen_number = desktops.screenNumber(self.parent())
@@ -352,11 +390,33 @@ class Dialog(QtWidgets.QDialog):
 
         self.setMaximumHeight(geometry.height() * 0.7)
         self.setMaximumWidth(geometry.width() * 0.7)
+        self.minimum_size = self.minimumSize()
+        self.maximum_size = self.maximumSize()
 
     def copy(self):
-        QtWidgets.QApplication.clipboard().setText(
-            self.ui.message.toPlainText() + '\n'
+        f = textwrap.dedent('''\
+            {message}
+            
+             - - - - Details:
+            
+            {details}
+            '''
+        ).format(
+            message=self.ui.message.toPlainText(),
+            details=self.ui.details.toPlainText(),
         )
+
+        QtWidgets.QApplication.clipboard().setText(f)
+
+    def show_details(self):
+        to_be_visible = not self.ui.details.isVisible()
+        self.ui.details.setVisible(to_be_visible)
+        self.set_size()
+
+    def set_size(self):
+        self.setFixedSize(self.sizeHint())
+        self.setMinimumSize(self.minimum_size)
+        self.setMaximumSize(self.maximum_size)
 
     def set_text(self, text):
         self.ui.message.setPlainText(text)
@@ -374,26 +434,44 @@ class Dialog(QtWidgets.QDialog):
 
         self.ui.message.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
 
+    def set_details_text(self, text):
+        self.ui.details.setPlainText(text)
+
+        self.details_html = None
+        self.details_text = text
+
+        self.ui.details.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
+
+    def set_details_html(self, html):
+        self.ui.details.setHtml(html)
+
+        self.details_html = html
+        self.details_text = None
+
+        self.ui.details.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+
     def set_message_box_icon(self, icon):
         self.ui.icon.setPixmap(QtWidgets.QMessageBox.standardIcon(icon))
 
-    def exec(self):
-        QtCore.QTimer.singleShot(10, functools.partial(
-                self.setMaximumSize,
-                self.cached_maximum_size,
-        ))
-
-        return super().exec()
-
 
 def dialog(parent, message, title=None, icon=None,
-           rich_text=False, cancellable=False):
-    box = Dialog(parent=parent, cancellable=cancellable)
+           rich_text=False, details='', details_rich_text=False,
+           cancellable=False):
+    box = Dialog(
+        parent=parent,
+        cancellable=cancellable,
+        details=len(details) > 0,
+    )
 
     if rich_text:
         box.set_html(message)
     else:
         box.set_text(message)
+
+    if details_rich_text:
+        box.set_details_html(details)
+    else:
+        box.set_details_text(details)
 
     if icon is not None:
         box.set_message_box_icon(icon)
@@ -409,6 +487,8 @@ def dialog(parent, message, title=None, icon=None,
 
 
         box.setWindowTitle(title)
+
+    box.finished.connect(box.deleteLater)
 
     return box.exec()
 
@@ -437,3 +517,164 @@ def dialog_from_file(parent, title, file_name):
         title=title,
         message=message,
     )
+
+
+class PySortFilterProxyModel(QtCore.QSortFilterProxyModel):
+    def __init__(self, *args, filter_column, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # TODO: replace with filterKeyColumn
+        self.filter_column = filter_column
+
+        self.wildcard = QtCore.QRegExp()
+        self.wildcard.setPatternSyntax(QtCore.QRegExp.Wildcard)
+
+    def lessThan(self, left, right):
+        left_model = left.model()
+        left_data = (
+            left_model.data(left, self.sortRole())
+            if left_model else
+            None
+        )
+
+        right_model = right.model()
+        right_data = (
+            right_model.data(right, self.sortRole())
+            if right_model else
+            None
+        )
+
+        return left_data < right_data
+
+    def filterAcceptsRow(self, row, parent):
+        # TODO: do i need to invalidate any time i set the 'regexp'?
+        # http://doc.qt.io/qt-5/qsortfilterproxymodel.html#invalidateFilter
+
+        pattern = self.filterRegExp().pattern()
+        if pattern == '':
+            return True
+
+        pattern = '*{}*'.format(pattern)
+
+        model = self.sourceModel()
+        result = False
+        index = model.index(row, self.filter_column, parent)
+        self_index = self.index(row, self.filter_column, parent)
+        result |= self.hasChildren(self_index)
+        self.wildcard.setPattern(pattern)
+        result |= self.wildcard.exactMatch(model.data(index, QtCore.Qt.DisplayRole))
+
+        return result
+
+    def next_row(self, index):
+        return self.sibling(
+            index.row() + 1,
+            index.column(),
+            index,
+        )
+
+    def next_index(self, index, allow_children=True):
+        if allow_children and self.hasChildren(index):
+            return self.index(0, index.column(), index), False
+
+        next_ = self.next_row(index)
+        if not next_.isValid():
+            while True:
+                index = index.parent()
+                if not index.isValid():
+                    return self.index(0, 0, QtCore.QModelIndex()), True
+
+                next_ = self.next_row(index)
+                if next_.isValid():
+                    break
+
+        return next_, False
+
+    def search(self, text, search_from, column):
+        def set_row_column(index, row=None, column=None):
+            if row is None:
+                row = index.row()
+
+            if column is None:
+                column = index.column()
+
+            return self.index(
+                row,
+                column,
+                index.parent(),
+            )
+
+        if text == '':
+            return None
+
+        text = '*{}*'.format(text)
+
+        flags = (
+            QtCore.Qt.MatchContains
+            | QtCore.Qt.MatchRecursive
+            | QtCore.Qt.MatchWildcard
+        )
+
+        wrapped = False
+
+        if search_from.isValid():
+            search_from, wrapped = self.next_index(search_from)
+        else:
+            search_from = self.index(0, 0, QtCore.QModelIndex())
+
+        while True:
+            next_indexes = self.match(
+                set_row_column(index=search_from, column=column),
+                QtCore.Qt.DisplayRole,
+                text,
+                1,
+                flags,
+            )
+
+            if len(next_indexes) > 0:
+                next_index, = next_indexes
+
+                if not next_index.isValid():
+                    break
+
+                return next_index
+            elif wrapped:
+                break
+
+            search_from, wrapped = self.next_index(search_from)
+
+        # TODO: report not found and/or wrap
+        print('reached end')
+        return None
+
+
+def load_ui(filepath, base_instance):
+    # TODO: CAMPid 9549757292917394095482739548437597676742
+    ui_file = QtCore.QFile(filepath)
+    ui_file.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
+    ts = QtCore.QTextStream(ui_file)
+    sio = io.StringIO(ts.readAll())
+
+    return PyQt5.uic.loadUi(sio, base_instance)
+
+
+def search_view(view, text, column):
+    model = view.model()
+
+    if text == '':
+        return
+
+    index = model.search(
+        text=text,
+        column=column,
+        search_from=view.currentIndex(),
+    )
+
+    if index is not None:
+        parent = index.parent()
+        # TODO: not sure why but this must be set to zero or the row
+        #       won't be highlighted.  it still gets expanded and printing
+        #       the display role data still works.
+        parent = model.index(parent.row(), 0, parent.parent())
+        index = model.index(index.row(), index.column(), parent)
+        view.setCurrentIndex(index)

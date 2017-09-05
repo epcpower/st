@@ -114,7 +114,6 @@ class VariableSelection(QtWidgets.QWidget):
             self.progress.setLabelText('Loading binary...')
 
             model = self.nonproxy_model()
-            model.binary_loaded.connect(self.progress.close)
 
             self.progress.show()
 
@@ -125,7 +124,14 @@ class VariableSelection(QtWidgets.QWidget):
             d.addCallback(model.update_from_loaded_binary)
             d.addCallback(epyqlib.utils.twisted.detour_result,
                           self.ui.process_raw_log_button.setEnabled, True)
+            d.addBoth(epyqlib.utils.twisted.detour_result,
+                          self.progress_cleanup)
             d.addErrback(epyqlib.utils.twisted.errbackhook)
+
+    def progress_cleanup(self):
+        self.progress.close()
+        self.progress.deleteLater()
+        self.progress = None
 
     def update_parameters(self):
         model = self.nonproxy_model()
@@ -152,14 +158,14 @@ class VariableSelection(QtWidgets.QWidget):
 
                 model = self.nonproxy_model()
 
-                progress = epyqlib.utils.qt.progress_dialog(parent=self)
-                progress.setLabelText('Processing Raw Log...')
+                self.progress = epyqlib.utils.qt.progress_dialog(parent=self)
+                self.progress.setLabelText('Processing Raw Log...')
 
-                progress.show()
+                self.progress.show()
 
                 d = model.parse_log(data=data, csv_path=csv_filename)
                 d.addBoth(epyqlib.utils.twisted.detour_result,
-                          progress.close)
+                          self.progress_cleanup)
                 d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def context_menu(self, position):

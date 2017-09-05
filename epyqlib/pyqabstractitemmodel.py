@@ -169,8 +169,10 @@ class PyQAbstractItemModel(QAbstractItemModel):
         #
         #       then again, the Qt example does just this
         #       http://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
-        if parent.column() > 0:
-            return 0
+        #
+        #       but this breaks the searches on non-zero columns so oh well
+        # if parent.column() > 0:
+        #     return 0
 
         node = self.node_from_index(parent)
         if node is None:

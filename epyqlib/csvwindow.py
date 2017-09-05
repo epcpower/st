@@ -204,20 +204,27 @@ class CheckableChart:
         )))
 
         if len(self.data) > 0:
-            minimum = min(y for _, y in self.data) * scale
-            maximum = max(y for _, y in self.data) * scale
+            y_minimum = min(y for _, y in self.data) * scale
+            y_maximum = max(y for _, y in self.data) * scale
 
-            delta = maximum - minimum
+            delta = y_maximum - y_minimum
 
             if delta == 0:
                 extra = 1
             else:
                 extra = 0.05 * delta
 
-
             self.chart.axisY().setRange(
-                minimum - extra,
-                maximum + extra,
+                y_minimum - extra,
+                y_maximum + extra,
+            )
+
+            x_minimum = min(x for x, _ in self.data)
+            x_maximum = max(x for x, _ in self.data)
+
+            self.chart.axisX().setRange(
+                x_minimum,
+                x_maximum,
             )
 
 

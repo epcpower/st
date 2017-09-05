@@ -147,10 +147,10 @@ def write_activate_shortcuts(root, bin):
         if os.path.isfile(target):
             with open(caller, 'w') as f:
                 if script.windows:
-                    target = target.replace('\\', '/')
+                    target = '"{}"'.format(target.replace('\\', '/'))
                 else:
-                    target = 'source ' + target
-                f.write('"{}"\n'.format(target))
+                    target = 'source "{}"'.format(target)
+                f.write(target + '\n')
 
 
 def copy_designer_files(root):

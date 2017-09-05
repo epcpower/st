@@ -32,6 +32,11 @@ class TxRxView(QtWidgets.QWidget):
 
         self.resize_columns = epyqlib.txrx.Columns.fill(False)
 
+        self.ui.searchbox.connect_to_view(
+            view=self.ui.tree_view,
+            column=epyqlib.txrx.Columns.indexes.name,
+        )
+
     def setModel(self, model):
         self.ui.tree_view.setModel(model)
 
@@ -78,3 +83,9 @@ class TxRxView(QtWidgets.QWidget):
         widest_char = chars[widths.index(widest_width)]
         string = '0x{}'.format(widest_char * 8)
         return metric.width(string)
+
+    def set_sorting_enabled(self, enabled):
+        self.ui.tree_view.setSortingEnabled(enabled)
+
+    def sort_by_column(self, column, order):
+        self.ui.tree_view.sortByColumn(column, order)

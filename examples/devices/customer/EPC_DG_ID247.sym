@@ -1,0 +1,1595 @@
+FormatVersion=5.0 // Do not edit this line!
+Title="EPC_DG_ID247"
+
+{ENUMS}
+enum State(0="Power On Reset", 1="Ready", 2="Following", 3="Fault", 
+  4="Forming", 5="Reconnect Delay", 6="N/A", 7="Area EPS Lost", 8="Charging", 
+  9="N/A", 10="N/A", 11="N/A", 12="N/A", 13="N/A", 14="N/A", 15="N/A")
+enum Relay(0="Open", 1="Closed", 2="Error", 3="N/A")
+enum PowerAvail(0="None", 1="Available", 2="Error", 3="N/A")
+enum IGBTsEnabled(0="Disabled", 1="Enabled", 2="Error", 3="N/A")
+enum WakeUpSignal(0="Not Active", 1="Active", 2="Error", 3="N/A")
+enum Enable(0="Disable", 1="Enable", 2="Error", 3="N/A")
+enum MessageValid(0="Invalid", 1="Valid", 2="Error", 3="N/A")
+enum FaultClear(0="Normal", 1="Clear Faults", 2="Error", 3="N/A")
+enum WarningClear(0="Normal", 1="Clear Warnings", 2="Error", 3="N/A")
+enum Baudrate(0="125K", 1="250K", 2="500K", 3="1M")
+enum BridgeFlt(0="Normal", 1="FLT_A", 2="N/A", 3="FLT_C", 4="OverVoltage", 
+  5="FLT_B", 6="Overcurrent", 7="5V")
+enum CcpAddressExtensions(0="Raw", 1="DataLogger")
+enum ControlSource(0="CAN", 1="Modbus")
+enum DIOInverted(0="Normal", 1="Inverted", 2="Error", 3="N/A")
+// Control digital outputs from CAN interface
+enum DOController(0="Application", 1="CAN")
+enum EnableSplitPhase(0="Normal - Three Phase Mode", 
+  1="Enable Split Phase Mode", 2="Error", 3="N/A")
+enum EnableUPSMode(0="Disable", 1="Enable", 2="Error", 3="N/A")
+enum FANTYPE(0="variable speed", 1="on/off")
+enum Fault(0="Normal", 1="Fault Active", 2="Error", 3="N/A")
+enum FaultConfig(0="Warning", 1="Fault", 2="Disabled", 3="N/A")
+enum InvertHwEnable(0="No invert", 1="Invert", 2="Error", 3="N/A")
+enum LVMTYPE(0="Line-Line", 1="Line-Neutral", 2="Error", 3="N/A")
+enum LineVoltagePresent(0="No_Voltage", 1="Voltage_Detected", 2="Error", 
+  3="N/A")
+enum OnOff(0="off", 1="on", 2="Error", 3="N/A")
+enum PhaseRotation(0="Negative", 1="Positive", 2="Error", 3="N/A")
+enum ReadNV(0="Write", 1="Read", 2="Error", 3="N/A")
+enum RelayCommand(0="Normal", 1="Force On", 2="Error", 3="N/A")
+enum RemoteVoltageSense(0="Use Local Sense", 1="Use Remote Sense", 2="Error", 
+  3="N/A")
+enum SerialBaud(0="115200", 1="57600", 2="38400", 3="19200", 4="9600", 
+  5="4800", 6="2400")
+enum SerialProtocol(0="N81", 1="N82", 2="E81", 3="O81")
+enum Status(0="Not Active", 1="Active", 2="Error", 3="N/A")
+enum WARNING(0="Normal", 1="Warning Active", 2="Error", 3="N/A")
+enum DcLegType(0="Voltage Control", 1="Current Control", 2="MPPT", 4="Disabled")
+
+{SEND}
+
+[ParameterQuery]
+ID=1DEFF741h	// Provides access to configure non-volatile parameters.
+Type=Extended
+DLC=8
+Mux=Param0 0,14 0 
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+
+[ParameterQuery]
+DLC=8
+Mux=LVM_ClearingTimes1 0,14 1 	// Line Voltage Monitor fault times.
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=VUnder45pct unsigned 16,16 /u:ms /min:1 /max:160 /d:160	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains under 45 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=V45to60pct unsigned 32,16 /u:ms /min:1 /max:11000 /d:1000	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains between 50 and 88 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=V60toUVThresh unsigned 48,16 /u:ms /min:1 /max:21000 /d:2000	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains between 60 and the undervoltage threshold of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+
+[ParameterQuery]
+DLC=8
+Mux=LVM_ClearingTimes2 0,14 2 	// Line Voltage Monitor fault times.
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=OVThreshTo120pct unsigned 16,16 /u:ms /min:1 /max:13000 /d:1000	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains between the overvoltage threshold and 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=VOver120 unsigned 32,16 /u:ms /min:1 /max:160 /d:160	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains Over 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=VoltageMeasurement unsigned 48,2 /max:1 /e:LVMTYPE	// Select line voltage measurement type for line voltage monitor
+
+[ParameterQuery]
+DLC=8
+Mux=LFM_UnderFreqLimits 0,14 3 	// Line under-frequency Monitor limits.
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=UF1 unsigned 16,16 /u:Hz /f:0.1 /min:40 /max:70 /d:57	// Determines the upper bound, above which the frequency monitor will trip if the line frequency remains for the time specified in FreqHi of the LFM_ClearingTimes Mux.
+Var=UF2 unsigned 32,16 /u:Hz /f:0.1 /min:40 /max:70 /d:59.5	// Determines the upper bound, in which the frequency monitor will trip if the line frequency remains below this bound but above the value of FreqVeryLo for the time specified in FreqLo of the LFM_ClearingTimes Mux.
+
+[ParameterQuery]
+DLC=8
+Mux=LFM_ClearingTimesUF1 0,14 4 	// Line Frequency Monitor Trip times
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=UF1 unsigned 32,32 /u:ms /min:1 /max:10000 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains below the value specified in FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+
+[ParameterQuery]
+DLC=8
+Mux=J1939_Interface 0,14 5 	// J1939 interface parameters
+Var=NodeID unsigned 16,8 /max:247 /d:247	// J1939 Source Address node for the module.
+Var=MasterAddr unsigned 24,8 /d:65	// Not presently used.
+Var=Baudrate unsigned 32,4 /max:3 /e:Baudrate /d:2	// CAN baudrate
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+
+[ParameterQuery]
+DLC=8
+Mux=Fault_Config 0,14 6 	// Allows configuration of various fault conditions to either trip the inverter, or provide a warning status via CAN
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=FilterOvertemp unsigned 22,2 /max:2 /e:FaultConfig /d:1	// Configures action to take when filter overtemperature is detected.
+
+[ParameterQuery]
+DLC=8
+Mux=ContactorDelays1 0,14 7 	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=MX1Open unsigned 16,16 /u:ms /max:5000 /d:70	// Maximum time required for the MX1 contactor to open.
+Var=MX1Close unsigned 32,16 /u:ms /max:5000 /d:20	// Maximum time required for the MX1 contactor to close.
+Var=MX2Open unsigned 48,16 /u:ms /max:5000 /d:70	// Maximum time required for the MX2 contactor to open.
+
+[ParameterQuery]
+DLC=8
+Mux=ContactorDelays2 0,14 8 	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=MX2Close unsigned 16,16 /u:ms /max:5000 /d:20	// Maximum time required for the MX2 contactor to open.
+Var=K1Open unsigned 32,16 /u:ms /max:2000	// Maximum time required for the K1 contactor to open.
+Var=K1Close unsigned 48,16 /u:ms /max:2000 /d:20	// Maximum time required for the K1 contactor to close.
+
+[ParameterQuery]
+DLC=8
+Mux=ContactorDelays3 0,14 9 	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=K2Open unsigned 16,16 /u:ms /max:2000	// Maximum time required for the K2 contactor to open.
+Var=K2Close unsigned 32,16 /u:ms /max:2000 /d:20	// Maximum time required for the K2 contactor to close.
+
+[ParameterQuery]
+DLC=8
+Mux=HardwareDef1 0,14 000Ah
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=EnablePumpControl unsigned 38,2 /max:1 /e:Enable /d:1 /ln:"Enable Pump Control"
+
+[ParameterQuery]
+DLC=8
+Mux=AFF 0,14 000Bh	// Configures active harmonic cancellation.
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=EnablePSAff unsigned 16,2 /max:1 /p:0 /e:Enable /d:1	// Enables/disables positive sequence AFF controller
+Var=EnableNSAff unsigned 18,2 /max:1 /e:Enable /d:1	// Enables/disables negative sequence AFF controller.
+
+[ParameterQuery]
+DLC=8
+Mux=ManageNV 0,14 000Ch
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=SaveToEE_command unsigned 16,2 /max:1 /e:Enable	// Save active parameters to nonvolatile memory.
+
+[ParameterQuery]
+DLC=8
+Mux=Serial 0,14 000Dh
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=Protocol unsigned 22,2 /e:SerialProtocol
+Var=Baudrate unsigned 16,3 /max:6 /e:SerialBaud /d:4	// Serial bit rate
+Var=DropNum unsigned 24,8 /min:1 /max:247 /d:1 /ln:"Modbus Drop"	// Modbus slave address
+Var=ControlSource unsigned 20,2 /max:1 /e:ControlSource	// Source for master control
+Var=MonitorTimeout unsigned 32,32 /u:ms /max:30000 /d:1000 /ln:"Monitor Timeout"	// Timeout for monitored registers
+
+[ParameterQuery]
+DLC=8
+Mux=SN 0,14 0010h	// Serial number
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=SerialNumber unsigned 32,32	// Inverter Serial Number
+
+[ParameterQuery]
+DLC=8
+Mux=SoftwareRevisions 0,14 0011h
+Var=ReadParam_command unsigned 14,2 /min:1 /e:ReadNV
+Var=InterfaceRev unsigned 16,16 /f:0.01 /p:2	// Software revision of the CAN communication interface.
+Var=ControlSwRev unsigned 32,16 /f:0.01 /p:2	// Software revision of the control firmware.
+
+[ParameterQuery]
+DLC=8
+Mux=BuildTime 0,14 0012h
+Var=ReadParam_command unsigned 14,2 /min:1 /e:ReadNV
+Var=BuildTime unsigned 32,32	// Build timestamp.
+
+[ParameterQuery]
+DLC=8
+Mux=SoftwareHash 0,14 0013h
+Var=ReadParam_command unsigned 14,2 /min:1 /e:ReadNV
+Var=SoftwareHash unsigned 32,28 -h	// Unique revision identification hashcode.
+
+[ParameterQuery]
+DLC=8
+Mux=ManageDIO 0,14 0014h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=InvertDI1 unsigned 16,2 /max:1 /e:DIOInverted	// Invert DI1 polarity
+Var=InvertDI2 unsigned 18,2 /max:1 /e:DIOInverted	// Invert DI2 polarity
+Var=InvertDI3 unsigned 20,2 /max:1 /e:DIOInverted	// Invert DI3 polarity
+Var=InvertDI4 unsigned 22,2 /max:1 /e:DIOInverted	// Invert DI4 polarity
+Var=InvertDO1 unsigned 24,2 /max:1 /e:DIOInverted	// Invert DO1 polarity
+Var=InvertDO2 unsigned 26,2 /max:1 /e:DIOInverted	// Invert DO2 polarity
+Var=InvertDO3 unsigned 28,2 /max:1 /e:DIOInverted	// Invert DO3 polarity
+Var=InvertDO4 unsigned 30,2 /max:1 /e:DIOInverted	// Invert DO4 polarity
+Var=ForceRelayMX1 unsigned 38,2 /max:1 /e:RelayCommand /ln:"Close MX1"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=ForceRelayMX2 unsigned 36,2 /max:1 /e:RelayCommand /ln:"Close MX2"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=ForceRelayK1_Precharge unsigned 34,2 /max:1 /p:0 /e:RelayCommand /ln:"Close K1 precharge"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=ForceRelayRelayK2_DCRun unsigned 32,2 /max:1 /e:RelayCommand /ln:"Close K2"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=DO1Controller unsigned 46,2 /max:1 /e:DOController	// control source for DO1
+Var=DO2Controller unsigned 44,2 /max:1 /e:DOController	// control source for DO2
+Var=DO3Controller unsigned 42,2 /max:1 /e:DOController	// control source for DO3
+Var=DO4Controller unsigned 40,2 /max:1 /e:DOController	// control source for DO4
+Var=DO1Command unsigned 54,2 /max:1 /e:OnOff	// Output command for DO1 if CAN is selected as controller
+Var=DO2Command unsigned 52,2 /max:1 /e:OnOff	// Output command for DO2 if CAN is selected as controller
+Var=DO3Command unsigned 50,2 /max:1 /e:OnOff	// Output command for DO3 if CAN is selected as controller
+Var=DO4Command unsigned 48,2 /max:1 /e:OnOff	// Output command for DO4 if CAN is selected as controller
+Var=ForceFanOn unsigned 60,2 /max:1 /e:RelayCommand /ln:"Force fan on"	// Forces cooling fan on (air cooled units only)
+Var=InvertHwEnable unsigned 62,2 /max:1 /e:InvertHwEnable /ln:"Invert hardware enable"	// Inverts the logic of the Hardware Enable input.
+
+[ParameterQuery]
+DLC=8
+Mux=LocalPLLGain 0,14 0015h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=LocalPLLGain unsigned 16,16 /f:0.001 /min:0.01 /p:3 /d:1 /ln:"Loc. PLL Gain"	// Gain to be applied to the line voltage feedback signals, typically used when sensing voltage on the other side of a transformer.
+
+[ParameterQuery]
+DLC=8
+Mux=LocalPLLOffset 0,14 0016h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=LocalPLLOffset signed 16,16 /u:deg /min:-180 /max:180 /ln:"Loc. PLL Offset"	// Phase shift angle to be applied to the PLL, typically used when sensing voltage on the other side of a transformer.
+
+[ParameterQuery]
+DLC=8
+Mux=RemotePLLGain 0,14 0017h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=RemotePLLGain unsigned 16,16 /f:0.001 /min:0.01 /p:3 /d:1 /ln:"Rem. PLL Gain"	// Gain to be applied to the line voltage feedback signals, typically used when sensing voltage on the other side of a transformer.
+
+[ParameterQuery]
+DLC=8
+Mux=RemotePLLOffset 0,14 0018h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=RemotePLLOffset signed 16,16 /u:deg /min:-180 /max:180 /ln:"Rem. PLL Offset"	// Phase shift angle to be applied to the PLL, typically used when sensing voltage on the other side of a transformer.
+
+[ParameterQuery]
+DLC=8
+Mux=VoltsPerAmpComp 0,14 0019h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=VoltsPerAmpComp signed 16,16 /f:0.0001 /min:-1 /max:1 /p:4 /d:0 /ln:"V/A comp"	// Open loop AC voltage compensation term on a per amp basis; used in forming mode.
+
+[ParameterQuery]
+DLC=8
+Mux=RealCurrentOffset 0,14 001Ah
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=RealCurrentOffset signed 32,32 /u:A/V /f:1E-005 /p:5 /d:0.06126
+
+[ParameterQuery]
+DLC=8
+Mux=ReactiveCurrentOffset 0,14 001Bh
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=ReactiveCurrentOffset signed 32,32 /u:A/V /f:1E-005 /p:5 /d:0.18919
+
+[ParameterQuery]
+DLC=8
+Mux=Inductance 0,14 001Ch	// <HYDRA>
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=legInductance1 unsigned 16,16 /u:uH /f:0.1 /min:0.1 /max:2000 /d:150 /ln:"Leg 1 Inductance"
+Var=legInductance2 unsigned 32,16 /u:uH /f:0.1 /min:0.1 /max:2000 /d:150 /ln:"Leg 2 Inductance"
+Var=legInductance3 unsigned 48,16 /u:uH /f:0.1 /min:0.1 /max:2000 /d:150 /ln:"Leg 3 Inductance"
+
+[ParameterQuery]
+DLC=8
+Mux=Fan_Coolant 0,14 0027h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=tempSetpoint unsigned 16,16 /u:C /max:100 /d:35
+
+[ParameterQuery]
+DLC=8
+Mux=Fan_Cabinet 0,14 0028h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=tempSetpoint unsigned 16,16 /u:C /max:50 /d:35	// Temperature at which fan is enabled.
+
+[ParameterQuery]
+DLC=8
+Mux=AfeConfig 0,14 002Dh
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=EnableZSC unsigned 20,2 /max:1 /e:Enable	// Enables DC current injection limiter.
+Var=EnableForming unsigned 18,2 /max:1 /e:Enable	// Islanding mode allowed
+Var=EnableFollowing unsigned 16,2 /max:1 /e:Enable /d:1	// Grid-connect mode allowed
+Var=PhaseRotation unsigned 24,2 /max:1 /e:PhaseRotation /ln:"Positive phase rotation"	// Specifies phase rotation direction.  Only active while transitioning from READY to GRID_FORMING.
+Var=EnableSplitPhase unsigned 32,2 /max:1 /e:EnableSplitPhase /ln:"Split phase"	// Commands the inverter into split-phase mode.
+Var=EnableUPSMode unsigned 28,2 /max:1 /e:EnableUPSMode /ln:"UPS Mode"	// Enables uninterruptible operation when transitioning from GRID FOLLOWING to GRID FORMING operation.  If operating in GRID FOLLOWING mode, and AC grid voltage is interrupted, the module will attempt to transition to GRID FORMING mode, with no interruption
+Var=UseVoltageSenseAsRemote unsigned 30,2 /max:1 /e:RemoteVoltageSense /ln:"Use VSense as remote"	// Use local voltage sense input as either local or remote reference.
+Var=EnableAC unsigned 34,2 /max:1 /e:Enable	// Enable AC power stage
+Var=EnableDC unsigned 36,2 /max:1 /e:Enable /d:1	// Enable DC power stage
+
+[ParameterQuery]
+DLC=8
+Mux=InputVoltageLimits 0,14 003Eh	// <HYDRA>
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=min unsigned 16,16 /u:V /max:1000
+Var=max unsigned 32,16 /u:V /max:1000 /d:1000
+
+[ParameterQuery]
+DLC=8
+Mux=InputCurrentLimits 0,14 003Fh	// <HYDRA>
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=min signed 16,16 /u:A /min:-1400 /max:0 /d:-500
+Var=max signed 32,16 /u:A /min:0 /max:1400 /d:500
+
+[ParameterQuery]
+DLC=8
+Mux=LoggerConf01 0,14 0060h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=PostTriggerDuration_s unsigned 16,14 /u:seconds /f:0.001 /d:0.2	// Duration datalogger continues logging after a fault event occurs.
+
+[ParameterQuery]
+DLC=8
+Mux=LoggerStatus01 0,14 0061h
+Var=ReadParam_command unsigned 14,2 /min:1 /e:ReadNV
+Var=ReadableOctets unsigned 32,32 /u:octets
+
+[ParameterQuery]
+DLC=8
+Mux=RealPwrCmdRampRate 0,14 0070h
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:kW/s /f:0.001 /max:10000 /p:3 /d:2000	// slew limit for change in real power command
+
+[ParameterQuery]
+DLC=8
+Mux=ReactivePwrCmdRampRate 0,14 0071h
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:kVA/s /f:0.001 /max:10000 /p:3 /d:2000	// slew limit for change in reactive power command
+
+[ParameterQuery]
+DLC=8
+Mux=UserSettings 0,14 0072h
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=OverVoltageDC unsigned 16,16 /u:V /max:1350 /p:0 /d:1100	// User Settable Over Voltage Limit
+Var=UnderVoltageDC unsigned 32,16 /u:V /max:1350 /d:705	// User Settable Under Voltage Limit
+
+[ParameterQuery]
+DLC=8
+Mux=LineMonitor 0,14 0073h
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=ReconnectDelay unsigned 32,32 /u:seconds /f:0.1 /max:600 /d:10	// Delay time after abnormal grid conditions end until reconnect.
+
+[ParameterQuery]
+DLC=8
+Mux=FanType 0,14 0077h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=CoolantFan unsigned 16,2 /max:1 /e:FANTYPE /d:1
+Var=CabinetFan unsigned 18,2 /max:1 /e:FANTYPE
+
+[ParameterQuery]
+DLC=8
+Mux=VoltageRef 0,14 0078h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=Voltage unsigned 16,16 /u:VRMS /f:0.1 /min:10 /max:480 /d:480 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
+
+[ParameterQuery]
+DLC=8
+Mux=FrequencyRef 0,14 0079h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=Frequency unsigned 16,16 /u:Hz /f:0.1 /min:45 /max:65 /d:60 /ln:"Frequency"	// Desired output frequency while in grid forming mode.
+
+[ParameterQuery]
+DLC=8
+Mux=StatusDeviceTemps2 0,14 007Fh
+Var=ReadParam_command unsigned 14,2 /min:1 /e:ReadNV
+Var=TempTmodel_calculated signed 16,16 /u:C /f:0.1 /min:-40 /max:120 /ln:"Model"	// Thermal Model predicted temp
+Var=IGBTTemperature signed 32,16 /u:C /f:0.1 /min:-40 /max:175 /ln:"IGBT"	// Hottest IGBT
+Var=DiodeTemperature signed 48,16 /u:C /f:0.1 /min:-40 /max:175 /ln:"Diode"	// Hottest Diode
+
+[ParameterQuery]
+DLC=8
+Mux=StatusDeviceTemps 0,14 0080h
+Var=ReadParam_command unsigned 14,2 /min:1 /e:ReadNV
+Var=TempDeviceBrdgA_measured signed 48,16 /u:C /f:0.1 /min:-40 /max:120 /ln:"Bridge A Temp."	// BridgeA Device temp
+Var=TempDeviceBrdgB_measured signed 32,16 /u:C /f:0.1 /min:-40 /max:120 /ln:"Bridge B Temp."	// BridgeB Device temp
+
+[ParameterQuery]
+DLC=8
+Mux=ConverterLosses 0,14 0081h
+Var=ReadParam_command unsigned 14,2 /min:1 /e:ReadNV
+Var=ConverterLosses unsigned 16,16 /u:W /ln:"Converter Losses"	// Power converter thermal loss, excluding grid filter.
+
+[ParameterQuery]
+DLC=8
+Mux=StatusFaults 0,14 0082h
+Var=ReadParam_command unsigned 14,2 /min:1 /e:ReadNV
+Var=LossValidControlMessage unsigned 16,4 /e:Fault /ln:"Control Message"	// Set whenever a control message required for operation contains out of range data or has not been received within the required timeout period.
+Var=dIdt unsigned 20,2 /max:1 /e:Fault	// Rapid change in current
+Var=CtlBrdVoltage unsigned 22,2 /max:1 /e:Fault /ln:"Control Bd. Undervolt."	// The control board power supply voltage is out of range
+Var=InvalidEESection unsigned 24,2 /max:1 /e:Fault /ln:"Invalid NV Section"	// Indicates that reading or writing of an non-volatile parameter section failed.
+Var=InvalidEEHeader unsigned 26,2 /max:1 /e:Fault /ln:"Invalid NV Header"	// Indicates that reading of non-volatile parameters at power-up failed.
+Var=IllegalTransition unsigned 28,2 /max:1 /e:Fault /ln:"Illegal Transition"	// Indicates that an illegal state transition was requested.  For example, this fault will occur if Enable is commanded and line voltage is detected but AC power is not available.
+Var=EStopShutdown unsigned 30,2 /e:Fault /ln:"E-Stop"	// Set when an enable request has been sent whithout the WakeUpSignal flag (hardware enable) in the StatusBits message being active.
+Var=IlegImbalance unsigned 32,2 /max:1 /ln:"Leg current imbalance"	// Imbalance in paralleled leg currents
+Var=OverloadDC unsigned 34,2 /max:1 /e:Fault /ln:"DC Overload"	// Timed DC overload fault status (aircooled units only)
+Var=OverloadAC unsigned 36,2 /max:1 /e:Fault /ln:"AC Overload"	// Timed AC overload fault status (aircooled units only)
+Var=FilterOvertemp unsigned 38,2 /max:1 /e:Fault /ln:"Filter Overtemperature"	// Filter overtemperature digital input is active.
+Var=CoolingSystem unsigned 40,2 /max:1 /e:Fault /ln:"Cooling System"	// The cooling system pump is not running when commanded to run
+Var=LossOfAC unsigned 42,2 /e:Fault /ln:"AC Lost"	// In grid following mode, this fault will be triggered if AC voltage or frequency goes outside of nominal bounds and EnableUPSMode is not set in the CommandModeControl message.
+Var=BridgeBVoltageOk unsigned 44,1 /e:Fault /ln:"Bridge B Ctrl. Voltage"	// Indicates whether a hardware trip has been activated.
+Var=BridgeBFault unsigned 45,3 /e:BridgeFlt /ln:"Bridge B"	// Each bridge has hardware protection features as a backup to software protection.  This bitfield indicates which, if any of these protection trips is active.
+Var=SystemFault unsigned 48,10	// 
+Var=BridgeAVoltageOk unsigned 60,1 /e:Fault /ln:"Bridge A Ctrl. Voltage"	// Indicates whether a hardware trip has been activated.
+Var=BridgeAFault unsigned 61,3 /e:BridgeFlt /ln:"Bridge A"	// Each bridge has hardware protection features as a backup to software protection.  This bitfield indicates which, if any of these protection trips is active.
+
+[ParameterQuery]
+DLC=8
+Mux=StatusFaults2 0,14 0083h
+Var=ReadParam_command unsigned 14,2 /min:1 /e:ReadNV
+Var=OvervoltageDC unsigned 30,2 /e:Fault /ln:"Overvoltage DC"	// Set immediately upon the software detection of DC voltage exceeding the threshold value.
+Var=UndervoltageDC unsigned 28,2 /e:Fault /ln:"Undervoltage DC"	// Indicates loss of DC source voltage.
+Var=OvercurrentDC unsigned 26,2 /e:Fault /ln:"Overcurrent DC"	// Set immediately upon the software detection of DC current exceeding the threshold value.
+Var=FanCircuit unsigned 24,2 /max:1 /e:Fault /ln:"Fan Circuit"	// There is an issue with the module internal cooling fan
+Var=OvertempPowerDevice unsigned 16,2 /e:Fault /ln:"IGBT Overtemp"	// Set immediately upon the software detection of an IGBT temperature exceeding the threshold value.
+Var=OvertempInternal unsigned 18,2 /e:Fault /ln:"Internal Overtemp"	// Set immediately upon the software detection of an internal inverter temperature exceeding the threshold value.
+Var=OvercurrentAC unsigned 20,2 /e:Fault /ln:"Overcurrent AC"	// Set immediately upon the software detection of AC current exceeding the threshold value.
+Var=GeneralFault unsigned 22,2 /e:Fault /ln:"General"	// Will be set any time a fault shutdown has occurred.  It is always accompanied by an additional fault descriptor.
+Var=LowCoolingFlow unsigned 32,2 /e:Fault /ln:"Low Cooling Flow"	// An issue has been detected with the cooling system
+
+[ParameterQuery]
+DLC=8
+Mux=RealPowerLimits 0,14 0086h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=min signed 16,16 /u:kW /f:0.1 /min:-375 /max:0	// Minimum allowed real power command
+Var=max signed 32,16 /u:kW /f:0.1 /min:0 /max:375	// Maximum allowed real power command
+
+[ParameterQuery]
+DLC=8
+Mux=ReactivePowerLimits 0,14 0087h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=min signed 16,16 /u:kVA /f:0.1 /min:-375 /max:0	// Minimum allowed reactive power command
+Var=max signed 32,16 /u:kVA /f:0.1 /min:0 /max:375	// Maximum allowed reactive power command
+
+[ParameterQuery]
+DLC=8
+Mux=RealCurrentLimits 0,14 0088h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=min signed 16,16 /u:A /min:-450 /max:0	// Minimum allowed real current command
+Var=max signed 32,16 /u:A /min:0 /max:450	// Maximum allowed real current command
+
+[ParameterQuery]
+DLC=8
+Mux=ReactiveCurrentLimits 0,14 0089h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=min signed 16,16 /u:A /min:-450 /max:0	// Minimum allowed reactive current command
+Var=max signed 32,16 /u:A /min:0 /max:450	// Maximum allowed reactive current command
+
+[ParameterQuery]
+DLC=8
+Mux=DataloggerConfig 0,14 008Ah
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=ResetDatalogger unsigned 16,2 /e:OnOff
+
+[ParameterQuery]
+DLC=8
+Mux=DataloggerStatus 0,14 008Bh
+Var=ReadParam_command unsigned 14,2 /min:1 /e:ReadNV
+Var=DataloggerRecording unsigned 58,2 /e:OnOff /ln:"Logging"
+Var=DataloggerConfigurationIsValid unsigned 56,2 /e:OnOff
+
+[ParameterQuery]
+DLC=8
+Mux=StatusLineCurrents_txRate 0,14 008Ch
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusLineCurrents message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=StatusLineToNVoltages_txRate 0,14 008Dh
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusLineToNVoltages message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=StatusRemoteLineToNV_txRate 0,14 008Eh
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusRemoteLineToNV message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=StatusACRemote_txRate 0,14 008Fh
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusACRemoteParameters message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=StatusMeasuredPower_txRate 0,14 0090h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusMeasuredPower message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=StatusCommandedPower_txRate 0,14 0091h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusCommandedPower message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=StatusBits_txRate 0,14 0092h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.01	// rate at which the StatusBits message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=StatusTemps_txRate 0,14 0093h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusTemps message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=StatusAC_txRate 0,14 0094h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusACParameters message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=StatusDCParameters_txRate 0,14 0095h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusDCParameters message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=StatusCommandedCurrent_txRate 0,14 0096h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10	// rate at which the StatusCommandedCurrent message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=FrequencyRampRate 0,14 009Fh
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:Hz/s /max:1000 /d:10	// Slew limit for change in frequency command.
+
+[ParameterQuery]
+DLC=8
+Mux=VoltageRampRate 0,14 0100h
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:V/s /d:612	// Slew limit for change in volatage command.  A zero value allows in immediate transition.
+
+[ParameterQuery]
+DLC=8
+Mux=LFM_OverFreqLimits 0,14 011Ah	// Line under-frequency Monitor limits.
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=OF1 unsigned 16,16 /u:Hz /f:0.1 /min:40 /max:70 /d:60.5	// Determines the upper bound, above which the frequency monitor will trip if the line frequency remains for the time specified in FreqHi of the LFM_ClearingTimes Mux.
+Var=OF2 unsigned 32,16 /u:Hz /f:0.1 /min:40 /max:70 /d:62	// Determines the upper bound, above which the frequency monitor will trip if the line frequency remains below this bound but above the value of FreqVeryLo for the time specified in FreqLo of the LFM_ClearingTimes Mux.
+
+[ParameterQuery]
+DLC=8
+Mux=LFM_ClearingTimesUF2 0,14 011Bh	// Line Frequency Monitor Trip times
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=UF2 unsigned 32,32 /u:ms /min:1 /max:300000 /d:2000	// Determines the time it will take for a fault trip to occur when line frequency remains below the value specified in FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+
+[ParameterQuery]
+DLC=8
+Mux=LFM_ClearingTimesOF1 0,14 011Ch	// Line Frequency Monitor Trip times
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=OF1 unsigned 32,32 /u:ms /min:1 /max:300000 /d:2000	// Determines the time it will take for a fault trip to occur when line frequency remains below the value specified in FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+
+[ParameterQuery]
+DLC=8
+Mux=LFM_ClearingTimesOF2 0,14 011Dh	// Line Frequency Monitor Trip times
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=OF2 unsigned 32,32 /u:ms /min:1 /max:10000 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains below the value specified in FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+
+[ParameterQuery]
+DLC=8
+Mux=StatusWarnings 0,14 011Fh
+Var=ReadParam_command unsigned 14,2 /min:1 /e:ReadNV
+Var=CANWarning unsigned 16,2 /e:WARNING /ln:"CAN Warning"	// CAN Bus in the warning state
+Var=CANErrorPassive unsigned 18,2 /e:WARNING /ln:"CAN Error Passive"	// CAN Bus in the Error Passive state
+Var=FilterOvertemp unsigned 20,2 /e:WARNING /ln:"Filter Overtemperature"	// Filter overtemperature digital input is active.
+Var=FanCircuit unsigned 22,2 /e:WARNING /ln:"Fan Circuit"	// There is a problem with the module internal fan.
+
+[ParameterQuery]
+DLC=8
+Mux=StatusMeasuredCurrent_txRate 0,14 0120h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusMeasuredCurrent message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=RealCurrentCmdRampRate 0,14 0121h
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:A/s /max:50000 /d:1000	// slew limit for change in real current command
+
+[ParameterQuery]
+DLC=8
+Mux=ReactiveCurrentCmdRampRate 0,14 0122h
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:A/s /max:50000 /d:1000	// slew limit for change in reactive current command
+
+[ParameterQuery]
+DLC=8
+Mux=StatusLineToLineVoltages_txRate 0,14 0125h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusLineToLineVoltages message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=StatusRemoteLineToLineV_txRate 0,14 0126h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusRemoteLineToLineV message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=RemoteGrid 0,14 0127h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=SyncToRemote unsigned 16,2 /max:1 /e:Enable /ln:"Sync to remote"	// Enables sync and connect to remote source.
+
+[ParameterQuery]
+DLC=8
+Mux=LVM_limits 0,14 012Ch	// voltage thresholds for abnormal grid conditions
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=UnderVoltageThreshold unsigned 16,16 /u:% /f:0.1 /min:60 /max:100 /d:88
+Var=OverVoltageThreshold unsigned 32,16 /u:% /f:0.1 /min:100 /max:110 /d:110
+
+[ParameterQuery]
+DLC=8
+Mux=StatusDCLowside_txRate 0,14 012Dh	// <HYDRA>
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusDCParameters message will be sent
+
+[ParameterQuery]
+DLC=8
+Mux=VRefRampRate 0,14 012Eh	// <HYDRA>
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=VperS signed 16,16 /u:V/s /max:10000	// Voltage reference ramp rate
+
+[ParameterQuery]
+DLC=8
+Mux=IRefRampRate 0,14 012Fh	// <HYDRA>
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=AperS signed 16,16 /u:A/s /max:10000	// Current reference ramp rate
+
+[ParameterQuery]
+DLC=8
+Mux=DcDcLegControlSourceConfig 0,14 0130h	// Configures control source for DC legs
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=leg1 unsigned 16,4 /max:3 /e:DcLegType
+Var=leg2 unsigned 20,4 /max:3 /e:DcLegType
+Var=leg3 unsigned 24,4 /max:3 /e:DcLegType
+
+[ParameterQuery]
+DLC=8
+Mux=DcDcVoltageDroop 0,14 0131h
+Var=ReadParam_command unsigned 14,2 /max:1 /e:ReadNV
+Var=Resistance unsigned 16,16 /u:Ohm /f:20E-006 /p:3
+
+[ParameterQuery]
+DLC=8
+Mux=StatusCommandedDcControl_txRate 0,14 0132h
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+
+[ParameterQuery]
+DLC=8
+Mux=VdcCmdRampRate 0,14 0133h
+Var=rate unsigned 32,32 /u:V/s /d:1000	// Slew rate of voltage command.
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+
+[ParameterQuery]
+DLC=8
+Mux=IdcCmdRampRate 0,14 0134h
+Var=rate unsigned 32,32 /u:A/s /d:1000	// Slew rate of current command.
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+
+[ParameterQuery]
+DLC=8
+Mux=DcControlDroop 0,14 0135h
+Var=resistance unsigned 16,16 /u:V/A /f:2E-005 /p:3
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+
+[ParameterQuery]
+DLC=8
+Mux=SoftStart 0,14 0136h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+
+[ParameterQuery]
+DLC=8
+Mux=BusStabilizationDelay 0,14 0137h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+
+[ParameterQuery]
+DLC=8
+Mux=PrechargeConfig 0,14 0138h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+
+[ParameterQuery]
+DLC=8
+Mux=PrechargeVoltage 0,14 0139h
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+
+[ParameterQuery]
+DLC=8
+Mux=PrechargeAbort 0,14 013Ah
+Var=ReadParam_command unsigned 14,2 /e:ReadNV
+
+[CCP]
+ID=19EFF741h
+Type=Extended
+DLC=8
+Mux=Raw 0,8 0 
+Var=CommandCounter unsigned 8,8
+
+[CCP]
+DLC=8
+Mux=Connect 0,8 1 
+Var=CommandCounter unsigned 8,8
+Var=StationAddress unsigned 16,16
+
+[CCP]
+DLC=8
+Mux=SetMTA 0,8 2 
+Var=CommandCounter unsigned 8,8
+Var=MTANumber unsigned 16,8 /max:1
+Var=AddressExtension unsigned 24,8 /e:CcpAddressExtensions
+Var=Address unsigned 32,32 -h
+
+[CCP]
+DLC=8
+Mux=Upload 0,8 4 
+Var=CommandCounter unsigned 8,8
+Var=OctetsToUpload unsigned 16,8
+
+[CCP]
+DLC=8
+Mux=Disconnect 0,8 7 
+Var=CommandCounter unsigned 8,8
+Var=EndOfSession unsigned 16,8 /max:1
+Var=StationAddress unsigned 32,16
+
+[ProcessToInverter]
+ID=0CEFF741h
+Type=Extended
+DLC=8
+CycleTime=100
+Mux=CommandModeControl 0,8 1 	// Operational commands are received by the module via control bits within this message.
+Var=Enable unsigned 8,2 /max:1 /e:Enable /ln:"Enable"	// Run command.  When set to a value of 'Enable', causes transition to grid forming or grid following mode depending on whether AC power is detected.  Must be set to 'Disable' to leave POR or FAULTED state.
+Var=FaultClear unsigned 10,2 /max:1 /e:FaultClear /ln:"Clear faults"	// Clears the latched fault message.
+Var=WarningClear unsigned 12,2 /max:1 /e:WarningClear /ln:"Clear warnings"	// Clears the latched warning message.
+
+[ProcessToInverter]
+DLC=8
+CycleTime=100
+Mux=CommandPower 0,8 2 	// Sets the desired real (P) and reactive (Q) power levels for the module to follow while in the GRID FOLLOWING mode.
+Var=RealPower signed 16,16 /u:kW /f:0.1 /min:-375 /max:375 /ln:"Real Power"	// Commanded real power (kW) while in grid following mode - positive real power is defined as power being put into the ac network.
+Var=ReactivePower signed 32,16 /u:kVA /f:0.1 /min:-375 /max:375 /ln:"Reactive Power"	// Commanded reactive power (kVA) while in grid following mode - positive reactive power is defined as the converter having a leading power factor.
+
+[ProcessToInverter]
+DLC=8
+CycleTime=100
+Mux=CommandCurrent 0,8 3 	// Sets the desired real and reactive current levels for the module to follow while in the GRID FOLLOWING mode.
+Var=RealCurrent signed 16,16 /u:A /min:-450 /max:450 /ln:"Real Current"	// Commanded real current while in grid following mode - positive real current is defined as power being put into the ac network.
+Var=ReactiveCurrent signed 32,16 /u:A /min:-450 /max:450 /ln:"Reactive Current"	// Commanded reactive current while in grid following mode - positive reactive current is defined as the converter having a leading power factor.
+
+[ProcessToInverter]
+DLC=8
+CycleTime=100
+Mux=CommandInputCurrent 0,8 4 	// Sets the input current command for the DC boost stage. <HYDRA>
+Var=current signed 16,16 /u:A /min:-800 /max:800 /ln:"Input Current Cmd"	// Sets the input current command for the DC boost stage.
+
+[ProcessToInverter]
+DLC=8
+CycleTime=100
+Mux=CommandDcControl 0,8 5 	// Set dc link voltage, current and line current limits for DC control mode
+Var=dcCurrentLimit unsigned 16,16 /u:A /max:1450
+Var=dcVoltageLimit unsigned 32,16 /u:V /max:1000
+Var=lineCurrentLimit unsigned 48,16 /u:A /max:450
+
+{SENDRECEIVE}
+
+[ParameterResponse]
+ID=1DEF41F7h	// Echos back parameter values.
+Type=Extended
+DLC=8
+Mux=Param0 0,14 0 
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+
+[ParameterResponse]
+DLC=8
+Mux=LVM_ClearingTimes1 0,14 1 	// Line Voltage Monitor fault times.
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=VUnder45pct unsigned 16,16 /u:ms /min:1 /max:160 /d:160	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains under 45 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=V45to60pct unsigned 32,16 /u:ms /min:1 /max:11000 /d:1000	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains between 50 and 60 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=V60toUVThresh unsigned 48,16 /u:ms /min:1 /max:21000 /d:2000	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains between 60 and the undervoltage threshold percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+
+[ParameterResponse]
+DLC=8
+Mux=LVM_ClearingTimes2 0,14 2 	// Line Voltage Monitor fault times.
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=OVThreshTo120pct unsigned 16,16 /u:ms /min:1 /max:13000 /d:1000	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains between the overvoltage threshold and 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=VOver120 unsigned 32,16 /u:ms /min:1 /max:160 /d:160	// Determines the fault trip time when Line-to-line RMS voltage for a phase remains Over 120 percent of the nominal value specified in the CommandVF message while the inverter is running in GRID FOLLOWING mode.
+Var=VoltageMeasurement unsigned 48,2 /max:1 /e:LVMTYPE	// Select line voltage measurement type for line voltage monitor
+
+[ParameterResponse]
+DLC=8
+Mux=LFM_UnderFreqLimits 0,14 3 	// Line under-frequency Monitor limits.
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=UF1 unsigned 16,16 /u:Hz /f:0.1 /min:40 /max:70 /d:57	// Determines the upper bound, above which the frequency monitor will trip if the line frequency remains for the time specified in FreqHi of the LFM_ClearingTimes Mux.
+Var=UF2 unsigned 32,16 /u:Hz /f:0.1 /min:40 /max:70 /d:59.5	// Determines the upper bound, in which the frequency monitor will trip if the line frequency remains below this bound but above the value of FreqVeryLo for the time specified in FreqLo of the LFM_ClearingTimes Mux.
+
+[ParameterResponse]
+DLC=8
+Mux=LFM_ClearingTimesUF1 0,14 4 	// Line Frequency Monitor Trip times
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=UF1 unsigned 32,32 /u:ms /min:1 /max:10000 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains below the value specified in FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+
+[ParameterResponse]
+DLC=8
+Mux=J1939_Interface 0,14 5 	// J1939 interface parameters
+Var=NodeID unsigned 16,8 /max:247 /d:247	// J1939 Source Address node for the module.
+Var=MasterAddr unsigned 24,8 /d:65	// Not presently used.
+Var=Baudrate unsigned 32,4 /max:3 /e:Baudrate /d:2	// CAN baudrate
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+
+[ParameterResponse]
+DLC=8
+Mux=Fault_Config 0,14 6 	// Allows configuration of various fault conditions to either trip the inverter, or provide a warning status via CAN
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=FilterOvertemp unsigned 22,2 /max:2 /e:FaultConfig /d:1	// Configures action to take when filter overtemperature is detected.
+
+[ParameterResponse]
+DLC=8
+Mux=ContactorDelays1 0,14 7 	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=MX1Open unsigned 16,16 /u:ms /max:5000 /d:70	// Maximum time required for the MX1 contactor to open.
+Var=MX1Close unsigned 32,16 /u:ms /max:5000 /d:20	// Maximum time required for the MX1 contactor to close.
+Var=MX2Open unsigned 48,16 /u:ms /max:5000 /d:70	// Maximum time required for the MX2 contactor to open.
+
+[ParameterResponse]
+DLC=8
+Mux=ContactorDelays2 0,14 8 	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=MX2Close unsigned 16,16 /u:ms /max:5000 /d:20	// Maximum time required for the MX2 contactor to open.
+Var=K1Open unsigned 32,16 /u:ms /max:2000	// Maximum time required for the K1 contactor to open.
+Var=K1Close unsigned 48,16 /u:ms /max:2000 /d:20	// Maximum time required for the K1 contactor to close.
+
+[ParameterResponse]
+DLC=8
+Mux=ContactorDelays3 0,14 9 	// Sets the time the controller assumes it will take for contactors to open/close.
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=K2Open unsigned 16,16 /u:ms /max:2000	// Maximum time required for the K2 contactor to open.
+Var=K2Close unsigned 32,16 /u:ms /max:2000 /d:20	// Maximum time required for the K2 contactor to close.
+
+[ParameterResponse]
+DLC=8
+Mux=HardwareDef1 0,14 000Ah
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=EnablePumpControl unsigned 38,2 /max:1 /e:Enable /d:1 /ln:"Enable Pump Control"
+
+[ParameterResponse]
+DLC=8
+Mux=AFF 0,14 000Bh	// Configures active harmonic cancellation.
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=EnablePSAff unsigned 16,2 /max:1 /p:0 /e:Enable /d:1	// Enables/disables positive sequence AFF controller
+Var=EnableNSAff unsigned 18,2 /max:1 /e:Enable /d:1	// Enables/disables negative sequence AFF controller.
+
+[ParameterResponse]
+DLC=8
+Mux=ManageNV 0,14 000Ch
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=SaveToEE_status unsigned 16,2 /max:1 /e:Enable	// Save active parameters to nonvolatile memory.
+
+[ParameterResponse]
+DLC=8
+Mux=Serial 0,14 000Dh
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=Protocol unsigned 22,2 /e:SerialProtocol
+Var=Baudrate unsigned 16,3 /max:6 /e:SerialBaud /d:4	// Serial bit rate
+Var=DropNum unsigned 24,8 /min:1 /max:247 /d:1 /ln:"Modbus Drop"	// Modbus slave address
+Var=ControlSource unsigned 20,2 /max:1 /e:ControlSource	// Source for master control
+Var=MonitorTimeout unsigned 32,32 /u:ms /max:30000 /d:1000 /ln:"Monitor Timeout"	// Timeout for monitored registers
+
+[ParameterResponse]
+DLC=8
+Mux=SN 0,14 0010h	// Serial number
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=SerialNumber unsigned 32,32	// Inverter Serial Number
+
+[ParameterResponse]
+DLC=8
+Mux=SoftwareRevisions 0,14 0011h
+Var=ReadParam_status unsigned 14,2 /min:1 /e:ReadNV
+Var=InterfaceRev unsigned 16,16 /f:0.01 /p:2	// Software revision of the CAN communication interface.
+Var=ControlSwRev unsigned 32,16 /f:0.01 /p:2	// Software revision of the control firmware.
+
+[ParameterResponse]
+DLC=8
+Mux=BuildTime 0,14 0012h
+Var=ReadParam_status unsigned 14,2 /min:1 /e:ReadNV
+Var=BuildTime unsigned 32,32	// Build timestamp.
+
+[ParameterResponse]
+DLC=8
+Mux=SoftwareHash 0,14 0013h
+Var=ReadParam_status unsigned 14,2 /min:1 /e:ReadNV
+Var=SoftwareHash unsigned 32,28 -h	// Unique revision identification hashcode.
+
+[ParameterResponse]
+DLC=8
+Mux=ManageDIO 0,14 0014h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=InvertDI1 unsigned 16,2 /max:1 /e:DIOInverted	// Invert DI1 polarity
+Var=InvertDI2 unsigned 18,2 /max:1 /e:DIOInverted	// Invert DI2 polarity
+Var=InvertDI3 unsigned 20,2 /max:1 /e:DIOInverted	// Invert DI3 polarity
+Var=InvertDI4 unsigned 22,2 /max:1 /e:DIOInverted	// Invert DI4 polarity
+Var=InvertDO1 unsigned 24,2 /max:1 /e:DIOInverted	// Invert DO1 polarity
+Var=InvertDO2 unsigned 26,2 /max:1 /e:DIOInverted	// Invert DO2 polarity
+Var=InvertDO3 unsigned 28,2 /max:1 /e:DIOInverted	// Invert DO3 polarity
+Var=InvertDO4 unsigned 30,2 /max:1 /e:DIOInverted	// Invert DO4 polarity
+Var=ForceRelayMX1 unsigned 38,2 /max:1 /e:RelayCommand /ln:"Close MX1"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=ForceRelayMX2 unsigned 36,2 /max:1 /e:RelayCommand /ln:"Close MX2"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=ForceRelayK1_Precharge unsigned 34,2 /max:1 /p:0 /e:RelayCommand /ln:"Close K1 precharge"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=ForceRelayRelayK2_DCRun unsigned 32,2 /max:1 /e:RelayCommand /ln:"Close K2"	// If set to 'Force On,' will force the relay closed, overriding firmware state machine commands.  Meant for diagnostic purposes only.
+Var=DO1Controller unsigned 46,2 /max:1 /e:DOController	// control source for DO1
+Var=DO2Controller unsigned 44,2 /max:1 /e:DOController	// control source for DO2
+Var=DO3Controller unsigned 42,2 /max:1 /e:DOController	// control source for DO3
+Var=DO4Controller unsigned 40,2 /max:1 /e:DOController	// control source for DO4
+Var=DO1Command unsigned 54,2 /max:1 /e:OnOff	// Output command for DO1 if CAN is selected as controller
+Var=DO2Command unsigned 52,2 /max:1 /e:OnOff	// Output command for DO2 if CAN is selected as controller
+Var=DO3Command unsigned 50,2 /max:1 /e:OnOff	// Output command for DO3 if CAN is selected as controller
+Var=DO4Command unsigned 48,2 /max:1 /e:OnOff	// Output command for DO4 if CAN is selected as controller
+Var=ForceFanOn unsigned 60,2 /max:1 /e:RelayCommand /ln:"Force fan on"	// Forces cooling fan on (air cooled units only)
+Var=InvertHwEnable unsigned 62,2 /max:1 /e:InvertHwEnable /ln:"Invert hardware enable"	// Inverts the logic of the Hardware Enable input.
+
+[ParameterResponse]
+DLC=8
+Mux=LocalPLLGain 0,14 0015h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=LocalPLLGain unsigned 16,16 /f:0.001 /min:0.01 /p:3 /d:1 /ln:"Loc. PLL Gain"	// Gain to be applied to the line voltage feedback signals, typically used when sensing voltage on the other side of a transformer.
+
+[ParameterResponse]
+DLC=8
+Mux=LocalPLLOffset 0,14 0016h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=LocalPLLOffset signed 16,16 /u:deg /min:-180 /max:180 /ln:"Loc. PLL Offset"	// Phase shift angle to be applied to the PLL, typically used when sensing voltage on the other side of a transformer.
+
+[ParameterResponse]
+DLC=8
+Mux=RemotePLLGain 0,14 0017h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=RemotePLLGain unsigned 16,16 /f:0.001 /min:0.01 /p:3 /d:1 /ln:"Rem. PLL Gain"	// Gain to be applied to the line voltage feedback signals, typically used when sensing voltage on the other side of a transformer.
+
+[ParameterResponse]
+DLC=8
+Mux=RemotePLLOffset 0,14 0018h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=RemotePLLOffset signed 16,16 /u:deg /min:-180 /max:180 /ln:"Rem. PLL Offset"	// Phase shift angle to be applied to the PLL, typically used when sensing voltage on the other side of a transformer.
+
+[ParameterResponse]
+DLC=8
+Mux=VoltsPerAmpComp 0,14 0019h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=VoltsPerAmpComp signed 16,16 /f:0.0001 /min:-1 /max:1 /p:4 /d:0 /ln:"V/A comp"	// Open loop AC voltage compensation term on a per amp basis; used in forming mode.
+
+[ParameterResponse]
+DLC=8
+Mux=RealCurrentOffset 0,14 001Ah
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=RealCurrentOffset signed 32,32 /u:A/V /f:1E-005 /p:5 /d:0.06126
+
+[ParameterResponse]
+DLC=8
+Mux=ReactiveCurrentOffset 0,14 001Bh
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=ReactiveCurrentOffset signed 32,32 /u:A/V /f:1E-005 /p:5 /d:0.18919
+
+[ParameterResponse]
+DLC=8
+Mux=Inductance 0,14 001Ch	// <HYDRA>
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=legInductance1 unsigned 16,16 /u:uH /f:0.1 /min:0.1 /max:2000 /d:150 /ln:"Leg 1 Inductance"
+Var=legInductance2 unsigned 32,16 /u:uH /f:0.1 /min:0.1 /max:2000 /d:150 /ln:"Leg 2 Inductance"
+Var=legInductance3 unsigned 48,16 /u:uH /f:0.1 /min:0.1 /max:2000 /d:150 /ln:"Leg 3 Inductance"
+
+[ParameterResponse]
+DLC=8
+Mux=Fan_Coolant 0,14 0027h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=tempSetpoint unsigned 16,16 /u:C /max:40 /d:35
+
+[ParameterResponse]
+DLC=8
+Mux=Fan_Cabinet 0,14 0028h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=tempSetpoint unsigned 16,16 /u:C /max:50 /d:35	// Temperature at which fan is enabled.
+
+[ParameterResponse]
+DLC=8
+Mux=AfeConfig 0,14 002Dh
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=EnableZSC unsigned 20,2 /max:1 /e:Enable	// Enables DC current injection limiter.
+Var=EnableForming unsigned 18,2 /max:1 /e:Enable	// Islanding mode allowed
+Var=EnableFollowing unsigned 16,2 /max:1 /e:Enable /d:1	// Grid-connect mode allowed
+Var=PhaseRotation unsigned 24,2 /max:1 /e:PhaseRotation /ln:"Positive phase rotation"	// Specifies phase rotation direction.  Only active while transitioning from READY to GRID_FORMING.
+Var=EnableSplitPhase unsigned 32,2 /max:1 /e:EnableSplitPhase /ln:"Split phase"	// Commands the inverter into split-phase mode.
+Var=EnableUPSMode unsigned 28,2 /max:1 /e:EnableUPSMode /ln:"UPS Mode"	// Enables uninterruptible operation when transitioning from GRID FOLLOWING to GRID FORMING operation.  If operating in GRID FOLLOWING mode, and AC grid voltage is interrupted, the module will attempt to transition to GRID FORMING mode, with no interruption 
+Var=UseVoltageSenseAsRemote unsigned 30,2 /max:1 /e:RemoteVoltageSense /ln:"Use VSense as remote"	// Use local voltage sense input as either local or remote reference.
+Var=EnableAC unsigned 34,2 /max:1 /e:Enable	// Enable AC power stage
+Var=EnableDC unsigned 36,2 /max:1 /e:Enable /d:1	// Enable DC power stage 
+Var=EnableDcControl unsigned 38,2 /e:Enable
+
+[ParameterResponse]
+DLC=8
+Mux=InputVoltageLimits 0,14 003Eh	// <HYDRA>
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=min unsigned 16,16 /u:V /max:1000
+Var=max unsigned 32,16 /u:V /max:1000 /d:1000
+
+[ParameterResponse]
+DLC=8
+Mux=InputCurrentLimits 0,14 003Fh	// <HYDRA>
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=min signed 16,16 /u:A /min:-1400 /max:0 /d:-500
+Var=max signed 32,16 /u:A /min:0 /max:1400 /d:500
+
+[ParameterResponse]
+DLC=8
+Mux=LoggerConf01 0,14 0060h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=PostTriggerDuration_s unsigned 16,14 /u:seconds /f:0.001 /d:0.2	// Duration datalogger continues logging after a fault event occurs.
+
+[ParameterResponse]
+DLC=8
+Mux=LoggerStatus01 0,14 0061h
+Var=ReadParam_status unsigned 14,2 /min:1 /e:ReadNV
+Var=ReadableOctets unsigned 32,32 /u:octets
+
+[ParameterResponse]
+DLC=8
+Mux=RealPwrCmdRampRate 0,14 0070h
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:kW/s /f:0.001 /max:10000 /p:3 /d:2000	// slew limit for change in real power command
+
+[ParameterResponse]
+DLC=8
+Mux=ReactivePwrCmdRampRate 0,14 0071h
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:kVA/s /f:0.001 /max:10000 /p:3 /d:2000	// slew limit for change in reactive power command
+
+[ParameterResponse]
+DLC=8
+Mux=UserSettings 0,14 0072h
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=OverVoltageDC unsigned 16,16 /u:V /max:1350 /p:0 /d:1100	// User Settable Over Voltage Limit
+Var=UnderVoltageDC unsigned 32,16 /u:V /max:800 /d:705	// User Settable Under Voltage Limit
+
+[ParameterResponse]
+DLC=8
+Mux=LineMonitor 0,14 0073h
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=ReconnectDelay unsigned 32,32 /u:seconds /f:0.1 /max:600 /d:10	// Delay time after abnormal grid conditions end until reconnect.
+
+[ParameterResponse]
+DLC=8
+Mux=FanType 0,14 0077h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=CoolantFan unsigned 16,2 /max:1 /e:FANTYPE /d:1
+Var=CabinetFan unsigned 18,2 /max:1 /e:FANTYPE
+
+[ParameterResponse]
+DLC=8
+Mux=VoltageRef 0,14 0078h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=Voltage unsigned 16,16 /u:VRMS /f:0.1 /min:10 /max:480 /d:480 /ln:"Voltage"	// Desired output voltage while in grid forming mode.
+
+[ParameterResponse]
+DLC=8
+Mux=FrequencyRef 0,14 0079h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=Frequency unsigned 16,16 /u:Hz /f:0.1 /min:45 /max:65 /d:60 /ln:"Frequency"	// Desired output frequency while in grid forming mode.
+
+[ParameterResponse]
+DLC=8
+Mux=StatusDeviceTemps2 0,14 007Fh
+Var=ReadParam_status unsigned 14,2 /min:1 /e:ReadNV
+Var=TempTmodel_calculated signed 16,16 /u:C /f:0.1 /min:-40 /max:120 /ln:"Model"	// Thermal Model predicted temp
+Var=IGBTTemperature signed 32,16 /u:C /f:0.1 /min:-40 /max:175 /ln:"IGBT"	// Hottest IGBT
+Var=DiodeTemperature signed 48,16 /u:C /f:0.1 /min:-40 /max:175 /ln:"Diode"	// Hottest Diode
+
+[ParameterResponse]
+DLC=8
+Mux=StatusDeviceTemps 0,14 0080h
+Var=ReadParam_status unsigned 14,2 /min:1 /e:ReadNV
+Var=TempDeviceBrdgA_measured signed 48,16 /u:C /f:0.1 /min:-40 /max:120 /ln:"Bridge A Temp."	// BridgeA Device temp
+Var=TempDeviceBrdgB_measured signed 32,16 /u:C /f:0.1 /min:-40 /max:120 /ln:"Bridge B Temp."	// BridgeB Device temp
+
+[ParameterResponse]
+DLC=8
+Mux=ConverterLosses 0,14 0081h
+Var=ReadParam_status unsigned 14,2 /min:1 /e:ReadNV
+Var=ConverterLosses unsigned 16,16 /u:W /ln:"Converter Losses"	// Power converter thermal loss, excluding grid filter.
+
+[ParameterResponse]
+DLC=8
+Mux=StatusFaults 0,14 0082h
+Var=ReadParam_status unsigned 14,2 /min:1 /e:ReadNV
+Var=LossValidControlMessage unsigned 16,4 /e:Fault /ln:"Control Message"	// Set whenever a control message required for operation contains out of range data or has not been received within the required timeout period.
+Var=dIdt unsigned 20,2 /max:1 /e:Fault	// Rapid change in current
+Var=CtlBrdVoltage unsigned 22,2 /max:1 /e:Fault /ln:"Control Bd. Undervolt."	// The control board power supply voltage is out of range
+Var=InvalidEESection unsigned 24,2 /max:1 /e:Fault /ln:"Invalid NV Section"	// Indicates that reading or writing of an non-volatile parameter section failed.
+Var=InvalidEEHeader unsigned 26,2 /max:1 /e:Fault /ln:"Invalid NV Header"	// Indicates that reading of non-volatile parameters at power-up failed.
+Var=IllegalTransition unsigned 28,2 /max:1 /e:Fault /ln:"Illegal Transition"	// Indicates that an illegal state transition was requested.  For example, this fault will occur if Enable is commanded and line voltage is detected but AC power is not available.
+Var=EStopShutdown unsigned 30,2 /e:Fault /ln:"E-Stop"	// Set when an enable request has been sent whithout the WakeUpSignal flag (hardware enable) in the StatusBits message being active.
+Var=IlegImbalance unsigned 32,2 /max:1 /ln:"Leg current imbalance"	// Imbalance in paralleled leg currents
+Var=OverloadDC unsigned 34,2 /max:1 /e:Fault /ln:"DC Overload"	// Timed DC overload fault status (aircooled units only)
+Var=OverloadAC unsigned 36,2 /max:1 /e:Fault /ln:"AC Overload"	// Timed AC overload fault status (aircooled units only)
+Var=FilterOvertemp unsigned 38,2 /max:1 /e:Fault /ln:"Filter Overtemperature"	// Filter overtemperature digital input is active.
+Var=CoolingSystem unsigned 40,2 /max:1 /e:Fault /ln:"Cooling System"	// The cooling system pump is not running when commanded to run
+Var=LossOfAC unsigned 42,2 /e:Fault /ln:"AC Lost"	// In grid following mode, this fault will be triggered if AC voltage or frequency goes outside of nominal bounds and EnableUPSMode is not set in the CommandModeControl message.
+Var=BridgeBVoltageOk unsigned 44,1 /e:Fault /ln:"Bridge B Ctrl. Voltage"	// Indicates whether a hardware trip has been activated.
+Var=BridgeBFault unsigned 45,3 /e:BridgeFlt /ln:"Bridge B"	// Each bridge has hardware protection features as a backup to software protection.  This bitfield indicates which, if any of these protection trips is active.
+Var=SystemFault unsigned 48,10	// 
+Var=BridgeAVoltageOk unsigned 60,1 /e:Fault /ln:"Bridge A Ctrl. Voltage"	// Indicates whether a hardware trip has been activated.
+Var=BridgeAFault unsigned 61,3 /e:BridgeFlt /ln:"Bridge A"	// Each bridge has hardware protection features as a backup to software protection.  This bitfield indicates which, if any of these protection trips is active.
+
+[ParameterResponse]
+DLC=8
+Mux=StatusFaults2 0,14 0083h
+Var=ReadParam_status unsigned 14,2 /min:1 /e:ReadNV
+Var=OvervoltageDC unsigned 30,2 /e:Fault /ln:"Overvoltage DC"	// Set immediately upon the software detection of DC voltage exceeding the threshold value.
+Var=UndervoltageDC unsigned 28,2 /e:Fault /ln:"Undervoltage DC"	// Indicates loss of DC source voltage.
+Var=OvercurrentDC unsigned 26,2 /e:Fault /ln:"Overcurrent DC"	// Set immediately upon the software detection of DC current exceeding the threshold value.
+Var=FanCircuit unsigned 24,2 /max:1 /e:Fault /ln:"Fan Circuit"	// There is an issue with the module internal cooling fan
+Var=OvertempPowerDevice unsigned 16,2 /e:Fault /ln:"IGBT Overtemp"	// Set immediately upon the software detection of an IGBT temperature exceeding the threshold value.
+Var=OvertempInternal unsigned 18,2 /e:Fault /ln:"Internal Overtemp"	// Set immediately upon the software detection of an internal inverter temperature exceeding the threshold value.
+Var=OvercurrentAC unsigned 20,2 /e:Fault /ln:"Overcurrent AC"	// Set immediately upon the software detection of AC current exceeding the threshold value.
+Var=GeneralFault unsigned 22,2 /e:Fault /ln:"General"	// Will be set any time a fault shutdown has occurred.  It is always accompanied by an additional fault descriptor.
+Var=LowCoolingFlow unsigned 32,2 /e:Fault /ln:"Low Cooling Flow"	// An issue has been detected with the cooling system
+
+[ParameterResponse]
+DLC=8
+Mux=RealPowerLimits 0,14 0086h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=min signed 16,16 /u:kW /f:0.1 /min:-375 /max:0	// Minimum allowed real power command
+Var=max signed 32,16 /u:kW /f:0.1 /min:0 /max:375	// Maximum allowed real power command
+
+[ParameterResponse]
+DLC=8
+Mux=ReactivePowerLimits 0,14 0087h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=min signed 16,16 /u:kVA /f:0.1 /min:-375 /max:0	// Minimum allowed reactive power command
+Var=max signed 32,16 /u:kVA /f:0.1 /min:0 /max:375	// Maximum allowed reactive power command
+
+[ParameterResponse]
+DLC=8
+Mux=RealCurrentLimits 0,14 0088h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=min signed 16,16 /u:A /min:-450 /max:0	// Minimum allowed real current command
+Var=max signed 32,16 /u:A /min:0 /max:450	// Maximum allowed real current command
+
+[ParameterResponse]
+DLC=8
+Mux=ReactiveCurrentLimits 0,14 0089h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=min signed 16,16 /u:A /min:-450 /max:0	// Minimum allowed reactive current command
+Var=max signed 32,16 /u:A /min:0 /max:450	// Maximum allowed reactive current command
+
+[ParameterResponse]
+DLC=8
+Mux=DataloggerConfig 0,14 008Ah
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=ResetDatalogger unsigned 16,2 /e:OnOff
+
+[ParameterResponse]
+DLC=8
+Mux=DataloggerStatus 0,14 008Bh
+Var=ReadParam_status unsigned 14,2 /min:1 /e:ReadNV
+Var=DataloggerRecording unsigned 58,2 /e:OnOff /ln:"Logging"
+Var=DataloggerConfigurationIsValid unsigned 56,2 /e:OnOff
+
+[ParameterResponse]
+DLC=8
+Mux=StatusLineCurrents_txRate 0,14 008Ch
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusLineCurrents message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=StatusLineToNVoltages_txRate 0,14 008Dh
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusLineToNVoltages message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=StatusRemoteLineToNV_txRate 0,14 008Eh
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusRemoteLineToNV message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=StatusACRemote_txRate 0,14 008Fh
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusACRemoteParameters message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=StatusMeasuredPower_txRate 0,14 0090h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusMeasuredPower message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=StatusCommandedPower_txRate 0,14 0091h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusCommandedPower message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=StatusBits_txRate 0,14 0092h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.01	// rate at which the StatusBits message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=StatusTemps_txRate 0,14 0093h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusTemps message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=StatusAC_txRate 0,14 0094h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusACParameters message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=StatusDCParameters_txRate 0,14 0095h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusDCParameters message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=StatusCommandedCurrent_txRate 0,14 0096h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10	// rate at which the StatusCommandedCurrent message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=FrequencyRampRate 0,14 009Fh
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:Hz/s /max:1000 /d:10	// Slew limit for change in frequency command.
+
+[ParameterResponse]
+DLC=8
+Mux=VoltageRampRate 0,14 0100h
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:V/s /d:612	// Slew limit for change in volatage command.  A zero value allows in immediate transition.
+
+[ParameterResponse]
+DLC=8
+Mux=LFM_OverFreqLimits 0,14 011Ah	// Line under-frequency Monitor limits.
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=OF1 unsigned 16,16 /u:Hz /f:0.1 /min:40 /max:70 /d:60.5	// Determines the upper bound, above which the frequency monitor will trip if the line frequency remains for the time specified in FreqHi of the LFM_ClearingTimes Mux.
+Var=OF2 unsigned 32,16 /u:Hz /f:0.1 /min:40 /max:70 /d:62	// Determines the upper bound, above which the frequency monitor will trip if the line frequency remains below this bound but above the value of FreqVeryLo for the time specified in FreqLo of the LFM_ClearingTimes Mux.
+
+[ParameterResponse]
+DLC=8
+Mux=LFM_ClearingTimesUF2 0,14 011Bh	// Line Frequency Monitor Trip times
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=UF2 unsigned 32,32 /u:ms /min:1 /max:300000 /d:2000	// Determines the time it will take for a fault trip to occur when line frequency remains below the value specified in FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+
+[ParameterResponse]
+DLC=8
+Mux=LFM_ClearingTimesOF1 0,14 011Ch	// Line Frequency Monitor Trip times
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=OF1 unsigned 32,32 /u:ms /min:1 /max:300000 /d:2000	// Determines the time it will take for a fault trip to occur when line frequency remains below the value specified in FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+
+[ParameterResponse]
+DLC=8
+Mux=LFM_ClearingTimesOF2 0,14 011Dh	// Line Frequency Monitor Trip times
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=OF2 unsigned 32,32 /u:ms /min:1 /max:10000 /d:160	// Determines the time it will take for a fault trip to occur when line frequency remains below the value specified in FreqVeryLo of the LFM_Limits Mux when the inverter is in GRID FOLLOWING mode.
+
+[ParameterResponse]
+DLC=8
+Mux=StatusWarnings 0,14 011Fh
+Var=ReadParam_status unsigned 14,2 /min:1 /e:ReadNV
+Var=CANWarning unsigned 16,2 /e:WARNING /ln:"CAN Warning"	// CAN Bus in the warning state
+Var=CANErrorPassive unsigned 18,2 /e:WARNING /ln:"CAN Error Passive"	// CAN Bus in the Error Passive state
+Var=FilterOvertemp unsigned 20,2 /e:WARNING /ln:"Filter Overtemperature"	// Filter overtemperature digital input is active.
+Var=FanCircuit unsigned 22,2 /e:WARNING /ln:"Fan Circuit"	// There is a problem with the module internal fan.
+
+[ParameterResponse]
+DLC=8
+Mux=StatusMeasuredCurrent_txRate 0,14 0120h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusMeasuredCurrent message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=RealCurrentCmdRampRate 0,14 0121h
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:A/s /max:50000 /d:1000	// slew limit for change in real current command
+
+[ParameterResponse]
+DLC=8
+Mux=ReactiveCurrentCmdRampRate 0,14 0122h
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=rate unsigned 32,32 /u:A/s /max:50000 /d:1000	// slew limit for change in reactive current command
+
+[ParameterResponse]
+DLC=8
+Mux=StatusLineToLineVoltages_txRate 0,14 0125h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusLineToLineVoltages message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=StatusRemoteLineToLineV_txRate 0,14 0126h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusRemoteLineToLineV message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=RemoteGrid 0,14 0127h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=SyncToRemote unsigned 16,2 /max:1 /e:Enable /ln:"Sync to remote"	// Enables sync and connect to remote source.
+
+[ParameterResponse]
+DLC=8
+Mux=LVM_limits 0,14 012Ch	// voltage thresholds for abnormal grid conditions
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=UnderVoltageThreshold unsigned 16,16 /u:% /f:0.1 /min:60 /max:100 /d:88
+Var=OverVoltageThreshold unsigned 32,16 /u:% /f:0.1 /min:100 /max:110 /d:110
+
+[ParameterResponse]
+DLC=8
+Mux=StatusDCLowside_txRate 0,14 012Dh	// <HYDRA>
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1	// rate at which the StatusDCParameters message will be sent
+
+[ParameterResponse]
+DLC=8
+Mux=VRefRampRate 0,14 012Eh	// <HYDRA>
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=VperS signed 16,16 /u:V/s /max:10000	// Voltage reference ramp rate
+
+[ParameterResponse]
+DLC=8
+Mux=IRefRampRate 0,14 012Fh	// <HYDRA>
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=AperS signed 16,16 /u:A/s /max:10000	// Current reference ramp rate
+
+[ParameterResponse]
+DLC=8
+Mux=DcDcLegControlSourceConfig 0,14 0130h	// Configures control source for DC legs
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=leg1 unsigned 16,4 /max:3 /e:DcLegType
+Var=leg2 unsigned 20,4 /max:3 /e:DcLegType
+Var=leg3 unsigned 24,4 /max:3 /e:DcLegType
+
+[ParameterResponse]
+DLC=8
+Mux=DcDcVoltageDroop 0,14 0131h
+Var=ReadParam_status unsigned 14,2 /max:1 /e:ReadNV
+Var=Resistance unsigned 16,16 /u:Ohm /f:20E-006 /p:3
+
+[ParameterResponse]
+DLC=8
+Mux=StatusCommandedDcControl_txRate 0,14 0132h
+Var=rate unsigned 16,16 /u:s /f:0.01 /max:10 /d:0.1
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+
+[ParameterResponse]
+DLC=8
+Mux=VdcCmdRampRate 0,14 0133h
+Var=rate unsigned 32,32 /u:V/s /d:1000	// Slew rate of voltage command.
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+
+[ParameterResponse]
+DLC=8
+Mux=IdcCmdRampRate 0,14 0134h
+Var=rate unsigned 32,32 /u:A/s /d:1000	// Slew rate of current command.
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+
+[ParameterResponse]
+DLC=8
+Mux=DcControlDroop 0,14 0135h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+Var=resistance unsigned 16,16 /u:V/A /f:2E-005 /p:3
+
+[ParameterResponse]
+DLC=8
+Mux=SoftStart 0,14 0136h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+
+[ParameterResponse]
+DLC=8
+Mux=BusStabilizationDelay 0,14 0137h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+
+[ParameterResponse]
+DLC=8
+Mux=PrechargeConfig 0,14 0138h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+
+[ParameterResponse]
+DLC=8
+Mux=PrechargeVoltage 0,14 0139h
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+
+[ParameterResponse]
+DLC=8
+Mux=PrechargeAbort 0,14 013Ah
+Var=ReadParam_status unsigned 14,2 /e:ReadNV
+
+[CCPResponse]
+ID=19EF41F7h
+Type=Extended
+DLC=8
+Mux=Raw 0,8 0 
+Var=CommandCounter unsigned 16,8
+Var=CommandReturnCode unsigned 8,8
+
+[CCPResponse]
+DLC=8
+Mux=Connect 0,8 1 
+Var=CommandCounter unsigned 16,8
+Var=CommandReturnCode unsigned 8,8
+
+[CCPResponse]
+DLC=8
+Mux=SetMTA 0,8 2 
+Var=CommandCounter unsigned 16,8
+Var=CommandReturnCode unsigned 8,8
+
+[CCPResponse]
+DLC=8
+Mux=Upload 0,8 4 
+Var=CommandCounter unsigned 16,8
+Var=CommandReturnCode unsigned 8,8
+Var=Byte0 unsigned 24,8
+Var=Byte1 unsigned 32,8
+Var=Byte2 unsigned 40,8
+Var=Byte3 unsigned 48,8
+Var=Byte4 unsigned 56,8
+
+[CCPResponse]
+DLC=8
+Mux=Disconnect 0,8 7 
+Var=CommandCounter unsigned 16,8
+Var=CommandReturnCode unsigned 8,8
+
+[StatusLineCurrents]
+ID=18FFD0F7h	// Measured RMS line currents.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=L1Current_measured unsigned 16,16 /u:A /ln:"L1"	// Measured L1 RMS line current.
+Var=L2Current_measured unsigned 32,16 /u:A /ln:"L2"	// Measured L2 RMS line current.
+Var=L3Current_measured unsigned 48,16 /u:A /ln:"L3"	// Measured L3 RMS line current.
+
+[StatusLineToNVoltages]
+ID=18FFD1F7h	// Measured RMS line to neutral voltages.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=L1Voltage_measured unsigned 16,16 /u:VRMS /f:0.1 /ln:"L1"	// Measured L1 RMS line-neutral voltage
+Var=L2Voltage_measured unsigned 32,16 /u:VRMS /f:0.1 /ln:"L2"	// Measured L2 RMS line-neutral voltage
+Var=L3Voltage_measured unsigned 48,16 /u:VRMS /f:0.1 /ln:"L3"	// Measured L3 RMS line-neutral voltage
+
+[StatusRemoteLineToNV]
+ID=18FFD2F7h	// Measured remote RMS line to neutral voltages.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=L1Voltage_measured unsigned 16,16 /u:VRMS /f:0.1 /ln:"L1"	// Measured remote L1 RMS line-neutral voltage
+Var=L2Voltage_measured unsigned 32,16 /u:VRMS /f:0.1 /ln:"L2"	// Measured remote L2 RMS line-neutral voltage
+Var=L3Voltage_measured unsigned 48,16 /u:VRMS /f:0.1 /ln:"L3"	// Measured remote L3 RMS line-neutral voltage
+
+[StatusACRemote]
+ID=1CFFC0F7h	// RMS AC Voltage and frequency measured by line A, B and C feedbacks.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=VoltageAcRemote_measured signed 32,16 /u:V /f:0.1 /min:0 /max:500 /ln:"Meas. remote VAC"	// Measured remote RMS AC voltage.
+Var=FrequencyRemote_measured signed 48,16 /u:Hz /f:0.1 /min:45 /max:65 /ln:"Meas. remote freq"	// Measured remote frequency.
+
+[StatusMeasuredPower]
+ID=0CFFCAF7h	// Returns the actual measured power.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=RealPower_measured signed 16,16 /u:kW /f:0.1 /min:-200 /max:200 /ln:"Meas. real power"	// Measured real power.
+Var=ReactivePower_measured signed 32,16 /u:kVA /f:0.1 /min:-200 /max:200 /ln:"Meas. reactive power"	// Measured reactive power.
+
+[StatusCommandedPower]
+ID=18FFC4F7h	// Echoes the commanded power (P&Q) as received in CommandPower.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=RealPower_echo signed 16,16 /u:kW /f:0.1 /min:-200 /max:200 /ln:"Real Power"	// Echoed real power command.
+Var=ReactivePower_echo signed 32,16 /u:kVA /f:0.1 /min:-200 /max:200 /ln:"Reactive Power"	// Echoed reactive power command.
+
+[StatusBits]
+ID=0CFFC3F7h	// Bits representing the status of the power module.
+Type=Extended
+DLC=8
+CycleTime=10
+Var=WarningClr_echo unsigned 0,2 /e:WarningClear /ln:"Warning Clear"	// Echos the state of the WarningClear command within the CommandModeControl message.
+Var=State unsigned 12,4 /max:7 /e:State /ln:"State"	// Active control mode.
+Var=MX2Permissive unsigned 28,2 /e:Relay /ln:"MX2 Permissive"	// MX2 relay status
+Var=PowerAvailAC unsigned 20,2 /e:PowerAvail /ln:"AC Available"	// Indicates that AC power is connected and that voltage and frequency are within nominal ranges.
+Var=PowerAvailDC unsigned 18,2 /e:PowerAvail /ln:"DC Available"	// Indicates that DC bus voltage is within operating range.
+Var=PowerCircuitEnabled unsigned 16,2 /e:IGBTsEnabled /ln:"Power Circuit Enabled"	// Indicates whether the switching devices are active.
+Var=HardwareEnable unsigned 22,2 /e:WakeUpSignal /ln:"Hardware Enable"	// Status of the hardware enable.
+Var=Enable_echo unsigned 10,2 /e:Enable /ln:"Enable"	// Echos the state of the Enable command within the CommandModeControl message.
+Var=FaultClr_echo unsigned 8,2 /e:FaultClear /ln:"Fault Clear"	// Echos the state of the FaultClear command within the CommandModeControl message.
+Var=MessageValidModeControl unsigned 46,2 /e:MessageValid /ln:"Mode Message Valid"	// Indicates the validity of the CommandModeControl message.  Message must be received at least once per second and parameter data within range to be considered valid.
+Var=MX1Permissive unsigned 30,2 /e:Relay /ln:"MX1 Permissive"	// MX1 relay status
+Var=K2DCRunPermissive unsigned 24,2 /e:Relay /ln:"K2 Permissive"	// K2 DC Run relay status.
+Var=K1PrechargePermissive unsigned 26,2 /e:Relay /ln:"K1 Permissive"	// K1 precharge relay status.
+Var=MessageValidPowerCMD unsigned 44,2 /e:MessageValid /ln:"Power Message Valid"	// Indicates the validity of the CommandPower message.
+Var=PhaseRotation unsigned 42,2 /max:1 /e:PhaseRotation /ln:"Rotation"	// Phase rotation order.  When L1 phase angle leads L2 phase angle, rotation is considered positive.
+Var=LineVoltageDetected unsigned 40,2 /max:1 /e:LineVoltagePresent /ln:"Line Voltage Detected"	// Flag indicating if voltage is detected on L1, L2 or L3.
+Var=Warning unsigned 54,2 /e:WARNING /ln:"Warning Active"	// Indicates that one or more warnings are active
+Var=PowerAvailAcRemote unsigned 52,2 /e:PowerAvail /ln:"Remote AC Avail."	// Indicates that remote AC power is connected and that voltage and frequency are within nominal ranges.
+Var=PhaseRotationRemote unsigned 50,2 /e:PhaseRotation /ln:"Remote Rotation"	// Remote phase rotation order.  When L1 phase angle leads L2 phase angle, rotation is considered positive.
+Var=LineVoltageDetectedRemote unsigned 48,2 /e:LineVoltagePresent /ln:"Remote Line Voltage Detected"	// Flag indicating if voltage is detected on remote L1, L2 or L3.
+Var=PumpRun unsigned 62,2 /max:1 /e:Status /ln:"Pump Running Status"
+Var=PumpFault unsigned 60,2 /max:1 /e:Status /ln:"Pump Faulted Status"
+Var=MessageValidCurrentCMD unsigned 58,2 /e:MessageValid /ln:"I Cmd Message Valid"	// Indicates the validity of the CommandCurrent message.
+Var=MessageValidDcControl unsigned 56,2 /e:MessageValid /ln:"DC Control Message Valid"  // Indicates the validity of the CommandDcControl message.
+Var=DI1 unsigned 38,2 /max:1 /e:OnOff
+Var=DI2 unsigned 36,2 /max:1 /e:OnOff
+Var=DI3 unsigned 34,2 /max:1 /e:OnOff
+Var=DI4 unsigned 32,2 /max:1 /e:OnOff
+
+[StatusTemps]
+ID=18FFCBF7h	// Returns the inlet water temperature to the module as well as module internal ambient temperature.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=TempInlet_measured signed 16,16 /u:C /f:0.1 /min:0 /max:100 /ln:"Inlet Coolant Temp."	// Coolant inlet temperature
+Var=TempInternal_measured signed 32,16 /u:C /f:0.1 /min:0 /max:100 /ln:"Internal Ambient Temp."	// Internal ambient temperature
+Var=FanSpeed unsigned 8,8 /u:% /max:100 /ln:"Fan Speed"	// Cooling fan speed (aircooled units only)
+
+[StatusAC]
+ID=0CFFC2F7h	// RMS AC Voltage, current, and frequency measured by line A, B and C feedbacks.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=VoltageAC_measured signed 16,16 /u:VRMS /f:0.1 /min:0 /max:600 /ln:"Meas. AC Voltage"	// Measured RMS AC voltage.
+Var=CurrentAC_measured signed 32,16 /u:A /min:-900 /max:900 /ln:"Meas. AC current"	// Measured RMS AC current.
+Var=Frequency_measured signed 48,16 /u:Hz /f:0.1 /min:45 /max:65 /ln:"Meas. AC freq."	// Measured frequency.
+
+[StatusDCParameters]
+ID=1CFFC7F7h	// Measured (boosted) DC Bus voltage, DC Current, and estimated DC Input voltage.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=VoltageDCInput_measured unsigned 0,16 /u:VDC /min:0 /max:900 /ln:"DC Input" // Estimated DC input voltage <microgrid>
+Var=VoltageDCBus_measured signed 32,16 /u:VDC /min:0 /max:900 /ln:"DC Voltage"	// Measured DC bus voltage.
+Var=CurrentDC_measured signed 48,16 /u:ADC /min:-500 /max:500 /ln:"Estimated DC Current"	// Measured DC current.
+
+[StatusDCLowside]
+ID=1CFFC8F7h	// battery/solar voltage/current.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=MPPTCurrent_measured signed 32,16 /u:A /ln:"Meas. I MPPT"	// Measured MPPT current <HYDRA>
+Var=VCtlCurrent_measured signed 48,16 /u:A /ln:"Meas. I VCTL"	// Measured Voltage-controlled current. <HYDRA>
+Var=SolarVoltage_measured signed 0,16 /u:V /ln:"Solar voltage"	// Measured solar panel voltage. <HYDRA>
+Var=BatteryVoltage_measured signed 16,16 /u:V /ln:"Battery voltage"	// Measured battery voltage. <HYDRA>
+
+[StatusCommandedCurrent]
+ID=1CFFCCF7h	// Echoes the commanded current as received in CommandPower.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=RealCurrent_echo signed 16,16 /u:A /min:-800 /max:800 /ln:"Real Current"	// Commanded real current while in grid following mode - positive real current is defined as power being put into the ac network.
+Var=ReactiveCurrent_echo signed 32,16 /u:A /min:-800 /max:800 /ln:"Reactive Current"	// Commanded reactive current while in grid following mode - positive reactive current is defined as the converter having a leading power factor.
+
+[StatusMeasuredCurrent]
+ID=0CFFC1F7h	// Returns the actual measured current.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=RealCurrent_measured signed 16,16 /u:A /min:-500 /max:500 /ln:"Meas. real current"	// Measured real current.
+Var=ReactiveCurrent_measured signed 32,16 /u:A /min:-500 /max:500 /ln:"Meas. reactive current"	// Measured reactive current.
+
+[StatusLineToLineVoltages]
+ID=18FFD3F7h	// Measured RMS line to line voltages.
+Type=Extended
+DLC=8
+CycleTime=100
+Var=L1ToL3Voltage_measured unsigned 16,16 /u:VRMS /f:0.1 /ln:"L1-L3"	// Measured L1 To L3 RMS voltage
+Var=L2ToL1Voltage_measured unsigned 32,16 /u:VRMS /f:0.1 /ln:"L2-L1"	// Measured L2 To L1 RMS voltage
+Var=L3ToL2Voltage_measured unsigned 48,16 /u:VRMS /f:0.1 /ln:"L3-L2"	// Measured L3 To L2 RMS voltage
+
+[StatusRemoteLineToLineV]
+ID=18FFD4F7h
+Type=Extended
+DLC=8
+CycleTime=100
+Var=L1ToL3Voltage_measured unsigned 16,16 /u:VRMS /f:0.1 /ln:"L1-L3"	// Measured remote L1 To L3 RMS voltage
+Var=L2ToL1Voltage_measured unsigned 32,16 /u:VRMS /f:0.1 /ln:"L2-L1"	// Measured remote L2 To L1 RMS voltage
+Var=L3ToL2Voltage_measured unsigned 48,16 /u:VRMS /f:0.1 /ln:"L3-L2"	// Measured remote L3 To L2 RMS voltage
+
+[StatusCommandedDcControl]
+ID=18FFD5F7h	// Echoes for dc link voltage, current and line current limits for DC control mode
+Type=Extended
+DLC=8
+CycleTime=100
+Var=dcCurrentLimit_echo unsigned 16,16 /u:A /max:2000
+Var=dcVoltageLimit_echo unsigned 32,16 /u:V /max:1500
+Var=lineCurrentLimit_echo unsigned 48,16 /u:A /max:1000
+

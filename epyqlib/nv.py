@@ -167,14 +167,21 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
 
             if len(signals) > 0:
                 def ignore_timeout(failure):
-                    if failure.type is \
-                            epyqlib.twisted.nvs.RequestTimeoutError:
+                    acceptable_errors = (
+                        epyqlib.twisted.nvs.RequestTimeoutError,
+                        epyqlib.twisted.nvs.SendFailedError,
+                        epyqlib.twisted.nvs.CanceledError,
+                    )
+                    if failure.type in acceptable_errors:
                         return None
 
                     return epyqlib.utils.twisted.errbackhook(
                         failure)
 
-                def send(signals=signals):
+                def send(signals=None, all_signals=signals):
+                    if signals is None:
+                        signals = all_signals
+
                     d = self.protocol.write_multiple(
                         nv_signals=signals,
                         priority=epyqlib.twisted.nvs.Priority.user
@@ -396,7 +403,6 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
         d.addErrback(epyqlib.utils.twisted.detour_result,
                      self.activity_ended.emit,
                      'Failed while {}...'.format(activity.lower()))
-        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
         return d
 
@@ -522,7 +528,7 @@ class Nvs(TreeNode, epyqlib.canneo.QtCanListener):
             signal, = signal
         except ValueError as e:
             raise NotFoundError(
-                'Signal not found: {}'.format(signal_name)) from e
+                'Signal not found: {}:{}'.format(frame_name, value_name)) from e
 
         return signal
 
@@ -643,7 +649,7 @@ class Nv(epyqlib.canneo.Signal, TreeNode):
 
 
 class Frame(epyqlib.canneo.Frame, TreeNode):
-    _send = pyqtSignal()
+    _send = pyqtSignal(tuple)
 
     def __init__(self, message=None, tx=False, frame=None,
                  multiplex_value=None, signal_class=Nv, mux_frame=None,
@@ -681,8 +687,8 @@ class Frame(epyqlib.canneo.Frame, TreeNode):
             only_return=only_return,
         )
 
-    def send_now(self):
-        self._send.emit()
+    def send_now(self, signals):
+        self._send.emit(signals)
 
 
 @attr.s
@@ -703,6 +709,8 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         epyqlib.pyqabstractitemmodel.PyQAbstractItemModel.__init__(
                 self, root=root, editable_columns=editable_columns,
                 alignment=Qt.AlignVCenter | Qt.AlignLeft, parent=parent)
+
+        self.check_range = True
 
         self.headers = Columns(name='Name',
                                value='Value',
@@ -820,11 +828,18 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
         node.clear()
         self.dynamic_columns_changed(node)
 
+    def check_range_changed(self, state):
+        self.check_range = state == Qt.Checked
+
     def setData(self, index, data, role=None):
         if index.column() == Columns.indexes.value:
             if role == Qt.EditRole:
                 node = self.node_from_index(index)
-                success = node.set_data(data, mark_modified=True)
+                success = node.set_data(
+                    data,
+                    mark_modified=True,
+                    check_range=self.check_range,
+                )
 
                 self.dataChanged.emit(index, index)
                 return success
@@ -839,11 +854,15 @@ class NvModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
     @pyqtSlot()
     def write_to_module(self):
         # TODO: device or module!?!?
-        self.root.write_all_to_device()
+        d = self.root.write_all_to_device()
+        d.addErrback(epyqlib.utils.twisted.catch_expected)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     @pyqtSlot()
     def read_from_module(self):
-        self.root.read_all_from_device()
+        d = self.root.read_all_from_device()
+        d.addErrback(epyqlib.utils.twisted.catch_expected)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     @pyqtSlot()
     def write_to_file(self, parent=None):

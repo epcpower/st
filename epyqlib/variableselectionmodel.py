@@ -15,6 +15,7 @@ import io
 import itertools
 import json
 import math
+import natsort
 import sys
 import textwrap
 import time
@@ -188,6 +189,11 @@ class VariableNode(epyqlib.treenode.TreeNode):
             new_members.extend(
                 self.add_pointer_members(base_type, address))
 
+        if isinstance(base_type, epyqlib.cmemoryparser.Union):
+            new_members.extend(
+                self.add_union_members(base_type, address)
+            )
+
         for child in self.children:
             new_members.extend(child.add_members(
                 base_type=epyqlib.cmemoryparser.base_type(child.variable),
@@ -249,6 +255,20 @@ class VariableNode(epyqlib.treenode.TreeNode):
                 address=self.fields.value
             )
             child_node = VariableNode(variable=variable)
+            self.append_child(child_node)
+            new_members.append(child_node)
+
+        return new_members
+
+    def add_union_members(self, base_type, address):
+        new_members = []
+
+        for name, member in base_type.members.items():
+            child_node = VariableNode(
+                variable=member,
+                name=name,
+                address=address,
+            )
             self.append_child(child_node)
             new_members.append(child_node)
 
@@ -333,6 +353,18 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
             protocol=self.protocol,
             reactor=reactor,
             bus=self.bus)
+
+        # TODO: consider using locale?  but maybe not since it's C code not
+        #       raw strings
+        self.sort_key = natsort.natsort_keygen(alg=natsort.ns.IGNORECASE)
+        self.role_functions[epyqlib.pyqabstractitemmodel.UserRoles.sort] = (
+            self.data_sort
+        )
+
+    def data_sort(self, index):
+        node = self.node_from_index(index)
+
+        return self.sort_key(node.fields[index.column()])
 
     def array_truncated_message(self, maximum_children, name, length):
         message = ('Arrays over {} elements are truncated.\n'
@@ -544,9 +576,6 @@ class VariableModel(epyqlib.pyqabstractitemmodel.PyQAbstractItemModel):
                     "is limited to {frames}.  Selection has been truncated."
                     .format(chunks=chunk_count, frames=frame_count))
 
-            message_box.setText(text)
-
-            message_box.exec()
             epyqlib.utils.qt.dialog(
                 parent=parent,
                 message=text,

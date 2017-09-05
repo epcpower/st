@@ -718,10 +718,6 @@ class IdentifierTypeError(ValueError):
     pass
 
 
-class PayloadLengthError(ValueError):
-    pass
-
-
 class MessageLengthError(ValueError):
     pass
 
@@ -774,8 +770,11 @@ class Packet(can.Message):
                          *args, **kwargs)
 
         self._counter_index = counter_index
-        # self._payload_start = payload_start
-        self.payload = WindowSlice(self.data, payload_start)
+        self._payload = WindowSlice(self.data, payload_start)
+
+    @property
+    def payload(self):
+        return self._payload
 
     @classmethod
     def from_message(cls, message):
@@ -794,24 +793,6 @@ class Packet(can.Message):
             dlc=message.dlc,
             data=message.data
         )
-
-    # @property
-    # def payload(self):
-    #     return self.data[self._payload_start:]
-    #
-    #
-    # @payload.setter
-    # def payload(self, payload):
-    #     maximum_payload = self.dlc - self._payload_start
-    #     if len(payload) > maximum_payload:
-    #         raise PayloadLengthError(
-    #             'Maximum payload length exceeded: {actual} > {maximum}'.format(
-    #                 actual=len(payload),
-    #                 maximum=maximum_payload
-    #             ))
-    #
-    #     payload += [0] * ((self.dlc - self._payload_start) - len(payload))
-    #     self.data[self._payload_start:] = payload
 
     @property
     def command_counter(self):

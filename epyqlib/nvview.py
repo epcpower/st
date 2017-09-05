@@ -8,7 +8,7 @@ import functools
 import io
 import os
 import twisted.internet.defer
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, QFile, QFileInfo, QTextStream,
                           QCoreApplication, Qt, QItemSelectionModel,
                           QModelIndex, QSortFilterProxyModel)
@@ -61,10 +61,18 @@ class NvView(QtWidgets.QWidget):
             comment=True,
         )
 
+        self.progress = None
+
         self.ui.tree_view.clicked.connect(self.clicked)
         self.ui.tree_view.header().setMinimumSectionSize(0)
 
-        self.progress = None
+        self.ui.searchbox.connect_to_view(
+            view=self.ui.tree_view,
+            column=epyqlib.nv.Columns.indexes.name,
+        )
+
+    def filter_text_changed(self, text):
+        self.ui.tree_view.model().setFilterWildcard(text)
 
     # TODO: CAMPid 07943342700734207878034207087
     def nonproxy_model(self):
@@ -88,8 +96,12 @@ class NvView(QtWidgets.QWidget):
             self.update_signals,
             only_these=only_these
         )
-        model.root.write_all_to_device(callback=callback,
-                                       only_these=only_these)
+        d = model.root.write_all_to_device(
+            callback=callback,
+            only_these=only_these,
+        )
+        d.addErrback(epyqlib.utils.twisted.catch_expected)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def read_from_module(self):
         resize_mode = self.ui.tree_view.header().sectionResizeMode(epyqlib.nv.Columns.indexes.value)
@@ -103,8 +115,14 @@ class NvView(QtWidgets.QWidget):
         )
         d = model.root.read_all_from_device(callback=callback,
                                             only_these=only_these)
-        d.addBoth(lambda _: self.ui.tree_view.header().setSectionResizeMode(
-            epyqlib.nv.Columns.indexes.value, resize_mode))
+
+        def f():
+            self.ui.tree_view.header().setSectionResizeMode(
+                epyqlib.nv.Columns.indexes.value, resize_mode
+            )
+        d.addBoth(epyqlib.utils.twisted.detour_result, f)
+        d.addErrback(epyqlib.utils.twisted.catch_expected)
+        d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def setModel(self, model):
         proxy = model
@@ -114,6 +132,13 @@ class NvView(QtWidgets.QWidget):
         model = self.nonproxy_model()
         model.activity_started.connect(self.activity_started)
         model.activity_ended.connect(self.activity_ended)
+
+        self.ui.enforce_range_limits_check_box.stateChanged.connect(
+            model.check_range_changed,
+        )
+        model.check_range_changed(
+            self.ui.enforce_range_limits_check_box.checkState(),
+        )
 
         self.ui.module_to_nv.connect(model.module_to_nv)
 
@@ -250,11 +275,19 @@ class NvView(QtWidgets.QWidget):
         if action is None:
             pass
         elif action is read:
-            model.root.read_all_from_device(only_these=selected_nodes,
-                                            callback=callback)
+            d = model.root.read_all_from_device(
+                only_these=selected_nodes,
+                callback=callback,
+            )
+            d.addErrback(epyqlib.utils.twisted.catch_expected)
+            d.addErrback(epyqlib.utils.twisted.errbackhook)
         elif action is write:
-            model.root.write_all_to_device(only_these=selected_nodes,
-                                           callback=callback)
+            d = model.root.write_all_to_device(
+                only_these=selected_nodes,
+                callback=callback,
+            )
+            d.addErrback(epyqlib.utils.twisted.catch_expected)
+            d.addErrback(epyqlib.utils.twisted.errbackhook)
         elif action is saturate:
             for node in selected_nodes:
                 model.saturate_node(node)

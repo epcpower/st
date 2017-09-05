@@ -44,10 +44,10 @@ class BusProxy(QObject):
         self._transmit = transmit
 
     def send(self, msg, on_success=None):
-        self._send(msg, on_success=on_success)
+        return self._send(msg, on_success=on_success)
 
     def send_passive(self, msg, on_success=None):
-        self._send(msg, on_success=on_success, passive=True)
+        return self._send(msg, on_success=on_success, passive=True)
 
     def _send(self, msg, on_success=None, passive=False):
         if self.bus is not None and (self._transmit or passive):

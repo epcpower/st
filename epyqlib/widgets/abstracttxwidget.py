@@ -107,7 +107,9 @@ class AbstractTxWidget(epyqlib.widgets.abstractwidget.AbstractWidget):
                 )
             else:
                 if self._period is None:
-                    self.signal_object.frame.send_now()
+                    self.signal_object.frame.send_now(
+                        signals=(self.signal_object,),
+                    )
 
 
 if __name__ == '__main__':

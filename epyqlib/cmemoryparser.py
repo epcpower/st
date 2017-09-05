@@ -157,7 +157,7 @@ class Type:
                 8: 'd'
             }
             try:
-                type = types[self.bytes * bits_per_byte]
+                type = types[self.bytes * (bits_per_byte / 8)]
             except KeyError:
                 raise Exception(
                     'float type only supports lengths in [{}]'.
@@ -537,18 +537,69 @@ class StructMember:
     def unpack(self, data):
         if isinstance(data, bytearray):
             bits = bytearray_to_bits(data)
+            if self.bit_size is not None:
+                bits = bits[self.bit_offset:]
+                bits = bits[:self.bit_size]
         else:
             bits = data
 
-        if self.bit_size is not None:
-            bits = bits[self.bit_offset:]
-            bits = bits[:self.bit_size]
         return base_type(self).unpack(bits)
 
 @attr.s
 class Union:
     bytes = attr.ib()
     name = attr.ib(default=None)
+    members = attr.ib(default=attr.Factory(collections.OrderedDict))
+
+    def unpack(self, data):
+        # # TODO: CAMPid 078587996542145215432667431535465465421
+        # if isinstance(data, bytes):
+        #     data = bytearray(data)
+        # elif isinstance(data, str):
+        #     data = bytearray(int(data, 2)
+        #                      .to_bytes(self.bytes * bits_per_byte // 8,
+        #                                byteorder='big'))
+
+        values = collections.OrderedDict()
+        for member in self.members.values():
+            b_type = base_type(member)
+            values[member.name] = member.unpack(data)
+
+        return collections.OrderedDict(
+            (m.name, values[m.name])
+            for m in self.members.values()
+        )
+
+
+@attr.s
+class UnionMember:
+    name = attr.ib()
+    type = attr.ib()
+    # location = attr.ib()
+    # bit_offset = attr.ib(default=None)
+    # bit_size = attr.ib(default=None)
+    # padding = attr.ib(default=False)
+
+    def format_string(self):
+        format = base_type(self).format_string()
+        # format = '>' + format[1:]
+        return format
+
+    @property
+    def bytes(self):
+        return base_type(self).bytes
+
+    def unpack(self, data):
+        return base_type(self).unpack(data)
+        # if isinstance(data, bytearray):
+        #     bits = bytearray_to_bits(data)
+        # else:
+        #     bits = data
+        #
+        # if self.bit_size is not None:
+        #     bits = bits[self.bit_offset:]
+        #     bits = bits[:self.bit_size]
+        # return base_type(self).unpack(bits)
 
 
 @attr.s
@@ -1035,9 +1086,22 @@ def process_file(filename):
             print('Skipping DW_TAG_union_type due to lack of '
                   'DW_AT_byte_size', name)
             continue
+
+        members = collections.OrderedDict((
+            (
+                member.attributes['DW_AT_name'].value.decode('utf-8'),
+                UnionMember(
+                    name=member.attributes['DW_AT_name'].value.decode('utf-8'),
+                    type=member.attributes.get('DW_AT_type').value,
+                ),
+            )
+            for member in die.iter_children()
+        ))
+
         union = Union(
             name=name,
-            bytes=byte_size_attribute.value
+            bytes=byte_size_attribute.value,
+            members=members,
         )
         union_types.append(union)
         offsets[die.offset] = union
@@ -1103,6 +1167,10 @@ def process_file(filename):
 
     for structure in structure_types:
         for member in structure.members.values():
+            member.type = offsets[member.type]
+
+    for union in union_types:
+        for member in union.members.values():
             member.type = offsets[member.type]
 
     passes = 0

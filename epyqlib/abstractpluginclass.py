@@ -14,14 +14,6 @@ __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
-if sys.excepthook == sys.__excepthook__:
-    qDebug('Enabling EPC sys.excepthook')
-    sys.excepthook = functools.partial(
-        epyqlib.utils.qt.exception_message_box,
-        stderr=False,
-    )
-
-
 class AbstractPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     # https://wiki.python.org/moin/PyQt/Using_Python_Custom_Widgets_in_Qt_Designer
 
