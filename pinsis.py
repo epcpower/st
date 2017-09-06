@@ -65,6 +65,10 @@ pyinstaller = os.path.join('venv', 'Scripts', 'pyinstaller')
 spec_file = os.path.join('installer', 'pyinstaller.spec')
 subprocess.check_call([pyinstaller, spec_file])
 
+shutil.copy(
+    os.path.join('installer', 'api-ms-win-core-synch-l1-2-0.dll'),
+    os.path.join('dist', 'api-ms-win-core-synch-l1-2-0.dll.win7'),
+)
 
 if args.nsis:
     makensis = os.path.join('c:/', 'program files (x86)', 'nsis', 'bin', 'makensis.exe')
