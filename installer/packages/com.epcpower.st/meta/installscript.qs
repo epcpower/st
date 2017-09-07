@@ -10,6 +10,13 @@ Component.prototype.createOperations = function()
         component.createOperations();
         if (systemInfo.productType == "windows") { 
             try {
+                if (parseInt(systemInfo.productVersion.split(" ", 1)) == 7) {
+                    component.addOperation(
+                        "Copy",
+                        "@TargetDir@/api-ms-win-core-synch-l1-2-0.dll.win7",
+                        "@TargetDir@/api-ms-win-core-synch-l1-2-0.dll"
+                    );
+                }
                 component.addOperation("CreateShortcut", "@TargetDir@/maintenancetool.exe", "@StartMenuDir@/Uninstall.lnk",
                     "workingDirectory=@TargetDir@", "iconPath=%SystemRoot%/system32/SHELL32.dll",
                     "iconId=2");
