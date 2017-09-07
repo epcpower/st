@@ -67,7 +67,7 @@ subprocess.check_call([pyinstaller, spec_file])
 
 shutil.copy(
     os.path.join('installer', 'api-ms-win-core-synch-l1-2-0.dll'),
-    os.path.join('dist', 'api-ms-win-core-synch-l1-2-0.dll.win7'),
+    os.path.join('dist', 'epyq', 'api-ms-win-core-synch-l1-2-0.dll.win7'),
 )
 
 if args.nsis:
