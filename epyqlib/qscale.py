@@ -373,6 +373,8 @@ class QScale(QtWidgets.QWidget):
                                 qpp.arcTo(x, y, d, d, rangeAngleStart, 
                                           rangeAngleSpan)
                             else:
+                                # Color scale orientation changed if flipped.
+                                # Keep in mind, it isn't a PERFECT flip.
                                 qpp.arcMoveTo(x, -y - d, d, d, rangeAngleStart)
                                 qpp.arcTo(x, -y - d, d, d, rangeAngleStart, 
                                           rangeAngleSpan)
@@ -388,6 +390,7 @@ class QScale(QtWidgets.QWidget):
                                 outer.arcTo(x, y, d, d, rangeAngleStart 
                                             + rangeAngleSpan, -rangeAngleSpan)
                             else:
+                                # Color scale orientation changed if flipped.
                                 outer.arcMoveTo(x, -y - d, d, d, rangeAngleStart 
                                                 + rangeAngleSpan)
                                 outer.arcTo(x, -y - d, d, d, rangeAngleStart 

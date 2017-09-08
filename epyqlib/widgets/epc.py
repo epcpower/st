@@ -7,6 +7,7 @@ import os
 from PyQt5.QtCore import (pyqtSignal, pyqtProperty,
                           QFile, QFileInfo, QTextStream, Qt)
 from PyQt5.QtGui import QFocusEvent, QKeyEvent
+# from PyQt5.QWidgets import QWidget
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
@@ -31,6 +32,8 @@ class Epc(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
         self._signal = None
 
         self._show_enumeration_value = True
+
+        self.isBlue = False # By default, the text color is black.
 
         self.update()
 
@@ -159,6 +162,19 @@ class Epc(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
 
         self.update()
 
+    # Determines if the text for the label should be black or blue.
+    @pyqtProperty(bool)
+    def textColorBlue(self):
+        return self.isBlue
+
+    @textColorBlue.setter
+    def textColorBlue(self, value):
+        self.isBlue = value
+
+        if self.isBlue:
+            self.ui.label.setStyleSheet("QLabel { color : blue; }")
+        else:
+            self.ui.label.setStyleSheet("QLabel { color : black; }")
 
 if __name__ == '__main__':
     import sys
