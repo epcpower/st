@@ -297,7 +297,7 @@ class QScale(QtWidgets.QWidget):
         if self.m_minorStepCount > 0:
             minorSteps = self.m_minorStepCount
 
-        scaleWidth = self.min(self.min(1.25 * (hWidget - self.m_borderWidth), 
+        scaleWidth = self.min(self.min(0.25 * (hWidget - self.m_borderWidth), 
                                        0.25 * radius), 2.5 
                                        * boundingRect.height())
         minorScaleWidth = scaleWidth * 0.4
@@ -306,9 +306,6 @@ class QScale(QtWidgets.QWidget):
         if vertical:
             painter.rotate(90)
             painter.translate(0, -hWidget + wLabel / 4.0)
-
-        # Decided not to do anything with color ranges for now.
-
 
         def drawColorRanges(self):
 
