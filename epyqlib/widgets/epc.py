@@ -174,7 +174,7 @@ class Epc(epyqlib.widgets.abstracttxwidget.AbstractTxWidget):
         if self.isBlue:
             self.ui.label.setStyleSheet("QLabel { color : blue; }")
         else:
-            self.ui.label.setStyleSheet("QLabel { color : black; }")
+            self.ui.label.setStyleSheet("")
 
 if __name__ == '__main__':
     import sys
