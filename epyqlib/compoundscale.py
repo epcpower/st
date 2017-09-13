@@ -24,6 +24,7 @@ class CompoundScale(QWidget):
 
         self.in_designer = in_designer
 
+        # If true, flips the compound scale on y axis if vertically oriented.
         self.cs_vertically_flipped = False
 
         ui = self.getPath()
@@ -118,7 +119,7 @@ class CompoundScale(QWidget):
     # in vertical orientation
     @pyqtProperty(bool)
     def cs_flipped(self):
-        return self.cs_vertically_flipped;
+        return self.cs_vertically_flipped
 
     @cs_flipped.setter
     def cs_flipped(self, value):
