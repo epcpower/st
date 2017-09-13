@@ -167,7 +167,7 @@ class Scale(epyqlib.widgets.abstractwidget.AbstractWidget,
     # in vertical orientation
     @pyqtProperty(bool)
     def s_flipped(self):
-        return self.s_vertically_flipped;
+        return self.s_vertically_flipped
 
     @s_flipped.setter
     def s_flipped(self, value):

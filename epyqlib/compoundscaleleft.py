@@ -12,6 +12,8 @@ from PyQt5.QtWidgets import QWidget
 # from epyqlib.compoundscale import CompoundScale
 # from compoundscale import CompoundScale
 import epyqlib.compoundscale
+
+
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2016, EPC Power Corp.'
 __license__ = 'GPLv2+'

@@ -14,10 +14,8 @@ __copyright__ = ('\n'.join([
     # Ported to PyQt4
     # http://pastebin.com/kzp7f7DS
 
-    'Copyright 2016, EPC Power Corp.',
+    'Copyright 2017, EPC Power Corp.',
     # Ported to PyQt5
-
-    'Copyright 2017, EPC Power Corp.'
     # Max/min positions correct and vertical orientation can be flipped.
 ]))
 __license__ = 'GPLv2+'
