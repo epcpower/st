@@ -311,6 +311,8 @@ class QScale(QtWidgets.QWidget):
             if vertical and self.vertically_flipped:
                 # Weird. Seems to get the position as if the angle is 0 degrees
                 painter.translate(0, painter.transform().dx())
+                # Correctly repositions color scale.
+                painter.translate(0, -wLabel / 4.0)
 
             if len(self.colors) > 0:
                 transform = painter.transform()
@@ -363,33 +365,35 @@ class QScale(QtWidgets.QWidget):
                             x = center.x() - r
                             y = center.y() - r                           
 
+
+                            y_offset = y
+                            # Color scale orientation changed if flipped.
+                            # Keep in mind, it isn't a PERFECT flip.
                             if not (vertical and self.vertically_flipped):
-                                qpp.arcMoveTo(x, y, d, d, rangeAngleStart)
-                                qpp.arcTo(x, y, d, d, rangeAngleStart, 
-                                          rangeAngleSpan)
+                                y_offset = y
                             else:
-                                # Color scale orientation changed if flipped.
-                                # Keep in mind, it isn't a PERFECT flip.
-                                qpp.arcMoveTo(x, -y - d, d, d, rangeAngleStart)
-                                qpp.arcTo(x, -y - d, d, d, rangeAngleStart, 
-                                          rangeAngleSpan)
+                                y_offset = -y -d
+                            qpp.arcMoveTo(x, y_offset, d, d, rangeAngleStart)
+                            qpp.arcTo(x, y_offset, d, d, rangeAngleStart, 
+                                      rangeAngleSpan)
+
                             outer = QtGui.QPainterPath()
                             r = radius - 0.6 * scaleWidth
                             d = 2 * r
                             x = center.x() - r
                             y = center.y() - r
 
+                            # Color scale orientation changed if flipped.
                             if not (vertical and self.vertically_flipped):
-                                outer.arcMoveTo(x, y, d, d, rangeAngleStart 
-                                                + rangeAngleSpan)
-                                outer.arcTo(x, y, d, d, rangeAngleStart 
-                                            + rangeAngleSpan, -rangeAngleSpan)
+                                y_offset = y
                             else:
-                                # Color scale orientation changed if flipped.
-                                outer.arcMoveTo(x, -y - d, d, d, rangeAngleStart 
-                                                + rangeAngleSpan)
-                                outer.arcTo(x, -y - d, d, d, rangeAngleStart 
-                                            + rangeAngleSpan, -rangeAngleSpan)
+                                y_offset = -y -d
+
+                            outer.arcMoveTo(x, y_offset, d, d, rangeAngleStart 
+                                            + rangeAngleSpan)
+                            outer.arcTo(x, y_offset, d, d, rangeAngleStart 
+                                        + rangeAngleSpan, -rangeAngleSpan)
+
                             qpp.connectPath(outer)
                             qpp.closeSubpath()
                             painter.drawPath(qpp)
