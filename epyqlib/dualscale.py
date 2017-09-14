@@ -47,6 +47,8 @@ class DualScale(QWidget):
         # color ranges, scale markers, labels, needle painted.
         self.scale1.scale.m_paintMode = 1
         # needle, cover painted.
+        self.scale2.scale.m_paintMode = 3
+        # scale2's needle is blue
         self.scale2.scale.isBlue = True
         self.stackedLayout = QStackedLayout()
         self.stackedLayout.addWidget(self.scale2)
