@@ -23,8 +23,8 @@ __license__ = 'GPLv2+'
 
 class QScale(QtWidgets.QWidget):
 
-    def __init__(self, parent = None, in_designer = False):
-        QtWidgets.QWidget.__init__(self, parent = parent)
+    def __init__(self, parent=None, in_designer=False):
+        QtWidgets.QWidget.__init__(self, parent=parent)
 
         self.in_designer = in_designer
 
@@ -64,7 +64,7 @@ class QScale(QtWidgets.QWidget):
 
         self.isBlue = False
 
-    def setMinimumSize(self, width = None, height = None, painter = None):
+    def setMinimumSize(self, width=None, height=None, painter=None):
         self.updateLabelSample()
 
         if painter is None:
@@ -620,10 +620,10 @@ class QScale(QtWidgets.QWidget):
         # TODO: add usage of m_labelsFormat and m_labelsPrecision
         self.labelSample = '{}'.format(wildcard)
 
-    def max(self,val1,val2):
+    def max(self, val1, val2):
         return val1 if val1 > val2 else val2
 
-    def min(self,val1,val2):
+    def min(self, val1, val2):
         return val1 if val1 < val2 else val2
 
     # New functions help determining flip status.
