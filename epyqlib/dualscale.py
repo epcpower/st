@@ -198,4 +198,4 @@ class DualScale(QWidget):
     def upper_red_color(self, color):
         self.scale1._colors[4] = color
         self.scale1.update_configuration()
-        
+ 

@@ -206,7 +206,7 @@ class CompoundScale(QWidget):
     def upper_red_color(self, color):
         self.ui.status._colors[4] = color
         self.ui.status.update_configuration()
-        
+
 if __name__ == '__main__':
     import sys
 

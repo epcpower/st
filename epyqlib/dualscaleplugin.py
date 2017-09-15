@@ -14,4 +14,3 @@ class DualScalePlugin(epyqlib.abstractpluginclass.AbstractPlugin):
         self._init = epyqlib.dualscale.DualScale
         self._module_path = 'epyqlib.dualscale'
         self._name = 'DualScale'
-        

@@ -260,7 +260,7 @@ class QScale(QtWidgets.QWidget):
         else:
             center = QtCore.QPointF(0.5 * wWidget, 
                                     radius + hLabel + self.m_borderWidth)
-            
+
         # Calculate where certain things start and their span.
         angleSpan = -360.0 / pi * asin(wScale / (2.0 * radius))
         angleStart = 90.0 - 0.5 * angleSpan

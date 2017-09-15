@@ -19,7 +19,7 @@ class Scale(epyqlib.widgets.abstractwidget.AbstractWidget,
     def __init__(self, parent=None, in_designer=False):
 
         self.s_vertically_flipped = False
-        
+
         ui_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)),
                                'scale.ui')
 
