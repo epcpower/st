@@ -154,22 +154,21 @@ def main(sys_argv):
     cmd_bits.clear('FltClr')
     update_cmd_bits(cmd_bits, d)
 
+    d.epc_control.CmdV = 480
+    d.epc_control.CmdHz = 60
+    d.epc_control.model.points['CmdV'].write()
+    d.epc_control.model.points['CmdHz'].write()
+    
     for _ in range(25):
     # enable and run
         cmd_bits.set('En')
         d.epc_control.CmdBits = cmd_bits.to_int()
         print('{}: {}'.format(d.epc_control.CmdBits, cmd_bits.active()))
-        d.epc_control.DcVLim = 900
-        d.epc_control.DcILim = 175
-        d.epc_control.LineILim = 140
-        d.epc_control.CmdV = 480
-        d.epc_control.CmdHz = 60
+        d.epc_control.CmdRealPwr = 10000 #10kW
+        d.epc_control.CmdReactivePwr = 5000 #5kVA
         d.epc_control.model.points['CmdBits'].write()
-        d.epc_control.model.points['DcVLim'].write()
-        d.epc_control.model.points['DcILim'].write()
-        d.epc_control.model.points['LineILim'].write()
-        d.epc_control.model.points['CmdV'].write()
-        d.epc_control.model.points['CmdHz'].write()
+        d.epc_control.model.points['CmdRealPwr'].write()
+        d.epc_control.model.points['CmdReactivePwr'].write()
 
         d.epc_control.read()
         print(d.epc_control)
