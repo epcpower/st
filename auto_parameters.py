@@ -70,7 +70,6 @@ class DeviceExtension:
         self._started()
         d.addBoth(epyqlib.utils.twisted.detour_result, self._ended)
         d.addCallback(epyqlib.utils.twisted.detour_result, self._finished)
-        d.addErrback(epyqlib.utils.twisted.catch_expected)
         d.addErrback(epyqlib.utils.twisted.errbackhook)
 
     def _started(self):
@@ -88,7 +87,7 @@ class DeviceExtension:
     def _finished(self):
         epyqlib.utils.qt.dialog(
             parent=self.device().ui,
-            message='Parameters successfully written to device',
+            message='Parameters successfully written to device and saved to NV',
             icon=PyQt5.QtWidgets.QMessageBox.Information,
         )
 
@@ -125,3 +124,22 @@ class DeviceExtension:
             # don't pick zero as a code...
             factory_signal.set_value(value=0)
             yield self.nv_protocol.write(nv_signal=factory_signal)
+
+        yield self._module_to_nv()
+
+    def _module_to_nv(self):
+        self.nvs.save_signal.set_value(self.nvs.save_value)
+        self.nvs.save_frame.update_from_signals()
+        d = self.nv_protocol.write(self.nvs.save_signal, passive=True)
+        d.addBoth(
+            epyqlib.utils.twisted.detour_result,
+            self.nvs.module_to_nv_off,
+        )
+
+        return d
+
+    def _module_to_nv_off(self):
+        self.save_signal.set_value(not self.save_value)
+        d = self.protocol.write(self.save_signal, passive=True)
+
+        return d
