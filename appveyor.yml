@@ -21,6 +21,7 @@ build_script:
   - ps: if (Get-ChildItem Env:PHRASE -ErrorAction SilentlyContinue) {$Env:PHRASE | Out-File sub/epyqlib/epyqlib/resources/code -Encoding ascii -NoNewline}
   - venv\\Scripts\\python pinsis.py --qtifw
   - move ..\\*.exe .
+  - appveyor PushArtifact "*.exe"
   - ps: Invoke-WebRequest -Uri http://www.peak-system.com/produktcd/Drivers/PeakOemDrv.exe -OutFile ..\\PeakOemDrv.exe
   - ..\\PeakOemDrv.exe /exenoui /qn ADDLOCAL=F_PNP_DVRS,F_PCANBASIC
   - venv\\Scripts\\pytest --no-qt-log --run-factory sub\\epyqlib\\epyqlib\\tests
