@@ -9,6 +9,7 @@ https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809
 -e git+https://github.com/altendky/python-can@ad0fd41e7bf95310f7498dba2cdb0a0bc66d5229#egg=python-can
 -e git+https://github.com/ebroecker/canmatrix@336a8937c3fbdf4ba0d26cf4275aca4ee5486d31#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
+-e git+https://github.com/altendky/graham@3ee37226bee8cb2fa5470d639d83a143f7f3cf86#egg=graham
 twisted==17.1.0
 -e git+https://github.com/altendky/qt5reactor@a52c0d0c289c8e08680c0204974081c541504d41#egg=qt5reactor
 pypiwin32==220; sys_platform == 'win32'
