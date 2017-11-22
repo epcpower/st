@@ -27,11 +27,7 @@ data_files.extend(collect(prefix, search_in, '.ui', '.ico', '.png'))
 
 prefix = os.path.join('sub', 'epyqlib', '')
 search_in = os.path.join(prefix, 'epyqlib')
-data_files.extend(collect(prefix, search_in, '.ui'))
-
-prefix = os.path.join('sub', 'epyqlib', '')
-search_in = os.path.join(prefix, 'epyqlib')
-data_files.extend(collect(prefix, search_in, '.svg'))
+data_files.extend(collect(prefix, search_in, '.ui', '.svg', '.csv'))
 
 prefix = os.path.join('sub', 'epyqlib', '')
 search_in = os.path.join(prefix, 'epyqlib')
