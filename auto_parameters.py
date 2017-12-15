@@ -97,40 +97,58 @@ class DeviceExtension:
 
         parameter_names = [k.split(':') for k in self.parameter_dict.keys()]
 
-        factory_signal_name = 'FactoryAccess'
-        factory_frame = None
-        factory_signal = None
-        try:
-            (factory_frame, factory_signal), = (
-                (f, s)
-                for f, s in parameter_names
-                if s == factory_signal_name
+        def node_path(node):
+            return [
+                node.frame.name,
+                node.frame.mux_name,
+                node.name,
+            ]
+
+        access_level_path = node_path(self.nvs.access_level_node)
+        password_path = node_path(self.nvs.password_node)
+
+        paths = (access_level_path, password_path)
+        elevate_access_level = all(
+            ':'.join(x[1:]) in self.parameter_dict
+            for x in paths
+        )
+
+        if elevate_access_level:
+            yield self.nv_protocol.write_multiple(
+                nv_signals=(
+                    self.nvs.access_level_node,
+                    self.nvs.password_node,
+                ),
+                meta=epyqlib.nv.MetaEnum.value,
             )
-        except ValueError:
-            pass
-        else:
-            factory_signal = self.nvs.signal_from_names(
-                factory_frame, factory_signal)
-            yield self.nv_protocol.write(nv_signal=factory_signal)
 
         selected_nodes = tuple(
             self.nvs.signal_from_names(f, s)
             for f, s in parameter_names
-            if s != factory_signal_name
+            if f != access_level_path[1]
         )
-        yield self.nvs.write_all_to_device(only_these=selected_nodes)
+        yield self.nvs.write_all_to_device(
+            only_these=selected_nodes,
+            meta=(epyqlib.nv.MetaEnum.value,),
+        )
 
-        if factory_frame is not None and factory_signal is not None:
-            # don't pick zero as a code...
-            factory_signal.set_value(value=0)
-            yield self.nv_protocol.write(nv_signal=factory_signal)
+        if elevate_access_level:
+            self.nvs.access_level_node.set_value(value=0)
+            yield self.nv_protocol.write(
+                nv_signal=self.nvs.access_level_node,
+                meta=epyqlib.nv.MetaEnum.value,
+            )
 
         yield self._module_to_nv()
 
     def _module_to_nv(self):
         self.nvs.save_signal.set_value(self.nvs.save_value)
         self.nvs.save_frame.update_from_signals()
-        d = self.nv_protocol.write(self.nvs.save_signal, passive=True)
+        d = self.nv_protocol.write(
+            nv_signal=self.nvs.save_signal,
+            passive=True,
+            meta=epyqlib.nv.MetaEnum.value,
+        )
         d.addBoth(
             epyqlib.utils.twisted.detour_result,
             self.nvs.module_to_nv_off,
