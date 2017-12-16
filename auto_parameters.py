@@ -1,4 +1,5 @@
 import collections
+import enum
 import json
 
 import canmatrix.formats
@@ -8,6 +9,7 @@ import PyQt5.QtWidgets
 
 import epyqlib.canneo
 import epyqlib.nv
+import epyqlib.pm.valuesetmodel
 import epyqlib.twisted.nvs
 import epyqlib.utils.qt
 import epyqlib.utils.twisted
@@ -16,8 +18,34 @@ __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
 
 
+class ConfigurationError(Exception):
+    pass
+
+
+class ValueTypes(enum.Enum):
+    parameters = 'auto_parameters'
+    value_set = 'auto_value_set'
+
+
+def value_file(raw_dict):
+    paths = {
+        value_type: raw_dict[value_type.value]
+        for value_type in ValueTypes
+        if value_type.value in raw_dict
+    }
+
+    try:
+        (value_type, path), = paths.items()
+    except ValueError as e:
+        raise ConfigurationError(
+            'Expected one value file but got {}'.format(paths),
+        ) from e
+
+    return value_type, path
+
+
 def referenced_files(raw_dict):
-    return (raw_dict['auto_parameters'],)
+    return value_file(raw_dict)[1]
 
 
 class DeviceExtension:
@@ -31,8 +59,14 @@ class DeviceExtension:
         self.transport = None
         self.parameter_dict = None
         self.progress = None
+        self.value_type = None
+        self.parameter_names = None
+        self.metas = None
 
     def post(self):
+        self.value_type, parameter_path = value_file(self.device().raw_dict)
+        parameter_path = self.device().absolute_path(parameter_path)
+
         self.ui = self.device().uis['Factory']
         self.ui.load_parameters_button.clicked.connect(
             self.load_parameters)
@@ -58,12 +92,24 @@ class DeviceExtension:
             reactor=reactor,
             bus=self.device().bus)
 
-        parameter_path = self.device().raw_dict['auto_parameters']
-        parameter_path = self.device().absolute_path(parameter_path)
-        with open(parameter_path, 'r') as file:
-            s = file.read()
-            self.parameter_dict = json.loads(
-                s, object_pairs_hook=collections.OrderedDict)
+        if self.value_type == ValueTypes.parameters:
+            with open(parameter_path, 'r') as file:
+                s = file.read()
+                self.parameter_dict = json.loads(
+                    s, object_pairs_hook=collections.OrderedDict
+                )
+
+            self.nvs.from_dict(self.parameter_dict)
+            self.parameter_names = [k.split(':') for k in self.parameter_dict.keys()]
+            self.metas = (epyqlib.nv.MetaEnum.value,)
+        elif self.value_type == ValueTypes.value_set:
+            value_set = epyqlib.pm.valuesetmodel.loadp(parameter_path)
+            self.nvs.from_value_set(value_set)
+            self.parameter_names = [
+                node.name.split(':')
+                for node in value_set.model.root.leaves()
+            ]
+            self.metas = epyqlib.nv.meta_limits_first
 
     def load_parameters(self):
         d = self._load_parameters()
@@ -93,10 +139,6 @@ class DeviceExtension:
 
     @twisted.internet.defer.inlineCallbacks
     def _load_parameters(self):
-        self.nvs.from_dict(self.parameter_dict)
-
-        parameter_names = [k.split(':') for k in self.parameter_dict.keys()]
-
         def node_path(node):
             return [
                 node.frame.name,
@@ -109,7 +151,7 @@ class DeviceExtension:
 
         paths = (access_level_path, password_path)
         elevate_access_level = all(
-            ':'.join(x[1:]) in self.parameter_dict
+            x[1:] in self.parameter_names
             for x in paths
         )
 
@@ -124,12 +166,12 @@ class DeviceExtension:
 
         selected_nodes = tuple(
             self.nvs.signal_from_names(f, s)
-            for f, s in parameter_names
+            for f, s in self.parameter_names
             if f != access_level_path[1]
         )
         yield self.nvs.write_all_to_device(
             only_these=selected_nodes,
-            meta=(epyqlib.nv.MetaEnum.value,),
+            meta=self.metas,
         )
 
         if elevate_access_level:
