@@ -172,7 +172,7 @@ class Window(QtWidgets.QMainWindow):
 
                 if filename is not None:
                     messages = (
-                        attr.assoc(
+                        attr.evolve(
                             message,
                             time=(
                                 message.time - first_message_time
