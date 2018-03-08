@@ -90,6 +90,10 @@ def parse_args(*args):
     parser.add_argument('--baud-rate', default='9600')
 
     parser.add_argument('--invert-hw-enable', action='store_true')
+    
+    parser.add_argument('--read', action='store_true')
+    parser.add_argument('--registers', default='3')
+    parser.add_argument('--delay', default='0')
 
     return parser.parse_args(args)
 
@@ -112,7 +116,7 @@ class WriteCounter:
     failures = attr.ib(default=0)
     characters_per_line = attr.ib(default=70)
 
-    def good(self):
+    def good(self, rw):
         self.sequential += 1
         self.total += 1
 
@@ -120,17 +124,17 @@ class WriteCounter:
         sys.stdout.flush()
         if self.sequential % self.characters_per_line == 0:
             print('')
-            self.print()
+            self.print(rw)
 
-    def bad(self):
+    def bad(self, rw):
         self.sequential = 0
         self.failures += 1
-        self.print()
+        self.print(rw)
 
-    def print(self):
+    def print(self, rw):
         print()
         print('successful writes since last failure: {}'.format(self.sequential))
-        print('total successful writes: {}'.format(self.total))
+        print('total successful {}: {}'.format(rw, self.total))
         print('total timeouts: {}'.format(self.failures))
 
 
@@ -156,43 +160,36 @@ def main(sys_argv):
 
     d.epc_control.CtlSrc = 1
     d.epc_control.model.points['CtlSrc'].write()
-    # stop
+
     cmd_bits.clear_all()
-    cmd_bits.set('InvertHwEnable')
-    cmd_bits.set('FltClr')
     d.epc_control.CmdBits = cmd_bits.to_int()
-    d.epc_control.model.points['CmdBits'].write()
 
     write_counter = WriteCounter()
+    
+    rw = 'writes'
+    if args.read:
+        rw = 'reads'
+    
+    delay = float(args.delay)/1000.0
 
     try:
         while True:
             try:
                 while True:
-                    # enable and run
-                    cmd_bits.set('En')
-                    # remove fault clear command
-                    cmd_bits.clear('FltClr')
-                    d.epc_control.CmdBits = cmd_bits.to_int()
-                    d.epc_control.DcVLim = 900
-                    d.epc_control.DcILim = 175
-                    d.epc_control.LineILim = 140
-                    d.epc_control.CmdV = 480
-                    d.epc_control.CmdHz = 600
-
-                    d.epc_control.model.points['CmdBits'].write()
-                    write_counter.good()
-
-                    d.epc_control.model.points['CmdV'].write()
-                    write_counter.good()
-
-                    d.epc_control.model.points['CmdHz'].write()
-                    write_counter.good()
+                    if rw == 'reads':
+                        d.device.read(0, int(args.registers))
+                        write_counter.good(rw)
+                    else:
+                        d.epc_control.model.points['CmdBits'].write()
+                        write_counter.good(rw)
+                    
+                    time.sleep(delay)
+ 
             except sunspec.core.client.SunSpecClientError:
-                write_counter.bad()
+                write_counter.bad(rw)
                 time.sleep(2)
     finally:
-        write_counter.print()
+        write_counter.print(rw)
 
 
 if __name__ == '__main__':
