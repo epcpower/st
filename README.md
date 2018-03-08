@@ -19,7 +19,6 @@ Instructions are for Python 3.6 but they should work with slight tweaks with 3.5
 - Install [Git](https://git-scm.com/download)
 - `git clone https://github.com/altendky/st`
 - `cd st`
-- `copy .gitmodules.github .gitmodules`
 - `git submodule update --init`
 - `py -3.6 venv.py`
 - wait
@@ -43,7 +42,6 @@ Expecting the user to handle properly installing these would be better but is no
 - Install git
 - `git clone https://github.com/altendky/st`
 - `cd st`
-- `cp .gitmodules.github .gitmodules`
 - `git submodule update --init`
 - `python3.6 venv.py`
 - wait
