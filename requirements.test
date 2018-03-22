@@ -1,4 +1,4 @@
 -r requirements.txt
 pytest==3.2.2
 pytest-qt==2.2.0
-pytest-twisted==1.6
+pytest-twisted==1.7
