@@ -45,7 +45,7 @@ def value_file(raw_dict):
 
 
 def referenced_files(raw_dict):
-    return value_file(raw_dict)[1]
+    return value_file(raw_dict)[1:2]
 
 
 class DeviceExtension:
@@ -80,10 +80,27 @@ class DeviceExtension:
             node_id_adjust=self.device().node_id_adjust,
             strip_summary=False,
         )
+
+        access_level_path = self.device().raw_dict['access_level_path']
+        if access_level_path is not None:
+            access_level_path = access_level_path.split(';')
+        access_password_path = self.device().raw_dict['access_password_path']
+        if access_password_path is not None:
+            access_password_path = access_password_path.split(';')
+
+        # TODO: CAMPid 0794311304143707516085683164039671793972
+        if self.device().raw_dict['nv_meta_enum'] == 'Meta':
+            self.metas = epyqlib.nv.meta_limits_first
+        else:
+            self.metas = (epyqlib.nv.MetaEnum.value,)
+
         self.nvs = epyqlib.nv.Nvs(
             neo=self.frames_nv,
             bus=self.device().bus,
             configuration=self.device().raw_dict['nv_configuration'],
+            metas=self.metas,
+            access_level_path=access_level_path,
+            access_password_path=access_password_path,
         )
         self.nv_protocol = epyqlib.twisted.nvs.Protocol()
         from twisted.internet import reactor
@@ -101,7 +118,6 @@ class DeviceExtension:
 
             self.nvs.from_dict(self.parameter_dict)
             self.parameter_names = [k.split(':') for k in self.parameter_dict.keys()]
-            self.metas = (epyqlib.nv.MetaEnum.value,)
         elif self.value_type == ValueTypes.value_set:
             value_set = epyqlib.pm.valuesetmodel.loadp(parameter_path)
             self.nvs.from_value_set(value_set)
@@ -109,7 +125,6 @@ class DeviceExtension:
                 node.name.split(':')
                 for node in value_set.model.root.leaves()
             ]
-            self.metas = epyqlib.nv.meta_limits_first
 
     def load_parameters(self):
         d = self._load_parameters()
@@ -139,47 +154,63 @@ class DeviceExtension:
 
     @twisted.internet.defer.inlineCallbacks
     def _load_parameters(self):
-        def node_path(node):
-            return [
-                node.frame.name,
-                node.frame.mux_name,
-                node.name,
-            ]
-
-        access_level_path = node_path(self.nvs.access_level_node)
-        password_path = node_path(self.nvs.password_node)
-
-        paths = (access_level_path, password_path)
-        elevate_access_level = all(
-            x[1:] in self.parameter_names
-            for x in paths
-        )
-
-        if elevate_access_level:
-            yield self.nv_protocol.write_multiple(
-                nv_signals=(
-                    self.nvs.access_level_node,
-                    self.nvs.password_node,
-                ),
-                meta=epyqlib.nv.MetaEnum.value,
+        access_nodes = tuple(
+            node
+            for node in (
+                self.nvs.password_node,
+                self.nvs.access_level_node,
             )
-
-        selected_nodes = tuple(
-            self.nvs.signal_from_names(f, s)
-            for f, s in self.parameter_names
-            if f != access_level_path[1]
+            if node is not None
         )
+
+        import attr
+        def s(node, f):
+            if f.name == 'value':
+                meta = node
+            else:
+                meta = getattr(node.meta, f.name)
+
+            return str(meta.value)
+
+        def p(nodes, i):
+            print('writing {}: '.format(i))
+            for node in nodes:
+                print(
+                    '    {} --- {}'.format(
+                        node,
+                        ', '.join(
+                            s(node, f)
+                            for f in attr.fields(type(node.meta))
+                        ),
+                    )
+                )
+
+        p(access_nodes, 1)
+        yield self.nvs.write_all_to_device(
+            only_these=access_nodes,
+            meta=(epyqlib.nv.MetaEnum.value,),
+        )
+
+        selected_nodes = set(self.nvs.all_nv()) - set(access_nodes)
+        p(selected_nodes, 2)
         yield self.nvs.write_all_to_device(
             only_these=selected_nodes,
             meta=self.metas,
         )
 
-        if elevate_access_level:
-            self.nvs.access_level_node.set_value(value=0)
-            yield self.nv_protocol.write(
-                nv_signal=self.nvs.access_level_node,
-                meta=epyqlib.nv.MetaEnum.value,
-            )
+        node_value_backups = []
+        for node in access_nodes:
+            node_value_backups.append((node, node.value))
+            node.set_value(value=0)
+
+        p(access_nodes, 3)
+        yield self.nvs.write_all_to_device(
+            only_these=access_nodes,
+            meta=(epyqlib.nv.MetaEnum.value,),
+        )
+
+        for node, value in node_value_backups:
+            node.set_value(value=value)
 
         yield self._module_to_nv()
 
