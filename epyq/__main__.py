@@ -116,6 +116,9 @@ class Window(QtWidgets.QMainWindow):
         self.set_title()
 
         self.ui.stacked.currentChanged.connect(self.device_widget_changed)
+        self.ui.device_tree.model.details_changed.connect(
+            self.device_widget_changed,
+        )
 
     def start_can_log(self):
         self.stop_can_log()
@@ -190,15 +193,21 @@ class Window(QtWidgets.QMainWindow):
                     with open(filename, 'w') as f:
                         epyqlib.utils.canlog.to_trc_v1_1(messages, f)
 
-    def device_widget_changed(self, index):
-        device = self.device_tree_model.device_from_widget(
-            widget=self.ui.stacked.widget(index))
+    def device_widget_changed(self, index=None):
+        if index is not None:
+            device = self.device_tree_model.device_from_widget(
+                widget=self.ui.stacked.widget(index))
+        else:
+            device = self.device_tree_model.device_from_widget(
+                widget=self.ui.stacked.currentWidget())
 
-        detail = None
+        details = []
         if device is not None:
-            detail = device.name
+            if len(device.nickname) > 0:
+                details.append(device.nickname)
+            details.append(device.name)
 
-        self.set_title(detail=detail)
+        self.set_title(detail=' - '.join(details))
 
     def set_title(self, detail=None):
         title = 'EPyQ v{}'.format(epyq.__version__)
