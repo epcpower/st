@@ -30,6 +30,8 @@ import epyq
 import epyqlib.canneo
 import epyqlib.csvwindow
 from epyqlib.svgwidget import SvgWidget
+import epyqlib.scripting
+import epyqlib.scriptingview
 import epyqlib.tests.common
 import epyqlib.txrx
 import epyqlib.utils.qt
@@ -93,6 +95,8 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.action_chart_log.triggered.connect(self.chart_log)
 
+        self.ui.action_scripting.triggered.connect(self.scripting)
+
         self.ui.action_start_can_log.triggered.connect(self.start_can_log)
         self.ui.action_stop_can_log.triggered.connect(self.stop_can_log)
         self.ui.action_export_can_log.triggered.connect(self.export_can_log)
@@ -119,6 +123,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.device_tree.model.details_changed.connect(
             self.device_widget_changed,
         )
+
+        self.scripting_window = None
 
     def start_can_log(self):
         self.stop_can_log()
@@ -209,16 +215,21 @@ class Window(QtWidgets.QMainWindow):
 
         self.set_title(detail=' - '.join(details))
 
-    def set_title(self, detail=None):
+    def set_title(self, detail=None, window=None):
+        if window is None:
+            window = self
+
         title = 'EPyQ v{}'.format(epyq.__version__)
 
         if detail is not None:
             title = ' - '.join((title, detail))
 
-        self.setWindowTitle(title)
+        window.setWindowTitle(title)
 
     def closeEvent(self, event):
         self.device_tree_model.terminate()
+        if self.scripting_window is not None:
+            self.scripting_window.close()
 
     def collapse_expand(self):
         self.ui.device_tree.setVisible(not self.ui.device_tree.isVisible())
@@ -273,6 +284,32 @@ class Window(QtWidgets.QMainWindow):
                 )
             )
             window.show()
+
+    def scripting(self):
+        if self.scripting_window is not None:
+            self.scripting_window.raise_()
+            return
+
+        self.scripting_window = epyqlib.scriptingview.ScriptingView()
+        scripting_model = epyqlib.scripting.Model(
+            get_devices=lambda: {
+                device.device.nickname: device.device
+                for device in self.device_tree_model.root.nodes_by_filter(
+                    filter=lambda node: isinstance(
+                        node,
+                        epyqlib.devicetree.Device,
+                    ),
+                )
+                if len(device.device.nickname) > 0
+            }
+        )
+        self.scripting_window.set_model(scripting_model)
+        self.scripting_window.closing.connect(self.scripting_closing)
+        self.set_title(detail='Scripting', window=self.scripting_window)
+        self.scripting_window.show()
+
+    def scripting_closing(self):
+        self.scripting_window = None
 
     @pyqtSlot(object)
     def _remove_device(self, device):

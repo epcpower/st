@@ -67,6 +67,7 @@
      <string>&amp;Tools</string>
     </property>
     <addaction name="action_chart_log"/>
+    <addaction name="action_scripting"/>
     <addaction name="separator"/>
     <addaction name="action_start_can_log"/>
     <addaction name="action_stop_can_log"/>
@@ -113,6 +114,11 @@
   <action name="action_export_can_log">
    <property name="text">
     <string>Export CAN Log...</string>
+   </property>
+  </action>
+  <action name="action_scripting">
+   <property name="text">
+    <string>Scripting...</string>
    </property>
   </action>
  </widget>
