@@ -5,6 +5,7 @@
 # TODO: CAMPid 98852142341263132467998754961432
 import epyqlib.tee
 import os
+import pathlib
 import sys
 
 # TODO: CAMPid 953295425421677545429542967596754
@@ -274,8 +275,10 @@ class Window(QtWidgets.QMainWindow):
         filename = epyqlib.utils.qt.file_dialog(filters, parent=self)
 
         if filename is not None:
+            filename = pathlib.Path(filename)
             data = epyqlib.csvwindow.read_csv(filename)
             window = epyqlib.csvwindow.QtChartWindow(data=data)
+            self.set_title(detail=filename.name, window=window)
             self.subwindows.add(window)
             window.closing.connect(
                 functools.partial(
