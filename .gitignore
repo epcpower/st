@@ -6,6 +6,7 @@ generated/
 /designer*
 epyq/_version.py
 version.txt
+.env.local
 
 # PyCharm
 .idea/workspace.xml
