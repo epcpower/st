@@ -18,9 +18,12 @@ build_script:
   - venv\\Scripts\\genbuildinfo "epyq\\_build.py"
   - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
   - ps: if (Get-ChildItem Env:PHRASE -ErrorAction SilentlyContinue) {$Env:PHRASE | Out-File sub/epyqlib/epyqlib/resources/code -Encoding ascii -NoNewline}
+  - type version.txt
+  - ps: Get-Content -Path version.txt
   - venv\\Scripts\\python pinsis.py --qtifw
   - move ..\\*.exe .
   - ps: Get-ChildItem .\*.exe | % { Push-AppveyorArtifact $_.FullName }
+  - ps: Get-Content -Path version.txt
   - ps: venv\\Scripts\\autodevice create template --zip="autodevice_template-$(Get-Content -Path version.txt).zip"
   - ps: Get-ChildItem .\*.zip | % { Push-AppveyorArtifact $_.FullName }
   - ps: Invoke-WebRequest -Uri http://www.peak-system.com/produktcd/Drivers/PeakOemDrv.exe -OutFile ..\\PeakOemDrv.exe
