@@ -15,6 +15,6 @@ twisted==17.1.0
 -e git+https://github.com/altendky/qt5reactor@a52c0d0c289c8e08680c0204974081c541504d41#egg=qt5reactor
 pypiwin32==220; sys_platform == 'win32'
 -e git+https://github.com/eliben/pyelftools@2300c1ffbe0f12f8bcd8f68ff1b1c6bdd0258c73#egg=pyelftools
-attrs==17.4.0
+attrs==18.1.0
 natsort==5.0.3
 arrow==0.12.1
