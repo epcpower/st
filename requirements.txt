@@ -7,7 +7,7 @@ requests
 https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809de74a5ddbaa.zip
 
 -e git+https://github.com/altendky/graham@385e7f7bf26ccf05104aae0ae46f92d1bc565be8#egg=graham
--e git+https://github.com/altendky/python-can@ad0fd41e7bf95310f7498dba2cdb0a0bc66d5229#egg=python-can
+python-can==2.2.1
 -e git+https://github.com/ebroecker/canmatrix@0beb8229555e743bb441181ff31cb37e82fff219#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
 -e git+https://github.com/altendky/graham@3ee37226bee8cb2fa5470d639d83a143f7f3cf86#egg=graham
