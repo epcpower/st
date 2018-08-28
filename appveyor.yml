@@ -11,7 +11,8 @@ init:
 build_script:
   - SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
   - python -c "import sys; print(sys.version)"
-  - pip install --user tox
+  - pip install --user tox==3.2.1
+  - pip install --user virtualenv==16.0.0
   - git submodule update --init
   - python venv.py
   - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
