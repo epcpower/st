@@ -2,7 +2,7 @@ image: Visual Studio 2015
 
 environment:
   global:
-    PYTHON: "C:\\Python36"
+    PYTHON: "C:\\Python37"
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
