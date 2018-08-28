@@ -11,16 +11,16 @@ Most of the interesting parts of the GUI are loaded from device configuration fi
 
 ## Running From Source
 
-Instructions are for Python 3.6 but they should work with slight tweaks with 3.5.
+Instructions are for Python 3.7 but they should work with slight tweaks with 3.6.
 
 ### Windows
 
-- Install [Python 3.6](https://www.python.org/downloads/)
+- Install [Python 3.7](https://www.python.org/downloads/)
 - Install [Git](https://git-scm.com/download)
 - `git clone https://github.com/altendky/st`
 - `cd st`
 - `git submodule update --init`
-- `py -3.6 venv.py`
+- `py -3.7 venv.py`
 - wait
 - wait some more...
 - ...
@@ -38,12 +38,13 @@ EPyQ widgets should be visible at the bottom of the widget box on the left.
 This procedure will install `virtualenv` and `tox` using `pip --user`.
 Expecting the user to handle properly installing these would be better but is not how it works presently.
 
-- Install Python 3.6 (the [deadsnakes ppa](https://launchpad.net/~fkrull/+archive/ubuntu/deadsnakes/+index?batch=75&memo=75&start=75) has it for Ubuntu Xenial and Trusty)
+- Install Python 3.7
+  - Consider [pyenv](https://github.com/pyenv/pyenv) to get Python versions
 - Install git
 - `git clone https://github.com/altendky/st`
 - `cd st`
 - `git submodule update --init`
-- `python3.6 venv.py`
+- `python3.7 venv.py`
 - wait
 - a bit more, but not nearly as much as Windows
 - Try running `venv/bin/epyq`
