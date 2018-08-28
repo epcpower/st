@@ -13,8 +13,6 @@ build_script:
   - python -c "import sys; print(sys.version)"
   - where pip
   - pip --version
-  - where tox
-  - tox --version
   - where virtualenv
   - virtualenv --version
   - pip install --user tox==3.2.1
