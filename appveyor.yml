@@ -23,7 +23,6 @@ build_script:
   - virtualenv --version
   - git submodule update --init
   - python venv.py
-  - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   - venv\\Scripts\\genbuildinfo "epyq\\_build.py"
   - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
   - venv\\Scripts\\pip freeze
