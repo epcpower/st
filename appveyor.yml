@@ -15,8 +15,8 @@ build_script:
   - pip --version
   - where virtualenv
   - virtualenv --version
-  - pip install --user tox==3.2.1
-  - pip install --user virtualenv==16.0.0
+  - pip install tox==3.2.1
+  - pip install virtualenv==16.0.0
   - where tox
   - tox --version
   - where virtualenv
