@@ -19,4 +19,4 @@ attrs==18.1.0
 natsort==5.0.3
 arrow==0.12.1
 
-https://ci.appveyor.com/api/buildjobs/e0y8bc2ls7ri7qgp/artifacts/pyqt5_tools-5.11.2.1.3rc2-cp36-none-win32.whl
+https://ci.appveyor.com/api/buildjobs/1sy95v1fx6dxgslp/artifacts/pyqt5_tools-5.11.2.1.3rc2.post8-cp36-none-win32.whl
