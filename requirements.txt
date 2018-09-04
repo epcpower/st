@@ -13,10 +13,10 @@ python-can==2.2.1
 -e git+https://github.com/altendky/graham@3ee37226bee8cb2fa5470d639d83a143f7f3cf86#egg=graham
 twisted==18.7.0
 -e git+https://github.com/altendky/qt5reactor@a52c0d0c289c8e08680c0204974081c541504d41#egg=qt5reactor
-pypiwin32==220; sys_platform == 'win32'
+pywin32==223; sys_platform == 'win32'
 -e git+https://github.com/eliben/pyelftools@2300c1ffbe0f12f8bcd8f68ff1b1c6bdd0258c73#egg=pyelftools
 attrs==18.1.0
 natsort==5.0.3
 arrow==0.12.1
 
-https://ci.appveyor.com/api/buildjobs/1sy95v1fx6dxgslp/artifacts/pyqt5_tools-5.11.2.1.3rc2.post8-cp36-none-win32.whl; sys_platform == 'win32'
+https://ci.appveyor.com/api/buildjobs/2v00obdlk5kk4275/artifacts/pyqt5_tools-5.11.2.1.3rc2.post18-cp36-none-win32.whl; sys_platform == 'win32'
