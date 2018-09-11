@@ -12,7 +12,7 @@ python-can==2.2.1
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
 -e git+https://github.com/altendky/graham@3ee37226bee8cb2fa5470d639d83a143f7f3cf86#egg=graham
 twisted==18.7.0
--e git+https://github.com/altendky/qt5reactor@a52c0d0c289c8e08680c0204974081c541504d41#egg=qt5reactor
+-e git+https://github.com/altendky/qt5reactor@ce3ea2dad6d71adb10cde79b64bc0c7d27e9139c#egg=qt5reactor
 pywin32==223; sys_platform == 'win32'
 -e git+https://github.com/eliben/pyelftools@2300c1ffbe0f12f8bcd8f68ff1b1c6bdd0258c73#egg=pyelftools
 attrs==18.1.0
