@@ -15,7 +15,7 @@ def collect(prefix, search_in, *extensions):
     for dir_name, subdirs, files in os.walk(search_in):
         for filename in (f for f in files if f.endswith(extensions)):
             filename = os.path.join(dir_name, filename)
-            yield (filename, dir_name[len(prefix):])
+            yield (filename, os.path.join('.' dir_name[len(prefix):]))
 
 
 hidden_imports = set()
