@@ -43,11 +43,16 @@ for dir_name, subdirs, files in os.walk(search_in):
 for format in canmatrix.formats.moduleList:
     hidden_imports.add('canmatrix.' + format)
 
-data_files.append(('PCANBasic.dll', ''))
+data_files.append(('PCANBasic.dll', '.'))
 data_files.append((
     os.path.join('venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'),
-    ''
+    '.'
 ))
+
+print('-- data files')
+for data_file in data_files:
+    print(data_file)
+print()
 
 a = Analysis(
     [os.path.join('..', 'epyq', '__main__.py')],
