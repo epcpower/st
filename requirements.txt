@@ -4,7 +4,7 @@ requests
 -e sub/epyqlib[deploy]
 
 # TODO: this shouldn't be here either...
-https://github.com/pyinstaller/pyinstaller/archive/964547cd92cabe28150d52c2ca809de74a5ddbaa.zip
+pyinstaller==3.4
 
 -e git+https://github.com/altendky/graham@385e7f7bf26ccf05104aae0ae46f92d1bc565be8#egg=graham
 python-can==2.2.1
