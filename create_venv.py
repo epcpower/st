@@ -243,7 +243,7 @@ def download_zips(directory):
     check_call(
         [
             venv_python,
-            os.path.join(project_root, 'download_fonts.zip')
+            os.path.join(project_root, 'download_fonts.zip'),
             directory,
         ],
         cwd=project_root,
