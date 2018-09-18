@@ -401,7 +401,7 @@ def main(args=None):
 
     fontawesome_path = os.path.join(
         QtCore.QFileInfo.absolutePath(QFileInfo(__file__)),
-        '..', 'venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'
+        '..', 'src', 'libs', 'fontawesome', 'fonts', 'FontAwesome.otf'
     )
     if not os.path.exists(fontawesome_path):
         fontawesome_path = 'FontAwesome.otf'
