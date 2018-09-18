@@ -1,8 +1,8 @@
-image: Visual Studio 2015
+image: Visual Studio 2017
 
 environment:
   global:
-    PYTHON: "C:\\Python37-x64"
+    PYTHON: "C:\\Python37-x32"
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
@@ -13,16 +13,8 @@ build_script:
   - python -c "import sys; print(sys.version)"
   - where pip
   - pip --version
-  - where virtualenv
-  - virtualenv --version
-  - pip install tox==3.2.1
-  - pip install virtualenv==16.0.0
-  - where tox
-  - tox --version
-  - where virtualenv
-  - virtualenv --version
   - git submodule update --init
-  - python venv.py
+  - python create_venv.py
   - venv\\Scripts\\genbuildinfo "epyq\\_build.py"
   - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
   - venv\\Scripts\\pip freeze

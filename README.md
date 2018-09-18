@@ -15,12 +15,13 @@ Instructions are for Python 3.7 but they should work with slight tweaks with 3.6
 
 ### Windows
 
-- Install [Python 3.7](https://www.python.org/downloads/)
+- Install [Python 3.7 32-bit](https://www.python.org/downloads/)
 - Install [Git](https://git-scm.com/download)
 - `git clone https://github.com/altendky/st`
 - `cd st`
 - `git submodule update --init`
-- `py -3.7 venv.py`
+- `py create_venv.p ensure`
+  - Run with any recent Python, the proper Python version will be selected
 - wait
 - wait some more...
 - ...
@@ -35,16 +36,14 @@ EPyQ widgets should be visible at the bottom of the widget box on the left.
 
 ### Linux
 
-This procedure will install `virtualenv` and `tox` using `pip --user`.
-Expecting the user to handle properly installing these would be better but is not how it works presently.
-
 - Install Python 3.7
   - Consider [pyenv](https://github.com/pyenv/pyenv) to get Python versions
 - Install git
 - `git clone https://github.com/altendky/st`
 - `cd st`
 - `git submodule update --init`
-- `python3.7 venv.py`
+- `python create_venv.py ensure`
+  - Run with any recent Python, the proper Python version will be selected
 - wait
 - a bit more, but not nearly as much as Windows
 - Try running `venv/bin/epyq`
