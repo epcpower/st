@@ -14,7 +14,7 @@ build_script:
   - where pip
   - pip --version
   - git submodule update --init
-  - python create_venv.py
+  - python create_venv.py ensure
   - venv\\Scripts\\genbuildinfo "epyq\\_build.py"
   - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
   - venv\\Scripts\\pip freeze
