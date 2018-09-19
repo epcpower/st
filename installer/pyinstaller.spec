@@ -45,7 +45,7 @@ for format in canmatrix.formats.moduleList:
 
 data_files.append(('PCANBasic.dll', '.'))
 data_files.append((
-    os.path.join('venv', 'src', 'fontawesome', 'fonts', 'FontAwesome.otf'),
+    os.path.join('src', 'libs', 'fontawesome', 'fonts', 'FontAwesome.otf'),
     '.'
 ))
 
