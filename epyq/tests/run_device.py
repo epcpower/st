@@ -9,9 +9,6 @@ import epyqlib.device
 import epyqlib.tests.common
 import epyqlib.twisted.busproxy
 
-logging.basicConfig(level=logging.WARNING,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 def run():
     app = PyQt5.QtWidgets.QApplication(sys.argv)
