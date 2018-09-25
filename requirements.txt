@@ -28,6 +28,6 @@ pyqt5-tools==5.11.2.1.3rc8; sys_platform == 'win32'
 
 pytest==3.8.1
 pytest-qt==3.1.0
-pytest-twisted==git+https://github.com/altendky/pytest-twisted@6f04ba3ad806b3b40602999e71c28633c36d81f9
+git+https://github.com/altendky/pytest-twisted@6f04ba3ad806b3b40602999e71c28633c36d81f9
 
 -e .
