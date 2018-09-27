@@ -24,7 +24,7 @@ attrs==18.1.0
 natsort==5.0.3
 arrow==0.12.1
 
-pyqt5-tools==5.11.2.1.3rc8; sys_platform == 'win32'
+pyqt5-tools==5.11.2.1.3rc9; sys_platform == 'win32'
 
 pytest==3.8.1
 pytest-qt==3.1.0
