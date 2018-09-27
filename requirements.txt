@@ -14,9 +14,9 @@ python-can==2.2.1
 -e git+https://github.com/ebroecker/canmatrix@0beb8229555e743bb441181ff31cb37e82fff219#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
 -e git+https://github.com/altendky/graham@3ee37226bee8cb2fa5470d639d83a143f7f3cf86#egg=graham
-Twisted==18.7.0.dev0
-Twisted[osx_platform]==18.7.0.dev0; platform_system == "Darwin"
-Twisted[windows_platform]==18.7.0.dev0; platform_system == "Windows"
+Twisted==18.9.0rc1
+Twisted[osx_platform]==18.9.0rc1; platform_system == "Darwin"
+Twisted[windows_platform]==18.9.0rc1; platform_system == "Windows"
 -e git+https://github.com/altendky/qt5reactor@ce3ea2dad6d71adb10cde79b64bc0c7d27e9139c#egg=qt5reactor
 pywin32==223; sys_platform == 'win32'
 -e git+https://github.com/eliben/pyelftools@2300c1ffbe0f12f8bcd8f68ff1b1c6bdd0258c73#egg=pyelftools
