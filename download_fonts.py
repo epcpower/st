@@ -32,9 +32,9 @@ def download_zips(directory):
             zip_path = os.path.join(td, zip_dir)
 
             destination = os.path.join(directory, name)
-            if os.path.exists(destination):
-                raise FileExistsError(
-                    '`{}` already exists while extracting Zip'.format(destination))
+            # if os.path.exists(destination):
+            #     raise FileExistsError(
+            #         '`{}` already exists while extracting Zip'.format(destination))
 
             shutil.move(zip_path, destination)
 
