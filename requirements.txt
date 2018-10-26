@@ -14,7 +14,7 @@ python-can==2.2.1
 -e git+https://github.com/ebroecker/canmatrix@0beb8229555e743bb441181ff31cb37e82fff219#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
 -e git+https://github.com/altendky/graham@3ee37226bee8cb2fa5470d639d83a143f7f3cf86#egg=graham
-Twisted==18.9.0rc1
+Twisted==18.9.0
 Twisted[osx_platform]==18.9.0rc1; platform_system == "Darwin"
 Twisted[windows_platform]==18.9.0rc1; platform_system == "Windows"
 -e git+https://github.com/altendky/qt5reactor@ce3ea2dad6d71adb10cde79b64bc0c7d27e9139c#egg=qt5reactor
@@ -24,9 +24,12 @@ attrs==18.1.0
 natsort==5.0.3
 arrow==0.12.1
 
-pyqt5-tools==5.11.2.1.3rc10; sys_platform == 'win32'
+PyQt5==5.11.2
+PyQtChart==5.11.2
+pyqt5-tools==5.11.2.1.4rc1; sys_platform == 'win32'
 
 pytest==3.8.1
+pytest-rerunfailures==4.2
 pytest-qt==3.2.1
 git+https://github.com/altendky/pytest-twisted@6f04ba3ad806b3b40602999e71c28633c36d81f9
 
