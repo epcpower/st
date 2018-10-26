@@ -29,6 +29,7 @@ PyQtChart==5.11.2
 pyqt5-tools==5.11.2.1.4rc1; sys_platform == 'win32'
 
 pytest==3.8.1
+pytest-faulthandler==1.5.0
 pytest-rerunfailures==4.2
 pytest-qt==3.2.1
 git+https://github.com/altendky/pytest-twisted@6f04ba3ad806b3b40602999e71c28633c36d81f9
