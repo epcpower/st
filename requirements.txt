@@ -28,7 +28,7 @@ PyQt5==5.11.2
 PyQtChart==5.11.2
 pyqt5-tools==5.11.2.1.4rc1; sys_platform == 'win32'
 
-pytest==3.8.1
+pytest==3.9.2
 pytest-faulthandler==1.5.0
 pytest-rerunfailures==4.2
 pytest-qt==3.2.1
