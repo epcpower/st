@@ -21,7 +21,7 @@ Twisted[windows_platform]==18.9.0rc1; platform_system == "Windows"
 pywin32==223; sys_platform == 'win32'
 -e git+https://github.com/eliben/pyelftools@2300c1ffbe0f12f8bcd8f68ff1b1c6bdd0258c73#egg=pyelftools
 attrs==18.1.0
-natsort==5.0.3
+natsort==5.4.1
 arrow==0.12.1
 
 PyQt5==5.11.2
