@@ -72,6 +72,7 @@ custom_env = {
 def create():
     d = {
         'linux': linux_create,
+        'darwin': linux_create,
         'win32': windows_create,
     }
 
@@ -209,6 +210,10 @@ def ensure(quick):
         'linux': functools.partial(
             common_ensure,
             requirements_platform='linux',
+        ),
+        'darwin': functools.partial(
+            common_ensure,
+            requirements_platform='darwin',
         ),
         'win32': functools.partial(
             common_ensure,
