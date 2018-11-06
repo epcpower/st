@@ -16,7 +16,7 @@ import time
 this = os.path.normpath(os.path.abspath(__file__))
 project_root = os.path.dirname(this)
 venv_path = os.path.join(project_root, 'venv')
-venv_common_bin = os.path.join(venv_path, 'bin')
+venv_common_bin = os.path.join(venv_path, 'Scripts')
 venv_python = os.path.join(venv_common_bin, 'python')
 
 lib_src = os.path.join(project_root, 'src', 'libs')
