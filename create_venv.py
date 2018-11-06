@@ -16,7 +16,7 @@ import time
 this = os.path.normpath(os.path.abspath(__file__))
 project_root = os.path.dirname(this)
 venv_path = os.path.join(project_root, 'venv')
-venv_common_bin = os.path.join(venv_path, 'Scripts')
+venv_common_bin = os.path.join(venv_path, 'bin')
 venv_python = os.path.join(venv_common_bin, 'python')
 
 lib_src = os.path.join(project_root, 'src', 'libs')
@@ -72,6 +72,7 @@ custom_env = {
 def create():
     d = {
         'linux': linux_create,
+        'darwin': linux_create,
         'win32': windows_create,
     }
 
@@ -209,6 +210,10 @@ def ensure(quick):
         'linux': functools.partial(
             common_ensure,
             requirements_platform='linux',
+        ),
+        'darwin': functools.partial(
+            common_ensure,
+            requirements_platform='darwin',
         ),
         'win32': functools.partial(
             common_ensure,
