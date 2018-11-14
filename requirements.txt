@@ -9,11 +9,10 @@ requests
 # TODO: this shouldn't be here either...
 pyinstaller==3.4
 
--e git+https://github.com/altendky/graham@385e7f7bf26ccf05104aae0ae46f92d1bc565be8#egg=graham
+-e git+https://github.com/altendky/graham@89f3b3e6aad3b98bafa83f28fbbc11bb92df6ad8#egg=graham
 python-can==3.0.0
 -e git+https://github.com/ebroecker/canmatrix@0beb8229555e743bb441181ff31cb37e82fff219#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
--e git+https://github.com/altendky/graham@3ee37226bee8cb2fa5470d639d83a143f7f3cf86#egg=graham
 Twisted==18.9.0
 Twisted[osx_platform]==18.9.0rc1; platform_system == "Darwin"
 Twisted[windows_platform]==18.9.0rc1; platform_system == "Windows"
