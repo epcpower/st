@@ -15,7 +15,7 @@ import time
 class Flags(object):
     _model = attr.ib()
     _point = attr.ib()
-    _names = attr.ib(default=attr.Factory(set), convert=set)
+    _names = attr.ib(default=attr.Factory(set), converter=set)
 
     def __attrs_post_init__(self):
         self._symbols = self._model.model.points[self._point].point_type.symbols
