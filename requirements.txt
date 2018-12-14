@@ -10,4 +10,4 @@ twisted==17.1.0
 pypiwin32==220; sys_platform == 'win32'
 -e git+https://github.com/eliben/pyelftools@2300c1ffbe0f12f8bcd8f68ff1b1c6bdd0258c73#egg=pyelftools
 attrs==18.2.0
--e git+https://github.com/altendky/pysunspec@f734cb0a616058d6a86e4ec84e2543b7688bd030#egg=pysunspec
+-e git+https://github.com/altendky/pysunspec@100d9cade8ce2aa4a67b78d85b310e15dd01b9f5#egg=pysunspec
