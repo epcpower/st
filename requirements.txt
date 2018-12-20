@@ -11,7 +11,7 @@ pyinstaller==3.4
 
 -e git+https://github.com/altendky/graham@89f3b3e6aad3b98bafa83f28fbbc11bb92df6ad8#egg=graham
 python-can==3.0.0
--e git+https://github.com/ebroecker/canmatrix@0beb8229555e743bb441181ff31cb37e82fff219#egg=canmatrix
+-e git+https://github.com/ebroecker/canmatrix@8f63047c18dcb65f7904d298cbf603d2e6325b85#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
 Twisted==18.9.0
 Twisted[osx_platform]==18.9.0rc1; platform_system == "Darwin"
