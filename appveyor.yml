@@ -15,7 +15,7 @@ build_script:
   - pip --version
   - git submodule update --init
   - python create_venv.py ensure
-  - venv\\Scripts\\genbuildinfo "epyq\\_build.py"
+  - venv\\Scripts\\genbuildinfo "src\\epyq\\_build.py"
   - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
   - venv\\Scripts\\pip freeze
   - ps: if (Get-ChildItem Env:PHRASE -ErrorAction SilentlyContinue) {$Env:PHRASE | Out-File sub/epyqlib/epyqlib/resources/code -Encoding ascii -NoNewline}
@@ -27,7 +27,7 @@ build_script:
   - ps: Invoke-WebRequest -Uri http://www.peak-system.com/produktcd/Drivers/PeakOemDrv.exe -OutFile ..\\PeakOemDrv.exe
   - ..\\PeakOemDrv.exe /exenoui /qn ADDLOCAL=F_PNP_DVRS,F_PCANBASIC
   - venv\\Scripts\\pytest -vvvv -s --no-qt-log --run-factory sub\\epyqlib\\epyqlib\\tests
-  # epyq\\tests\\test_exits.py
+  # src\\epyq\\tests\\test_exits.py
 
 artifacts:
   - path: '*.exe'

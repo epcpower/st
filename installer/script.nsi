@@ -4,9 +4,9 @@
 !define /file VERSION "..\version.txt"
 OutFile "..\dist\epyq-${VERSION}.exe"
 
-!define MUI_ICON "..\epyq\icon.ico"
+!define MUI_ICON "..\src\epyq\icon.ico"
 !define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "..\epyq\icon.png"
+!define MUI_HEADERIMAGE_BITMAP "..\src\epyq\icon.png"
 !define MUI_HEADERIMAGE_RIGHT
 
 # set desktop as install directory
