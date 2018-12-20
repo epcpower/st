@@ -2,5 +2,11 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/libs/bitstruct" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/libs/canmatrix" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/libs/graham" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/libs/pyelftools" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/libs/qt5reactor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sub/epyqlib" vcs="Git" />
   </component>
 </project>

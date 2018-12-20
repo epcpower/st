@@ -4,7 +4,7 @@
 
 import sys
 import time
-import epyq
+from src import epyq
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2015, EPC Power Corp.'

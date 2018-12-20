@@ -1,10 +1,11 @@
 /venv/
 /activate*
+/src/libs
 generated/
 *.stats
 *.exe
 /designer*
-epyq/_version.py
+src/epyq/_version.py
 version.txt
 .env.local
 
@@ -83,4 +84,4 @@ target/
 .vagrant/
 
 # Generated files
-/epyq/revision.py
+/src/epyq/revision.py

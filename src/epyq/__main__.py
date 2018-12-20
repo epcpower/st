@@ -27,7 +27,7 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 import attr
 import can
 import copy
-import epyq
+from src import epyq
 import epyqlib.canneo
 import epyqlib.csvwindow
 from epyqlib.svgwidget import SvgWidget
