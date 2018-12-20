@@ -83,7 +83,7 @@ exe = EXE(
     strip=False,
     upx=True,
     console=False,
-    icon=os.path.join('epyq', 'icon.ico'),
+    icon=os.path.join('src', 'epyq', 'icon.ico'),
 )
 
 coll = COLLECT(
