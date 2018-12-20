@@ -55,7 +55,7 @@ for data_file in data_files:
 print()
 
 a = Analysis(
-    [os.path.join('..', 'epyq', '__main__.py')],
+    [os.path.join('..', 'src', 'epyq', '__main__.py')],
     pathex=['..'],
     binaries=[],
     datas=[(os.path.join(os.getcwd(), p), pp) for p, pp in data_files],
