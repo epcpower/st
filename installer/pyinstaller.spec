@@ -21,7 +21,7 @@ def collect(prefix, search_in, *extensions):
 hidden_imports = set()
 data_files = []
 
-prefix = os.path.join('epyq', '')
+prefix = os.path.join('src', 'epyq', '')
 search_in = prefix
 data_files.extend(collect(prefix, search_in, '.ui', '.ico', '.png'))
 
