@@ -40,7 +40,6 @@ import epyqlib.utils.canlog
 import epyqlib.widgets.progressbar
 import epyqlib.widgets.lcd
 import epyqlib.widgets.led
-import faulthandler
 import functools
 import io
 import math
@@ -332,7 +331,6 @@ def sigint_handler(signal_number, stack_frame):
 
 
 def main(args=None):
-    faulthandler.enable()
     print('starting epyq')
 
     signal.signal(signal.SIGINT, sigint_handler)
