@@ -65,7 +65,7 @@ def read_dot_env():
 
 
 custom_env = {
-    'PIP_SRC': lib_src,
+    # 'PIP_SRC': lib_src,
 }
 
 
