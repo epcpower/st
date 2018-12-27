@@ -156,6 +156,7 @@ def install_requirements_file(python, env, requirements):
             python,
             '-m', 'pip',
             'install',
+            '--no-warn-script-location',
             '-r', requirements,
         ],
         cwd=project_root,
