@@ -119,7 +119,7 @@ def common_create(
             venv_python,
             '-m', 'pip',
             'install',
-            '--upgrade', 'pip', 'setuptools',
+            '--requirement', os.path.join(project_root, 'requirements.pre'),
         ],
         cwd=project_root,
         env=env,
