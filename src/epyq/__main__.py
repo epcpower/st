@@ -2,11 +2,15 @@
 
 # TODO: get some docstrings in here!
 
-# TODO: CAMPid 98852142341263132467998754961432
-import epyqlib.tee
 import os
 import pathlib
 import sys
+
+# TODO: CAMPid 98852142341263132467998754961432
+import epyqlib.tee
+
+from epyqlib.tabs.files.aws_login_manager import AwsLoginManager
+from epyqlib.tabs.files.configuration import Configuration, Vars
 
 # TODO: CAMPid 953295425421677545429542967596754
 log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', buffering=1)
@@ -25,12 +29,9 @@ import logging
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 
 import attr
-import can
-import copy
 import epyq
 import epyqlib.canneo
 import epyqlib.csvwindow
-from epyqlib.svgwidget import SvgWidget
 import epyqlib.scripting
 import epyqlib.scriptingview
 import epyqlib.tests.common
@@ -42,20 +43,11 @@ import epyqlib.widgets.lcd
 import epyqlib.widgets.led
 import functools
 import io
-import math
-import platform
 import signal
-import threading
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
-from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
-                          Qt, pyqtSlot, QMarginsF)
-from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
-                             QListWidgetItem, QAction, QMenu, QInputDialog,
-                             QPlainTextEdit)
-from PyQt5.QtGui import QPixmap, QPicture, QTextCursor
-import time
-import traceback
+from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, Qt, pyqtSlot)
+from PyQt5.QtWidgets import (QApplication, QMessageBox, QAction)
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
@@ -69,6 +61,9 @@ print(epyq.__build_tag__)
 class Window(QtWidgets.QMainWindow):
     def __init__(self, ui_file, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
+
+        self.aws_login_manager = AwsLoginManager.get_instance()
+        self.files_config = Configuration.get_instance()
 
         # TODO: CAMPid 980567566238416124867857834291346779
         ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
@@ -102,6 +97,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.action_stop_can_log.triggered.connect(self.stop_can_log)
         self.ui.action_export_can_log.triggered.connect(self.export_can_log)
         self.can_logs = {}
+
+        self.ui.action_login_to_sync.triggered.connect(self.login_to_sync_clicked)
+        self.ui.action_auto_sync_files.triggered.connect(self.auto_sync_clicked)
+        self.update_logged_in_state()
 
         device_tree = epyqlib.devicetree.Tree()
         self.device_tree_model = epyqlib.devicetree.Model(root=device_tree)
@@ -199,6 +198,30 @@ class Window(QtWidgets.QMainWindow):
                     )
                     with open(filename, 'w') as f:
                         epyqlib.utils.canlog.to_trc_v1_1(messages, f)
+
+    def update_logged_in_state(self):
+        auto_sync: QAction = self.ui.action_auto_sync_files
+        login: QAction = self.ui.action_login_to_sync
+
+        logged_in = self.aws_login_manager.is_logged_in()
+        if logged_in:
+            text = "Log out of EPC Sync"
+        else:
+            text = "Log in to EPC Sync"
+
+        login.setText(text)
+        auto_sync.setDisabled(not logged_in)
+        auto_sync.setChecked(logged_in and self.files_config.get(Vars.auto_sync))
+
+
+    def login_to_sync_clicked(self):
+        self.aws_login_manager.show_login_window(None)
+        self.update_logged_in_state()
+
+    def auto_sync_clicked(self):
+        auto_sync: QAction = self.ui.action_auto_sync_files
+
+        self.files_config.set(Vars.auto_sync, auto_sync.isChecked())
 
     def device_widget_changed(self, index=None):
         if index is not None:
