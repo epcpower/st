@@ -63,6 +63,7 @@ class Window(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self, parent=parent)
 
         self.aws_login_manager = AwsLoginManager.get_instance()
+        self.aws_login_manager.register_listener(self.update_logged_in_state)
         self.files_config = Configuration.get_instance()
 
         # TODO: CAMPid 980567566238416124867857834291346779
@@ -199,11 +200,13 @@ class Window(QtWidgets.QMainWindow):
                     with open(filename, 'w') as f:
                         epyqlib.utils.canlog.to_trc_v1_1(messages, f)
 
-    def update_logged_in_state(self):
+    def update_logged_in_state(self, logged_in: bool = None):
+        if logged_in is None:
+            logged_in = self.aws_login_manager.is_logged_in()
+
         auto_sync: QAction = self.ui.action_auto_sync_files
         login: QAction = self.ui.action_login_to_sync
 
-        logged_in = self.aws_login_manager.is_logged_in()
         if logged_in:
             text = "Log out of EPC Sync"
         else:
@@ -211,12 +214,13 @@ class Window(QtWidgets.QMainWindow):
 
         login.setText(text)
         auto_sync.setDisabled(not logged_in)
-        auto_sync.setChecked(logged_in and self.files_config.get(Vars.auto_sync))
-
+        auto_sync.setChecked(logged_in and self.files_config.get_bool(Vars.auto_sync))
 
     def login_to_sync_clicked(self):
-        self.aws_login_manager.show_login_window(None)
-        self.update_logged_in_state()
+        if self.aws_login_manager.is_logged_in():
+            self.aws_login_manager.log_user_out()
+        else:
+            self.aws_login_manager.show_login_window()
 
     def auto_sync_clicked(self):
         auto_sync: QAction = self.ui.action_auto_sync_files
