@@ -10,7 +10,7 @@ import sys
 import epyqlib.tee
 
 from epyqlib.tabs.files.aws_login_manager import AwsLoginManager
-from epyqlib.tabs.files.configuration import Configuration, Vars
+from epyqlib.tabs.files.sync_config import SyncConfig, Vars
 
 # TODO: CAMPid 953295425421677545429542967596754
 log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', buffering=1)
@@ -64,7 +64,7 @@ class Window(QtWidgets.QMainWindow):
 
         self.aws_login_manager = AwsLoginManager.get_instance()
         self.aws_login_manager.register_listener(self.update_logged_in_state)
-        self.files_config = Configuration.get_instance()
+        self.files_config = SyncConfig.get_instance()
 
         # TODO: CAMPid 980567566238416124867857834291346779
         ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
