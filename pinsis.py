@@ -53,13 +53,16 @@ rmtree(os.path.join('dist'))
 resource_files = glob.glob(os.path.join('sub', 'epyqlib', 'epyqlib', 'resources', '*.qrc'))
 for f in resource_files:
     print('Starting pyrcc5')
-    subprocess.check_call(
-        [
-            os.path.join('venv', 'Scripts', 'pyrcc5'),
-            '-o', os.path.splitext(f)[0] + '.py',
-            f
-        ]
-    )
+    if os.path.isfile(f):
+        subprocess.check_call(
+            [
+                os.path.join('venv', 'Scripts', 'pyrcc5'),
+                '-o', os.path.splitext(f)[0] + '.py',
+                f
+            ]
+        )
+    else:
+        print('Skipping missing file: {}'.format(f))
 
 pyinstaller = os.path.join('venv', 'Scripts', 'pyinstaller')
 spec_file = os.path.join('installer', 'pyinstaller.spec')
