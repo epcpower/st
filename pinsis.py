@@ -8,6 +8,7 @@ import requests
 import shutil
 import stat
 import subprocess
+import traceback
 
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -53,7 +54,7 @@ rmtree(os.path.join('dist'))
 resource_files = glob.glob(os.path.join('sub', 'epyqlib', 'epyqlib', 'resources', '*.qrc'))
 for f in resource_files:
     print('Starting pyrcc5')
-    if os.path.isfile(f):
+    try:
         subprocess.check_call(
             [
                 os.path.join('venv', 'Scripts', 'pyrcc5'),
@@ -61,8 +62,9 @@ for f in resource_files:
                 f
             ]
         )
-    else:
-        print('Skipping missing file: {}'.format(f))
+    except subprocess.CalledProcessError:
+        print('Ignoring error when processing: {}'.format(f))
+        traceback.print_exc()
 
 pyinstaller = os.path.join('venv', 'Scripts', 'pyinstaller')
 spec_file = os.path.join('installer', 'pyinstaller.spec')
