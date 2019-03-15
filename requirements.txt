@@ -35,6 +35,7 @@ pytest-qt==3.2.1
 git+https://github.com/altendky/pytest-twisted@6f04ba3ad806b3b40602999e71c28633c36d81f9
 
 boto3==1.9.83
+boto3_type_annotations==0.3.0
 certitude==1.0.1; platform_system == "Darwin"
 paho-mqtt==1.4.0
 treq==18.6.0
