@@ -14,7 +14,7 @@ requests
 python-can==3.0.0
 -e git+https://github.com/ebroecker/canmatrix@8f63047c18dcb65f7904d298cbf603d2e6325b85#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
-Twisted==18.9.0
+Twisted[tls]==18.9.0
 Twisted[osx_platform]==18.9.0rc1; platform_system == "Darwin"
 Twisted[windows_platform]==18.9.0rc1; platform_system == "Windows"
 -e git+https://github.com/altendky/qt5reactor@ce3ea2dad6d71adb10cde79b64bc0c7d27e9139c#egg=qt5reactor
@@ -35,7 +35,7 @@ pytest-qt==3.2.1
 git+https://github.com/altendky/pytest-twisted@6f04ba3ad806b3b40602999e71c28633c36d81f9
 
 boto3==1.9.83
-certitude==1.0.1
+certitude==1.0.1; platform_system == "Darwin"
 paho-mqtt==1.4.0
 treq==18.6.0
 
