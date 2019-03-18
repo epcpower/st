@@ -49,6 +49,9 @@ from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, Qt, pyqtSlot)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QAction)
 
+import certifi
+os.environ["SSL_CERT_FILE"] = certifi.where()
+
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
