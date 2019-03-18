@@ -1,9 +1,0 @@
-{
-  "auto_sync": true,
-  "offline_mode": false,
-  "provided_serial_number": null,
-  "refresh_token": null,
-  "unique_inverters": null,
-  "username": null,
-  "server_url": "https://b3oofrroujeutdd4zclqlwedhm.appsync-api.us-west-2.amazonaws.com/graphql"
-}
