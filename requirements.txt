@@ -8,7 +8,7 @@ requests
 
 # TODO: this shouldn't be here either...
 # https://github.com/pyinstaller/pyinstaller/issues/3942
--e git+https://github.com/Loran425/PyInstaller@fb24e328a764dd6748a9973a28c90466833793f4#egg=PyInstaller
+-e git+https://github.com/Loran425/PyInstaller@5bed1af275dfaeb2267af2d10a808bd29a8674f7#egg=PyInstaller
 
 -e git+https://github.com/altendky/graham@89f3b3e6aad3b98bafa83f28fbbc11bb92df6ad8#egg=graham
 python-can==3.0.0
