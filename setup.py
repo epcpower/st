@@ -11,6 +11,7 @@ setup(
     package_dir={"": "src"},
     entry_points={'gui_scripts': ['epyq = epyq.__main__:main']},
     install_requires=[
+        'epyqlib>=2019.3.4',
         'PyQt5',
         'PyQtChart',
     ],
