@@ -29,6 +29,7 @@ Instructions are for Python 3.7 but they should work with slight tweaks with 3.6
 - Try running `venv\Scripts\epyq`.  If you get errors, consider installing the linked extras. 
 
 If using with [PEAK PCAN](http://www.peak-system.com/PCAN-USB.199.0.html?&L=1) hardware, install the [PEAK drivers](http://www.peak-system.com/PCAN-USB.199.0.html?&L=1).
+Select the `PCAN-Basic` feature in the installer.  The virtual and LIN features are not needed for this.
 
 To launch EPyQ run `venv\Scripts\epyq.exe`.
 To launch Qt Designer with the EPyQ plugins enabled run `designer.bat`.
