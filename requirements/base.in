@@ -6,7 +6,7 @@
 requests
 
 # TODO: shouldn't be deploy here for all cases
--e sub/epyqlib[deploy]
+-e file:sub/epyqlib#egg=epyqlib[deploy]
 
 # TODO: this shouldn't be here either...
 # https://github.com/pyinstaller/pyinstaller/issues/3942

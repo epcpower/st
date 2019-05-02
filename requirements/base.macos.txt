@@ -8,7 +8,7 @@
 
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
 -e git+https://github.com/ebroecker/canmatrix@8f63047c18dcb65f7904d298cbf603d2e6325b85#egg=canmatrix
--e file:///Users/vsts/agent/2.150.2/work/1/s/work/sub/epyqlib
+-e file:sub/epyqlib#egg=epyqlib
 -e git+https://github.com/altendky/graham@89f3b3e6aad3b98bafa83f28fbbc11bb92df6ad8#egg=graham
 -e git+https://github.com/eliben/pyelftools@27941c50fef8cff8ef991419511664154c8cdf52#egg=pyelftools
 -e git+https://github.com/altendky/PyInstaller@07e1623bcec47f36735ef459a9d0b8d845852635#egg=PyInstaller
@@ -30,7 +30,6 @@ cryptography==2.6.1       # via pyopenssl, service-identity, twisted
 decorator==4.4.0
 defusedxml==0.6.0         # via soappy
 future==0.17.1            # via pefile
-get==2019.4.13            # via request
 gitdb2==2.0.5             # via gitpython
 gitpython==2.1.11
 greenlet==0.4.15
@@ -51,9 +50,7 @@ pefile==2019.4.18
 pint==0.9
 pip-tools==3.3.2
 pluggy==0.9.0             # via pytest
-post==2019.4.13           # via request
 priority==1.3.0           # via twisted
-public==2019.4.13         # via query-string
 py==1.8.0                 # via pytest
 pyasn1-modules==0.2.5     # via service-identity
 pyasn1==0.4.5             # via pyasn1-modules, service-identity, twisted
@@ -75,9 +72,7 @@ python-can==3.0.0
 python-dateutil==2.8.0    # via arrow
 python-docx==0.8.10
 python-dotenv==0.10.1
-query-string==2019.4.13   # via get
-request==2019.4.13
-requests==2.21.0          # via romp
+requests==2.21.0
 romp==2019.4.1
 service-identity==18.1.0  # via twisted
 six==1.12.0               # via automat, cryptography, pathlib2, pip-tools, pyhamcrest, pyopenssl, pytest, python-dateutil, wstools
@@ -85,7 +80,7 @@ smmap2==2.0.5             # via gitdb2
 soappy==0.12.22           # via twisted
 twisted[osx_platform]==18.9.0 ; platform_system == "Darwin"
 typing==3.6.6             # via python-can
-urllib3==1.24.2           # via requests
+urllib3==1.24.3           # via requests
 wrapt==1.11.1             # via python-can
 wstools==0.4.8            # via soappy
 zope.interface==4.6.0     # via twisted
