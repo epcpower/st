@@ -3,7 +3,7 @@
 --extra-index-url http://fstab.net/pypi/simple
 --trusted-host fstab.net
 
-request
+requests
 
 # TODO: shouldn't be deploy here for all cases
 -e sub/epyqlib[deploy]
