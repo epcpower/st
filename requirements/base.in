@@ -38,3 +38,6 @@ pytest-faulthandler==1.5.0
 pytest-rerunfailures==4.2
 pytest-qt==3.2.1
 -e git+https://github.com/altendky/pytest-twisted@6f04ba3ad806b3b40602999e71c28633c36d81f9#egg=pytest-twisted
+
+# https://github.com/pyinstaller/pyinstaller/issues/4258
+pluggy<0.12
