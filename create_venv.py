@@ -342,7 +342,9 @@ def rm(ignore_missing, configuration):
             )
 
 
-def lock(temporary_env, configuration):
+def lock(temporary_env, use_default_python, configuration):
+    configuration.python_identifier.use_default_python = use_default_python
+
     if not temporary_env:
         lock_core(configuration=configuration)
     else:
@@ -594,6 +596,8 @@ def ensure_posixpath(path):
 
 
 def remotelock(configuration):
+    configuration.python_identifier.use_default_python = True
+
     directory = tempfile.mkdtemp()
 
     try:
@@ -616,7 +620,7 @@ def remotelock(configuration):
         check_call(
             [
                 os.path.join(configuration.resolved_venv_common_bin(), 'romp'),
-                '--command', './{} lock'.format(os.path.basename(__file__)),
+                '--command', 'python {} lock --use-default-python'.format(os.path.basename(__file__)),
                 '--platform', 'Windows',
                 '--interpreter', 'CPython',
                 '--version', version,
@@ -647,6 +651,19 @@ def add_group_option(parser, default):
     )
 
 
+def add_use_default_python_option(parser):
+    parser.add_argument(
+        '--use-default-python',
+        action='store_true',
+        help=(
+            'Use just bare `python` instead of searching for the proper'
+            'version.  This can be helpful when you know you have the proper'
+            "Python version as 'default' but it may not be identifiable as"
+            'such via the normal means.'
+        ),
+    )
+
+
 def add_subparser(subparser, *args, **kwargs):
     return subparser.add_parser(
         *args,
@@ -656,9 +673,10 @@ def add_subparser(subparser, *args, **kwargs):
 
 
 class PythonIdentifier:
-    def __init__(self, version, bit_width):
+    def __init__(self, version, bit_width, use_default_python=False):
         self.version = version
         self.bit_width = bit_width
+        self.use_default_python = use_default_python
 
     @classmethod
     def from_string(cls, identifier_string):
@@ -689,12 +707,18 @@ class PythonIdentifier:
         return '.'.join(str(v) for v in self.version[:places])
 
     def linux_command(self):
+        if self.use_default_python:
+            return ['python']
+
         command = 'python'
         command += self.dotted_version(places=2)
 
         return [command]
 
     def windows_command(self):
+        if self.use_default_python:
+            return ['python']
+
         command = ['py']
 
         if len(self.version) > 0:
@@ -977,6 +1001,7 @@ def main():
             ' platform using a shared filesystem'
         ),
     )
+    add_use_default_python_option(lock_parser)
     lock_parser.set_defaults(func=lock)
 
     resole_parser = add_subparser(
