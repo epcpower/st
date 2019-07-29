@@ -4,15 +4,16 @@
 #
 #    python create_venv.py lock
 #
-certifi==2019.3.9         # via requests
+certifi==2019.6.16        # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via pip-tools, romp
 idna==2.8                 # via requests
 pip-tools==3.3.2
-requests==2.21.0          # via romp
+requests==2.22.0          # via romp
 romp==2019.4.1
 six==1.12.0               # via pip-tools
-urllib3==1.24.3           # via requests
+urllib3==1.25.3           # via requests
+wheel==0.33.4
 
 # The following packages are considered to be unsafe in a requirements file:
 pip==18.1
