@@ -15,7 +15,7 @@ build_script:
   - pip --version
   - git submodule update --init
   - python create_venv.py ensure
-  - venv\\Scripts\\python download_fonts.py src\\lib
+  - venv\\Scripts\\python download_fonts.py src\\libs
   - venv\\Scripts\\genbuildinfo "src\\epyq\\_build.py"
   - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
   - venv\\Scripts\\pip freeze --all
