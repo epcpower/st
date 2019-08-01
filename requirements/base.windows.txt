@@ -21,8 +21,9 @@ asn1crypto==0.24.0        # via cryptography
 atomicwrites==1.3.0       # via pytest
 attrs==18.1.0
 automat==0.7.0            # via twisted
+bcrypt==3.1.7             # via twisted
 certifi==2019.6.16        # via requests
-cffi==1.12.3              # via cryptography
+cffi==1.12.3              # via bcrypt, cryptography
 chardet==3.0.4            # via requests
 click==7.0                # via pip-tools, pyqt5-tools, romp
 colorama==0.4.1           # via pytest
@@ -39,7 +40,6 @@ hpack==3.0.0              # via h2
 hyperframe==5.2.0         # via h2
 hyperlink==19.0.0         # via twisted
 idna==2.8                 # via hyperlink, requests, twisted
-importlib-metadata==0.19  # via pluggy
 incremental==17.5.0       # via twisted
 lxml==4.4.0               # via python-docx
 macholib==1.11
@@ -51,11 +51,11 @@ pbr==5.4.1                # via wstools
 pefile==2019.4.18
 pint==0.9
 pip-tools==3.3.2
-pluggy==0.12.0            # via pytest
+pluggy==0.11.0
 priority==1.3.0           # via twisted
 py==1.8.0                 # via pytest
-pyasn1-modules==0.2.5     # via service-identity
-pyasn1==0.4.5             # via pyasn1-modules, service-identity, twisted
+pyasn1-modules==0.2.6     # via service-identity
+pyasn1==0.4.6             # via pyasn1-modules, service-identity, twisted
 pycparser==2.19           # via cffi
 pyhamcrest==1.9.0         # via twisted
 pyopenssl==19.0.0         # via twisted
@@ -74,20 +74,21 @@ python-docx==0.8.10
 python-dotenv==0.10.3     # via pyqt5-tools
 pywin32-ctypes==0.2.0
 pywin32==223 ; sys_platform == "win32"
+qtawesome==0.6.0
+qtpy==1.9.0               # via qtawesome
 requests==2.22.0
 romp==2019.4.1
 service-identity==18.1.0  # via twisted
-six==1.12.0               # via automat, cryptography, pathlib2, pip-tools, pyhamcrest, pyopenssl, pytest, python-dateutil, wstools
+six==1.12.0               # via automat, bcrypt, cryptography, pathlib2, pip-tools, pyhamcrest, pyopenssl, pytest, python-dateutil, qtawesome, wstools
 smmap2==2.0.5             # via gitdb2
 soappy==0.12.22           # via twisted
-twisted[windows_platform]==18.9.0 ; platform_system == "Windows"
+twisted[windows_platform]==19.2.1 ; platform_system == "Windows"
 typing==3.7.4             # via python-can
 urllib3==1.25.3           # via requests
 wheel==0.33.4
 windows-curses==1.1       # via python-can
 wrapt==1.11.2             # via python-can
 wstools==0.4.8            # via soappy
-zipp==0.5.2               # via importlib-metadata
 zope.interface==4.6.0     # via twisted
 
 # The following packages are considered to be unsafe in a requirements file:
