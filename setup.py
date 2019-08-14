@@ -1,16 +1,27 @@
-from setuptools import setup, find_packages
+import pathlib
 
-setup(
+import alqtendpy.compileui
+import setuptools
+import setuptools.command.build_py
+
+
+alqtendpy.compileui.compile_ui(
+    directory_paths=[pathlib.Path(__file__).parent  / 'src' / 'epyq'],
+)
+
+
+setuptools.setup(
     name="EPyQ",
     author="EPC Power Corp.",
     classifiers=[
         ("License :: OSI Approved :: "
          "GNU General Public License v2 or later (GPLv2+)")
     ],
-    packages=find_packages("src"),
+    packages=setuptools.find_packages("src"),
     package_dir={"": "src"},
     entry_points={'gui_scripts': ['epyq = epyq.__main__:main']},
     install_requires=[
+        'alqtendpy',
         'epyqlib>=2019.4.2',
         'PyQt5',
         'PyQtChart',
