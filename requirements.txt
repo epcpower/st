@@ -37,4 +37,7 @@ git+https://github.com/altendky/pytest-twisted@6f04ba3ad806b3b40602999e71c28633c
 # https://github.com/pyinstaller/pyinstaller/issues/4258
 pluggy<0.12
 
+alqtendpy==0.0.4
+
+
 -e .
