@@ -5,6 +5,7 @@
 #    python create_venv.py lock
 #
 --extra-index-url http://fstab.net/pypi/simple
+--trusted-host fstab.net
 
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
 -e git+https://github.com/ebroecker/canmatrix@8f63047c18dcb65f7904d298cbf603d2e6325b85#egg=canmatrix
@@ -14,6 +15,8 @@
 -e git+https://github.com/altendky/PyInstaller@07e1623bcec47f36735ef459a9d0b8d845852635#egg=PyInstaller
 -e git+https://github.com/altendky/pytest-twisted@6f04ba3ad806b3b40602999e71c28633c36d81f9#egg=pytest-twisted
 -e git+https://github.com/altendky/qt5reactor@ce3ea2dad6d71adb10cde79b64bc0c7d27e9139c#egg=qt5reactor
+alqtendpy==0.0.4
+altendpy==0.0.17          # via alqtendpy
 altgraph==0.16.1          # via macholib
 appdirs==1.4.3            # via twisted
 arrow==0.12.1
@@ -25,32 +28,34 @@ bcrypt==3.1.7             # via twisted
 certifi==2019.6.16        # via requests
 cffi==1.12.3              # via bcrypt, cryptography
 chardet==3.0.4            # via requests
-click==7.0                # via pip-tools, pyqt5-tools, romp
+click==7.0                # via alqtendpy, pip-tools, pyqt5-tools, romp
 colorama==0.4.1           # via pytest
 constantly==15.1.0        # via twisted
 cryptography==2.7         # via pyopenssl, service-identity, twisted
+ddt==1.2.1                # via gitpython
 decorator==4.4.0
 defusedxml==0.6.0         # via soappy
 future==0.17.1            # via pefile
 gitdb2==2.0.5             # via gitpython
-gitpython==2.1.13
+gitdb==0.6.4              # via gitpython
+gitpython==3.0.0
 greenlet==0.4.15
-h2==3.1.0                 # via twisted
+h2==3.1.1                 # via twisted
 hpack==3.0.0              # via h2
 hyperframe==5.2.0         # via h2
 hyperlink==19.0.0         # via twisted
 idna==2.8                 # via hyperlink, requests, twisted
 incremental==17.5.0       # via twisted
-lxml==4.4.0               # via python-docx
+lxml==4.4.1               # via python-docx
 macholib==1.11
-marshmallow==2.19.5
+marshmallow==2.20.1
 more-itertools==7.2.0     # via pytest
 natsort==5.4.1
 pathlib2==2.3.4
-pbr==5.4.1                # via wstools
+pbr==5.4.2                # via wstools
 pefile==2019.4.18
 pint==0.9
-pip-tools==3.3.2
+pip-tools==4.0.0
 pluggy==0.11.0
 priority==1.3.0           # via twisted
 py==1.8.0                 # via pytest
@@ -81,16 +86,17 @@ romp==2019.4.1
 service-identity==18.1.0  # via twisted
 six==1.12.0               # via automat, bcrypt, cryptography, pathlib2, pip-tools, pyhamcrest, pyopenssl, pytest, python-dateutil, qtawesome, wstools
 smmap2==2.0.5             # via gitdb2
+smmap==0.9.0              # via gitdb
 soappy==0.12.22           # via twisted
-twisted[windows_platform]==19.2.1 ; platform_system == "Windows"
+twisted[windows_platform]==19.2.1; platform_system == "windows" ; platform_system == "Windows"
 typing==3.7.4             # via python-can
 urllib3==1.25.3           # via requests
 wheel==0.33.4
-windows-curses==1.1       # via python-can
+windows-curses==2.0       # via python-can
 wrapt==1.11.2             # via python-can
 wstools==0.4.8            # via soappy
 zope.interface==4.6.0     # via twisted
 
 # The following packages are considered to be unsafe in a requirements file:
-# pip
-# setuptools
+# pip==19.2.2
+# setuptools==41.1.0

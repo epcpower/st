@@ -391,6 +391,7 @@ def lock_core(configuration):
                     'pip-compile',
                 ),
                 '--output-file', out_path,
+                '--build-isolation',
                 specification_path,
             ] + extras,
             cwd=configuration.project_root,
@@ -793,6 +794,7 @@ class Configuration:
             'setup.cfg',
             'setup.py',
             'requirements/*.in',
+            'pyproject.toml',
         )),
     }
 
