@@ -36,8 +36,7 @@ decorator==4.4.0
 defusedxml==0.6.0         # via soappy
 future==0.17.1            # via pefile
 gitdb2==2.0.5             # via gitpython
-gitdb==0.6.4              # via gitpython
-gitpython==3.0.0
+gitpython==3.0.1
 greenlet==0.4.15
 h2==3.1.1                 # via twisted
 hpack==3.0.0              # via h2
@@ -85,7 +84,6 @@ romp==2019.4.1
 service-identity==18.1.0  # via twisted
 six==1.12.0               # via automat, bcrypt, cryptography, pathlib2, pip-tools, pyhamcrest, pyopenssl, pytest, python-dateutil, qtawesome, wstools
 smmap2==2.0.5             # via gitdb2
-smmap==0.9.0              # via gitdb
 soappy==0.12.22           # via twisted
 twisted[osx_platform]==19.2.1; platform_system == "darwin" ; platform_system == "Darwin"
 typing==3.7.4             # via python-can

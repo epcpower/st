@@ -30,8 +30,7 @@ ddt==1.2.1                # via gitpython
 decorator==4.4.0
 future==0.17.1            # via pefile
 gitdb2==2.0.5             # via gitpython
-gitdb==0.6.4              # via gitpython
-gitpython==3.0.0
+gitpython==3.0.1
 greenlet==0.4.15
 hyperlink==19.0.0         # via twisted
 idna==2.8                 # via hyperlink, requests
@@ -65,7 +64,6 @@ requests==2.22.0
 romp==2019.4.1
 six==1.12.0               # via automat, pathlib2, pip-tools, pyhamcrest, pytest, python-dateutil, qtawesome
 smmap2==2.0.5             # via gitdb2
-smmap==0.9.0              # via gitdb
 twisted==19.2.1; platform_system != "darwin" and platform_system != "windows" ; platform_system != "Darwin" and platform_system != "Windows"
 typing==3.7.4             # via python-can
 urllib3==1.25.3           # via requests
