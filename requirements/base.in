@@ -21,7 +21,7 @@ python-can==3.0.0
 -e git+https://github.com/ebroecker/canmatrix@8f63047c18dcb65f7904d298cbf603d2e6325b85#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
 
-Twisted==19.2.1
+Twisted==19.7.0
 
 -e git+https://github.com/altendky/qt5reactor@ce3ea2dad6d71adb10cde79b64bc0c7d27e9139c#egg=qt5reactor
 

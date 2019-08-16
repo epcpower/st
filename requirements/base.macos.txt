@@ -64,7 +64,7 @@ requests==2.22.0
 romp==2019.4.1
 six==1.12.0               # via automat, pathlib2, pip-tools, pyhamcrest, pytest, python-dateutil, qtawesome
 smmap2==2.0.5             # via gitdb2
-twisted==19.2.1
+twisted==19.7.0
 typing==3.7.4             # via python-can
 urllib3==1.25.3           # via requests
 wheel==0.33.4
