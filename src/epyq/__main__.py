@@ -391,27 +391,6 @@ def main(args=None):
         for module in can_logger_modules:
             logging.getLogger(module).setLevel(logging.DEBUG)
 
-    fontawesome_path = os.path.join(
-        QtCore.QFileInfo.absolutePath(QFileInfo(__file__)),
-        '..', 'src', 'libs', 'fontawesome', 'fonts', 'FontAwesome.otf'
-    )
-    if not os.path.exists(fontawesome_path):
-        fontawesome_path = 'FontAwesome.otf'
-
-    font_paths = [
-        fontawesome_path
-    ]
-
-    for font_path in font_paths:
-        # TODO: CAMPid 9549757292917394095482739548437597676742
-        if not QtCore.QFileInfo(font_path).isAbsolute():
-            font_path = os.path.join(
-                QtCore.QFileInfo.absolutePath(QtCore.QFileInfo(__file__)),
-                font_path
-            )
-
-        QtGui.QFontDatabase.addApplicationFont(font_path)
-
     window = Window()
     epyqlib.utils.qt.exception_message_box_register_parent(parent=window)
 
