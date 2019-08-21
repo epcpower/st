@@ -16,7 +16,7 @@ alqtendpy==0.0.4
 # https://github.com/pyinstaller/pyinstaller/issues/3942
 -e git+https://github.com/altendky/PyInstaller@07e1623bcec47f36735ef459a9d0b8d845852635#egg=PyInstaller
 
--e git+https://github.com/altendky/graham@89f3b3e6aad3b98bafa83f28fbbc11bb92df6ad8#egg=graham
+graham==0.1.11
 python-can==3.0.0
 -e git+https://github.com/ebroecker/canmatrix@8f63047c18dcb65f7904d298cbf603d2e6325b85#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
