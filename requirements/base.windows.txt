@@ -38,7 +38,7 @@ idna==2.8                 # via hyperlink, requests
 incremental==17.5.0       # via twisted
 lxml==4.4.1               # via python-docx
 macholib==1.11
-marshmallow==2.20.1
+marshmallow==3.0.0
 more-itertools==7.2.0     # via pytest
 natsort==5.4.1
 pathlib2==2.3.4
@@ -49,8 +49,8 @@ pluggy==0.11.0
 py==1.8.0                 # via pytest
 pyhamcrest==1.9.0         # via twisted
 pyqt5-sip==4.19.18        # via pyqt5
-pyqt5-tools==5.11.2.1.4rc1 ; sys_platform == "win32"
-pyqt5==5.11.2
+pyqt5-tools==5.13.0.1.5 ; sys_platform == "win32"
+pyqt5==5.13.0
 pyqtchart==5.11.2
 pytest-faulthandler==1.5.0
 pytest-qt==3.2.1
@@ -62,11 +62,9 @@ python-docx==0.8.10
 python-dotenv==0.10.3     # via pyqt5-tools
 pywin32-ctypes==0.2.0
 pywin32==223 ; sys_platform == "win32"
-qtawesome==0.6.0
-qtpy==1.9.0               # via qtawesome
 requests==2.22.0
 romp==2019.4.1
-six==1.12.0               # via automat, pathlib2, pip-tools, pyhamcrest, pytest, python-dateutil, qtawesome
+six==1.12.0               # via automat, pathlib2, pip-tools, pyhamcrest, pytest, python-dateutil
 smmap2==2.0.5             # via gitdb2
 twisted==19.7.0
 typing==3.7.4             # via python-can

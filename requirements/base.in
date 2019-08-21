@@ -31,9 +31,9 @@ attrs==18.1.0
 natsort==5.4.1
 arrow==0.12.1
 
-PyQt5==5.11.2
+PyQt5==5.13.0
 PyQtChart==5.11.2
-pyqt5-tools==5.11.2.1.4rc1; sys_platform == 'win32'
+pyqt5-tools==5.13.0.1.5; sys_platform == 'win32'
 
 pytest==3.9.2
 pytest-faulthandler==1.5.0
