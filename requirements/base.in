@@ -13,8 +13,7 @@ alqtendpy==0.0.4
 -e file:sub/epyqlib#egg=epyqlib[deploy]
 
 # TODO: this shouldn't be here either...
-# https://github.com/pyinstaller/pyinstaller/issues/3942
--e git+https://github.com/altendky/PyInstaller@07e1623bcec47f36735ef459a9d0b8d845852635#egg=PyInstaller
+pyinstaller==3.5
 
 graham==0.1.11
 python-can==3.0.0
@@ -31,9 +30,9 @@ attrs==18.1.0
 natsort==5.4.1
 arrow==0.12.1
 
-PyQt5==5.13.0
-PyQtChart==5.11.2
-pyqt5-tools==5.13.0.1.5; sys_platform == 'win32'
+PyQt5==5.13.1
+PyQtChart==5.13.0
+#pyqt5-tools==5.13.1.1.6rc0; sys_platform == 'win32'
 
 pytest==3.9.2
 pytest-faulthandler==1.5.0

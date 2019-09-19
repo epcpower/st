@@ -11,12 +11,11 @@
 -e git+https://github.com/ebroecker/canmatrix@8f63047c18dcb65f7904d298cbf603d2e6325b85#egg=canmatrix
 -e file:sub/epyqlib#egg=epyqlib
 -e git+https://github.com/eliben/pyelftools@27941c50fef8cff8ef991419511664154c8cdf52#egg=pyelftools
--e git+https://github.com/altendky/PyInstaller@07e1623bcec47f36735ef459a9d0b8d845852635#egg=PyInstaller
 -e git+https://github.com/altendky/pytest-twisted@6f04ba3ad806b3b40602999e71c28633c36d81f9#egg=pytest-twisted
 -e git+https://github.com/altendky/qt5reactor@ce3ea2dad6d71adb10cde79b64bc0c7d27e9139c#egg=qt5reactor
 alqtendpy==0.0.4
-altendpy==0.0.18          # via alqtendpy
-altgraph==0.16.1          # via macholib
+altendpy==0.0.19          # via alqtendpy
+altgraph==0.16.1          # via pyinstaller
 arrow==0.12.1
 atomicwrites==1.3.0       # via pytest
 attrs==18.1.0
@@ -26,7 +25,7 @@ chardet==3.0.4            # via requests
 click==7.0                # via alqtendpy, pip-tools, romp
 constantly==15.1.0        # via twisted
 decorator==4.4.0
-future==0.17.1            # via pefile
+future==0.17.1
 gitdb2==2.0.5             # via gitpython
 gitpython==3.0.2
 graham==0.1.11
@@ -36,21 +35,20 @@ idna==2.8                 # via hyperlink, requests
 incremental==17.5.0       # via twisted
 jinja2==2.10.1            # via altendpy
 lxml==4.4.1               # via python-docx
-macholib==1.11
 markupsafe==1.1.1         # via jinja2
-marshmallow==2.20.4       # via graham
+marshmallow==2.20.5       # via graham
 more-itertools==7.2.0     # via pytest
 natsort==5.4.1
 pathlib2==2.3.4
-pefile==2019.4.18
 pint==0.9
 pip-tools==4.0.0
 pluggy==0.11.0
 py==1.8.0                 # via pytest
 pyhamcrest==1.9.0         # via twisted
-pyqt5-sip==4.19.18        # via pyqt5
-pyqt5==5.13.0
-pyqtchart==5.11.2
+pyinstaller==3.5
+pyqt5-sip==4.19.19        # via pyqt5
+pyqt5==5.13.1
+pyqtchart==5.13.0
 pytest-faulthandler==1.5.0
 pytest-qt==3.2.1
 pytest-rerunfailures==4.2
