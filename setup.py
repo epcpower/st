@@ -26,9 +26,6 @@ setuptools.setup(
         'PyQt5',
         'PyQtChart',
     ],
-    extras_require={
-        ':sys_platform == "win32"': ['pyqt5-tools'],
-    },
     setup_requires=[
         'vcversioner==2.16.0.0',
     ],
