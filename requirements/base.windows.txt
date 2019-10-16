@@ -21,34 +21,36 @@ atomicwrites==1.3.0       # via pytest
 attrs==18.1.0
 automat==0.7.0            # via twisted
 certifi==2019.9.11        # via requests
+cffi==1.13.0              # via siphash-cffi
 chardet==3.0.4            # via requests
 click==7.0                # via alqtendpy, pip-tools, romp
 colorama==0.4.1           # via pytest
 constantly==15.1.0        # via twisted
 decorator==4.4.0
-future==0.17.1            # via pefile
-gitdb2==2.0.5             # via gitpython
-gitpython==3.0.2
+future==0.18.0            # via pefile
+gitdb2==2.0.6             # via gitpython
+gitpython==3.0.3
 graham==0.1.11
 greenlet==0.4.15
 hyperlink==19.0.0         # via twisted
 idna==2.8                 # via hyperlink, requests
 incremental==17.5.0       # via twisted
-jinja2==2.10.1            # via altendpy
+jinja2==2.10.3            # via altendpy
 lxml==4.4.1               # via python-docx
 markupsafe==1.1.1         # via jinja2
 marshmallow==2.20.5       # via graham
 more-itertools==7.2.0     # via pytest
 natsort==5.4.1
-pathlib2==2.3.4
+pathlib2==2.3.5
 pefile==2019.4.18         # via pyinstaller
 pint==0.9
 pip-tools==4.0.0
 pluggy==0.11.0
 py==1.8.0                 # via pytest
+pycparser==2.19           # via cffi
 pyhamcrest==1.9.0         # via twisted
 pyinstaller==3.5
-pyqt5-sip==4.19.19        # via pyqt5
+pyqt5-sip==12.7.0         # via pyqt5
 pyqt5==5.13.1
 pyqtchart==5.13.0
 pytest-faulthandler==1.5.0
@@ -65,11 +67,12 @@ qtawesome==0.6.0
 qtpy==1.9.0               # via qtawesome
 requests==2.22.0
 romp==2019.4.1
+siphash-cffi==0.1.3
 six==1.12.0               # via automat, pathlib2, pip-tools, pyhamcrest, pytest, python-dateutil, qtawesome
 smmap2==2.0.5             # via gitdb2
 twisted==19.7.0
 typing==3.7.4.1           # via python-can
-urllib3==1.25.3           # via requests
+urllib3==1.25.6           # via requests
 wheel==0.33.4
 windows-curses==2.0.1     # via python-can
 wrapt==1.11.2             # via python-can
