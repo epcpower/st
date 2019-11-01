@@ -43,7 +43,7 @@ installer_group.add_argument('--nsis', action='store_true')
 args = parser.parse_args()
 
 peak = 'PCANBasic.dll'
-r = requests.get('http://www.peak-system.com/produktcd//Develop/PC%20interfaces/Windows/PCAN-Basic%20API/Win32/PCANBasic.dll')
+r = requests.get('http://www.peak-system.com/produktcd//Develop/PC%20interfaces/Windows/PCAN-Basic%20API/x64/PCANBasic.dll')
 b = io.BytesIO(r.content)
 with open(peak, 'wb') as f:
     f.write(b.read())
