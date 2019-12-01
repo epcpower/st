@@ -1,5 +1,8 @@
 pip==19.2.2
-pip-tools==4.0.0
+# pip-tools==3.3.2
+# https://github.com/jazzband/pip-tools/pull/824
+# altendky-options
+-e git+https://github.com/altendky/pip-tools@ac7ecec6a2961b1dd9589b7a12f853f0b5af07d6#egg=pip-tools
 romp==2019.4.1
 setuptools==41.1.0
 wheel==0.33.4
