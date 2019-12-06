@@ -18,6 +18,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import sysconfig
 import tarfile
 import tempfile
 import time
@@ -230,15 +231,10 @@ def common_create(
     if symlink:
         os.symlink(venv_bin, configuration.resolved_venv_common_bin())
 
-    check_call(
-        [
-            configuration.resolved_venv_python(),
-            '-m', 'pip',
-            'install',
-            '--upgrade',
-        ] + pip_seed_requirements(configuration=configuration),
-        cwd=configuration.project_root,
+    install_pre(
+        python=configuration.resolved_venv_python(),
         env=env,
+        configuration=configuration,
     )
 
     if group is None:
@@ -250,7 +246,26 @@ def common_create(
     )
 
 
-def sync_requirements(group, configuration):
+def install_pre(python, configuration, env=None):
+    if env is None:
+        env = os.environ
+
+    check_call(
+        [
+            python,
+            '-m', 'pip',
+            'install',
+            '--upgrade',
+        ] + pip_seed_requirements(configuration=configuration),
+        cwd=configuration.project_root,
+        env=env,
+    )
+
+
+def sync_requirements(group, configuration, python=None, pip_sync=None):
+    if python is None:
+        python = configuration.resolved_venv_python()
+
     path = build_requirements_path(
         group=group,
         stage=requirements_lock,
@@ -264,6 +279,7 @@ def sync_requirements(group, configuration):
         env=env,
         requirements=path,
         configuration=configuration,
+        pip_sync=pip_sync,
     )
 
     requirements_path = os.path.join(
@@ -273,7 +289,7 @@ def sync_requirements(group, configuration):
     if os.path.isfile(requirements_path):
         check_call(
             [
-                configuration.resolved_venv_python(),
+                python,
                 '-m', 'pip',
                 'install',
                 '--no-deps',
@@ -284,12 +300,24 @@ def sync_requirements(group, configuration):
         )
 
 
-def sync_requirements_file(env, requirements, configuration):
+def sync_requirements_file(env, requirements, configuration, pip_sync):
+    if pip_sync is None:
+        pip_sync = [
+            os.path.join(
+                configuration.resolved_venv_common_bin(),
+                'python',
+            ),
+            '-m', 'piptools',
+            'sync',
+        ]
+
     check_call(
-        [
-            os.path.join(configuration.resolved_venv_common_bin(), 'pip-sync'),
-            requirements,
-        ],
+        (
+            pip_sync
+            + [
+                requirements,
+            ]
+        ),
         cwd=configuration.project_root,
         env=env,
     )
@@ -392,8 +420,7 @@ def lock_core(configuration):
                 ),
                 '--output-file', out_path,
                 '--build-isolation',
-                specification_path,
-            ] + extras,
+            ] + extras + [specification_path],
             cwd=configuration.project_root,
         )
 
@@ -597,6 +624,9 @@ def ensure_posixpath(path):
 
 
 def remotelock(configuration):
+    if not venv_existed(configuration=configuration):
+        create(group=None, configuration=configuration)
+
     configuration.python_identifier.use_default_python = True
 
     directory = tempfile.mkdtemp()
@@ -639,6 +669,25 @@ def remotelock(configuration):
             tar.extractall(path=configuration.project_root)
     finally:
         rmtree(directory)
+
+
+def install(group, configuration):
+    if group == 'pre':
+        install_pre(
+            python=sys.executable,
+            configuration=configuration,
+        )
+    else:
+        sync_requirements(
+            python=sys.executable,
+            group=group,
+            configuration=configuration,
+            pip_sync=[
+                configuration.resolved_active_python_script('python'),
+                '-m', 'piptools',
+                'sync',
+            ],
+        )
 
 
 def add_group_option(parser, default):
@@ -905,6 +954,9 @@ class Configuration:
     def resolved_venv_python(self):
         return resolve_path(self.resolved_venv_common_bin(), self.venv_python)
 
+    def resolved_active_python_script(self, script):
+        return resolve_path(sysconfig.get_path('scripts'), script)
+
     def resolved_venv_prompt(self):
         if self.venv_prompt is None:
             return '{} - {}'.format(
@@ -1061,6 +1113,14 @@ def main():
         description='Remotely lock',
     )
     remotelock_parser.set_defaults(func=remotelock)
+
+    install_parser = add_subparser(
+        subparsers,
+        'install',
+        description="Install requirements",
+    )
+    add_group_option(install_parser, default=configuration.default_group)
+    install_parser.set_defaults(func=install)
 
     args = parser.parse_args()
 
