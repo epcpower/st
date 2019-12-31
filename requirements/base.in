@@ -17,7 +17,6 @@ pyinstaller==3.5
 
 graham==0.1.11
 python-can==3.0.0
--e git+https://github.com/ebroecker/canmatrix@8f63047c18dcb65f7904d298cbf603d2e6325b85#egg=canmatrix
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
 
 Twisted==19.7.0
@@ -29,6 +28,8 @@ pywin32==223; sys_platform == 'win32'
 attrs==18.1.0
 natsort==5.4.1
 arrow==0.12.1
+
+canmatrix==0.9.1
 
 PyQt5==5.13.1
 PyQtChart==5.13.0
