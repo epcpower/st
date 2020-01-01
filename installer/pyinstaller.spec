@@ -41,7 +41,7 @@ for dir_name, subdirs, files in os.walk(search_in):
         hidden_imports.add(py)
 
 for format in canmatrix.formats.moduleList:
-    hidden_imports.add('canmatrix.' + format)
+    hidden_imports.add('canmatrix.formats.' + format)
 
 data_files.append(('PCANBasic.dll', '.'))
 data_files.append((
