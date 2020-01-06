@@ -42,7 +42,7 @@ marshmallow==2.20.5       # via graham
 more-itertools==8.0.2     # via pytest
 natsort==5.4.1
 pathlib2==2.3.5           # via canmatrix
-pint==0.9
+pint==0.10
 pluggy==0.11.0
 py==1.8.1                 # via pytest
 pycparser==2.19           # via cffi
@@ -74,5 +74,5 @@ wrapt==1.11.2             # via python-can
 zope.interface==4.7.1     # via twisted
 
 # The following packages are considered to be unsafe in a requirements file:
-# pip==19.2.2
+# pip==19.3.1
 # setuptools==41.1.0

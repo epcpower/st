@@ -16,5 +16,5 @@ urllib3==1.25.7           # via requests
 wheel==0.33.4
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==19.2.2
+pip==19.3.1
 setuptools==41.1.0
