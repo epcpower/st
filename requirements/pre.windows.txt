@@ -11,7 +11,7 @@ click==7.0                # via romp
 idna==2.8                 # via requests
 requests==2.22.0          # via romp
 romp==2019.4.1
-six==1.13.0
+six==1.14.0
 urllib3==1.25.7           # via requests
 wheel==0.33.4
 

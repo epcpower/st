@@ -15,7 +15,7 @@
 -e git+https://github.com/altendky/qt5reactor@ce3ea2dad6d71adb10cde79b64bc0c7d27e9139c#egg=qt5reactor
 alqtendpy==0.0.4
 altendpy==0.0.21          # via alqtendpy
-altgraph==0.16.1          # via pyinstaller
+altgraph==0.17            # via pyinstaller
 arrow==0.12.1
 atomicwrites==1.3.0       # via pytest
 attrs==18.1.0
@@ -39,15 +39,15 @@ jinja2==2.10.3            # via altendpy
 lxml==4.4.2               # via python-docx
 markupsafe==1.1.1         # via jinja2
 marshmallow==2.20.5       # via graham
-more-itertools==8.0.2     # via pytest
+more-itertools==8.1.0     # via pytest
 natsort==5.4.1
 pathlib2==2.3.5           # via canmatrix
-pint==0.10
+pint==0.10.1
 pluggy==0.11.0
 py==1.8.1                 # via pytest
 pycparser==2.19           # via cffi
-pyhamcrest==1.9.0         # via twisted
-pyinstaller==3.5
+pyhamcrest==2.0.0         # via twisted
+pyinstaller==3.6
 pyqt5-sip==12.7.0         # via pyqt5
 pyqt5==5.13.1
 pyqtchart==5.13.0
@@ -59,12 +59,12 @@ python-can==3.0.0
 python-dateutil==2.8.1    # via arrow
 python-docx==0.8.10
 python-dotenv==0.10.3
-qtawesome==0.6.0
+qtawesome==0.6.1
 qtpy==1.9.0               # via qtawesome
 requests==2.22.0
 romp==2019.4.1
 siphash-cffi==0.1.3
-six==1.13.0               # via automat, pathlib2, pyhamcrest, pytest, python-dateutil, qtawesome
+six==1.14.0               # via automat, pathlib2, pytest, python-dateutil, qtawesome
 smmap2==2.0.5             # via gitdb2
 twisted==19.7.0
 typing==3.7.4.1           # via python-can
