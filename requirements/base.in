@@ -31,8 +31,8 @@ arrow==0.12.1
 
 canmatrix==0.9.1
 
-PyQt5==5.13.1
-PyQtChart==5.13.0
+PyQt5==5.14.1
+PyQtChart==5.14.0
 #pyqt5-tools==5.13.1.1.6rc0; sys_platform == 'win32'
 
 pytest==3.9.2
@@ -40,5 +40,8 @@ pytest-faulthandler==1.5.0
 pytest-rerunfailures==4.2
 pytest-qt==3.2.1
 -e git+https://github.com/altendky/pytest-twisted@6f04ba3ad806b3b40602999e71c28633c36d81f9#egg=pytest-twisted
+
+-e git+https://github.com/altendky/pysunspec@d8072a8e3c04693fe2a657a90fc9d303037dd91c#egg=pysunspec
+-e git+https://github.com/epcpower/sunspec-demo@19581317ae2fd136b5df229d824f81a17da52c58#egg=epcsunspecdemo
 
 pluggy<0.12
