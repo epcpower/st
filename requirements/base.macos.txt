@@ -37,12 +37,12 @@ greenlet==0.4.15
 hyperlink==19.0.0         # via twisted
 idna==2.8                 # via hyperlink, requests
 incremental==17.5.0       # via twisted
-jinja2==2.10.3            # via altendpy
-lxml==4.4.2               # via python-docx
+jinja2==2.11.0            # via altendpy
+lxml==4.5.0               # via python-docx
 macholib==1.14            # via pyinstaller
 markupsafe==1.1.1         # via jinja2
 marshmallow==2.20.5       # via graham
-more-itertools==8.1.0     # via pytest
+more-itertools==8.2.0     # via pytest
 natsort==5.4.1
 pathlib2==2.3.5           # via canmatrix
 pint==0.10.1
@@ -71,7 +71,7 @@ siphash-cffi==0.1.3
 six==1.14.0               # via automat, pathlib2, pytest, python-dateutil, qtawesome
 smmap2==2.0.5             # via gitdb2
 toolz==0.10.0
-tqdm==4.41.1
+tqdm==4.42.0
 twisted==19.7.0
 typing==3.7.4.1           # via python-can
 urllib3==1.25.8           # via requests
