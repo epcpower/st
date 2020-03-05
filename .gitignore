@@ -9,6 +9,7 @@ generated/
 src/epyq/_version.py
 version.txt
 .env.local
+*_ui.py
 
 # PyCharm
 .idea/workspace.xml

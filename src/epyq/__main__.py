@@ -52,6 +52,9 @@ from PyQt5.QtWidgets import (QApplication, QMessageBox, QAction)
 import certifi
 os.environ["SSL_CERT_FILE"] = certifi.where()
 
+import epyq.main_ui
+import epyqlib.utils.qt
+
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -60,10 +63,11 @@ __license__ = 'GPLv2+'
 print(epyq.__version_tag__)
 print(epyq.__build_tag__)
 
+
 # TODO: CAMPid 9756562638416716254289247326327819
 class Window(QtWidgets.QMainWindow):
-    def __init__(self, ui_file, parent=None):
-        QtWidgets.QMainWindow.__init__(self, parent=parent)
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
 
         self.aws_login_manager = AwsLoginManager.get_instance()
         self.aws_login_manager.register_listener(self.update_logged_in_state)
@@ -74,19 +78,8 @@ class Window(QtWidgets.QMainWindow):
         ico = QtGui.QIcon(ico_file)
         self.setWindowIcon(ico)
 
-        ui = ui_file
-        # TODO: CAMPid 9549757292917394095482739548437597676742
-        if not QFileInfo(ui).isAbsolute():
-            ui_file = os.path.join(
-                QFileInfo.absolutePath(QFileInfo(__file__)), ui)
-        else:
-            ui_file = ui
-        ui_file = QFile(ui_file)
-        if not ui_file.open(QFile.ReadOnly | QFile.Text):
-            raise Exception('Unable to open: {}'.format(ui_file.fileName()))
-        ts = QTextStream(ui_file)
-        sio = io.StringIO(ts.readAll())
-        self.ui = uic.loadUi(sio, self)
+        self.ui = epyq.main_ui.Ui_MainWindow()
+        self.ui.setupUi(self)
 
         self.ui.action_about.triggered.connect(self.about_dialog)
         self.ui.action_license.triggered.connect(self.license_dialog)
@@ -399,7 +392,6 @@ def main(args=None):
     ui_default = 'main.ui'
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ui', default=ui_default)
     parser.add_argument('--verbose', '-v', action='count', default=0)
     parser.add_argument('--quit-after', type=float, default=None)
     parser.add_argument('--load-offline', default=None)
@@ -429,28 +421,7 @@ def main(args=None):
         for module in can_logger_modules:
             logging.getLogger(module).setLevel(logging.DEBUG)
 
-    fontawesome_path = os.path.join(
-        QtCore.QFileInfo.absolutePath(QFileInfo(__file__)),
-        '..', '..', 'src', 'libs', 'fontawesome', 'fonts', 'FontAwesome.otf'
-    )
-    if not os.path.exists(fontawesome_path):
-        fontawesome_path = 'FontAwesome.otf'
-
-    font_paths = [
-        fontawesome_path
-    ]
-
-    for font_path in font_paths:
-        # TODO: CAMPid 9549757292917394095482739548437597676742
-        if not QtCore.QFileInfo(font_path).isAbsolute():
-            font_path = os.path.join(
-                QtCore.QFileInfo.absolutePath(QtCore.QFileInfo(__file__)),
-                font_path
-            )
-
-        QtGui.QFontDatabase.addApplicationFont(font_path)
-
-    window = Window(ui_file=args.ui)
+    window = Window()
     epyqlib.utils.qt.exception_message_box_register_parent(parent=window)
 
     window.show()

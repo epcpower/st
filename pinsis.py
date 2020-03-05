@@ -8,7 +8,6 @@ import requests
 import shutil
 import stat
 import subprocess
-import traceback
 
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -44,7 +43,7 @@ installer_group.add_argument('--nsis', action='store_true')
 args = parser.parse_args()
 
 peak = 'PCANBasic.dll'
-r = requests.get('https://www.peak-system.com/produktcd//Develop/PC%20interfaces/Windows/PCAN-Basic%20API/Win32/PCANBasic.dll')
+r = requests.get('http://www.peak-system.com/produktcd//Develop/PC%20interfaces/Windows/PCAN-Basic%20API/x64/PCANBasic.dll')
 b = io.BytesIO(r.content)
 with open(peak, 'wb') as f:
     f.write(b.read())
@@ -54,17 +53,13 @@ rmtree(os.path.join('dist'))
 resource_files = glob.glob(os.path.join('sub', 'epyqlib', 'epyqlib', 'resources', '*.qrc'))
 for f in resource_files:
     print('Starting pyrcc5')
-    try:
-        subprocess.check_call(
-            [
-                os.path.join('venv', 'Scripts', 'pyrcc5'),
-                '-o', os.path.splitext(f)[0] + '.py',
-                f
-            ]
-        )
-    except subprocess.CalledProcessError:
-        print('Ignoring error when processing: {}'.format(f))
-        traceback.print_exc()
+    subprocess.call(
+        [
+            os.path.join('venv', 'Scripts', 'pyrcc5'),
+            '-o', os.path.splitext(f)[0] + '.py',
+            f
+        ]
+    )
 
 pyinstaller = os.path.join('venv', 'Scripts', 'pyinstaller')
 spec_file = os.path.join('installer', 'pyinstaller.spec')
