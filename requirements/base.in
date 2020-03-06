@@ -45,3 +45,12 @@ pytest-qt==3.2.1
 -e git+https://github.com/epcpower/sunspec-demo@19581317ae2fd136b5df229d824f81a17da52c58#egg=epcsunspecdemo
 
 pluggy<0.12
+
+# files-tab deps
+appdirs==1.4.3
+boto3==1.9.83
+boto3_type_annotations==0.3.0
+certifi==2019.3.9
+certitude==1.0.1 # Do we need this in aaddition to certifi?
+paho-mqtt==1.4.0
+treq==18.6.0
