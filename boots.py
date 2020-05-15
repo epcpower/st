@@ -411,6 +411,11 @@ def lock_core(configuration):
 
         if configuration.use_hashes:
             extras.append('--generate-hashes')
+        
+        root_relative_specification_path = os.path.relpath(
+            specification_path,
+            configuration.project_root,
+        )
 
         check_call(
             [
@@ -420,7 +425,7 @@ def lock_core(configuration):
                 ),
                 '--output-file', out_path,
                 '--build-isolation',
-            ] + extras + [specification_path],
+            ] + extras + [root_relative_specification_path],
             cwd=configuration.project_root,
         )
 
