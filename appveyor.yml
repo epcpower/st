@@ -1,8 +1,9 @@
 image: Visual Studio 2017
 
 environment:
-  global:
-    PYTHON: "C:\\Python37"
+  matrix:
+    - PYTHON: "C:\\Python37"
+    - PYTHON: "C:\\Python37-x64"
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
