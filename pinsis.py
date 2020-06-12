@@ -8,6 +8,7 @@ import requests
 import shutil
 import stat
 import subprocess
+import sys
 
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -76,7 +77,7 @@ if args.nsis:
     subprocess.check_call([makensis, nsi_script])
 elif args.qtifw:
     subprocess.check_call([
-        os.path.join('venv', 'Scripts', 'python'),
+        sys.executable
         os.path.join('sub', 'epyqlib', 'deploy_win.py'),
         '--name',
         'epyq',
