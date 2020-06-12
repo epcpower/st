@@ -77,7 +77,7 @@ if args.nsis:
     subprocess.check_call([makensis, nsi_script])
 elif args.qtifw:
     subprocess.check_call([
-        sys.executable
+        sys.executable,
         os.path.join('sub', 'epyqlib', 'deploy_win.py'),
         '--name',
         'epyq',
