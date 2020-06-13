@@ -442,7 +442,11 @@ def ensure(group, quick, use_default_python, configuration):
     existed = venv_existed(configuration=configuration)
 
     if not existed:
-        create(group=group, configuration=configuration)
+        create(
+            group=group,
+            use_default_python=use_default_python,
+            configuration=configuration,
+        )
     elif not quick:
         sync_requirements(
             group=group,
