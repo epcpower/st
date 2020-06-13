@@ -17,7 +17,7 @@ build_script:
   - where pip
   - pip --version
   - git submodule update --init
-  - python boots.py ensure
+  - python boots.py ensure --use-default-python
   - venv\\Scripts\\python download_fonts.py src\\libs
   - venv\\Scripts\\genbuildinfo "src\\epyq\\_build.py"
   - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
