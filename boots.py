@@ -179,9 +179,7 @@ def pip_seed_requirements(configuration):
     return default_pre_requirements
 
 
-def create(group, use_default_python, configuration):
-    configuration.python_identifier.use_default_python = use_default_python
-
+def create(group, configuration):
     d = {
         linux: linux_create,
         macos: linux_create,
@@ -436,9 +434,7 @@ def venv_existed(configuration):
     return os.path.exists(configuration.resolved_venv_path())
 
 
-def ensure(group, quick, use_default_python, configuration):
-    configuration.python_identifier.use_default_python = use_default_python
-
+def ensure(group, quick, configuration):
     existed = venv_existed(configuration=configuration)
 
     if not existed:
@@ -1025,7 +1021,6 @@ def main():
         description='Create the venv',
     )
     add_group_option(create_parser, default=configuration.default_group)
-    add_use_default_python_option(create_parser)
     create_parser.set_defaults(func=create)
 
     ensure_parser = add_subparser(
@@ -1042,7 +1037,6 @@ def main():
             'do not make sure that all packages are installed'
         ),
     )
-    add_use_default_python_option(ensure_parser)
     ensure_parser.set_defaults(func=ensure)
 
     rm_parser = add_subparser(
