@@ -12,8 +12,6 @@ init:
 build_script:
   - SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
   - python -c "import sys; print(sys.version)"
-  - python -c "import sys; print(sys.maxsize)"
-  - python -c "import sys; print('x86_64' if sys.maxsize > 2**32 else 'x86')"
   - where pip
   - pip --version
   - git submodule update --init
