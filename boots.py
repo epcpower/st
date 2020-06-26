@@ -376,19 +376,29 @@ def lock(temporary_env, use_default_python, configuration):
     configuration.python_identifier.use_default_python = use_default_python
 
     if not temporary_env:
-        lock_core(configuration=configuration)
+        lock_core(
+            use_default_python=use_default_python,
+            configuration=configuration,
+        )
     else:
         temporary_path = tempfile.mkdtemp()
         try:
             configuration.venv_path = os.path.join(temporary_path, 'venv')
-            lock_core(configuration=configuration)
+            lock_core(
+                use_default_python=use_default_python,
+                configuration=configuration,
+            )
         finally:
             rmtree(path=temporary_path)
 
 
-def lock_core(configuration):
+def lock_core(use_default_python, configuration):
     if not venv_existed(configuration=configuration):
-        create(group=None, configuration=configuration)
+        create(
+            group=None,
+            use_default_python=use_default_python,
+            configuration=configuration,
+        )
 
     specification_paths = tuple(
         os.path.join(configuration.resolved_requirements_path(), filename)

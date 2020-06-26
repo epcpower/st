@@ -4,14 +4,14 @@
 #
 #    python boots.py lock
 #
-certifi==2020.4.5.1       # via requests
+certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
 click==7.1.2              # via pip-tools, romp
 idna==2.9                 # via requests
 pip-tools==5.1.0          # via -r requirements/pre.in
-requests==2.23.0          # via romp
+requests==2.24.0          # via romp
 romp==2020.3              # via -r requirements/pre.in
-six==1.14.0               # via pip-tools
+six==1.15.0               # via pip-tools
 urllib3==1.25.9           # via requests
 wheel==0.34.2             # via -r requirements/pre.in
 

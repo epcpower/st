@@ -13,7 +13,7 @@ alqtendpy==0.0.4
 -e file:sub/epyqlib#egg=epyqlib[deploy]
 
 # TODO: this shouldn't be here either...
-pyinstaller==3.6
+https://github.com/pyinstaller/pyinstaller/archive/25eef61621a96fd42e8852a251d408ea57b9adb4.zip
 
 graham==0.1.11
 python-can==3.3.2
