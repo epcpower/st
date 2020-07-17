@@ -20,7 +20,7 @@ Instructions are for Python 3.7 but they should work with slight tweaks with 3.6
 - `git clone https://github.com/altendky/st`
 - `cd st`
 - `git submodule update --init`
-- `py create_venv.py ensure`
+- `py boots.py ensure`
   - Run with any recent Python, the proper Python version will be selected
 - wait
 - wait some more...
@@ -43,7 +43,7 @@ EPyQ widgets should be visible at the bottom of the widget box on the left.
 - `git clone https://github.com/altendky/st`
 - `cd st`
 - `git submodule update --init`
-- `python create_venv.py ensure`
+- `python boots.py ensure`
   - Run with any recent Python, the proper Python version will be selected
 - wait
 - a bit more, but not nearly as much as Windows

@@ -179,7 +179,9 @@ def pip_seed_requirements(configuration):
     return default_pre_requirements
 
 
-def create(group, configuration):
+def create(group, use_default_python, configuration):
+    configuration.python_identifier.use_default_python = use_default_python
+
     d = {
         linux: linux_create,
         macos: linux_create,
@@ -374,19 +376,29 @@ def lock(temporary_env, use_default_python, configuration):
     configuration.python_identifier.use_default_python = use_default_python
 
     if not temporary_env:
-        lock_core(configuration=configuration)
+        lock_core(
+            use_default_python=use_default_python,
+            configuration=configuration,
+        )
     else:
         temporary_path = tempfile.mkdtemp()
         try:
             configuration.venv_path = os.path.join(temporary_path, 'venv')
-            lock_core(configuration=configuration)
+            lock_core(
+                use_default_python=use_default_python,
+                configuration=configuration,
+            )
         finally:
             rmtree(path=temporary_path)
 
 
-def lock_core(configuration):
+def lock_core(use_default_python, configuration):
     if not venv_existed(configuration=configuration):
-        create(group=None, configuration=configuration)
+        create(
+            group=None,
+            use_default_python=use_default_python,
+            configuration=configuration,
+        )
 
     specification_paths = tuple(
         os.path.join(configuration.resolved_requirements_path(), filename)
@@ -411,6 +423,11 @@ def lock_core(configuration):
 
         if configuration.use_hashes:
             extras.append('--generate-hashes')
+        
+        root_relative_specification_path = os.path.relpath(
+            specification_path,
+            configuration.project_root,
+        )
 
         check_call(
             [
@@ -420,7 +437,7 @@ def lock_core(configuration):
                 ),
                 '--output-file', out_path,
                 '--build-isolation',
-            ] + extras + [specification_path],
+            ] + extras + [root_relative_specification_path],
             cwd=configuration.project_root,
         )
 
@@ -429,11 +446,17 @@ def venv_existed(configuration):
     return os.path.exists(configuration.resolved_venv_path())
 
 
-def ensure(group, quick, configuration):
+def ensure(group, quick, use_default_python, configuration):
+    configuration.python_identifier.use_default_python = use_default_python
+
     existed = venv_existed(configuration=configuration)
 
     if not existed:
-        create(group=group, configuration=configuration)
+        create(
+            group=group,
+            use_default_python=use_default_python,
+            configuration=configuration,
+        )
     elif not quick:
         sync_requirements(
             group=group,
@@ -1012,6 +1035,7 @@ def main():
         description='Create the venv',
     )
     add_group_option(create_parser, default=configuration.default_group)
+    add_use_default_python_option(create_parser)
     create_parser.set_defaults(func=create)
 
     ensure_parser = add_subparser(
@@ -1028,6 +1052,7 @@ def main():
             'do not make sure that all packages are installed'
         ),
     )
+    add_use_default_python_option(ensure_parser)
     ensure_parser.set_defaults(func=ensure)
 
     rm_parser = add_subparser(
