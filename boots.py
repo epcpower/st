@@ -332,7 +332,7 @@ def linux_create(group, configuration):
         group=group,
         python=python_path,
         venv_bin=venv_bin,
-        symlink=True,
+        symlink=False,
         configuration=configuration,
     )
 
@@ -842,6 +842,10 @@ def parse_boolean_string(s):
 
 
 class Configuration:
+    venv_common_bin = "Scripts"
+    if os.name != "nt":
+        venv_common_bin = "bin"
+
     configuration_defaults = {
         'project_root': '',
         'python_identifier': '',
@@ -850,7 +854,7 @@ class Configuration:
         'requirements_path': 'requirements',
         'dot_env': '.env',
         'venv_path': 'venv',
-        'venv_common_bin': 'Scripts',
+        'venv_common_bin': venv_common_bin,
         'venv_python': 'python',
         'venv_prompt': None,
         'update_url': (
