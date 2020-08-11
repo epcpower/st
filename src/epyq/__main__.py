@@ -25,12 +25,9 @@ import logging
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 
 import attr
-import can
-import copy
 import epyq
 import epyqlib.canneo
 import epyqlib.csvwindow
-from epyqlib.svgwidget import SvgWidget
 import epyqlib.scripting
 import epyqlib.scriptingview
 import epyqlib.tests.common
@@ -42,20 +39,11 @@ import epyqlib.widgets.lcd
 import epyqlib.widgets.led
 import functools
 import io
-import math
-import platform
 import signal
-import threading
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
-from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, QCoreApplication,
-                          Qt, pyqtSlot, QMarginsF)
-from PyQt5.QtWidgets import (QApplication, QMessageBox, QFileDialog, QLabel,
-                             QListWidgetItem, QAction, QMenu, QInputDialog,
-                             QPlainTextEdit)
-from PyQt5.QtGui import QPixmap, QPicture, QTextCursor
-import time
-import traceback
+from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, Qt, pyqtSlot)
+from PyQt5.QtWidgets import (QApplication, QMessageBox, QAction)
 
 import epyq.main_ui
 import epyqlib.utils.qt
