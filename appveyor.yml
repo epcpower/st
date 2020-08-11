@@ -18,8 +18,8 @@ build_script:
   - venv\\Scripts\\python download_fonts.py src\\libs
   - venv\\Scripts\\genbuildinfo "src\\epyq\\_build.py"
   - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
-  - venv\\Scripts\\pip freeze --all
-  - ps: if (Get-ChildItem Env:PHRASE -ErrorAction SilentlyContinue) {$Env:PHRASE | Out-File sub/epyqlib/epyqlib/resources/code -Encoding ascii -NoNewline}
+  - venv\\Scripts\\pip freeze
+  - ps: if (-not ([string]::IsNullOrWhiteSpace($Env:PHRASE))) {$Env:PHRASE | Out-File sub/epyqlib/epyqlib/resources/code -Encoding ascii -NoNewline}
   - venv\\Scripts\\python pinsis.py --qtifw
   - move ..\\*.exe .
   - ps: Get-ChildItem .\*.exe | % { Push-AppveyorArtifact $_.FullName }
