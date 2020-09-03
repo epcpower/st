@@ -2,12 +2,11 @@
 
 # TODO: get some docstrings in here!
 
+# TODO: CAMPid 98852142341263132467998754961432
+import epyqlib.tee
 import os
 import pathlib
 import sys
-
-# TODO: CAMPid 98852142341263132467998754961432
-import epyqlib.tee
 
 from epyqlib.tabs.files.aws_login_manager import AwsLoginManager
 from epyqlib.tabs.files.sync_config import SyncConfig, Vars
