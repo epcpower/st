@@ -8,6 +8,9 @@ import os
 import pathlib
 import sys
 
+from epyqlib.tabs.files.aws_login_manager import AwsLoginManager
+from epyqlib.tabs.files.sync_config import SyncConfig, Vars
+
 # TODO: CAMPid 953295425421677545429542967596754
 log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', buffering=1)
 
@@ -45,6 +48,9 @@ from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, Qt, pyqtSlot)
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QAction)
 
+import certifi
+os.environ["SSL_CERT_FILE"] = certifi.where()
+
 import epyq.main_ui
 import epyqlib.utils.qt
 
@@ -61,6 +67,10 @@ print(epyq.__build_tag__)
 class Window(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+
+        self.aws_login_manager = AwsLoginManager.get_instance()
+        self.aws_login_manager.register_listener(self.update_logged_in_state)
+        self.files_config = SyncConfig.get_instance()
 
         # TODO: CAMPid 980567566238416124867857834291346779
         ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
@@ -83,6 +93,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.action_stop_can_log.triggered.connect(self.stop_can_log)
         self.ui.action_export_can_log.triggered.connect(self.export_can_log)
         self.can_logs = {}
+
+        self.ui.action_login_to_sync.triggered.connect(self.login_to_sync_clicked)
+        self.ui.action_auto_sync_files.triggered.connect(self.auto_sync_clicked)
+        self.update_logged_in_state()
 
         device_tree = epyqlib.devicetree.Tree()
         self.device_tree_model = epyqlib.devicetree.Model(root=device_tree)
@@ -180,6 +194,33 @@ class Window(QtWidgets.QMainWindow):
                     )
                     with open(filename, 'w') as f:
                         epyqlib.utils.canlog.to_trc_v1_1(messages, f)
+
+    def update_logged_in_state(self, logged_in: bool = None):
+        if logged_in is None:
+            logged_in = self.aws_login_manager.is_logged_in()
+
+        auto_sync: QAction = self.ui.action_auto_sync_files
+        login: QAction = self.ui.action_login_to_sync
+
+        if logged_in:
+            text = "Log out of EPC Sync"
+        else:
+            text = "Log in to EPC Sync"
+
+        login.setText(text)
+        auto_sync.setDisabled(not logged_in)
+        auto_sync.setChecked(logged_in and self.files_config.get_bool(Vars.auto_sync))
+
+    def login_to_sync_clicked(self):
+        if self.aws_login_manager.is_logged_in():
+            self.aws_login_manager.log_user_out()
+        else:
+            self.aws_login_manager.show_login_window()
+
+    def auto_sync_clicked(self):
+        auto_sync: QAction = self.ui.action_auto_sync_files
+
+        self.files_config.set(Vars.auto_sync, auto_sync.isChecked())
 
     def device_widget_changed(self, index=None):
         if index is not None:

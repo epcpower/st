@@ -72,6 +72,9 @@
     <addaction name="action_start_can_log"/>
     <addaction name="action_stop_can_log"/>
     <addaction name="action_export_can_log"/>
+    <addaction name="separator"/>
+    <addaction name="action_login_to_sync"/>
+    <addaction name="action_auto_sync_files"/>
    </widget>
    <addaction name="menu_Tools"/>
    <addaction name="menuAbout"/>
@@ -119,6 +122,22 @@
   <action name="action_scripting">
    <property name="text">
     <string>Scripting...</string>
+   </property>
+  </action>
+  <action name="action_login_to_sync">
+   <property name="text">
+    <string>Login to Sync</string>
+   </property>
+  </action>
+  <action name="action_auto_sync_files">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto-sync files</string>
    </property>
   </action>
  </widget>
