@@ -332,7 +332,7 @@ def linux_create(group, configuration):
         group=group,
         python=python_path,
         venv_bin=venv_bin,
-        symlink=False,
+        symlink=True,
         configuration=configuration,
     )
 
