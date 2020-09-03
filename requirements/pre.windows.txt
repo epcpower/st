@@ -12,7 +12,7 @@ pip-tools==5.1.0          # via -r requirements\pre.in
 requests==2.24.0          # via romp
 romp==2020.3              # via -r requirements\pre.in
 six==1.15.0               # via pip-tools
-urllib3==1.25.9           # via requests
+urllib3==1.25.10          # via requests
 wheel==0.34.2             # via -r requirements\pre.in
 
 # The following packages are considered to be unsafe in a requirements file:

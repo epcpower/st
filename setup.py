@@ -22,7 +22,7 @@ setuptools.setup(
     entry_points={'gui_scripts': ['epyq = epyq.__main__:main']},
     install_requires=[
         'alqtendpy',
-        'epyqlib>=2020.5.3',
+        'epyqlib>=2020.9.1',
         'PyQt5',
         'PyQtChart',
     ],
