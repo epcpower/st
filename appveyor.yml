@@ -20,7 +20,7 @@ build_script:
   - ps: Update-AppveyorBuild -Version "v$(venv\\Scripts\\python -c 'import epyq; print(epyq.__version__, end=\"\")') b$Env:APPVEYOR_BUILD_NUMBER"
   - venv\\Scripts\\pip freeze
   - ps: if (-not ([string]::IsNullOrWhiteSpace($Env:PHRASE))) {$Env:PHRASE | Out-File sub/epyqlib/epyqlib/resources/code -Encoding ascii -NoNewline}
-  - venv\\Scripts\\black --check .
+  - venv\\Scripts\\black --check --diff .
   - venv\\Scripts\\python pinsis.py --qtifw
   - move ..\\*.exe .
   - ps: Get-ChildItem .\*.exe | % { Push-AppveyorArtifact $_.FullName }
