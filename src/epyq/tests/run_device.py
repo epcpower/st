@@ -16,16 +16,17 @@ def run():
     # TODO: CAMPid 03127876954165421679215396954697
     # https://github.com/kivy/kivy/issues/4182#issuecomment-253159955
     # fix for pyinstaller packages app to avoid ReactorAlreadyInstalledError
-    if 'twisted.internet.reactor' in sys.modules:
-        del sys.modules['twisted.internet.reactor']
+    if "twisted.internet.reactor" in sys.modules:
+        del sys.modules["twisted.internet.reactor"]
 
     import qt5reactor
+
     qt5reactor.install()
 
     from twisted.internet import reactor
 
     device = epyqlib.device.Device(
-        file=epyqlib.tests.common.devices['customer'],
+        file=epyqlib.tests.common.devices["customer"],
         node_id=247,
         # bus=bus,
     )

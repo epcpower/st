@@ -3,8 +3,8 @@ import epyqlib.__main__
 import os
 
 # See file COPYING in this source tree
-__copyright__ = 'Copyright 2015, EPC Power Corp.'
-__license__ = 'GPLv2+'
+__copyright__ = "Copyright 2015, EPC Power Corp."
+__license__ = "GPLv2+"
 
 
 class Bunch:
@@ -18,14 +18,19 @@ def main():
     pr = cProfile.Profile()
     can_file = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        '..', 'epyq', 'AFE_CAN_ID247_FACTORY.sym')
+        "..",
+        "epyq",
+        "AFE_CAN_ID247_FACTORY.sym",
+    )
     args = Bunch(can=can_file, generate=False)
     pr.enable()
     exit_value = epyqlib.__main__.main(args=args)
     pr.disable()
-    pr.dump_stats('cprofile.stats')
+    pr.dump_stats("cprofile.stats")
     return exit_value
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import sys
+
     sys.exit(main())

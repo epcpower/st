@@ -18,20 +18,20 @@ aenum==2.2.4              # via python-can
 alqtendpy==0.0.4          # via -r requirements\base.in, epyqlib
 altendpy==0.0.21          # via alqtendpy
 altgraph==0.17            # via pyinstaller
-appdirs==1.4.3            # via -r requirements\base.in
+appdirs==1.4.3            # via -r requirements\base.in, black
 arrow==0.12.1             # via -r requirements\base.in, epyqlib
 atomicwrites==1.4.0       # via pytest
 attrs==19.3.0             # via -r requirements\base.in, alqtendpy, altendpy, automat, canmatrix, epcsunspecdemo, graham, pytest, service-identity, treq, twisted
 automat==20.2.0           # via twisted
+black==20.8b1             # via -r requirements\base.in
 boto3==1.9.83             # via -r requirements\base.in
 boto3_type_annotations==0.3.0  # via -r requirements\base.in
 botocore==1.12.253        # via boto3, s3transfer
 canmatrix==0.9.1          # via -r requirements\base.in, epyqlib
 certifi==2019.3.9         # via -r requirements\base.in, requests
-certitude==1.0.1          # via -r requirements\base.in
-cffi==1.14.2              # via certitude, cryptography, siphash-cffi
+cffi==1.14.2              # via cryptography, siphash-cffi
 chardet==3.0.4            # via requests
-click==7.1.2              # via alqtendpy, canmatrix, epcsunspecdemo, epyqlib, pip-tools, romp
+click==7.1.2              # via alqtendpy, black, canmatrix, epcsunspecdemo, epyqlib, pip-tools, romp
 colorama==0.4.3           # via pytest
 constantly==15.1.0        # via twisted
 cryptography==3.1         # via pyopenssl, service-identity
@@ -39,7 +39,7 @@ decorator==4.4.2          # via pytest-twisted
 docutils==0.15.2          # via botocore
 future==0.18.2            # via canmatrix, pefile
 gitdb==4.0.5              # via gitpython
-gitpython==3.1.7          # via epyqlib
+gitpython==3.1.8          # via epyqlib
 graham==0.1.11            # via -r requirements\base.in, epyqlib
 greenlet==0.4.16          # via pytest-twisted
 hyperlink==20.0.1         # via twisted
@@ -52,10 +52,12 @@ lxml==4.5.2               # via python-docx
 markupsafe==1.1.1         # via jinja2
 marshmallow==2.21.0       # via graham
 more-itertools==8.5.0     # via pytest
+mypy-extensions==0.4.3    # via black
 natsort==5.4.1            # via -r requirements\base.in, epyqlib
 packaging==20.4           # via pint
 paho-mqtt==1.4.0          # via -r requirements\base.in
 pathlib2==2.3.5           # via canmatrix
+pathspec==0.8.0           # via black
 pefile==2019.4.18         # via pyinstaller
 pint==0.15                # via epyqlib
 pip-tools==5.1.0          # via -r requirements\pre.in
@@ -84,6 +86,7 @@ pywin32-ctypes==0.2.0     # via pyinstaller
 pywin32==223 ; sys_platform == "win32"  # via -r requirements\base.in
 qtawesome==0.7.2          # via epyqlib
 qtpy==1.9.0               # via qtawesome
+regex==2020.7.14          # via black
 requests==2.24.0          # via -r requirements\base.in, epyqlib, romp, treq
 romp==2020.3              # via -r requirements\pre.in
 s3transfer==0.1.13        # via boto3
@@ -91,10 +94,13 @@ service-identity==18.1.0  # via twisted
 siphash-cffi==0.1.4       # via epyqlib
 six==1.15.0               # via automat, cryptography, packaging, pathlib2, pip-tools, pyopenssl, pytest, python-dateutil, qtawesome, treq
 smmap==3.0.4              # via gitdb
+toml==0.10.1              # via black
 toolz==0.10.0             # via epcsunspecdemo
 tqdm==4.48.2              # via epcsunspecdemo
 treq==18.6.0              # via -r requirements\base.in
 twisted[tls]==19.7.0      # via -r requirements\base.in, epyqlib, qt5reactor, treq
+typed-ast==1.4.1          # via black
+typing-extensions==3.7.4.3  # via black
 urllib3==1.25.10          # via botocore, requests
 wheel==0.34.2             # via -r requirements\pre.in
 windows-curses==2.1.0     # via python-can

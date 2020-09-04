@@ -12,10 +12,8 @@ import requests
 
 def download_zips(directory):
     src_zips = {
-        'fontawesome':
-            'https://github.com/FortAwesome/Font-Awesome/archive/v4.6.3.zip',
-        'metropolis':
-            'https://github.com/chrismsimpson/Metropolis/archive/16882c2c2cb58405fd6a7d6a932a1dfc573b6813.zip'
+        "fontawesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.6.3.zip",
+        "metropolis": "https://github.com/chrismsimpson/Metropolis/archive/16882c2c2cb58405fd6a7d6a932a1dfc573b6813.zip",
     }
 
     os.makedirs(directory, exist_ok=True)

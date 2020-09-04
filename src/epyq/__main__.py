@@ -12,7 +12,7 @@ from epyqlib.tabs.files.aws_login_manager import AwsLoginManager
 from epyqlib.tabs.files.sync_config import SyncConfig, Vars
 
 # TODO: CAMPid 953295425421677545429542967596754
-log = open(os.path.join(os.getcwd(), 'epyq.log'), 'w', encoding='utf-8', buffering=1)
+log = open(os.path.join(os.getcwd(), "epyq.log"), "w", encoding="utf-8", buffering=1)
 
 if sys.stdout is None:
     sys.stdout = log
@@ -25,7 +25,8 @@ else:
     sys.stderr = epyqlib.tee.Tee([sys.stderr, log])
 
 import logging
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
+
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
 
 import attr
 import epyq
@@ -45,18 +46,19 @@ import io
 import signal
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
-from PyQt5.QtCore import (QFile, QFileInfo, QTextStream, Qt, pyqtSlot)
-from PyQt5.QtWidgets import (QApplication, QMessageBox, QAction)
+from PyQt5.QtCore import QFile, QFileInfo, QTextStream, Qt, pyqtSlot
+from PyQt5.QtWidgets import QApplication, QMessageBox, QAction
 
 import certifi
+
 os.environ["SSL_CERT_FILE"] = certifi.where()
 
 import epyq.main_ui
 import epyqlib.utils.qt
 
 # See file COPYING in this source tree
-__copyright__ = 'Copyright 2017, EPC Power Corp.'
-__license__ = 'GPLv2+'
+__copyright__ = "Copyright 2017, EPC Power Corp."
+__license__ = "GPLv2+"
 
 
 print(epyq.__version_tag__)
@@ -73,7 +75,7 @@ class Window(QtWidgets.QMainWindow):
         self.files_config = SyncConfig.get_instance()
 
         # TODO: CAMPid 980567566238416124867857834291346779
-        ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), 'icon.ico')
+        ico_file = os.path.join(QFileInfo.absolutePath(QFileInfo(__file__)), "icon.ico")
         ico = QtGui.QIcon(ico_file)
         self.setWindowIcon(ico)
 
@@ -83,7 +85,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.action_about.triggered.connect(self.about_dialog)
         self.ui.action_license.triggered.connect(self.license_dialog)
         self.ui.action_third_party_licenses.triggered.connect(
-            self.third_party_licenses_dialog)
+            self.third_party_licenses_dialog
+        )
 
         self.ui.action_chart_log.triggered.connect(self.chart_log)
 
@@ -143,8 +146,7 @@ class Window(QtWidgets.QMainWindow):
 
     def export_can_log(self):
         nonempty_logs = {
-            bus: log for bus, log in self.can_logs.items()
-            if len(log.messages) > 0
+            bus: log for bus, log in self.can_logs.items() if len(log.messages) > 0
         }
 
         if len(nonempty_logs) == 0:
@@ -161,14 +163,11 @@ class Window(QtWidgets.QMainWindow):
             if len(log.messages) > 0:
                 QMessageBox.information(
                     self,
-                    'EPyQ',
+                    "EPyQ",
                     "Pick a file to save log of '{}'".format(log.name),
                 )
 
-                filters = [
-                    ('PCAN', ['trc']),
-                    ('All Files', ['*'])
-                ]
+                filters = [("PCAN", ["trc"]), ("All Files", ["*"])]
                 filename = epyqlib.utils.qt.file_dialog(
                     filters=filters,
                     parent=self,
@@ -192,7 +191,7 @@ class Window(QtWidgets.QMainWindow):
                         )
                         for message in log.messages
                     )
-                    with open(filename, 'w') as f:
+                    with open(filename, "w") as f:
                         epyqlib.utils.canlog.to_trc_v1_1(messages, f)
 
     def update_logged_in_state(self, logged_in: bool = None):
@@ -225,10 +224,12 @@ class Window(QtWidgets.QMainWindow):
     def device_widget_changed(self, index=None):
         if index is not None:
             device = self.device_tree_model.device_from_widget(
-                widget=self.ui.stacked.widget(index))
+                widget=self.ui.stacked.widget(index)
+            )
         else:
             device = self.device_tree_model.device_from_widget(
-                widget=self.ui.stacked.currentWidget())
+                widget=self.ui.stacked.currentWidget()
+            )
 
         details = []
         if device is not None:
@@ -236,16 +237,16 @@ class Window(QtWidgets.QMainWindow):
                 details.append(device.nickname)
             details.append(device.name)
 
-        self.set_title(detail=' - '.join(details))
+        self.set_title(detail=" - ".join(details))
 
     def set_title(self, detail=None, window=None):
         if window is None:
             window = self
 
-        title = 'EPyQ v{}'.format(epyq.__version__)
+        title = "EPyQ v{}".format(epyq.__version__)
 
         if detail is not None:
-            title = ' - '.join((title, detail))
+            title = " - ".join((title, detail))
 
         window.setWindowTitle(title)
 
@@ -257,43 +258,41 @@ class Window(QtWidgets.QMainWindow):
     def collapse_expand(self):
         self.ui.device_tree.setVisible(not self.ui.device_tree.isVisible())
         self.ui.collapse_button.setArrowType(
-            Qt.LeftArrow if self.ui.device_tree.isVisible() else Qt.RightArrow)
+            Qt.LeftArrow if self.ui.device_tree.isVisible() else Qt.RightArrow
+        )
 
     def license_dialog(self):
         epyqlib.utils.qt.dialog_from_file(
             parent=self,
-            title='EPyQ License',
-            file_name='epyq-COPYING.txt',
+            title="EPyQ License",
+            file_name="epyq-COPYING.txt",
         )
 
     def third_party_licenses_dialog(self):
         epyqlib.utils.qt.dialog_from_file(
             parent=self,
-            title='Third Party Licenses',
-            file_name='third_party-LICENSE.txt',
+            title="Third Party Licenses",
+            file_name="third_party-LICENSE.txt",
         )
 
     def about_dialog(self):
         message = [
             __copyright__,
             __license__,
-            'Version Tag: {}'.format(epyq.__version_tag__),
-            'Build Tag: {}'.format(epyq.__build_tag__),
+            "Version Tag: {}".format(epyq.__version_tag__),
+            "Build Tag: {}".format(epyq.__build_tag__),
         ]
 
-        message = '\n'.join(message)
+        message = "\n".join(message)
 
         epyqlib.utils.qt.dialog(
             parent=self,
-            title='About EPyQ',
+            title="About EPyQ",
             message=message,
         )
 
     def chart_log(self):
-        filters = [
-            ('CSV', ['csv']),
-            ('All Files', ['*'])
-        ]
+        filters = [("CSV", ["csv"]), ("All Files", ["*"])]
         filename = epyqlib.utils.qt.file_dialog(filters, parent=self)
 
         if filename is not None:
@@ -302,12 +301,7 @@ class Window(QtWidgets.QMainWindow):
             window = epyqlib.csvwindow.QtChartWindow(data=data)
             self.set_title(detail=filename.name, window=window)
             self.subwindows.add(window)
-            window.closing.connect(
-                functools.partial(
-                    self.subwindows.discard,
-                    window
-                )
-            )
+            window.closing.connect(functools.partial(self.subwindows.discard, window))
             window.show()
 
     def scripting(self):
@@ -330,7 +324,7 @@ class Window(QtWidgets.QMainWindow):
         )
         self.scripting_window.set_model(scripting_model)
         self.scripting_window.closing.connect(self.scripting_closing)
-        self.set_title(detail='Scripting', window=self.scripting_window)
+        self.set_title(detail="Scripting", window=self.scripting_window)
         self.scripting_window.show()
 
     def scripting_closing(self):
@@ -353,7 +347,7 @@ def sigint_handler(signal_number, stack_frame):
 
 
 def main(args=None):
-    print('starting epyq')
+    print("starting epyq")
 
     signal.signal(signal.SIGINT, sigint_handler)
 
@@ -367,11 +361,13 @@ def main(args=None):
         epyqlib.utils.qt.exception_message_box,
     )
     QtCore.qInstallMessageHandler(epyqlib.utils.qt.message_handler)
-    app.setStyleSheet('QMessageBox {{ messagebox-text-interaction-flags: {}; }}'
-                      .format(Qt.TextBrowserInteraction))
-    app.setOrganizationName('EPC Power Corp.')
-    app.setApplicationName('EPyQ')
-
+    app.setStyleSheet(
+        "QMessageBox {{ messagebox-text-interaction-flags: {}; }}".format(
+            Qt.TextBrowserInteraction
+        )
+    )
+    app.setOrganizationName("EPC Power Corp.")
+    app.setApplicationName("EPyQ")
 
     os_signal_timer = QtCore.QTimer()
     os_signal_timer.start(200)
@@ -380,26 +376,27 @@ def main(args=None):
     # TODO: CAMPid 03127876954165421679215396954697
     # https://github.com/kivy/kivy/issues/4182#issuecomment-253159955
     # fix for pyinstaller packages app to avoid ReactorAlreadyInstalledError
-    if 'twisted.internet.reactor' in sys.modules:
-        del sys.modules['twisted.internet.reactor']
+    if "twisted.internet.reactor" in sys.modules:
+        del sys.modules["twisted.internet.reactor"]
 
     import qt5reactor
+
     qt5reactor.install()
 
     import argparse
 
-    ui_default = 'main.ui'
+    ui_default = "main.ui"
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--verbose', '-v', action='count', default=0)
-    parser.add_argument('--quit-after', type=float, default=None)
-    parser.add_argument('--load-offline', default=None)
+    parser.add_argument("--verbose", "-v", action="count", default=0)
+    parser.add_argument("--quit-after", type=float, default=None)
+    parser.add_argument("--load-offline", default=None)
     if args is None:
         args = parser.parse_args()
     else:
         args = parser.parse_args(args)
 
-    can_logger_modules = ('can', 'can.socketcan.native')
+    can_logger_modules = ("can", "can.socketcan.native")
 
     for module in can_logger_modules:
         logging.getLogger(module).setLevel(logging.WARNING)
@@ -410,6 +407,7 @@ def main(args=None):
 
     if args.verbose >= 2:
         import twisted.internet.defer
+
         twisted.internet.defer.setDebugging(True)
 
     if args.verbose >= 3:
@@ -429,14 +427,16 @@ def main(args=None):
         QtCore.QTimer.singleShot(args.quit_after * 1000, app.quit)
 
     if args.load_offline is not None:
+
         def load_offline():
-            bus_node, = [
-                node for node in window.ui.device_tree.model.root.children
-                if node.fields.name == 'Offline'
+            (bus_node,) = [
+                node
+                for node in window.ui.device_tree.model.root.children
+                if node.fields.name == "Offline"
             ]
 
-            split = args.load_offline.split('_', maxsplit=1)
-            if split[0] == 'test':
+            split = args.load_offline.split("_", maxsplit=1)
+            if split[0] == "test":
                 path = epyqlib.tests.common.devices[split[1]]
             else:
                 path = args.load_offline
@@ -452,21 +452,21 @@ def main(args=None):
 
         QtCore.QTimer.singleShot(0.5 * 1000, load_offline)
 
-
     from twisted.internet import reactor
+
     reactor.runReturn()
     result = app.exec()
     if reactor.threadpool is not None:
         reactor._stopThreadPool()
-        logging.debug('Thread pool stopped')
-    logging.debug('Application ended')
+        logging.debug("Thread pool stopped")
+    logging.debug("Application ended")
     reactor.stop()
-    logging.debug('Reactor stopped')
+    logging.debug("Reactor stopped")
 
     # TODO: this should be sys.exit() but something keeps the process
     #       from terminating.  Ref T679  Ref T711
     os._exit(result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

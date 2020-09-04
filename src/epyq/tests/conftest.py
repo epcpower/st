@@ -3,10 +3,10 @@ import pytest
 
 def pytest_addoption(parser):
     parser.addoption(
-        '--run-manual',
-        action='store_true',
+        "--run-manual",
+        action="store_true",
         default=False,
-        help='Run tests that require a device be connected'
+        help="Run tests that require a device be connected",
     )
 
 

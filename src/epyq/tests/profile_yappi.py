@@ -2,10 +2,11 @@
 """Replace python thread identifier by TID."""
 # Imports
 import threading, ctypes
+
 # Define get tid function
 def gettid():
     """Get TID as displayed by htop."""
-    libc = 'libc.so.6'
+    libc = "libc.so.6"
     for cmd in (186, 224, 178):
         tid = ctypes.CDLL(libc).syscall(cmd)
         if tid != -1:
@@ -17,8 +18,8 @@ import epyqlib.__main__
 import os
 
 # See file COPYING in this source tree
-__copyright__ = 'Copyright 2015, EPC Power Corp.'
-__license__ = 'GPLv2+'
+__copyright__ = "Copyright 2015, EPC Power Corp."
+__license__ = "GPLv2+"
 
 
 class Bunch:
@@ -29,18 +30,17 @@ class Bunch:
 
 
 def main():
-    print('Main TID: {}'.format(gettid()))
-    args = Bunch(channel=None,
-                 devices=[],
-                 generate=False,
-                 ui='main.ui')
+    print("Main TID: {}".format(gettid()))
+    args = Bunch(channel=None, devices=[], generate=False, ui="main.ui")
     yappi.start()
     exit_value = epyqlib.__main__.main(args=args)
     yappi.stop()
-    yappi.get_func_stats().save('yappi.stats', type='pstat')
+    yappi.get_func_stats().save("yappi.stats", type="pstat")
     yappi.get_thread_stats().print_all()
     return exit_value
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import sys
+
     sys.exit(main())

@@ -1,3 +1,16 @@
+[tool.black]
+target-version =  ['py37']
+include = '''
+(
+    /setup.py
+    | /deploy_win.py
+    | /download_fonts.py
+    | /pinsys.py
+    | /src/epyq/.*\.pyi?
+)$
+'''
+exclude = ''
+
 [build-system]
 requires = [
     "alqtendpy",

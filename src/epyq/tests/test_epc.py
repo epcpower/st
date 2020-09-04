@@ -1,5 +1,6 @@
 import pytest
 
+
 def test_range_limit():
     pytest.skip("as a skip example")
 
@@ -9,5 +10,5 @@ def test_pass():
 
 
 def test_fail():
-    print('red')
-    assert 17 == 2**3, 'ack'
+    print("red")
+    assert 17 == 2 ** 3, "ack"
