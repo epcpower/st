@@ -19,7 +19,7 @@ graham==0.1.11
 python-can==3.3.2
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
 
-Twisted==19.7.0
+Twisted==21.2.0
 
 -e git+https://github.com/altendky/qt5reactor@ce3ea2dad6d71adb10cde79b64bc0c7d27e9139c#egg=qt5reactor
 
@@ -54,4 +54,4 @@ boto3_type_annotations==0.3.0
 certifi==2019.3.9
 certitude==1.0.1; platform_system == "Darwin"
 paho-mqtt==1.4.0
-treq==20.9.0
+treq==21.1.0
