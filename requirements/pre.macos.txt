@@ -4,15 +4,15 @@
 #
 #    python boots.py lock
 #
-certifi==2020.11.8        # via requests
-chardet==3.0.4            # via requests
+certifi==2020.12.5        # via requests
+chardet==4.0.0            # via requests
 click==7.1.2              # via pip-tools, romp
 idna==2.10                # via requests
 pip-tools==5.1.0          # via -r requirements/pre.in
-requests==2.25.0          # via romp
+requests==2.25.1          # via romp
 romp==2020.3              # via -r requirements/pre.in
 six==1.15.0               # via pip-tools
-urllib3==1.26.2           # via requests
+urllib3==1.26.3           # via requests
 wheel==0.34.2             # via -r requirements/pre.in
 
 # The following packages are considered to be unsafe in a requirements file:
