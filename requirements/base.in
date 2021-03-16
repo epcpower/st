@@ -16,7 +16,7 @@ alqtendpy==0.0.4
 https://github.com/pyinstaller/pyinstaller/archive/25eef61621a96fd42e8852a251d408ea57b9adb4.zip
 
 graham==0.1.11
--e git+https://github.com/gordon-epc/python-can@f451343f8b0991ee96e0849ce3198cc38977cebe#egg=python-can
+-e git+https://github.com/hardbyte/python-can@2ede107d67002c18463c5276b6a94cdb19fc8320#egg=python-can
 -e git+https://github.com/altendky/bitstruct@c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f#egg=bitstruct
 
 Twisted==21.2.0
