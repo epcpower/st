@@ -55,6 +55,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: epyq_st
-        path: |
-          artifacts/*.zip
-          artifacts/*.exe
+          path: |
+            artifacts/*.zip
+            artifacts/*.exe
