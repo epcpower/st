@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "**"
+  schedule:
+    # Daily at 05:14
+    - cron: '14 5 * * *'
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PYTHON_VERSION: 3.7
+
+jobs:
+  build:
+    name: Build - ${{ matrix.target.name }}
+    runs-on: ubuntu-latest
+    container: docker://altendky/ccstudio9:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: Debug
+            cli: Debug
+            dir: Debug
+          - name: Release
+            cli: Release
+            dir: Release
+          - name: Test
+            cli: Test
+            dir: Test
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          submodules: recursive
+          token: ${{ secrets.CONTROLS_PAT }}
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: boots
+        run: |
+          python boots.py ensure
+      - name: Pre-build
+        run: |
+          ./gridtied prebuild --target ${{ matrix.target.cli }} --assume-stale
+      - name: Build
+        run: |
+          git apply .project.cli.diff
+          ./gridtied build --target=${{ matrix.target.cli }} --build-type=full
+      - name: Create EHX files
+        if: ${{ matrix.target.name == 'Release' }}
+        env:
+          EHX_CONFIGURATION: ${{ secrets.EHX_CONFIGURATION }}
+          EHX_KEYS: ${{ secrets.EHX_KEYS }}
+          EHX_PASSWORD: ${{ secrets.EHX_PASSWORD }}
+        run: |
+          echo "${EHX_CONFIGURATION}" > secret_configuration.xml
+          mkdir ehx/
+          ./gridtied ehx --input "${{ matrix.target.dir }}"/*.out --password "${EHX_PASSWORD}" --keys "${EHX_KEYS}" --output-directory ehx/ --configuration secret_configuration.xml --targets-directory "${C2PROG_TARGETS}"
+          ls -l ehx/
+      - name: Package
+        run: |
+          ./gridtied package --public --target=${{ matrix.target.cli }}
+          ./gridtied package --private --target=${{ matrix.target.cli }}
+      - name: Archive artifacts ZIP
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target.name }}
+          path: artifacts/*.zip
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    container: docker://altendky/ccstudio9:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          submodules: recursive
+          token: ${{ secrets.CONTROLS_PAT }}
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: boots
+        run: |
+          python boots.py ensure
+      - name: Pre-Build
+        run: |
+          ./gridtied prebuild --target ${{ matrix.target.cli}} --assume-stale
+      - name: Build Cpputest
+        run: |
+          cd cpputest
+          autoreconf . -i
+          ./configure
+          make --jobs=$(grep '^processor' /proc/cpuinfo | wc -l) tdd
+      - name: Run
+        run: |
+          cd unit_test
+          make
+      # TODO: archive test results?
+
+  all:
+    name: All
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - test
+    steps:
+      - name: This
+        shell: python
+        run: |
+          import this
