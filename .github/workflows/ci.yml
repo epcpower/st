@@ -41,7 +41,7 @@ jobs:
           venv/Scripts/genbuildinfo "src/epyq/_build.py"
           venv/Scripts/pip freeze --all
 
-          if [-n "$PHRASE" ]; then echo -n -- "$PHRASE" > sub/epyqlib/epyqlib/resources/code; fi
+          if [ -n "$PHRASE" ]; then echo -n -- "$PHRASE" > sub/epyqlib/epyqlib/resources/code; fi
           venv/Scripts/python pinsis.py --qtifw
           mv ../*.exe .
 
