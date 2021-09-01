@@ -44,9 +44,10 @@ jobs:
 
           if [ -n "$PHRASE" ]; then echo -n -- "$PHRASE" > sub/epyqlib/epyqlib/resources/code; fi
 
-          wget https://download.qt.io/official_releases/qt-installer-framework/4.1.1/QtInstallerFramework-windows-x86-4.1.1.exe ./QtInstallerFramework-windows-x86-4.1.1.exe
           readlink --canonicalize-missing qtifw
-          ./QtInstallerFramework-windows-x86-4.1.1.exe in --al -c --root $(readlink --canonicalize-missing qtifw)
+
+          curl --location --output qtifw.exe "https://download.qt.io/official_releases/qt-installer-framework/4.1.1/QtInstallerFramework-windows-x86-4.1.1.exe"
+          ./qtifw.exe in --al -c --root $(readlink --canonicalize-missing qtifw)
 
 
           venv/Scripts/python pinsis.py --qtifw
