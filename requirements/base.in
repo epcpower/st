@@ -12,7 +12,10 @@ alqtendpy==0.0.4
 # TODO: shouldn't be deploy here for all cases
 -e file:sub/epyqlib#egg=epyqlib[deploy]
 
-# TODO: this shouldn't be here either...
+# TODO: this shouldn't be here either... this could belong
+#       to a 'package' group or such (`package.in`) since it
+#       is only used for packaging purposes, not for general
+#       running of EPyQ.
 pyinstaller~=4.5
 
 graham==0.1.11
