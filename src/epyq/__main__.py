@@ -75,7 +75,8 @@ class Window(QtWidgets.QMainWindow):
     to their corresponding Window methods defined below. Finally the device tree is initialized.
 
     Args:
-        parent ([type], optional): [description]. Defaults to None
+        parent (QWidget, optional): Used for call to inherited class QMainWindow's init.
+        Defaults to None
     """
 
     def __init__(self, parent=None):
@@ -251,6 +252,12 @@ class Window(QtWidgets.QMainWindow):
         self.files_config.set(Vars.auto_sync, auto_sync.isChecked())
 
     def device_widget_changed(self, index=None):
+        """
+        Stacks the called on widget within the UI structure either within the UI array
+        or just as the current widget depending on whether or not an index is provided.
+        Args:
+            index (int, optional): List element for stacking. Defaults to None.
+        """
         if index is not None:
             device = self.device_tree_model.device_from_widget(
                 widget=self.ui.stacked.widget(index)
