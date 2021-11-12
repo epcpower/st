@@ -23,13 +23,9 @@ jobs:
             cd src/epyq
             pyan3 **.py --uses --no-defines --colored --grouped --annotated --html > call_graph.html
             mv call_graph.html ../../
-        - name: Commit call graph
-          run: |
-            git config --global user.name 'bholewin-epc'
-            git config --global user.email 'bryce.holewinski@epcpower.com'
-            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
-            git fetch
-            git checkout "${GITHUB_REF:11}"
-            git add call_graph.html
-            git commit -m "Automated Call Graph Update"
-            git push
+        - name: Archive call graph
+          uses: actions/upload-artifact@v2
+          with:
+            name: call-graph
+            path: |
+            call_graph.html
