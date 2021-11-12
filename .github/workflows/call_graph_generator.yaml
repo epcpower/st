@@ -1,0 +1,32 @@
+name: Call-Graph-Generator
+
+on:
+  pull_request:
+    branches: "master"
+
+jobs:
+  call_graph:
+    runs-on: ubuntu-latest
+
+  steps:
+       - uses: actions/checkout@v2
+      - name: Set up Python 3.7.5
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyan3==1.1.1
+      - name: Generate call graph
+        run: |
+          cd src/epyq
+          pyan3 **.py --uses --no-defines --colored --grouped --annotated --html > call_graph.html
+          mv call_graph.html ../../
+      - name: Commit call graph
+        run: |
+          git config --global user.name 'bholewin-epc'
+          git config --global user.email 'bryce.holewinski@epcpower.com'
+          git add call_graph.html
+          git commit -m "Automated Call Graph Update"
+          git push

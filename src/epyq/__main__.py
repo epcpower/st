@@ -404,9 +404,9 @@ def main(args=None):
 
     Args:
         args (Union[int, float, str], optional): [description]. Defaults to None.
-        - verbose sets the logger level
-        - quit-after sets the time for the duration of the application GUI
-        - load-offline loads only the windows in the device tree denoted as offline from the
+        - verbose: sets the logger level
+        - quit-after: sets the time for the duration of the application GUI
+        - load-offline: loads only the windows in the device tree denoted as offline from the
         given UI file
     """
     print("starting epyq")
