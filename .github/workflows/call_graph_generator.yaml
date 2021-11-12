@@ -28,6 +28,7 @@ jobs:
             git config --global user.name 'bholewin-epc'
             git config --global user.email 'bryce.holewinski@epcpower.com'
             git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+            git fetch
             git checkout "${GITHUB_REF:11}"
             git add call_graph.html
             git commit -m "Automated Call Graph Update"
