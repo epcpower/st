@@ -23,9 +23,13 @@ jobs:
             cd src/epyq
             pyan3 **.py --uses --no-defines --colored --grouped --annotated --html > call_graph.html
             mv call_graph.html ../../
+        - name: show files
+          run: |
+            pwd
+            ls
         - name: Archive call graph
           uses: actions/upload-artifact@v2
           with:
-            name: call-graph
+            name: graph
             path: |
-            call_graph.html
+              call_graph.html
