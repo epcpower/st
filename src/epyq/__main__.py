@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-# TODO: get some docstrings in here!
+"""
+Main entry point for ST (aka EPyQ), pulls in and creates the windows for the UI based on
+the main.ui file
+"""
 
 # TODO: CAMPid 98852142341263132467998754961432
 import epyqlib.tee
@@ -42,11 +45,10 @@ import epyqlib.widgets.progressbar
 import epyqlib.widgets.lcd
 import epyqlib.widgets.led
 import functools
-import io
 import signal
 
-from PyQt5 import QtCore, QtWidgets, QtGui, uic
-from PyQt5.QtCore import QFile, QFileInfo, QTextStream, Qt, pyqtSlot
+from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import QFileInfo, Qt, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMessageBox, QAction
 
 import certifi
@@ -67,6 +69,16 @@ print(epyq.__build_tag__)
 
 # TODO: CAMPid 9756562638416716254289247326327819
 class Window(QtWidgets.QMainWindow):
+    """
+    Generates the UI windows: initial setup done in main_ui.py which pulls in the model defined
+    in main.ui. Afterwards the actions also defined by the main.ui are connected in this init
+    to their corresponding Window methods defined below. Finally the device tree is initialized.
+
+    Args:
+        parent (QWidget, optional): Used for call to inherited class QMainWindow's init.
+        Defaults to None
+    """
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
@@ -126,6 +138,9 @@ class Window(QtWidgets.QMainWindow):
         self.scripting_window = None
 
     def start_can_log(self):
+        """
+        Initializes the CAN logs for each tree model child that has a bus interface.
+        """
         self.stop_can_log()
 
         self.can_logs = {}
@@ -140,11 +155,17 @@ class Window(QtWidgets.QMainWindow):
                 log.start()
 
     def stop_can_log(self):
+        """
+        Stops CAN logs and kills notification listener.
+        """
         for bus, log in self.can_logs.items():
             log.stop()
             bus.notifier.discard(log)
 
     def export_can_log(self):
+        """
+        Determines the logs that have recorded messages and saves them to a user specified file.
+        """
         nonempty_logs = {
             bus: log for bus, log in self.can_logs.items() if len(log.messages) > 0
         }
@@ -195,6 +216,13 @@ class Window(QtWidgets.QMainWindow):
                         epyqlib.utils.canlog.to_trc_v1_1(messages, f)
 
     def update_logged_in_state(self, logged_in: bool = None):
+        """
+        Attempts to login the user to AWS for the now epyq-weblink. Also toggles the action to
+        auto sync files.
+
+        Args:
+            logged_in (bool, optional): Sets the text around the method. Defaults to None.
+        """
         if logged_in is None:
             logged_in = self.aws_login_manager.is_logged_in()
 
@@ -211,6 +239,9 @@ class Window(QtWidgets.QMainWindow):
         auto_sync.setChecked(logged_in and self.files_config.get_bool(Vars.auto_sync))
 
     def login_to_sync_clicked(self):
+        """
+        Attempts to log the user in or out of AWS with cognito (AWS library)
+        """
         if self.aws_login_manager.is_logged_in():
             self.aws_login_manager.log_user_out()
         else:
@@ -218,10 +249,15 @@ class Window(QtWidgets.QMainWindow):
 
     def auto_sync_clicked(self):
         auto_sync: QAction = self.ui.action_auto_sync_files
-
         self.files_config.set(Vars.auto_sync, auto_sync.isChecked())
 
     def device_widget_changed(self, index=None):
+        """
+        Stacks the called on widget within the UI structure either within the UI array
+        or just as the current widget depending on whether or not an index is provided.
+        Args:
+            index (int, optional): List element for stacking. Defaults to None.
+        """
         if index is not None:
             device = self.device_tree_model.device_from_widget(
                 widget=self.ui.stacked.widget(index)
@@ -240,6 +276,13 @@ class Window(QtWidgets.QMainWindow):
         self.set_title(detail=" - ".join(details))
 
     def set_title(self, detail=None, window=None):
+        """
+        Simple method to set the UI window title using the version and possible nicknames
+
+        Args:
+            detail (str, optional): Device nickname can be applied. Defaults to None.
+            window (QMainWindow, optional): GUI window. Defaults to None.
+        """
         if window is None:
             window = self
 
@@ -292,6 +335,9 @@ class Window(QtWidgets.QMainWindow):
         )
 
     def chart_log(self):
+        """
+        Pulls in log data from a CSV file and displays it in a subwindow
+        """
         filters = [("CSV", ["csv"]), ("All Files", ["*"])]
         filename = epyqlib.utils.qt.file_dialog(filters, parent=self)
 
@@ -305,6 +351,10 @@ class Window(QtWidgets.QMainWindow):
             window.show()
 
     def scripting(self):
+        """
+        Creates a QWidget (allows for i/o and display in a window) for each device in the
+        device tree
+        """
         if self.scripting_window is not None:
             self.scripting_window.raise_()
             return
@@ -347,6 +397,18 @@ def sigint_handler(signal_number, stack_frame):
 
 
 def main(args=None):
+    """
+    Entrypoint for EPyQ. Initializes the general Qt settings, accepts some command line args,
+    and sets up the main GUI window. Final thing to be spun up is the reactor from twisted
+    allowing for async functionality with the otherwise single threaded UI.
+
+    Args:
+        args (Union[int, float, str], optional): [description]. Defaults to None.
+        - verbose: sets the logger level
+        - quit-after: sets the time for the duration of the application GUI
+        - load-offline: loads only the windows in the device tree denoted as offline from the
+        given UI file
+    """
     print("starting epyq")
 
     signal.signal(signal.SIGINT, sigint_handler)
@@ -423,10 +485,10 @@ def main(args=None):
 
     window.show()
 
-    if args.quit_after is not None:
+    if args.quit_after:
         QtCore.QTimer.singleShot(args.quit_after * 1000, app.quit)
 
-    if args.load_offline is not None:
+    if args.load_offline:
 
         def load_offline():
             (bus_node,) = [
