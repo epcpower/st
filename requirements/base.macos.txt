@@ -17,7 +17,7 @@
 -e git+https://github.com/altendky/qt5reactor@ce3ea2dad6d71adb10cde79b64bc0c7d27e9139c#egg=qt5reactor  # via -r requirements/base.in, epyqlib
 alqtendpy==0.0.4          # via -r requirements/base.in, epyqlib
 altendpy==0.0.21          # via alqtendpy
-altgraph==0.17            # via macholib, pyinstaller
+altgraph==0.17.2          # via macholib, pyinstaller
 appdirs==1.4.3            # via -r requirements/base.in, black, epyqlib
 arrow==0.12.1             # via -r requirements/base.in, epyqlib
 atomicwrites==1.4.0       # via pytest
@@ -30,49 +30,49 @@ botocore==1.12.253        # via boto3, s3transfer
 canmatrix==0.9.1          # via -r requirements/base.in, epyqlib
 certifi==2019.3.9         # via -r requirements/base.in, dulwich, epyqlib, requests
 certitude==1.0.1 ; platform_system == "Darwin"  # via -r requirements/base.in, epyqlib
-cffi==1.14.6              # via certitude, cryptography, siphash-cffi
-charset-normalizer==2.0.4  # via requests
-click==8.0.1              # via alqtendpy, black, canmatrix, epcsunspecdemo, epyqlib, pip-tools, romp
+cffi==1.15.0              # via certitude, cryptography, siphash-cffi
+charset-normalizer==2.0.7  # via requests
+click==7.1.2              # via -r requirements/pre.in, alqtendpy, black, canmatrix, epcsunspecdemo, epyqlib, pip-tools, romp
 constantly==15.1.0        # via twisted
-cryptography==3.4.8       # via pyopenssl, service-identity
-decorator==5.0.9          # via pytest-twisted
+cryptography==36.0.0      # via pyopenssl, service-identity
+decorator==5.1.0          # via pytest-twisted
 docutils==0.15.2          # via botocore
-dulwich==0.20.25          # via epyqlib
+dulwich==0.20.26          # via epyqlib
 fab==3.1.0                # via epyqlib
 future==0.18.2            # via canmatrix
-gitdb==4.0.7              # via gitpython
-gitpython==3.1.18         # via epyqlib
+gitdb==4.0.9              # via gitpython
+gitpython==3.1.24         # via epyqlib
 graham==0.1.11            # via -r requirements/base.in, epyqlib
-greenlet==1.1.1           # via pytest-twisted
+greenlet==1.1.2           # via pytest-twisted
 hyperlink==21.0.0         # via treq, twisted
-idna==3.2                 # via hyperlink, requests, twisted
-importlib-metadata==4.8.1  # via click, pint, pyinstaller
+idna==3.3                 # via hyperlink, requests, twisted
+importlib-metadata==4.8.2  # via pint, pyinstaller
 incremental==21.3.0       # via treq, twisted
-jinja2==3.0.1             # via altendpy
+jinja2==3.0.3             # via altendpy
 jmespath==0.10.0          # via boto3, botocore
-lxml==4.6.3               # via python-docx
-macholib==1.15.1          # via pyinstaller
+lxml==4.6.4               # via python-docx
+macholib==1.15.2          # via pyinstaller
 markupsafe==2.0.1         # via jinja2
 marshmallow==2.21.0       # via graham
-more-itertools==8.8.0     # via pytest
+more-itertools==8.11.0    # via pytest
 msgpack==1.0.2            # via python-can
 mypy-extensions==0.4.3    # via black, python-can
 natsort==5.4.1            # via -r requirements/base.in, epyqlib
-packaging==21.0           # via pint
+packaging==21.3           # via pint
 paho-mqtt==1.4.0          # via -r requirements/base.in, epyqlib
 pathlib2==2.3.6           # via canmatrix
 pathspec==0.9.0           # via black
-pint==0.17                # via epyqlib
+pint==0.18                # via epyqlib
 pip-tools==5.1.0          # via -r requirements/pre.in
 pluggy==0.11.0            # via -r requirements/base.in, pytest
-py==1.10.0                # via pytest
+py==1.11.0                # via pytest
 pyasn1-modules==0.2.8     # via service-identity
 pyasn1==0.4.8             # via pyasn1-modules, service-identity
-pycparser==2.20           # via cffi
+pycparser==2.21           # via cffi
 pyinstaller-hooks-contrib==2021.3  # via pyinstaller
-pyinstaller==4.5.1        # via -r requirements/base.in
-pyopenssl==20.0.1         # via twisted
-pyparsing==2.4.7          # via packaging
+pyinstaller==4.7          # via -r requirements/base.in
+pyopenssl==21.0.0         # via twisted
+pyparsing==3.0.6          # via packaging
 pyqt5-sip==12.9.0         # via pyqt5, pyqtchart
 pyqt5==5.14.1             # via -r requirements/base.in, alqtendpy, epyqlib, pyqtchart
 pyqtchart==5.14.0         # via -r requirements/base.in
@@ -83,28 +83,28 @@ pytest-rerunfailures==4.2  # via -r requirements/base.in
 pytest==3.9.2             # via -r requirements/base.in, pytest-faulthandler, pytest-qt, pytest-rerunfailures, pytest-twisted
 python-dateutil==2.8.2    # via arrow, botocore
 python-docx==0.8.11       # via epyqlib
-python-dotenv==0.19.0     # via epyqlib
-qtawesome==1.0.3          # via epyqlib
-qtpy==1.10.0              # via qtawesome
-regex==2021.8.28          # via black
+python-dotenv==0.19.2     # via epyqlib
+qtawesome==1.1.0          # via epyqlib
+qtpy==1.11.2              # via qtawesome
+regex==2021.11.10         # via black
 requests==2.26.0          # via -r requirements/base.in, epyqlib, fab, romp, treq
-romp==2020.3              # via -r requirements/pre.in
+romp==2021.11             # via -r requirements/pre.in
 s3transfer==0.1.13        # via boto3
 service-identity==21.1.0  # via twisted
 siphash-cffi==0.1.4       # via epyqlib
 six==1.16.0               # via automat, pathlib2, pip-tools, pyopenssl, pytest, python-dateutil, service-identity, treq
-smmap==4.0.0              # via gitdb
+smmap==5.0.0              # via gitdb
 toml==0.10.2              # via black
-toolz==0.11.1             # via epcsunspecdemo
-tqdm==4.62.2              # via epcsunspecdemo
+toolz==0.11.2             # via epcsunspecdemo
+tqdm==4.62.3              # via epcsunspecdemo
 treq==21.1.0              # via -r requirements/base.in, epyqlib
 twisted[tls]==21.2.0      # via -r requirements/base.in, epyqlib, qt5reactor, treq
-typed-ast==1.4.3          # via black
-typing-extensions==3.10.0.2  # via black, gitpython, importlib-metadata
+typed-ast==1.5.0          # via black
+typing-extensions==4.0.0  # via black, gitpython, importlib-metadata
 urllib3==1.25.11          # via botocore, dulwich, requests
 wheel==0.34.2             # via -r requirements/pre.in
-wrapt==1.12.1             # via python-can
-zipp==3.5.0               # via importlib-metadata
+wrapt==1.13.3             # via python-can
+zipp==3.6.0               # via importlib-metadata
 zope.interface==5.4.0     # via twisted
 
 # The following packages are considered to be unsafe in a requirements file:
