@@ -10,7 +10,7 @@ requests
 alqtendpy==0.0.4
 
 # TODO: shouldn't be deploy here for all cases
--e file:sub/epyqlib#egg=epyqlib[deploy]
+-e file:poegg=epyqlib[deploy]
 
 # TODO: this shouldn't be here either... this could belong
 #       to a 'package' group or such (`package.in`) since it
