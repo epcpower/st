@@ -59,7 +59,7 @@ jobs:
           poetry run pip --version
           poetry install
           poetry run black --check --diff .
-          portry run python download_fonts.py src/libs
+          poetry run python download_fonts.py src/libs
           poetry run genbuildinfo "src/epyq/_build.py"
           poetry run pip freeze --all
 
