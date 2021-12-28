@@ -74,8 +74,7 @@ jobs:
 
 
           #venv/Scripts/python pinsis.py --qtifw
-          #poetry run python pinsis.py --qtifw
-          python pinsis.py --qtifw
+          poetry run python pinsis.py --qtifw
           mkdir artifacts
           mv ../*.exe artifacts/
 
