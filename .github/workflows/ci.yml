@@ -60,7 +60,7 @@ jobs:
           set -vx
           poetry run pip --version
           poetry run buildui
-          poetry run black --check --diff .
+          # poetry run black --check --diff .
           poetry run python download_fonts.py src/libs
           poetry run genbuildinfo "src/epyq/_build.py"
           poetry run pip freeze --all
