@@ -56,13 +56,13 @@ for f in resource_files:
     print('Starting pyrcc5')
     subprocess.call(
         [
-            os.path.join('venv', 'Scripts', 'pyrcc5'),
+            os.path.join('.venv', 'Scripts', 'pyrcc5'),
             '-o', os.path.splitext(f)[0] + '.py',
             f
         ]
     )
 
-pyinstaller = os.path.join('venv', 'Scripts', 'pyinstaller')
+pyinstaller = os.path.join('.venv', 'Scripts', 'pyinstaller')
 spec_file = os.path.join('installer', 'pyinstaller.spec')
 subprocess.check_call([pyinstaller, spec_file])
 
