@@ -37,6 +37,8 @@ jobs:
           python -m pip install poetry
       - name: poetry install
         run: |
+          poetry config virtualenvs.in-project true
+          poetry config virtualenvs.path .
           poetry install
           poetry --version
       - uses: actions/setup-python@v2
