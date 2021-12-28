@@ -10,31 +10,31 @@ alqtendpy = "0.0.4"
 pyinstaller = "~=4.5"
 graham = "0.1.11"
 python-can = {git = "https://github.com/hardbyte/python-can", rev = "2ede107d67002c18463c5276b6a94cdb19fc8320"}
-bitstruct = {git = "https://github.com/altendky/bitstruct", rev = "c1ff0e635257e7be0cf2e4dbdf8a12b8faf83e7f"}
+bitstruct = "6.0.0"
 Twisted = "21.2.0"
 qt5reactor = {git = "https://github.com/altendky/qt5reactor", rev = "ce3ea2dad6d71adb10cde79b64bc0c7d27e9139c"}
 pyelftools = {git = "https://github.com/eliben/pyelftools", rev = "27941c50fef8cff8ef991419511664154c8cdf52"}
 attrs = "19.3.0"
-natsort = "5.4.1"
+natsort = "5.5.0"
 arrow = "0.12.1"
 black = "20.8b1"
 PyQtChart = "5.14.0"
-pytest = "3.9.2"
+pytest = "5.3.5"
 pytest-faulthandler = "1.5.0"
-pytest-rerunfailures = "4.2"
-pytest-qt = "3.2.1"
+pytest-rerunfailures = "5.0"
+pytest-qt = "3.3.0"
 pywin32 = { version = "223", markers = "sys_platform == 'win32'" }
 certitude = { version = "1.0.1", markers = "sys_platform == 'Darwin'" }
 #pytest-twisted = {git = "https://github.com/altendky/pytest-twisted", rev = "6f04ba3ad806b3b40602999e71c28633c36d81f9"}
 pytest-twisted = "1.12"
 
-pysunspec = {git = "https://github.com/altendky/pysunspec", rev = "d8072a8e3c04693fe2a657a90fc9d303037dd91c"}
+pysunspec = {git = "https://github.com/altendky/pysunspec", rev = "ad7ca25964ca8071c652fb5836af6e7286dc48dc"}
 epcsunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "19581317ae2fd136b5df229d824f81a17da52c58"}
-pluggy = "0.11.0"
+pluggy = "0.12.0"
 appdirs = "1.4.3"
-boto3 = "1.9.83"
-boto3-type-annotations = "0.3.0"
-certifi = "2019.3.9"
+boto3 = "1.14.41.0"
+boto3-type-annotations = "0.3.1"
+certifi = "2020.6.20"
 paho-mqtt = "1.4.0"
 treq = "21.1.0"
 
