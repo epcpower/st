@@ -46,22 +46,23 @@ jobs:
         env:
           PHRASE: ${{ secrets.AUTOPARAMETERS_PASSPHRASE }}
         run: |
-          set -vx
-          which pip
-          pip --version
-          python boots.py ensure
-          venv/Scripts/black --check --diff .
-          venv/Scripts/python download_fonts.py src/libs
-          venv/Scripts/genbuildinfo "src/epyq/_build.py"
-          venv/Scripts/pip freeze --all
-
           #set -vx
+          #which pip
+          #pip --version
+          #python boots.py ensure
+          #venv/Scripts/black --check --diff .
+          #venv/Scripts/python download_fonts.py src/libs
+          #venv/Scripts/genbuildinfo "src/epyq/_build.py"
+          #venv/Scripts/pip freeze --all
+
+          set -vx
           poetry run pip --version
           poetry run buildui
           poetry run black --check --diff .
           poetry run python download_fonts.py src/libs
           poetry run genbuildinfo "src/epyq/_build.py"
           poetry run pip freeze --all
+
 
 
           if [ -n "$PHRASE" ]; then echo -n "$PHRASE" > sub/epyqlib/epyqlib/resources/code; fi
@@ -73,7 +74,7 @@ jobs:
           pwd
           ls
 
-          venv/Scripts/python pinsis.py --qtifw
+          #venv/Scripts/python pinsis.py --qtifw
           poetry run python pinsis.py --qtifw
 
           mkdir artifacts
