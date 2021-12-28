@@ -71,12 +71,12 @@ jobs:
 
           curl --location --output qtifw.exe "https://download.qt.io/official_releases/qt-installer-framework/4.1.1/QtInstallerFramework-windows-x86-4.1.1.exe"
           ./qtifw.exe in --al -c --root $(readlink --canonicalize-missing qtifw)
-
+          pwd
+          ls
 
           #venv/Scripts/python pinsis.py --qtifw
           poetry run python pinsis.py --qtifw
-          pwd
-          ls
+
           mkdir artifacts
           mv ../*.exe artifacts/
 
