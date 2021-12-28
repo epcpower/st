@@ -37,6 +37,8 @@ boto3-type-annotations = "0.3.1"
 certifi = "2020.6.20"
 paho-mqtt = "1.4.0"
 treq = "21.1.0"
+siphash-cffi = "^0.1.4"
+epyqlib = {path = "sub/epyqlib"}
 
 [tool.poetry.dev-dependencies]
 
