@@ -73,7 +73,7 @@ jobs:
           ./qtifw.exe in --al -c --root $(readlink --canonicalize-missing qtifw)
           pwd
           ls
-          ls .\.venv\Scripts
+          ls .\\.venv\\Scripts
 
           #venv/Scripts/python pinsis.py --qtifw
           poetry run python pinsis.py --qtifw
