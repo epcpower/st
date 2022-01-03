@@ -73,8 +73,8 @@ shutil.copy(
 )
 
 print("123123")
-print(epyq.__version_tag__)
-print(epyq.__build_tag__)
+#print(epyq.__version_tag__)
+#print(epyq.__build_tag__)
 
 if args.nsis:
     makensis = os.path.join('c:/', 'program files (x86)', 'nsis', 'bin', 'makensis.exe')
