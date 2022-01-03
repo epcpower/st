@@ -9,6 +9,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import epyq
 
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
@@ -72,6 +73,7 @@ shutil.copy(
 )
 
 print("123123")
+print(epyq.__version_tag__)
 
 if args.nsis:
     makensis = os.path.join('c:/', 'program files (x86)', 'nsis', 'bin', 'makensis.exe')
