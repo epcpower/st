@@ -9,7 +9,7 @@ import shutil
 import stat
 import subprocess
 import sys
-import epyq
+#import epyq
 
 __copyright__ = 'Copyright 2017, EPC Power Corp.'
 __license__ = 'GPLv2+'
