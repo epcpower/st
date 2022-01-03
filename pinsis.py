@@ -71,6 +71,8 @@ shutil.copy(
     os.path.join('dist', 'epyq', 'api-ms-win-core-synch-l1-2-0.dll.win7'),
 )
 
+print("123123")
+
 if args.nsis:
     makensis = os.path.join('c:/', 'program files (x86)', 'nsis', 'bin', 'makensis.exe')
     nsi_script = os.path.join('installer', 'script.nsi')
