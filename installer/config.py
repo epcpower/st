@@ -4,7 +4,7 @@
 
 import sys
 import time
-import epyq
+#import epyq
 
 # See file COPYING in this source tree
 __copyright__ = 'Copyright 2015, EPC Power Corp.'
@@ -14,10 +14,16 @@ __license__ = 'GPLv2+'
 def main(template, output):
     with open(template, 'r') as template_file:
         config = template_file.read()
+#        replacements = {
+#            'VERSION_EPOCH': str(int(round(time.time()))),
+#            'VERSION': epyq.__version__.replace('.post', '-')
+#        }
         replacements = {
             'VERSION_EPOCH': str(int(round(time.time()))),
-            'VERSION': epyq.__version__.replace('.post', '-')
+            'VERSION': "1234".replace('.post', '-')
         }
+
+
 
         for key, value in replacements.items():
             config = config.replace('**' + key + '**', value)
