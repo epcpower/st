@@ -79,7 +79,7 @@ jobs:
 
           #venv/Scripts/python pinsis.py --qtifw
           poetry run python pinsis.py --qtifw
-          poetry run python .\sub\epyqlib\deploy_win.py --name epyq
+          poetry run python .\\sub\\epyqlib\\deploy_win.py --name epyq
           
           mkdir artifacts
           mv ../*.exe artifacts/
