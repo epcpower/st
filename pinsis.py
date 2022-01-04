@@ -80,10 +80,10 @@ if args.nsis:
     makensis = os.path.join('c:/', 'program files (x86)', 'nsis', 'bin', 'makensis.exe')
     nsi_script = os.path.join('installer', 'script.nsi')
     subprocess.check_call([makensis, nsi_script])
-elif args.qtifw:
-    subprocess.check_call([
-        sys.executable,
-        os.path.join('sub', 'epyqlib', 'deploy_win.py'),
-        '--name',
-        'epyq',
-    ])
+#elif args.qtifw:
+#    subprocess.check_call([
+#        sys.executable,
+#        os.path.join('sub', 'epyqlib', 'deploy_win.py'),
+#        '--name',
+#        'epyq',
+#    ])
