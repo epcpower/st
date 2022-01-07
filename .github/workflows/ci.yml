@@ -65,7 +65,7 @@ jobs:
           poetry run genbuildinfo "src/epyq/_build.py"
           poetry run pip freeze --all
 
-          .\sub\epyqlib\.venv\Scripts\buildui
+          .\\sub\\epyqlib\\.venv\\Scripts\\buildui
 
           if [ -n "$PHRASE" ]; then echo -n "$PHRASE" > sub/epyqlib/epyqlib/resources/code; fi
 
