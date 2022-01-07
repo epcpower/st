@@ -65,7 +65,7 @@ jobs:
           poetry run genbuildinfo "src/epyq/_build.py"
           poetry run pip freeze --all
 
-
+          .\sub\epyqlib\.venv\Scripts\buildui
 
           if [ -n "$PHRASE" ]; then echo -n "$PHRASE" > sub/epyqlib/epyqlib/resources/code; fi
 
@@ -80,7 +80,7 @@ jobs:
           #venv/Scripts/python pinsis.py --qtifw
           poetry run python pinsis.py --qtifw
           poetry run python .\\sub\\epyqlib\\deploy_win.py --name epyq
-          
+
           mkdir artifacts
           mv ../*.exe artifacts/
 
