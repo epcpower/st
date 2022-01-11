@@ -37,14 +37,15 @@ jobs:
         env:
           PHRASE: ${{ secrets.AUTOPARAMETERS_PASSPHRASE }}
         run: |
-          set -vx
-          which pip
-          pip --version
-          python boots.py ensure
-          venv/Scripts/black --check --diff .
-          venv/Scripts/python download_fonts.py src/libs
-          venv/Scripts/genbuildinfo "src/epyq/_build.py"
-          venv/Scripts/pip freeze --all
+          #set -vx
+          #which pip
+          #pip --version
+          # python boots.py ensure
+          poetry install
+          .venv/Scripts/black --check --diff .
+          .venv/Scripts/python download_fonts.py src/libs
+          .venv/Scripts/genbuildinfo "src/epyq/_build.py"
+          .venv/Scripts/pip freeze --all
 
           if [ -n "$PHRASE" ]; then echo -n "$PHRASE" > sub/epyqlib/epyqlib/resources/code; fi
 
@@ -54,11 +55,11 @@ jobs:
           ./qtifw.exe in --al -c --root $(readlink --canonicalize-missing qtifw)
 
 
-          venv/Scripts/python pinsis.py --qtifw
+          .venv/Scripts/python pinsis.py --qtifw
           mkdir artifacts
           mv ../*.exe artifacts/
 
-          venv/Scripts/autodevice create template --zip="artifacts/autodevice_template-$(venv/Scripts/python -c 'import epyq; print(f"{epyq.__version_tag__}-{epyq.__build_tag__}", end="")').zip"
+          .venv/Scripts/autodevice create template --zip="artifacts/autodevice_template-$(.venv/Scripts/python -c 'import epyq; print(f"{epyq.__version_tag__}-{epyq.__build_tag__}", end="")').zip"
 
           curl --location --output PeakOemDrv.exe "https://www.peak-system.com/produktcd/Drivers/PeakOemDrv.exe"
           ls
@@ -66,7 +67,7 @@ jobs:
           #       hanging the build in GitHub Actions.  Maybe due to Windows
           #       popping up a dialog asking for authorization to install it?
           # ./PeakOemDrv.exe /exenoui /qn ADDLOCAL=F_PNP_DVRS,F_PCANBASIC
-          venv/Scripts/pytest -vvvv -s --no-qt-log --run-factory sub/epyqlib/epyqlib/tests
+          .venv/Scripts/pytest -vvvv -s --no-qt-log --run-factory sub/epyqlib/epyqlib/tests
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v2

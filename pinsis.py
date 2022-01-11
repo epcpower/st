@@ -56,13 +56,13 @@ for f in resource_files:
     print('Starting pyrcc5')
     subprocess.call(
         [
-            os.path.join('venv', 'Scripts', 'pyrcc5'),
+            os.path.join('.venv', 'Scripts', 'pyrcc5'),
             '-o', os.path.splitext(f)[0] + '.py',
             f
         ]
     )
 
-pyinstaller = os.path.join('venv', 'Scripts', 'pyinstaller')
+pyinstaller = os.path.join('.venv', 'Scripts', 'pyinstaller')
 spec_file = os.path.join('installer', 'pyinstaller.spec')
 subprocess.check_call([pyinstaller, spec_file])
 
@@ -75,10 +75,17 @@ if args.nsis:
     makensis = os.path.join('c:/', 'program files (x86)', 'nsis', 'bin', 'makensis.exe')
     nsi_script = os.path.join('installer', 'script.nsi')
     subprocess.check_call([makensis, nsi_script])
+#elif args.qtifw:
+#    subprocess.check_call([
+#        sys.executable,
+#        os.path.join('sub', 'epyqlib', 'deploy_win.py'),
+#        '--name',
+#        'epyq',
+#    ])
 elif args.qtifw:
     subprocess.check_call([
         sys.executable,
-        os.path.join('sub', 'epyqlib', 'deploy_win.py'),
+        os.path.join('deploy_win.py'),
         '--name',
         'epyq',
     ])
