@@ -53,7 +53,7 @@ jobs:
           #pip --version
           # python boots.py ensure
           poetry install
-          .venv/Scripts/black --check --diff .
+          .venv/Scripts/black --exclude=.\.venv --check --diff .
           .venv/Scripts/python download_fonts.py src/libs
           .venv/Scripts/genbuildinfo "src/epyq/_build.py"
           .venv/Scripts/pip freeze --all
