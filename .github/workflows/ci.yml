@@ -48,7 +48,7 @@ jobs:
         env:
           PHRASE: ${{ secrets.AUTOPARAMETERS_PASSPHRASE }}
         run: |
-          #set -vx
+          set -vx
           #which pip
           #pip --version
           # python boots.py ensure
