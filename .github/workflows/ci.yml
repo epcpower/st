@@ -30,6 +30,17 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
           submodules: recursive
+      - name: Install poetry
+        run: |
+          python -m ensurepip
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+      - name: poetry install
+        run: |
+          poetry config virtualenvs.in-project true
+          poetry config virtualenvs.path .
+          poetry install
+          poetry --version
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ env.PYTHON_VERSION }}
