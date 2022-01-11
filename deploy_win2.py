@@ -329,13 +329,13 @@ with open(third_party_license, "w", encoding="utf-8", newline="\n") as out:
         ),
         (
             "win32",
-            ("venv", "Lib", "site-packages", "win32", "license.txt"),
+            (".venv", "Lib", "site-packages", "win32", "license.txt"),
             None,
             False,
         ),
         (
             "win32com",
-            ("venv", "Lib", "site-packages", "win32com", "License.txt"),
+            (".venv", "Lib", "site-packages", "win32com", "License.txt"),
             None,
             False,
         ),
