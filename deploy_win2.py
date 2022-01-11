@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+sys.path.append('C:\Github\st_deploywin\src')
 
 
 # TODO: CAMPid 98852142341263132467998754961432
