@@ -2,7 +2,7 @@
 
 import sys
 
-sys.path.append("C:\Github\st_deploywin\src")
+sys.path.append('.\src')
 
 
 # TODO: CAMPid 98852142341263132467998754961432
