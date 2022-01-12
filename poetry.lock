@@ -1470,7 +1470,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "4dda265c6b47cee05ab6977ee6acef282bc9a106857ad1dbdc13001e92c9278f"
+content-hash = "02038b54929438443da5b993f29ef873f1ddc41ada7d4dd1838f528baaf100c8"
 
 [metadata.files]
 alqtendpy = [
