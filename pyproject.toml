@@ -1,8 +1,11 @@
 [tool.poetry]
 name = "epyq"
-version = "0.1.0"
+version = "0.0.0"
 description = ""
 authors = ["alex anker <alex.anker@epcpower.com>"]
+
+[tool.poetry-dynamic-versioning]
+enable = true
 
 [tool.poetry.dependencies]
 python = "^3.7"
