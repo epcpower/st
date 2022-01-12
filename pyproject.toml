@@ -1,11 +1,12 @@
 [tool.poetry]
 name = "epyq"
-version = "0.0.0"
+version = "2021.5.1.post74"
 description = ""
 authors = ["alex anker <alex.anker@epcpower.com>"]
 
 [tool.poetry-dynamic-versioning]
 enable = true
+format = "{base}.post{distance}"
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -41,9 +42,10 @@ certifi = "2020.6.20"
 paho-mqtt = "1.4.0"
 treq = "21.1.0"
 siphash-cffi = "^0.1.4"
-epyqlib = {path = "./sub/epyqlib" , develop = true}
+epyqlib = {path = "./sub/epyqlib",  develop = true}
 PyQt5 = "5.14.1"
 pyqtdeploy = "^3.1.1"
+poetry-dynamic-versioning = "^0.13.1"
 
 [tool.poetry.dev-dependencies]
 
@@ -70,6 +72,7 @@ requires = [
     "setuptools",
     "wheel",
     "poetry-core>=1.0.0",
+    "poetry-dynamic-versioning",
 ]
 build-backend = "poetry.core.masonry.api"
 
