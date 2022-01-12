@@ -53,7 +53,7 @@ jobs:
           #pip --version
           # python boots.py ensure
           poetry run buildui
-          poetry run python .\generateversioning.py
+          poetry run python ./generateversioning.py
           .venv/Scripts/black --exclude=.\.venv --check --diff .
           .venv/Scripts/python download_fonts.py src/libs
           .venv/Scripts/genbuildinfo "src/epyq/_build.py"
