@@ -38,7 +38,7 @@ certifi = "2020.6.20"
 paho-mqtt = "1.4.0"
 treq = "21.1.0"
 siphash-cffi = "^0.1.4"
-epyqlib = {path = "sub/epyqlib"}
+epyqlib = {path = "./sub/epyqlib" , develop = true}
 PyQt5 = "5.14.1"
 pyqtdeploy = "^3.1.1"
 
