@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "epyq"
-version = "2021.5.1.post74"
+version = "2021.5.1.post75"
 description = ""
 authors = ["alex anker <alex.anker@epcpower.com>"]
 
