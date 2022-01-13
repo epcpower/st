@@ -53,7 +53,7 @@ jobs:
           poetry run python ./generateversioning.py
           poetry run black --exclude=.\.venv --check --diff .
           poetry run python download_fonts.py src/libs
-          poetry run genbuildinfo "src/epyq/_build.py"
+          .venv/Scripts/genbuildinfo "src/epyq/_build.py"
           poetry run pip freeze --all
 
           if [ -n "$PHRASE" ]; then echo -n "$PHRASE" > sub/epyqlib/epyqlib/resources/code; fi
