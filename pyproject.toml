@@ -52,6 +52,8 @@ toml = "^0.10.2"
 
 [tool.poetry.scripts]
 buildui = 'buildui:compile_ui'
+epyq = 'epyq.__main__:main'
+
 
 [tool.black]
 target-version =  ['py37']
