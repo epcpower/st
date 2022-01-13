@@ -8,9 +8,11 @@ generated/
 *.exe
 /designer*
 src/epyq/_version.py
-#version.txt
 .env.local
 *_ui.py
+
+# vscode
+settings.json
 
 # PyCharm
 .idea/workspace.xml

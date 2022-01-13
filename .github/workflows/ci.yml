@@ -50,7 +50,7 @@ jobs:
         run: |
           set -vx
           poetry run buildui
-          poetry run python ./generateversioning.py
+          poetry run python ./generate_versioning.py
           .venv/Scripts/black --exclude=.\.venv --check --diff .
           .venv/Scripts/python download_fonts.py src/libs
           .venv/Scripts/genbuildinfo "src/epyq/_build.py"

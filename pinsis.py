@@ -83,10 +83,3 @@ elif args.qtifw:
         'epyq',
     ])
 
-#elif args.qtifw:
-#    subprocess.check_call([
-#        sys.executable,
-#        os.path.join('deploy_win2.py'),
-#        '--name',
-#        'epyq',
-#    ])

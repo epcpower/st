@@ -17,21 +17,22 @@ Instructions are for Python 3.7 but they should work with slight tweaks with 3.6
 
 - Install [Python 3.7 32-bit](https://www.python.org/downloads/)
 - Install [Git](https://git-scm.com/download)
-- `git clone https://github.com/altendky/st`
+- `git clone https://github.com/epcpower/st`
 - `cd st`
 - `git submodule update --init`
-- `py boots.py ensure`
+- `poetry install`
+- `poetry run buildui`
   - Run with any recent Python, the proper Python version will be selected
 - wait
 - wait some more...
 - ...
 - Note the links provided for possibly needed system and driver extras.
-- Try running `venv\Scripts\epyq`.  If you get errors, consider installing the linked extras. 
+- Try running `.venv\Scripts\epyq`.  If you get errors, consider installing the linked extras.
 
 If using with [PEAK PCAN](http://www.peak-system.com/PCAN-USB.199.0.html?&L=1) hardware, install the [PEAK drivers](http://www.peak-system.com/PCAN-USB.199.0.html?&L=1).
 Select the `PCAN-Basic` feature in the installer.  The virtual and LIN features are not needed for this.
 
-To launch EPyQ run `venv\Scripts\epyq.exe`.
+To launch EPyQ run `.venv\Scripts\epyq.exe`.
 To launch Qt Designer with the EPyQ plugins enabled run `designer.bat`.
 EPyQ widgets should be visible at the bottom of the widget box on the left.
 
@@ -40,14 +41,15 @@ EPyQ widgets should be visible at the bottom of the widget box on the left.
 - Install Python 3.7
   - Consider [pyenv](https://github.com/pyenv/pyenv) to get Python versions
 - Install git
-- `git clone https://github.com/altendky/st`
+- `git clone https://github.com/epcpower/st`
 - `cd st`
 - `git submodule update --init`
-- `python boots.py ensure`
+- `poetry install`
+- `poetry run buildui`
   - Run with any recent Python, the proper Python version will be selected
 - wait
 - a bit more, but not nearly as much as Windows
-- Try running `venv/bin/epyq`
+- Try running `.venv/bin/epyq`
 - If it works, continue below regarding CAN bus setup
 
 In Linux, EPyQ does not attempt to configure or bring up the socketcan links despite still showing the baud rates.

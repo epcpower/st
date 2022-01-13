@@ -12,7 +12,7 @@ print(get_git_revision_hash())
 
 versionfile = open("src\epyq\_version.py", "w")
 versioninfo = [
-    "#This file is generated from generateversioning.py\n"
+    "#This file is generated from generate_versioning.py\n"
     "__version__ = \""+version+"\"\n"
     "__sha__ = \""+get_git_revision_hash()+"\"\n"
     "__revision__ = \""+get_git_revision_hash()+"\"\n"

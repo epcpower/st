@@ -59,12 +59,11 @@ epyq = 'epyq.__main__:main'
 target-version =  ['py37']
 include = '''
 (
-    /setup.py
-    | /deploy_win.py
-    | /deploy_win2.py
-    | /download_fonts.py
+    /download_fonts.py
     | /pinsys.py
     | /src/epyq/.*\.pyi?
+    | /buildui.py
+    | /generate_versioning.py
 )$
 '''
 exclude = ''
