@@ -40,7 +40,6 @@ jobs:
           poetry config virtualenvs.in-project true
           poetry config virtualenvs.path .
           poetry install
-          poetry add spyder
           poetry --version
       - uses: actions/setup-python@v2
         with:
