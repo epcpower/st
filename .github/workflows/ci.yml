@@ -40,7 +40,6 @@ jobs:
           poetry config virtualenvs.in-project true
           poetry config virtualenvs.path .
           poetry install
-          poetry --version
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -50,6 +49,7 @@ jobs:
         run: |
           set -vx
           poetry run buildui
+          poetry run poetry-dynamic-versioning
           poetry run python ./generate_versioning.py
           .venv/Scripts/black --exclude=.\.venv --check --diff .
           .venv/Scripts/python download_fonts.py src/libs

@@ -1,12 +1,15 @@
 [tool.poetry]
 name = "epyq"
-version = "2021.5.1.post75"
+version = "0.0.0"
 description = ""
 authors = ["alex anker <alex.anker@epcpower.com>"]
 
 [tool.poetry-dynamic-versioning]
 enable = true
 format = "{base}.post{distance}"
+
+[tool.poetry-dynamic-versioning.substitution]
+files = ["generate_versioning.py"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -31,7 +34,6 @@ pywin32 = { version = "223", markers = "sys_platform == 'win32'" }
 certitude = { version = "1.0.1", markers = "sys_platform == 'Darwin'" }
 #pytest-twisted = {git = "https://github.com/altendky/pytest-twisted", rev = "6f04ba3ad806b3b40602999e71c28633c36d81f9"}
 pytest-twisted = "1.12"
-
 pysunspec = {git = "https://github.com/altendky/pysunspec", rev = "ad7ca25964ca8071c652fb5836af6e7286dc48dc"}
 epcsunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "19581317ae2fd136b5df229d824f81a17da52c58"}
 pluggy = "0.12.0"
@@ -45,10 +47,10 @@ siphash-cffi = "^0.1.4"
 epyqlib = {path = "./sub/epyqlib",  develop = true}
 PyQt5 = "5.14.1"
 pyqtdeploy = "^3.1.1"
-poetry-dynamic-versioning = "^0.13.1"
 toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
+poetry-dynamic-versioning = "^0.13.1"
 
 [tool.poetry.scripts]
 buildui = 'buildui:compile_ui'
