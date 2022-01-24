@@ -1,4 +1,12 @@
 [[package]]
+name = "aenum"
+version = "3.1.6"
+description = "Advanced Enumerations (compatible with Python's stdlib Enum), NamedTuples, and NamedConstants"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "alqtendpy"
 version = "0.0.4"
 description = "Extras for working with PyQt5."
@@ -363,7 +371,7 @@ resolved_reference = "19581317ae2fd136b5df229d824f81a17da52c58"
 
 [[package]]
 name = "epyqlib"
-version = "2021.5.post36.dev0+00e6e27"
+version = "2021.5.post43+21e08bc"
 description = ""
 category = "main"
 optional = false
@@ -384,7 +392,6 @@ certifi = "2020.6.20"
 certitude = {version = "1.0.1", markers = "sys_platform == \"Darwin\""}
 click = "7.1.2"
 dulwich = "0.20.6"
-epcsunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "19581317ae2fd136b5df229d824f81a17da52c58"}
 fab = "3.0.0"
 GitPython = "2.1.15"
 graham = "0.1.11"
@@ -395,13 +402,11 @@ Pint = "0.11"
 pyelftools = "0.25"
 PyQt5 = "5.14.1"
 PyQt5Designer = "^5.14.1"
-pysunspec = {git = "https://github.com/altendky/pysunspec", rev = "ad7ca25964ca8071c652fb5836af6e7286dc48dc"}
 pytest = "5.3.5"
 pytest-qt = "3.3.0"
 pytest-rerunfailures = "5.0"
 pytest-twisted = "1.12"
 pytest-xvfb = "1.2.0"
-python-can = {git = "https://github.com/hardbyte/python-can", rev = "2ede107d67002c18463c5276b6a94cdb19fc8320"}
 python-dateutil = "2.7.5"
 python-docx = "0.8.7"
 python-dotenv = "0.9.1"
@@ -608,14 +613,6 @@ description = "More routines for operating on iterables, beyond itertools"
 category = "main"
 optional = false
 python-versions = ">=3.5"
-
-[[package]]
-name = "msgpack"
-version = "1.0.3"
-description = "MessagePack (de)serializer."
-category = "main"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "mypy-extensions"
@@ -1013,33 +1010,21 @@ pyvirtualdisplay = ">=0.2.1"
 
 [[package]]
 name = "python-can"
-version = "4.0.0.dev0"
+version = "3.3.4"
 description = "Controller Area Network interface module for Python"
 category = "main"
 optional = false
-python-versions = ">=3.6"
-develop = false
+python-versions = ">=2.7"
 
 [package.dependencies]
-msgpack = {version = ">=1.0.0,<1.1.0", markers = "platform_system != \"Windows\""}
-mypy-extensions = ">=0.4.0,<0.5.0"
-pywin32 = {version = "*", markers = "platform_system == \"Windows\""}
+aenum = "*"
 windows-curses = {version = "*", markers = "platform_system == \"Windows\""}
 wrapt = ">=1.10,<2.0"
 
 [package.extras]
-cantact = ["cantact (>=0.0.7)"]
-gs_usb = ["gs-usb (>=0.2.1)"]
-neovi = ["filelock", "python-ics (>=2.12)"]
-nixnet = ["nixnet (>=0.3.1)"]
-seeedstudio = ["pyserial (>=3.0)"]
+neovi = ["python-ics (>=2.12)", "filelock"]
 serial = ["pyserial (>=3.0,<4.0)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/hardbyte/python-can"
-reference = "2ede107d67002c18463c5276b6a94cdb19fc8320"
-resolved_reference = "2ede107d67002c18463c5276b6a94cdb19fc8320"
+test = ["mock (>=2.0,<3.0)", "pytest (>=4.6,<5.0)", "pytest-timeout (>=1.3,<2.0)", "pytest-cov (>=2.8,<3.0)", "coverage (<5)", "codecov (>=2.0,<3.0)", "future", "six", "hypothesis (>=4.56,<5.0)", "pyserial (>=3.0,<4.0)"]
 
 [[package]]
 name = "python-dateutil"
@@ -1470,9 +1455,14 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "db215b5aba18001a7af2185f94657616aa83ace403a1721a3fd0c184eba1a0aa"
+content-hash = "422e27bc9f872bd223c6eecd17b28a4b32e094e2242b52a9581a9777c8180dce"
 
 [metadata.files]
+aenum = [
+    {file = "aenum-3.1.6-py2-none-any.whl", hash = "sha256:76250a4e66610e9f10dff75bd883793417c5beb76a752e98204d369abab32987"},
+    {file = "aenum-3.1.6-py3-none-any.whl", hash = "sha256:8b85ed27c45b6fe68fe1e058862f99c38ba286ce9d94c52d27f02f47eeb1c897"},
+    {file = "aenum-3.1.6.tar.gz", hash = "sha256:3ba2c25dd03fbf3992353595be18152e2fb6042f47b526ea66cd5838bb9f1fb6"},
+]
 alqtendpy = [
     {file = "alqtendpy-0.0.4-py3-none-any.whl", hash = "sha256:c1e7e5d9465e0b194ec96a7e20936cbf69f81918bbc7b062e4f012997c5f2d2d"},
 ]
@@ -1909,42 +1899,6 @@ more-itertools = [
     {file = "more-itertools-8.12.0.tar.gz", hash = "sha256:7dc6ad46f05f545f900dd59e8dfb4e84a4827b97b3cfecb175ea0c7d247f6064"},
     {file = "more_itertools-8.12.0-py3-none-any.whl", hash = "sha256:43e6dd9942dffd72661a2c4ef383ad7da1e6a3e968a927ad7a6083ab410a688b"},
 ]
-msgpack = [
-    {file = "msgpack-1.0.3-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:96acc674bb9c9be63fa8b6dabc3248fdc575c4adc005c440ad02f87ca7edd079"},
-    {file = "msgpack-1.0.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:2c3ca57c96c8e69c1a0d2926a6acf2d9a522b41dc4253a8945c4c6cd4981a4e3"},
-    {file = "msgpack-1.0.3-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:b0a792c091bac433dfe0a70ac17fc2087d4595ab835b47b89defc8bbabcf5c73"},
-    {file = "msgpack-1.0.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1c58cdec1cb5fcea8c2f1771d7b5fec79307d056874f746690bd2bdd609ab147"},
-    {file = "msgpack-1.0.3-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:2f97c0f35b3b096a330bb4a1a9247d0bd7e1f3a2eba7ab69795501504b1c2c39"},
-    {file = "msgpack-1.0.3-cp310-cp310-win32.whl", hash = "sha256:36a64a10b16c2ab31dcd5f32d9787ed41fe68ab23dd66957ca2826c7f10d0b85"},
-    {file = "msgpack-1.0.3-cp310-cp310-win_amd64.whl", hash = "sha256:c1ba333b4024c17c7591f0f372e2daa3c31db495a9b2af3cf664aef3c14354f7"},
-    {file = "msgpack-1.0.3-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:c2140cf7a3ec475ef0938edb6eb363fa704159e0bf71dde15d953bacc1cf9d7d"},
-    {file = "msgpack-1.0.3-cp36-cp36m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6f4c22717c74d44bcd7af353024ce71c6b55346dad5e2cc1ddc17ce8c4507c6b"},
-    {file = "msgpack-1.0.3-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:47d733a15ade190540c703de209ffbc42a3367600421b62ac0c09fde594da6ec"},
-    {file = "msgpack-1.0.3-cp36-cp36m-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c7e03b06f2982aa98d4ddd082a210c3db200471da523f9ac197f2828e80e7770"},
-    {file = "msgpack-1.0.3-cp36-cp36m-win32.whl", hash = "sha256:3d875631ecab42f65f9dce6f55ce6d736696ced240f2634633188de2f5f21af9"},
-    {file = "msgpack-1.0.3-cp36-cp36m-win_amd64.whl", hash = "sha256:40fb89b4625d12d6027a19f4df18a4de5c64f6f3314325049f219683e07e678a"},
-    {file = "msgpack-1.0.3-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:6eef0cf8db3857b2b556213d97dd82de76e28a6524853a9beb3264983391dc1a"},
-    {file = "msgpack-1.0.3-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:0d8c332f53ffff01953ad25131272506500b14750c1d0ce8614b17d098252fbc"},
-    {file = "msgpack-1.0.3-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9c0903bd93cbd34653dd63bbfcb99d7539c372795201f39d16fdfde4418de43a"},
-    {file = "msgpack-1.0.3-cp37-cp37m-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:bf1e6bfed4860d72106f4e0a1ab519546982b45689937b40257cfd820650b920"},
-    {file = "msgpack-1.0.3-cp37-cp37m-win32.whl", hash = "sha256:d02cea2252abc3756b2ac31f781f7a98e89ff9759b2e7450a1c7a0d13302ff50"},
-    {file = "msgpack-1.0.3-cp37-cp37m-win_amd64.whl", hash = "sha256:2f30dd0dc4dfe6231ad253b6f9f7128ac3202ae49edd3f10d311adc358772dba"},
-    {file = "msgpack-1.0.3-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:f201d34dc89342fabb2a10ed7c9a9aaaed9b7af0f16a5923f1ae562b31258dea"},
-    {file = "msgpack-1.0.3-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:bb87f23ae7d14b7b3c21009c4b1705ec107cb21ee71975992f6aca571fb4a42a"},
-    {file = "msgpack-1.0.3-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8a3a5c4b16e9d0edb823fe54b59b5660cc8d4782d7bf2c214cb4b91a1940a8ef"},
-    {file = "msgpack-1.0.3-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f74da1e5fcf20ade12c6bf1baa17a2dc3604958922de8dc83cbe3eff22e8b611"},
-    {file = "msgpack-1.0.3-cp38-cp38-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:73a80bd6eb6bcb338c1ec0da273f87420829c266379c8c82fa14c23fb586cfa1"},
-    {file = "msgpack-1.0.3-cp38-cp38-win32.whl", hash = "sha256:9fce00156e79af37bb6db4e7587b30d11e7ac6a02cb5bac387f023808cd7d7f4"},
-    {file = "msgpack-1.0.3-cp38-cp38-win_amd64.whl", hash = "sha256:9b6f2d714c506e79cbead331de9aae6837c8dd36190d02da74cb409b36162e8a"},
-    {file = "msgpack-1.0.3-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:89908aea5f46ee1474cc37fbc146677f8529ac99201bc2faf4ef8edc023c2bf3"},
-    {file = "msgpack-1.0.3-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:973ad69fd7e31159eae8f580f3f707b718b61141838321c6fa4d891c4a2cca52"},
-    {file = "msgpack-1.0.3-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:da24375ab4c50e5b7486c115a3198d207954fe10aaa5708f7b65105df09109b2"},
-    {file = "msgpack-1.0.3-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a598d0685e4ae07a0672b59792d2cc767d09d7a7f39fd9bd37ff84e060b1a996"},
-    {file = "msgpack-1.0.3-cp39-cp39-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:e4c309a68cb5d6bbd0c50d5c71a25ae81f268c2dc675c6f4ea8ab2feec2ac4e2"},
-    {file = "msgpack-1.0.3-cp39-cp39-win32.whl", hash = "sha256:494471d65b25a8751d19c83f1a482fd411d7ca7a3b9e17d25980a74075ba0e88"},
-    {file = "msgpack-1.0.3-cp39-cp39-win_amd64.whl", hash = "sha256:f01b26c2290cbd74316990ba84a14ac3d599af9cebefc543d241a66e785cf17d"},
-    {file = "msgpack-1.0.3.tar.gz", hash = "sha256:51fdc7fb93615286428ee7758cecc2f374d5ff363bdd884c7ea622a7a327a81e"},
-]
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
@@ -2127,7 +2081,9 @@ pytest-twisted = [
 pytest-xvfb = [
     {file = "pytest-xvfb-1.2.0.tar.gz", hash = "sha256:a7544ca8d0c7c40db4b40d7a417a7b071c68d6ef6bdf9700872d7a167302f979"},
 ]
-python-can = []
+python-can = [
+    {file = "python-can-3.3.4.tar.gz", hash = "sha256:2d3c223b7adc4dd46ce258d4a33b7e0dbb6c339e002faa40ee4a69d5fdce9449"},
+]
 python-dateutil = [
     {file = "python-dateutil-2.7.5.tar.gz", hash = "sha256:88f9287c0174266bb0d8cedd395cfba9c58e87e5ad86b2ce58859bc11be3cf02"},
     {file = "python_dateutil-2.7.5-py2.py3-none-any.whl", hash = "sha256:063df5763652e21de43de7d9e00ccf239f953a832941e37be541614732cdfc93"},

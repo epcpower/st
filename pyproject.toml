@@ -6,7 +6,8 @@ authors = ["alex anker <alex.anker@epcpower.com>"]
 
 [tool.poetry-dynamic-versioning]
 enable = true
-format = "{base}.post{distance}"
+vcs = "git"
+style = "pep440"
 
 [tool.poetry-dynamic-versioning.substitution]
 files = ["generate_versioning.py"]
@@ -16,7 +17,7 @@ python = "^3.7"
 alqtendpy = "0.0.4"
 pyinstaller = "~=4.5"
 graham = "0.1.11"
-python-can = {git = "https://github.com/hardbyte/python-can", rev = "2ede107d67002c18463c5276b6a94cdb19fc8320"}
+python-can = "^3.3.4"
 bitstruct = "6.0.0"
 Twisted = "21.2.0"
 qt5reactor = "0.5"
