@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "epyq"
-version = "0.0.0"
+version = "2021.5.1.post100.dev0+8677039"
 description = ""
 authors = ["alex anker <alex.anker@epcpower.com>"]
 
@@ -21,8 +21,8 @@ python-can = "^3.3.4"
 bitstruct = "6.0.0"
 Twisted = "21.2.0"
 qt5reactor = "0.5"
-pyelftools = "0.25"
-attrs = "19.3.0"
+pyelftools = "0.26"
+attrs = ">=19.3.0"
 natsort = "5.5.0"
 arrow = "0.12.1"
 black = "20.8b1"
@@ -34,8 +34,8 @@ pytest-qt = "3.3.0"
 pywin32 = { version = "223", markers = "sys_platform == 'win32'" }
 certitude = { version = "1.0.1", markers = "sys_platform == 'Darwin'" }
 #pytest-twisted = {git = "https://github.com/altendky/pytest-twisted", rev = "6f04ba3ad806b3b40602999e71c28633c36d81f9"}
-pytest-twisted = "1.12"
-pysunspec = {git = "https://github.com/altendky/pysunspec", rev = "ad7ca25964ca8071c652fb5836af6e7286dc48dc"}
+pytest-twisted = "<=1.13.4"
+pysunspec = "2.1.1"
 epcsunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "19581317ae2fd136b5df229d824f81a17da52c58"}
 pluggy = "0.12.0"
 appdirs = "1.4.3"
