@@ -1,4 +1,4 @@
-# This file should be overwritten when a distribution build is done
+# This file has been generated
 
 
 build_system = None
