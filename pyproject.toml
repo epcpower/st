@@ -14,11 +14,11 @@ style = "pep440"
 files = ["generate_versioning.py"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "3.7.9"
 alqtendpy = "0.0.4"
 pyinstaller = "~=4.5"
 graham = "0.1.11"
-python-can = "^3.3.4"
+python-can = "4.0.0.dev0"
 bitstruct = "6.0.0"
 Twisted = "21.2.0"
 qt5reactor = "0.5"
@@ -26,7 +26,6 @@ pyelftools = "0.26"
 attrs = ">=19.3.0"
 natsort = "5.5.0"
 arrow = "0.12.1"
-black = "20.8b1"
 PyQtChart = "5.14.0"
 pytest = "5.3.5"
 pytest-faulthandler = "1.5.0"
@@ -36,8 +35,8 @@ pywin32 = { version = "223", markers = "sys_platform == 'win32'" }
 certitude = { version = "1.0.1", markers = "sys_platform == 'Darwin'" }
 #pytest-twisted = {git = "https://github.com/altendky/pytest-twisted", rev = "6f04ba3ad806b3b40602999e71c28633c36d81f9"}
 pytest-twisted = "<=1.13.4"
-pysunspec = "2.1.1"
-epcsunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "19581317ae2fd136b5df229d824f81a17da52c58"}
+pysunspec = "2.1.0"
+sunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "6a07576a9d3c16f00a31121ff96edcbfe0d73822"}
 pluggy = "0.12.0"
 appdirs = "1.4.3"
 boto3 = "1.14.41.0"
@@ -53,6 +52,7 @@ toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 poetry-dynamic-versioning = "^0.13.1"
+black = "20.8b1"
 
 [tool.poetry.scripts]
 buildui = 'buildui:compile_ui'
@@ -81,4 +81,3 @@ requires = [
     "poetry-dynamic-versioning",
 ]
 build-backend = "poetry.core.masonry.api"
-

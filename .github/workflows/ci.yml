@@ -15,7 +15,7 @@ defaults:
     shell: bash
 
 env:
-  PYTHON_VERSION: 3.7
+  PYTHON_VERSION: 3.7.9
   #Supports deploy_win finding python license for the epyq installer
   PYTHON: c:/hostedtoolcache/windows/Python/3.7.9/x64
 
@@ -30,19 +30,19 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
           submodules: recursive
-      - name: Install poetry
-        run: |
-          python -m ensurepip
-          python -m pip install --upgrade pip
-          python -m pip install poetry
-      - name: poetry install
-        run: |
-          poetry config virtualenvs.in-project true
-          poetry config virtualenvs.path .
-          poetry install
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+      - name: Setup Venv
+        run: |
+          #install poetry
+          python -m ensurepip
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+
+          poetry config virtualenvs.in-project true
+          poetry config virtualenvs.path .
+          poetry install
       - name: python commands
         env:
           PHRASE: ${{ secrets.AUTOPARAMETERS_PASSPHRASE }}
