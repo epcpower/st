@@ -3,6 +3,7 @@ name = "epyq"
 version = "2021.5.1.post100.dev0+8677039"
 description = ""
 authors = ["alex anker <alex.anker@epcpower.com>"]
+license = "GPL-2.0-or-later"
 
 [tool.poetry-dynamic-versioning]
 enable = true
