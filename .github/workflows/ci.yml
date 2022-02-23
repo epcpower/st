@@ -30,6 +30,9 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
           submodules: recursive
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Setup Venv
         run: |
           #install poetry
@@ -40,9 +43,6 @@ jobs:
           poetry config virtualenvs.in-project true
           poetry config virtualenvs.path .
           poetry install
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
       - name: python commands
         env:
           PHRASE: ${{ secrets.AUTOPARAMETERS_PASSPHRASE }}
