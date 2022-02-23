@@ -13,11 +13,11 @@ style = "pep440"
 files = ["generate_versioning.py"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "3.7.9"
 alqtendpy = "0.0.4"
 pyinstaller = "~=4.5"
 graham = "0.1.11"
-python-can = "^3.3.4"
+python-can = "4.0.0.dev0"
 bitstruct = "6.0.0"
 Twisted = "21.2.0"
 qt5reactor = "0.5"
@@ -34,8 +34,8 @@ pywin32 = { version = "223", markers = "sys_platform == 'win32'" }
 certitude = { version = "1.0.1", markers = "sys_platform == 'Darwin'" }
 #pytest-twisted = {git = "https://github.com/altendky/pytest-twisted", rev = "6f04ba3ad806b3b40602999e71c28633c36d81f9"}
 pytest-twisted = "<=1.13.4"
-pysunspec = "2.1.1"
-epcsunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "19581317ae2fd136b5df229d824f81a17da52c58"}
+pysunspec = "2.1.0"
+sunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "6a07576a9d3c16f00a31121ff96edcbfe0d73822"}
 pluggy = "0.12.0"
 appdirs = "1.4.3"
 boto3 = "1.14.41.0"
