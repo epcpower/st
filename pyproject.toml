@@ -10,8 +10,8 @@ enable = true
 vcs = "git"
 style = "pep440"
 
-[tool.poetry-dynamic-versioning.substitution]
-files = ["generate_versioning.py"]
+#[tool.poetry-dynamic-versioning.substitution]
+#files = ["generate_versioning.py"]
 
 [tool.poetry.dependencies]
 python = "3.7.9"
@@ -67,9 +67,9 @@ include = '''
     | /pinsys.py
     | /src/epyq/.*\.pyi?
     | /buildui.py
-    | /generate_versioning.py
 )$
 '''
+# include above used to have this: | /generate_versioning.py
 exclude = ''
 
 [build-system]
