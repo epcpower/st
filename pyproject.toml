@@ -48,7 +48,6 @@ siphash-cffi = "^0.1.4"
 epyqlib = {path = "./sub/epyqlib",  develop = true}
 PyQt5 = "5.14.1"
 pyqtdeploy = "^3.1.1"
-toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 poetry-dynamic-versioning = "^0.13.1"
