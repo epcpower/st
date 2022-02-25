@@ -10,7 +10,8 @@ enable = true
 vcs = "git"
 style = "pep440"
 
-#[tool.poetry-dynamic-versioning.substitution]
+[tool.poetry-dynamic-versioning.substitution]
+files = ["src/epyq/__init__.py"]
 #files = ["generate_versioning.py"]
 
 [tool.poetry.dependencies]
