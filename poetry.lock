@@ -338,7 +338,7 @@ packaging = ">=20.9"
 
 [[package]]
 name = "epyqlib"
-version = "2022.2.1.post23.dev0+e7f4d73"
+version = "0.0.0"
 description = ""
 category = "main"
 optional = false
