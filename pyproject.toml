@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "epyq"
-version = "2021.5.1.post100.dev0+8677039"
+version = "0.0.0"
 description = ""
 authors = ["alex anker <alex.anker@epcpower.com>"]
 license = "GPL-2.0-or-later"
@@ -15,6 +15,12 @@ files = ["src/epyq/__init__.py"]
 
 [tool.poetry.dependencies]
 python = "3.7.9"
+
+#### EPC Repos ####
+sunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "6a07576a9d3c16f00a31121ff96edcbfe0d73822"}
+epyqlib = {path = "./sub/epyqlib",  develop = true}
+###################
+
 alqtendpy = "0.0.4"
 pyinstaller = "~=4.5"
 graham = "0.1.11"
@@ -33,10 +39,8 @@ pytest-rerunfailures = "5.0"
 pytest-qt = "3.3.0"
 pywin32 = { version = "223", markers = "sys_platform == 'win32'" }
 certitude = { version = "1.0.1", markers = "sys_platform == 'Darwin'" }
-#pytest-twisted = {git = "https://github.com/altendky/pytest-twisted", rev = "6f04ba3ad806b3b40602999e71c28633c36d81f9"}
 pytest-twisted = "<=1.13.4"
 pysunspec = "2.1.0"
-sunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "6a07576a9d3c16f00a31121ff96edcbfe0d73822"}
 pluggy = "0.12.0"
 appdirs = "1.4.3"
 boto3 = "1.14.41.0"
@@ -45,7 +49,6 @@ certifi = "2020.6.20"
 paho-mqtt = "1.4.0"
 treq = "21.1.0"
 siphash-cffi = "^0.1.4"
-epyqlib = {path = "./sub/epyqlib",  develop = true}
 PyQt5 = "5.14.1"
 pyqtdeploy = "^3.1.1"
 
