@@ -11,7 +11,7 @@ vcs = "git"
 style = "pep440"
 
 [tool.poetry-dynamic-versioning.substitution]
-files = ["generate_versioning.py"]
+files = ["src/epyq/__init__.py"]
 
 [tool.poetry.dependencies]
 python = "3.7.9"
@@ -48,7 +48,6 @@ siphash-cffi = "^0.1.4"
 epyqlib = {path = "./sub/epyqlib",  develop = true}
 PyQt5 = "5.14.1"
 pyqtdeploy = "^3.1.1"
-toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 poetry-dynamic-versioning = "^0.13.1"
@@ -67,7 +66,6 @@ include = '''
     | /pinsys.py
     | /src/epyq/.*\.pyi?
     | /buildui.py
-    | /generate_versioning.py
 )$
 '''
 exclude = ''
