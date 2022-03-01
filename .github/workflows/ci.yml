@@ -51,9 +51,9 @@ jobs:
           poetry run buildui
           poetry run poetry-dynamic-versioning
           poetry run black --exclude=./.venv --check --diff .
-          .venv/Scripts/python download_fonts.py src/libs
-          .venv/Scripts/genbuildinfo "src/epyq/_build.py"
-          .venv/Scripts/pip freeze --all
+          poetry run python download_fonts.py src/libs
+          poetry run genbuildinfo "src/epyq/_build.py"
+          poetry run pip freeze --all
 
           if [ -n "$PHRASE" ]; then echo -n "$PHRASE" > sub/epyqlib/epyqlib/resources/code; fi
 
