@@ -57,6 +57,7 @@ black = "20.8b1"
 buildui = 'buildui:compile_ui'
 epyq = 'epyq.__main__:main'
 genbuildinfo = 'epyqlib.genbuildinfo:write_build_file'
+autodevice = 'epyqlib.autodevice.cli:cli'
 
 [tool.black]
 target-version =  ['py37']

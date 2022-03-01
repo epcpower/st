@@ -62,12 +62,12 @@ jobs:
           curl --location --output qtifw.exe "https://download.qt.io/official_releases/qt-installer-framework/4.1.1/QtInstallerFramework-windows-x86-4.1.1.exe"
           ./qtifw.exe in --al -c --root $(readlink --canonicalize-missing qtifw)
 
-          .venv/Scripts/python pinsis.py --qtifw
+          poetry run python pinsis.py --qtifw
           mkdir artifacts
 
           mv ../*.exe artifacts/
 
-          .venv/Scripts/autodevice create template --zip="artifacts/autodevice_template-$(.venv/Scripts/python -c 'import epyq; print(f"{epyq.__version_tag__}-{epyq.__build_tag__}", end="")').zip"
+          poetry run autodevice create template --zip="artifacts/autodevice_template-$(.venv/Scripts/python -c 'import epyq; print(f"{epyq.__version_tag__}-{epyq.__build_tag__}", end="")').zip"
 
           # TODO: Add this back.  Removed since it is not mandatory and was
           #       hanging the build in GitHub Actions.  Maybe due to Windows
