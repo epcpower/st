@@ -1,9 +1,6 @@
 import alqtendpy.compileui
 import pathlib
 
-# import epyqlib.buildui
-
-
 def compile_ui():
     print("epyq::compile_ui building UI in epyq")
     alqtendpy.compileui.compile_ui(
