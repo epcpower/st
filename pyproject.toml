@@ -68,7 +68,6 @@ include = '''
     | /buildui.py
 )$
 '''
-# include above used to have this: | /generate_versioning.py
 exclude = ''
 
 [build-system]
