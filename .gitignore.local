@@ -1,0 +1,12 @@
+/sync/
+/activate*
+/src/libs
+generated/
+*.stats
+*.exe
+/designer*
+.env.local
+*_ui.py
+
+# PyCharm (consider using the PyCharm gitignore.io template)
+.idea/**/workspace.xml

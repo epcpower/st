@@ -55,6 +55,7 @@ pyqtdeploy = "^3.1.1"
 [tool.poetry.dev-dependencies]
 poetry-dynamic-versioning = "^0.13.1"
 black = "20.8b1"
+gitignoreio = "0.1.5"
 
 [tool.poetry.scripts]
 buildui = 'buildui:compile_ui'
