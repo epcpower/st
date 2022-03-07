@@ -338,7 +338,7 @@ packaging = ">=20.9"
 
 [[package]]
 name = "epyqlib"
-version = "2022.2.1.post34.dev0+7f08eda"
+version = "2022.2.1.post35.dev0+6ede3f7"
 description = ""
 category = "main"
 optional = false
@@ -369,11 +369,6 @@ pyelftools = "0.26"
 PyQt5 = ">=5.13.0"
 PyQt5Designer = {version = "^5.14.1", markers = "sys_platform == \"win32\""}
 pysunspec = "2.1.0"
-pytest = "5.3.5"
-pytest-qt = "3.3.0"
-pytest-rerunfailures = "5.0"
-pytest-twisted = "<=1.13.4"
-pytest-xvfb = "1.2.0"
 python-can = "4.0.0.dev0"
 python-dateutil = "2.7.5"
 python-docx = "0.8.7"
@@ -989,18 +984,6 @@ pyqt5 = ["qt5reactor[pyqt5] (>=0.6.2)"]
 pyside2 = ["qt5reactor[pyside2] (>=0.6.3)"]
 
 [[package]]
-name = "pytest-xvfb"
-version = "1.2.0"
-description = "A pytest plugin to run Xvfb for tests."
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-pytest = ">=2.8.1"
-pyvirtualdisplay = ">=0.2.1"
-
-[[package]]
 name = "python-can"
 version = "4.0.0.dev0"
 description = "Controller Area Network interface module for Python"
@@ -1053,14 +1036,6 @@ python-versions = "*"
 
 [package.extras]
 cli = ["click (>=5.0)"]
-
-[[package]]
-name = "pyvirtualdisplay"
-version = "3.0"
-description = "python wrapper for Xvfb, Xephyr and Xvnc"
-category = "main"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "pywin32"
@@ -2076,9 +2051,6 @@ pytest-twisted = [
     {file = "pytest-twisted-1.13.4.tar.gz", hash = "sha256:4b9644258a267f63f8ba24b91b83c9f3372caec393722f8d8263674fc51168e1"},
     {file = "pytest_twisted-1.13.4-py2.py3-none-any.whl", hash = "sha256:1ae215f71247d0d75dc2611fa744291aebf40dbd6c260d528cb82bbbbe252d97"},
 ]
-pytest-xvfb = [
-    {file = "pytest-xvfb-1.2.0.tar.gz", hash = "sha256:a7544ca8d0c7c40db4b40d7a417a7b071c68d6ef6bdf9700872d7a167302f979"},
-]
 python-can = [
     {file = "python-can-4.0.0.dev0.tar.gz", hash = "sha256:dd3a5ceeebf8183b82c8aea1a0ab3eab652b665c8f789675ac054224ba39db51"},
     {file = "python_can-4.0.0.dev0-py3.7.egg", hash = "sha256:1913565f5ed1ec0ce516df54a697f33bf5a75100177a9d82622afbe8d77fdce7"},
@@ -2093,10 +2065,6 @@ python-docx = [
 python-dotenv = [
     {file = "python-dotenv-0.9.1.tar.gz", hash = "sha256:122290a38ece9fe4f162dc7c95cae3357b983505830a154d3c98ef7f6c6cea77"},
     {file = "python_dotenv-0.9.1-py2.py3-none-any.whl", hash = "sha256:4a205787bc829233de2a823aa328e44fd9996fedb954989a21f1fc67c13d7a77"},
-]
-pyvirtualdisplay = [
-    {file = "PyVirtualDisplay-3.0-py3-none-any.whl", hash = "sha256:40d4b8dfe4b8de8552e28eb367647f311f88a130bf837fe910e7f180d5477f0e"},
-    {file = "PyVirtualDisplay-3.0.tar.gz", hash = "sha256:09755bc3ceb6eb725fb07eca5425f43f2358d3bf08e00d2a9b792a1aedd16159"},
 ]
 pywin32 = [
     {file = "pywin32-223-cp27-cp27m-win32.whl", hash = "sha256:42f48567e36b787901ff3da20de5a134cd9880cc90832e2aad60951f058699f0"},
