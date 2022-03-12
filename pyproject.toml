@@ -17,14 +17,14 @@ files = ["src/epyq/__init__.py"]
 python = "3.7.9"
 
 #### EPC Repos ####
-sunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "6a07576a9d3c16f00a31121ff96edcbfe0d73822"}
+sunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "def34227c0bc205083ddffe429c640509ab0bf52"}
 epyqlib = {path = "./sub/epyqlib",  develop = true}
 ###################
 
 alqtendpy = "0.0.4"
 pyinstaller = "~=4.5"
 graham = "0.1.11"
-python-can = "4.0.0.dev0"
+python-can = "4.0.0"
 bitstruct = "6.0.0"
 Twisted = "21.2.0"
 qt5reactor = "0.5"
@@ -48,9 +48,10 @@ boto3-type-annotations = "0.3.1"
 certifi = "2020.6.20"
 paho-mqtt = "1.4.0"
 treq = "21.1.0"
-siphash-cffi = "^0.1.4"
 PyQt5 = "5.14.1"
-pyqtdeploy = "^3.1.1"
+requests = "2.27.1"
+canmatrix = "0.9.1"
+click = "7.1.2"
 
 [tool.poetry.dev-dependencies]
 poetry-dynamic-versioning = "^0.13.1"
