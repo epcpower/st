@@ -15,7 +15,7 @@ defaults:
     shell: bash
 
 env:
-  PYTHON_VERSION: 3.7.9
+  PYTHON_VERSION: 3.7
   #Supports deploy_win finding python license for the epyq installer
   PYTHON: c:/hostedtoolcache/windows/Python/3.7.9/x64
 
