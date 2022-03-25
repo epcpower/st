@@ -36,7 +36,7 @@ test = ["codecov", "pytest", "pytest-cov", "tox"]
 name = "altgraph"
 version = "0.17.2"
 description = "Python graph (network) package"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -321,7 +321,7 @@ version = "0.0.0"
 description = ""
 category = "main"
 optional = false
-python-versions = "^3.7.9"
+python-versions = ">=3.7.9,<3.11"
 develop = true
 
 [package.dependencies]
@@ -355,8 +355,8 @@ qt5reactor = "0.5"
 QtAwesome = "0.6.0"
 requests = "2.27.1"
 selenium = "3.141.0"
-siphash-cffi = "0.1.4"
-sunspecdemo = {git = "https://github.com/epcpower/sunspec-demo", rev = "def34227c0bc205083ddffe429c640509ab0bf52"}
+siphash-cffi = "^0.1.4"
+sunspecdemo = "1.2.306"
 treq = "21.1.0"
 Twisted = "21.2.0"
 
@@ -502,11 +502,11 @@ scripts = ["click (>=6.0)", "twisted (>=16.4.0)"]
 
 [[package]]
 name = "jinja2"
-version = "3.0.3"
+version = "3.1.0"
 description = "A very fast and expressive template engine."
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 MarkupSafe = ">=2.0"
@@ -538,9 +538,9 @@ source = ["Cython (>=0.29.7)"]
 
 [[package]]
 name = "macholib"
-version = "1.15.2"
+version = "1.16"
 description = "Mach-O header analysis and editing"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -647,7 +647,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 name = "pefile"
 version = "2021.9.3"
 description = "Python PE parsing module"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6.0"
 
@@ -741,7 +741,7 @@ python-versions = "*"
 name = "pyinstaller"
 version = "4.10"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
-category = "main"
+category = "dev"
 optional = false
 python-versions = "<3.11,>=3.6"
 
@@ -759,9 +759,9 @@ hook_testing = ["pytest (>=2.7.3)", "execnet (>=1.5.0)", "psutil"]
 
 [[package]]
 name = "pyinstaller-hooks-contrib"
-version = "2022.2"
+version = "2022.3"
 description = "Community maintained hooks for PyInstaller"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -868,7 +868,7 @@ testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xm
 name = "pytest-faulthandler"
 version = "1.5.0"
 description = "py.test plugin that activates the fault handler module for tests"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -879,7 +879,7 @@ pytest = ">=2.6"
 name = "pytest-qt"
 version = "3.3.0"
 description = "pytest support for PyQt and PySide applications"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -894,7 +894,7 @@ doc = ["sphinx", "sphinx-rtd-theme"]
 name = "pytest-rerunfailures"
 version = "5.0"
 description = "pytest plugin to re-run tests to eliminate flaky failures"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -990,7 +990,7 @@ python-versions = "*"
 name = "pywin32-ctypes"
 version = "0.2.0"
 description = ""
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -1111,6 +1111,11 @@ python-versions = "*"
 [package.dependencies]
 cffi = ">=1.4.0"
 
+[package.source]
+type = "legacy"
+url = "https://epc-power-us-890711758583.d.codeartifact.us-east-2.amazonaws.com/pypi/third-party/simple"
+reference = "third-party"
+
 [[package]]
 name = "six"
 version = "1.16.0"
@@ -1140,30 +1145,28 @@ smmap = ">=3.0.1"
 
 [[package]]
 name = "sunspecdemo"
-version = "0.0.0"
+version = "1.2.306"
 description = "EPC SunSpec demonstration tool"
 category = "main"
 optional = false
-python-versions = "^3.7.9"
-develop = false
+python-versions = ">=3.7,<3.11"
 
 [package.dependencies]
 attrs = ">=19.3.0"
-click = "^7.0"
-importlib = "^1.0.4"
-importlib-metadata = "^4.10.1"
+click = ">=7.0,<8.0"
+importlib = ">=1.0.4,<2.0.0"
+importlib-metadata = ">=4.10.1,<5.0.0"
 pyserial = "3.4"
 pysunspec = "2.1.0"
-toml = "^0.10.2"
+toml = ">=0.10.2,<0.11.0"
 toolz = "0.9.0"
 tqdm = "4.32.1"
-typing-extensions = "^4.0.1"
+typing-extensions = ">=4.0.1,<5.0.0"
 
 [package.source]
-type = "git"
-url = "https://github.com/epcpower/sunspec-demo"
-reference = "def34227c0bc205083ddffe429c640509ab0bf52"
-resolved_reference = "def34227c0bc205083ddffe429c640509ab0bf52"
+type = "legacy"
+url = "https://epc-power-us-890711758583.d.codeartifact.us-east-2.amazonaws.com/pypi/epc-power/simple"
+reference = "epc-power"
 
 [[package]]
 name = "toml"
@@ -1342,7 +1345,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "3.7.9"
-content-hash = "1984605d90b8566ff7627f653c135d781637063db3a8d84c91bc7999c0566442"
+content-hash = "46de8b2f59460a346b11e5a756311f3a99d366e036dc61725764efbbd6210350"
 
 [metadata.files]
 alqtendpy = [
@@ -1626,8 +1629,8 @@ incremental = [
     {file = "incremental-21.3.0.tar.gz", hash = "sha256:02f5de5aff48f6b9f665d99d48bfc7ec03b6e3943210de7cfc88856d755d6f57"},
 ]
 jinja2 = [
-    {file = "Jinja2-3.0.3-py3-none-any.whl", hash = "sha256:077ce6014f7b40d03b47d1f1ca4b0fc8328a692bd284016f806ed0eaca390ad8"},
-    {file = "Jinja2-3.0.3.tar.gz", hash = "sha256:611bb273cd68f3b993fabdc4064fc858c5b47a973cb5aa7999ec1ba405c87cd7"},
+    {file = "Jinja2-3.1.0-py3-none-any.whl", hash = "sha256:da424924c069a4013730d8dd010cbecac7e7bb752be388db3741688bffb48dc6"},
+    {file = "Jinja2-3.1.0.tar.gz", hash = "sha256:a2f09a92f358b96b5f6ca6ecb4502669c4acb55d8733bbb2b2c9c4af5564c605"},
 ]
 jmespath = [
     {file = "jmespath-0.10.0-py2.py3-none-any.whl", hash = "sha256:cdf6525904cc597730141d61b36f2e4b8ecc257c420fa2f4549bac2c2d0cb72f"},
@@ -1697,8 +1700,8 @@ lxml = [
     {file = "lxml-4.8.0.tar.gz", hash = "sha256:f63f62fc60e6228a4ca9abae28228f35e1bd3ce675013d1dfb828688d50c6e23"},
 ]
 macholib = [
-    {file = "macholib-1.15.2-py2.py3-none-any.whl", hash = "sha256:885613dd02d3e26dbd2b541eb4cc4ce611b841f827c0958ab98656e478b9e6f6"},
-    {file = "macholib-1.15.2.tar.gz", hash = "sha256:1542c41da3600509f91c165cb897e7e54c0e74008bd8da5da7ebbee519d593d2"},
+    {file = "macholib-1.16-py2.py3-none-any.whl", hash = "sha256:5a0742b587e6e57bfade1ab90651d4877185bf66fd4a176a488116de36878229"},
+    {file = "macholib-1.16.tar.gz", hash = "sha256:001bf281279b986a66d7821790d734e61150d52f40c080899df8fefae056e9f7"},
 ]
 markupsafe = [
     {file = "MarkupSafe-2.1.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:86b1f75c4e7c2ac2ccdaec2b9022845dbb81880ca318bb7a0a01fbf7813e3812"},
@@ -1880,8 +1883,8 @@ pyinstaller = [
     {file = "pyinstaller-4.10.tar.gz", hash = "sha256:7749c868d2e2dc84df7d6f65437226183c8a366f3a99bb2737785625c3a3cca1"},
 ]
 pyinstaller-hooks-contrib = [
-    {file = "pyinstaller-hooks-contrib-2022.2.tar.gz", hash = "sha256:ab1d14fe053016fff7b0c6aea51d980bac6d02114b04063b46ef7dac70c70e1e"},
-    {file = "pyinstaller_hooks_contrib-2022.2-py2.py3-none-any.whl", hash = "sha256:7605e440ccb55904cb2a87d72e83642ef176fb7030c77e52ac4d9679bb3d1537"},
+    {file = "pyinstaller-hooks-contrib-2022.3.tar.gz", hash = "sha256:9fa4ca03d058cba676c3cc16005076ce6a529f144c08b87c69998625fbd84e0a"},
+    {file = "pyinstaller_hooks_contrib-2022.3-py2.py3-none-any.whl", hash = "sha256:9765e68552803327d58f6c5eca970bb245b7cdf073e2f912a2a3cb50360bc2d8"},
 ]
 pyopenssl = [
     {file = "pyOpenSSL-22.0.0-py2.py3-none-any.whl", hash = "sha256:ea252b38c87425b64116f808355e8da644ef9b07e429398bfece610f893ee2e0"},
@@ -2093,7 +2096,38 @@ service-identity = [
     {file = "service_identity-21.1.0-py2.py3-none-any.whl", hash = "sha256:f0b0caac3d40627c3c04d7a51b6e06721857a0e10a8775f2d1d7e72901b3a7db"},
 ]
 siphash-cffi = [
-    {file = "siphash-cffi-0.1.4.zip", hash = "sha256:76c2af7e2c9b57f79703fa7ea63d19b79c3acef67ce1c21e731efd58e7aa01dd"},
+    {file = "siphash_cffi-0.1.4-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:7a3e9831c4d1bb1d569a46c1af57d8e670df537732b7b474d18583727d8bc2d0"},
+    {file = "siphash_cffi-0.1.4-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:24ca0aacc7b08b2fb9fe5765d5b2815e1bf5d1c5f6902dc495e0a9181c3c4492"},
+    {file = "siphash_cffi-0.1.4-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:387b777584ccc0607f72baba910b544cbeeed2303f64ed7e29d06d6cd5d5a8fb"},
+    {file = "siphash_cffi-0.1.4-cp35-cp35m-manylinux2010_i686.whl", hash = "sha256:ecfd7089626204733a2945d68d1ec72ba2466e4268f21444e971f5432454ab02"},
+    {file = "siphash_cffi-0.1.4-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:605a6a38bdcb2bcdf206b30160747a40ae0d867f509fd7a87967d5cfc098a42c"},
+    {file = "siphash_cffi-0.1.4-cp35-cp35m-win32.whl", hash = "sha256:57d4ef68415ce880b865c72584d523181ce376fbe0d520881a150129fd9db035"},
+    {file = "siphash_cffi-0.1.4-cp35-cp35m-win_amd64.whl", hash = "sha256:0531060e8cfe93d6ee8bfb9dc72e472921383200a6269dc4ed7788d07ef18866"},
+    {file = "siphash_cffi-0.1.4-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:12ce7a87f3949d7a2b8d07184cdbd0dd582258b60b1844152e8e430e65280a89"},
+    {file = "siphash_cffi-0.1.4-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:10007e430779604f483d5aea609145435c5724033e87929f3d9e721262f148f4"},
+    {file = "siphash_cffi-0.1.4-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:c779c7e68e7bab8b7bc94859e9a1d7871563b2eb9cc1f32a393a6004a0ba6134"},
+    {file = "siphash_cffi-0.1.4-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:a5c0eadc34f30b4be1c0088565861254949a52801b2bc02c2cc49747405b0be5"},
+    {file = "siphash_cffi-0.1.4-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:58d4c1fe93a4fd8dfb6f04728400d7da16833ce3eb746ddb259f9762a559e5ac"},
+    {file = "siphash_cffi-0.1.4-cp36-cp36m-win32.whl", hash = "sha256:19cb51be8614b602dffaa43cce42603bcf99cf33a6962e729b4a23e61f699f0c"},
+    {file = "siphash_cffi-0.1.4-cp36-cp36m-win_amd64.whl", hash = "sha256:b4d0a742561d02e95dcf57ab5c1e00f39feebdaf34e4ff64fc990bc107987d19"},
+    {file = "siphash_cffi-0.1.4-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:1c43e2a860c07f47ef055531d738a11bbf9ddbf7bd2909a90e4cbc2813171831"},
+    {file = "siphash_cffi-0.1.4-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:5fe1edd79506371908b658516000b473c8e068bb55158339579e05256fcd25ae"},
+    {file = "siphash_cffi-0.1.4-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:4350ec50c82c3707dea67d3b77de38638c8cbfe80e418489da0bdbfd9677cee9"},
+    {file = "siphash_cffi-0.1.4-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:9f79fc8f212544e5620975960a7af497b39124a6c50212f0c53ff8925d8b439d"},
+    {file = "siphash_cffi-0.1.4-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:e0fe7ac9655881c9294d76b54736155afec5f8483e1f6df669b73e42c507fc36"},
+    {file = "siphash_cffi-0.1.4-cp37-cp37m-win32.whl", hash = "sha256:d74675952f54655d69c0a87f83f97ed58c4f078e3f8501f2dd095303b6f1d950"},
+    {file = "siphash_cffi-0.1.4-cp37-cp37m-win_amd64.whl", hash = "sha256:7d851e2f00afd6212bbca832392ab0a47b97ac1d3db62f15854982b8deb4b386"},
+    {file = "siphash_cffi-0.1.4-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:da01093604586f5f179c3f7ba112c58931910270f56e940040cc1f6f32d240be"},
+    {file = "siphash_cffi-0.1.4-cp38-cp38-manylinux1_i686.whl", hash = "sha256:ed365bd72a9cab886a6495fa8f3a08c7e340bcc07b2aacb2346d69721dcd7580"},
+    {file = "siphash_cffi-0.1.4-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:744b44efc8edd59a8901f8e48a1f42d17867591a6afde625edeed16e3dae2d19"},
+    {file = "siphash_cffi-0.1.4-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:12530d2c39ed2d56d3a3d10deb01b202ae59e6e74b3ad3ae14ba780199ec8a7c"},
+    {file = "siphash_cffi-0.1.4-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:ad94c8edf60cfae2a68017d0d7c53baf40ae4b340c5fb7d75407b32fd79f12ad"},
+    {file = "siphash_cffi-0.1.4-cp38-cp38-win32.whl", hash = "sha256:5ec45f7ed880f8794475b1097258f1b3848b94433ee17c7c719b40e03b36c55b"},
+    {file = "siphash_cffi-0.1.4-cp38-cp38-win_amd64.whl", hash = "sha256:6063dcb9a94f8bfdeb2c0bbc5e8ef97046f5be0a4015da99a234218ffd9459c2"},
+    {file = "siphash_cffi-0.1.4-pp36-pypy36_pp73-macosx_10_9_x86_64.whl", hash = "sha256:34843b8078bd74c90ec3f55217bdb5d558b2bbfc8dc9d942753ec04d88483041"},
+    {file = "siphash_cffi-0.1.4-pp36-pypy36_pp73-manylinux1_x86_64.whl", hash = "sha256:0f095fe4f95fe4a464c312a70905ef387f120ffb6f6165f7a2bac76997e7a36d"},
+    {file = "siphash_cffi-0.1.4-pp36-pypy36_pp73-manylinux2010_x86_64.whl", hash = "sha256:06f23c4ef0227acdab0a14737f1e2b499ba59a07f9fe2000234f1a41292fcaa7"},
+    {file = "siphash_cffi-0.1.4-pp36-pypy36_pp73-win32.whl", hash = "sha256:caa798f48f75b821ba27e1c9bd89d790dbbf0063aedfb804195bec9c25331851"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
@@ -2107,7 +2141,10 @@ smmap2 = [
     {file = "smmap2-3.0.1-py3-none-any.whl", hash = "sha256:0cb6ea470b1ad9a65a02ca7f4c7ae601861f7dd24a43812ca51cfca2892bb524"},
     {file = "smmap2-3.0.1.tar.gz", hash = "sha256:44cc8bdaf96442dbb9a8e2e14377d074b3d0eea292eee3c95c8c449b6c92c557"},
 ]
-sunspecdemo = []
+sunspecdemo = [
+    {file = "sunspecdemo-1.2.306-py3-none-any.whl", hash = "sha256:f026eb2817465a92ff6c1dfabc16e2a4d9b5f4b1a352b44b987ec4a3a768fa80"},
+    {file = "sunspecdemo-1.2.306.tar.gz", hash = "sha256:41d845624821252da094fabfd9e2a8f34bc7175077d707df6657e66b40c9c232"},
+]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
