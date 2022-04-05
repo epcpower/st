@@ -305,7 +305,7 @@ watch = ["pyinotify"]
 
 [[package]]
 name = "dunamai"
-version = "1.11.0"
+version = "1.11.1"
 description = "Dynamic version generation"
 category = "dev"
 optional = false
@@ -356,7 +356,7 @@ QtAwesome = "0.6.0"
 requests = "2.27.1"
 selenium = "3.141.0"
 siphash-cffi = "^0.1.4"
-sunspecdemo = "1.2.306"
+sunspecdemo = "1.2.311"
 treq = "21.1.0"
 Twisted = "21.2.0"
 
@@ -465,14 +465,6 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
-name = "importlib"
-version = "1.0.4"
-description = "Backport of importlib.import_module() from Python 2.7"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "importlib-metadata"
 version = "4.11.3"
 description = "Read metadata from Python packages"
@@ -502,7 +494,7 @@ scripts = ["click (>=6.0)", "twisted (>=16.4.0)"]
 
 [[package]]
 name = "jinja2"
-version = "3.1.0"
+version = "3.1.1"
 description = "A very fast and expressive template engine."
 category = "main"
 optional = false
@@ -1145,17 +1137,15 @@ smmap = ">=3.0.1"
 
 [[package]]
 name = "sunspecdemo"
-version = "1.2.306"
+version = "1.2.311"
 description = "EPC SunSpec demonstration tool"
 category = "main"
 optional = false
-python-versions = ">=3.7,<3.11"
+python-versions = ">=3.7.9,<3.11"
 
 [package.dependencies]
 attrs = ">=19.3.0"
 click = ">=7.0,<8.0"
-importlib = ">=1.0.4,<2.0.0"
-importlib-metadata = ">=4.10.1,<5.0.0"
 pyserial = "3.4"
 pysunspec = "2.1.0"
 toml = ">=0.10.2,<0.11.0"
@@ -1178,7 +1168,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "tomlkit"
-version = "0.10.0"
+version = "0.10.1"
 description = "Style preserving TOML library"
 category = "dev"
 optional = false
@@ -1319,15 +1309,15 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 
 [[package]]
 name = "zipp"
-version = "3.7.0"
+version = "3.8.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 
 [package.extras]
-docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
-testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
+docs = ["sphinx", "jaraco.packaging (>=9)", "rst.linker (>=1.9)"]
+testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy (>=0.9.1)"]
 
 [[package]]
 name = "zope.interface"
@@ -1344,8 +1334,8 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "3.7.9"
-content-hash = "46de8b2f59460a346b11e5a756311f3a99d366e036dc61725764efbbd6210350"
+python-versions = ">=3.7.9,<3.11"
+content-hash = "564a3c6622d4739c439473698f9a48f101b72c99a59773cb71ed1d0482e2af3d"
 
 [metadata.files]
 alqtendpy = [
@@ -1527,8 +1517,8 @@ dulwich = [
     {file = "dulwich-0.20.6.tar.gz", hash = "sha256:e593f514b8ac740b4ceeb047745b4719bfc9f334904245c6edcb3a9d002f577b"},
 ]
 dunamai = [
-    {file = "dunamai-1.11.0-py3-none-any.whl", hash = "sha256:356308618710b4e32d5b614571c850e7b19f57217ecf311f600f4638ccda5e2c"},
-    {file = "dunamai-1.11.0.tar.gz", hash = "sha256:338f9be40c9aa974c4bdc4fb6d49a630692315593c45b23b5941c5298c075567"},
+    {file = "dunamai-1.11.1-py3-none-any.whl", hash = "sha256:2a7230203f8e995b35013c213e01c72f0966992096ec9e27e8a73890e7b59c27"},
+    {file = "dunamai-1.11.1.tar.gz", hash = "sha256:2c56f2befc9c0bd69ed20635170afba441bf526a9db7e002ec6c088a926288a3"},
 ]
 epyqlib = []
 fab = [
@@ -1617,9 +1607,6 @@ idna = [
     {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},
     {file = "idna-3.3.tar.gz", hash = "sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d"},
 ]
-importlib = [
-    {file = "importlib-1.0.4.zip", hash = "sha256:b6ee7066fea66e35f8d0acee24d98006de1a0a8a94a8ce6efe73a9a23c8d9826"},
-]
 importlib-metadata = [
     {file = "importlib_metadata-4.11.3-py3-none-any.whl", hash = "sha256:1208431ca90a8cca1a6b8af391bb53c1a2db74e5d1cef6ddced95d4b2062edc6"},
     {file = "importlib_metadata-4.11.3.tar.gz", hash = "sha256:ea4c597ebf37142f827b8f39299579e31685c31d3a438b59f469406afd0f2539"},
@@ -1629,8 +1616,8 @@ incremental = [
     {file = "incremental-21.3.0.tar.gz", hash = "sha256:02f5de5aff48f6b9f665d99d48bfc7ec03b6e3943210de7cfc88856d755d6f57"},
 ]
 jinja2 = [
-    {file = "Jinja2-3.1.0-py3-none-any.whl", hash = "sha256:da424924c069a4013730d8dd010cbecac7e7bb752be388db3741688bffb48dc6"},
-    {file = "Jinja2-3.1.0.tar.gz", hash = "sha256:a2f09a92f358b96b5f6ca6ecb4502669c4acb55d8733bbb2b2c9c4af5564c605"},
+    {file = "Jinja2-3.1.1-py3-none-any.whl", hash = "sha256:539835f51a74a69f41b848a9645dbdc35b4f20a3b601e2d9a7e22947b15ff119"},
+    {file = "Jinja2-3.1.1.tar.gz", hash = "sha256:640bed4bb501cbd17194b3cace1dc2126f5b619cf068a726b98192a0fde74ae9"},
 ]
 jmespath = [
     {file = "jmespath-0.10.0-py2.py3-none-any.whl", hash = "sha256:cdf6525904cc597730141d61b36f2e4b8ecc257c420fa2f4549bac2c2d0cb72f"},
@@ -2142,16 +2129,16 @@ smmap2 = [
     {file = "smmap2-3.0.1.tar.gz", hash = "sha256:44cc8bdaf96442dbb9a8e2e14377d074b3d0eea292eee3c95c8c449b6c92c557"},
 ]
 sunspecdemo = [
-    {file = "sunspecdemo-1.2.306-py3-none-any.whl", hash = "sha256:f026eb2817465a92ff6c1dfabc16e2a4d9b5f4b1a352b44b987ec4a3a768fa80"},
-    {file = "sunspecdemo-1.2.306.tar.gz", hash = "sha256:41d845624821252da094fabfd9e2a8f34bc7175077d707df6657e66b40c9c232"},
+    {file = "sunspecdemo-1.2.311-py3-none-any.whl", hash = "sha256:a02c181c734fcf9e8515eb5eadeba962c81994db5fd0c0e229d796abbb18dab5"},
+    {file = "sunspecdemo-1.2.311.tar.gz", hash = "sha256:da71db46d86f601c1b3dd52ef3bd8e2db1cc34127c044c8b7405d9cded8fbb5d"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
 ]
 tomlkit = [
-    {file = "tomlkit-0.10.0-py3-none-any.whl", hash = "sha256:cac4aeaff42f18fef6e07831c2c2689a51df76cf2ede07a6a4fa5fcb83558870"},
-    {file = "tomlkit-0.10.0.tar.gz", hash = "sha256:d99946c6aed3387c98b89d91fb9edff8f901bf9255901081266a84fb5604adcd"},
+    {file = "tomlkit-0.10.1-py3-none-any.whl", hash = "sha256:3eba517439dcb2f84cf39f4f85fd2c3398309823a3c75ac3e73003638daf7915"},
+    {file = "tomlkit-0.10.1.tar.gz", hash = "sha256:3c517894eadef53e9072d343d37e4427b8f0b6200a70b7c9a19b2ebd1f53b951"},
 ]
 toolz = [
     {file = "toolz-0.9.0.tar.gz", hash = "sha256:929f0a7ea7f61c178bd951bdae93920515d3fbdbafc8e6caf82d752b9b3b31c9"},
@@ -2299,8 +2286,8 @@ wrapt = [
     {file = "wrapt-1.14.0.tar.gz", hash = "sha256:8323a43bd9c91f62bb7d4be74cc9ff10090e7ef820e27bfe8815c57e68261311"},
 ]
 zipp = [
-    {file = "zipp-3.7.0-py3-none-any.whl", hash = "sha256:b47250dd24f92b7dd6a0a8fc5244da14608f3ca90a5efcd37a3b1642fac9a375"},
-    {file = "zipp-3.7.0.tar.gz", hash = "sha256:9f50f446828eb9d45b267433fd3e9da8d801f614129124863f9c51ebceafb87d"},
+    {file = "zipp-3.8.0-py3-none-any.whl", hash = "sha256:c4f6e5bbf48e74f7a38e7cc5b0480ff42b0ae5178957d564d18932525d5cf099"},
+    {file = "zipp-3.8.0.tar.gz", hash = "sha256:56bf8aadb83c24db6c4b577e13de374ccfb67da2078beba1d037c17980bf43ad"},
 ]
 "zope.interface" = [
     {file = "zope.interface-5.4.0-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:7df1e1c05304f26faa49fa752a8c690126cf98b40b91d54e6e9cc3b7d6ffe8b7"},
