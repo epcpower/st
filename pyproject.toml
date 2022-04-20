@@ -27,8 +27,13 @@ secondary = true
 python = ">=3.7.9,<3.11"
 
 #### EPC Repos ####
-sunspecdemo = {version = "1.2.311", source = "epc-power"}
 epyqlib = {path = "./sub/epyqlib",  develop = true}
+
+#if referencing commit hashes:
+sunspecdemo = { git = "https://github.com/epcpower/sunspec-demo.git", rev = "6155522b0cf2e8bd7f5c4cb0bf044f95f154f0a7" }
+
+#if referencing tags:
+#sunspecdemo = {version = "0.3.0", source = "epc-power"}
 ###################
 
 alqtendpy = "0.0.4"
