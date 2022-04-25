@@ -11,3 +11,6 @@ For instructions, see the [changelog confluence page](https://epcpower.atlassian
 
 - SC-572: Added changelog for release notes.
 
+CI
+
+- SC-398: Romp Removal / Poetry Implementation
