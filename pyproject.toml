@@ -1,19 +1,102 @@
+[tool.poetry]
+name = "epyq"
+version = "0.0.0"
+description = "EPyQ (EPC Service Tool)"
+authors = ["alex anker <alex.anker@epcpower.com>"]
+license = "GPL-2.0-or-later"
+
+[tool.poetry-dynamic-versioning]
+enable = false
+vcs = "git"
+style = "pep440"
+
+[tool.poetry-dynamic-versioning.substitution]
+files = ["src/epyq/__init__.py"]
+
+[[tool.poetry.source]]
+name = "epc-power"
+url = "https://epc-power-us-890711758583.d.codeartifact.us-east-2.amazonaws.com/pypi/epc-power/simple"
+secondary = true
+
+[[tool.poetry.source]]
+name = "third-party"
+url = "https://epc-power-us-890711758583.d.codeartifact.us-east-2.amazonaws.com/pypi/third-party/simple"
+secondary = true
+
+[tool.poetry.dependencies]
+python = ">=3.7.9,<3.11"
+
+#### EPC Repos ####
+epyqlib = {path = "./sub/epyqlib",  develop = true}
+
+#if referencing commit hashes:
+sunspecdemo = { git = "https://github.com/epcpower/sunspec-demo.git", rev = "474cdaa4d085eb8de064a73844b1b5b4b39de6dd" }
+
+#if referencing tags:
+#sunspecdemo = {version = "0.3.0", source = "epc-power"}
+###################
+
+alqtendpy = "0.0.4"
+graham = "0.1.11"
+python-can = "4.0.0"
+bitstruct = "6.0.0"
+Twisted = "21.2.0"
+qt5reactor = "0.5"
+pyelftools = "0.26"
+attrs = ">=19.3.0"
+natsort = "5.5.0"
+arrow = "0.12.1"
+PyQtChart = "5.14.0"
+pywin32 = { version = "223", markers = "sys_platform == 'win32'" }
+certitude = { version = "1.0.1", markers = "sys_platform == 'Darwin'" }
+pysunspec = "2.1.0"
+pluggy = "0.12.0"
+appdirs = "1.4.3"
+boto3 = "1.14.41.0"
+boto3-type-annotations = "0.3.1"
+certifi = "2020.6.20"
+paho-mqtt = "1.4.0"
+treq = "21.1.0"
+PyQt5 = "5.14.1"
+requests = "2.27.1"
+canmatrix = "0.9.1"
+click = "7.1.2"
+
+[tool.poetry.dev-dependencies]
+poetry-dynamic-versioning = "^0.13.1"
+black = "20.8b1"
+gitignoreio = "0.1.5"
+pyinstaller = "~=4.5"
+pytest = "5.3.5"
+pytest-faulthandler = "1.5.0"
+pytest-rerunfailures = "5.0"
+pytest-qt = "3.3.0"
+pytest-twisted = "<=1.13.4"
+
+[tool.poetry.scripts]
+buildui = 'buildui:compile_ui'
+epyq = 'epyq.__main__:main'
+genbuildinfo = 'epyqlib.genbuildinfo:write_build_file'
+autodevice = 'epyqlib.autodevice.cli:cli'
+
 [tool.black]
 target-version =  ['py37']
 include = '''
 (
-    /setup.py
-    | /deploy_win.py
-    | /download_fonts.py
+    /download_fonts.py
     | /pinsys.py
     | /src/epyq/.*\.pyi?
+    | /buildui.py
 )$
 '''
-exclude = ''
+exclude = './.venv'
 
 [build-system]
 requires = [
     "alqtendpy",
     "setuptools",
     "wheel",
+    "poetry-core>=1.0.0",
+    "poetry-dynamic-versioning",
 ]
+build-backend = "poetry.core.masonry.api"

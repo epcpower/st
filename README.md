@@ -1,4 +1,4 @@
-# EPyQ [![Build status](https://ci.appveyor.com/api/projects/status/64pjrni37k4wu4jy?svg=true)](https://ci.appveyor.com/project/KyleAltendorf/st)
+# EPyQ [![github actions](https://img.shields.io/github/workflow/status/epcpower/st/CI/master?color=seagreen&logo=GitHub-Actions&logoColor=whitesmoke)](https://github.com/epcpower/st) [![github source](https://img.shields.io/github/last-commit/epcpower/st/master.svg)](https://github.com/epcpower/st)
 
 ![EPyQ screenshot](/screenshot.png?raw=true)
 
@@ -11,27 +11,25 @@ Most of the interesting parts of the GUI are loaded from device configuration fi
 
 ## Running From Source
 
-Instructions are for Python 3.7 but they should work with slight tweaks with 3.6.
+Instructions are for Python 3.7, but they should work with higher versions.
 
 ### Windows
 
-- Install [Python 3.7 32-bit](https://www.python.org/downloads/)
+- Install [Python 3.7](https://www.python.org/downloads/)
 - Install [Git](https://git-scm.com/download)
-- `git clone https://github.com/altendky/st`
+- `git clone https://github.com/epcpower/st`
 - `cd st`
 - `git submodule update --init`
-- `py boots.py ensure`
-  - Run with any recent Python, the proper Python version will be selected
-- wait
-- wait some more...
-- ...
+- `poetry install`
+- `poetry run buildui`
+
 - Note the links provided for possibly needed system and driver extras.
-- Try running `venv\Scripts\epyq`.  If you get errors, consider installing the linked extras. 
+- Try running `poetry run epyq`.  If you get errors, consider installing the linked extras.
 
 If using with [PEAK PCAN](http://www.peak-system.com/PCAN-USB.199.0.html?&L=1) hardware, install the [PEAK drivers](http://www.peak-system.com/PCAN-USB.199.0.html?&L=1).
 Select the `PCAN-Basic` feature in the installer.  The virtual and LIN features are not needed for this.
 
-To launch EPyQ run `venv\Scripts\epyq.exe`.
+To launch EPyQ run `poetry run epyq`.
 To launch Qt Designer with the EPyQ plugins enabled run `designer.bat`.
 EPyQ widgets should be visible at the bottom of the widget box on the left.
 
@@ -40,14 +38,13 @@ EPyQ widgets should be visible at the bottom of the widget box on the left.
 - Install Python 3.7
   - Consider [pyenv](https://github.com/pyenv/pyenv) to get Python versions
 - Install git
-- `git clone https://github.com/altendky/st`
+- `git clone https://github.com/epcpower/st`
 - `cd st`
 - `git submodule update --init`
-- `python boots.py ensure`
-  - Run with any recent Python, the proper Python version will be selected
-- wait
-- a bit more, but not nearly as much as Windows
-- Try running `venv/bin/epyq`
+- `poetry install`
+- `poetry run buildui`
+
+- Try running `poetry run epyq`
 - If it works, continue below regarding CAN bus setup
 
 In Linux, EPyQ does not attempt to configure or bring up the socketcan links despite still showing the baud rates.
