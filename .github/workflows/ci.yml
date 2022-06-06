@@ -31,6 +31,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
           submodules: recursive
+          token: ${{ secrets.CONTROLS_PAT }}
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ env.PYTHON_VERSION }}
