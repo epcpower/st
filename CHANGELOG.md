@@ -11,6 +11,10 @@ For instructions, see the [changelog confluence page](https://epcpower.atlassian
 
 - SC-572: Added changelog for release notes.
 
-CI
+### Fixed
+
+- SC-726: Fixed python dependency atomicwrites 1.4.0 -> 1.4.1
+
+### CI
 
 - SC-398: Romp Removal / Poetry Implementation
