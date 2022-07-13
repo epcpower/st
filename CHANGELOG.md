@@ -13,5 +13,5 @@ For instructions, see the [changelog confluence page](https://epcpower.atlassian
 
 CI
 
-- SC-662: Add global PAT, STLib to private repo
+- SC-662: Use new global token, Store credentials for private repo installs
 - SC-398: Romp Removal / Poetry Implementation
