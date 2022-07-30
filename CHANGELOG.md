@@ -11,6 +11,10 @@ For instructions, see the [changelog confluence page](https://epcpower.atlassian
 
 - SC-572: Added changelog for release notes.
 
-CI
+### CI
 
 - SC-398: Romp Removal / Poetry Implementation
+
+### Fixed
+
+- SC-734: revert pyelftools to pre-poetry version
