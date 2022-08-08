@@ -42,7 +42,7 @@ python-can = "4.0.0"
 bitstruct = "6.0.0"
 Twisted = "21.2.0"
 qt5reactor = "0.5"
-pyelftools = "0.26"
+pyelftools = { git = "https://github.com/eliben/pyelftools", rev = "27941c50fef8cff8ef991419511664154c8cdf52" }
 attrs = ">=19.3.0"
 natsort = "5.5.0"
 arrow = "0.12.1"
