@@ -344,7 +344,7 @@ marshmallow = "2.16.3"
 natsort = "5.5.0"
 paho-mqtt = "1.4.0"
 Pint = "0.11"
-pyelftools = "0.25"
+pyelftools = {git = "https://github.com/eliben/pyelftools", rev = "27941c50fef8cff8ef991419511664154c8cdf52"}
 PyQt5 = ">=5.13.0"
 pysunspec = "2.1.0"
 python-can = "4.0.0"
@@ -1177,7 +1177,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "tomlkit"
-version = "0.11.1"
+version = "0.11.2"
 description = "Style preserving TOML library"
 category = "dev"
 optional = false
