@@ -30,7 +30,7 @@ python = ">=3.7.9,<3.11"
 epyqlib = {path = "./sub/epyqlib",  develop = true}
 
 #if referencing commit hashes:
-sunspecdemo = { git = "https://github.com/epcpower/sunspec-demo.git", rev = "474cdaa4d085eb8de064a73844b1b5b4b39de6dd" }
+sunspecdemo = { git = "https://github.com/epcpower/sunspec-demo.git", rev = "b12634917474f91f9f3afe32d981139ee2d0bf79" }
 
 #if referencing tags:
 #sunspecdemo = {version = "0.3.0", source = "epc-power"}
