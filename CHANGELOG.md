@@ -9,6 +9,7 @@ For instructions, see the [changelog confluence page](https://epcpower.atlassian
 
 ### Added
 
+- SC-780: Pin poetry to 1.1.15
 - SC-572: Added changelog for release notes.
 
 ### CI
