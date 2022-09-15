@@ -18,4 +18,5 @@ For instructions, see the [changelog confluence page](https://epcpower.atlassian
 
 ### Fixed
 
+- SC-769: Allow datalogger binary to load with empty SunSpec JSON
 - SC-734: revert pyelftools to pre-poetry version
