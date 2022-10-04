@@ -9,6 +9,7 @@ For instructions, see the [changelog confluence page](https://epcpower.atlassian
 
 ### Added
 
+- SC-774: Add aliases for Software Hash, Data Logger Block Header, Data Logger Record Header
 - SC-572: Added changelog for release notes.
 
 ### CI
