@@ -7,10 +7,17 @@ For instructions, see the [changelog confluence page](https://epcpower.atlassian
 
 ## [Unreleased] - YYYY-MM-DD
 
+## [v2022.10] - 2022-10-18
+
 ### Added
 
 - SC-774: Add aliases for Software Hash, Data Logger Block Header, Data Logger Record Header
 - SC-572: Added changelog for release notes.
+- SC-310: Parameters tab Auto Read checked off by default
+
+### Changed
+
+- SC-278: Cleanup for documentation, minor style change in main
 
 ### CI
 
