@@ -23,8 +23,10 @@ For instructions, see the [changelog confluence page](https://epcpower.atlassian
 
 - SC-760: Pin poetry to 1.1.15 & fix boto3 ref
 - SC-398: Romp Removal / Poetry Implementation
+- SC-216: Github Actions CI
 
 ### Fixed
 
 - SC-769: Allow datalogger binary to load with empty SunSpec JSON
 - SC-734: revert pyelftools to pre-poetry version
+
