@@ -7,7 +7,7 @@ For instructions, see the [changelog confluence page](https://epcpower.atlassian
 
 ## [Unreleased] - YYYY-MM-DD
 
-## [v2022.10] - 2022-10-18
+## [v2022.10] - 2022-10-19
 
 ### Added
 
@@ -21,6 +21,7 @@ For instructions, see the [changelog confluence page](https://epcpower.atlassian
 
 ### CI
 
+- SC-798: Release v2022.10
 - SC-760: Pin poetry to 1.1.15 & fix boto3 ref
 - SC-398: Romp Removal / Poetry Implementation
 - SC-216: Github Actions CI
