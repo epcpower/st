@@ -26,26 +26,28 @@ jobs:
     name: CI
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
           submodules: recursive
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}          
       - name: Setup Venv
         run: |
-          #install poetry
-          python -m ensurepip
-          python -m pip install --upgrade pip
-          python -m pip install poetry==1.1.15
+          #install Poetry
+          python3 -m ensurepip
+          python3 -m pip install --upgrade pip
+          python3 -m pip install poetry==1.1.15 SecretStorage==3.3.3 cachecontrol==0.12.11 cachy==0.3.0 certifi==2022.12.7 cffi==1.15.1 charset-normalizer==3.1.0 cleo==0.8.1 clikit==0.6.2 crashtest==0.3.1 cryptography==40.0.2 distlib==0.3.6 filelock==3.12.0 html5lib==1.1 idna==3.4 importlib-metadata==1.7.0 jeepney==0.8.0 keyring==22.3.0 lockfile==0.12.2 msgpack==1.0.5 packaging==20.9 pastel==0.2.1 pexpect==4.8.0 pkginfo==1.9.6 platformdirs==2.6.2 poetry-core==1.0.8 ptyprocess==0.7.0 pycparser==2.21 pylev==1.4.0 pyparsing==3.0.9 requests==2.29.0 requests-toolbelt==0.9.1 shellingham==1.5.0.post1 six==1.16.0 tomlkit==0.11.8 typing-extensions==4.5.0 urllib3==1.26.15 virtualenv==20.16.2 webencodings==0.5.1 zipp==3.15.0
+
+          poetry --version
 
           poetry config virtualenvs.in-project true
           poetry config virtualenvs.path .
@@ -99,7 +101,7 @@ jobs:
           poetry build
           poetry publish --repository epc-power
       - name: Archive artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: epyq_st
           path: |
