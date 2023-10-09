@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -58,6 +58,7 @@ jobs:
           poetry config http-basic.epc-power aws $CODEARTIFACT_AUTH_TOKEN
           poetry config repositories.third-party https://epc-power-us-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.us-east-2.amazonaws.com/pypi/third-party/
           poetry config http-basic.third-party aws $CODEARTIFACT_AUTH_TOKEN
+          poetry config installer.max-workers 1
 
           poetry install
       - name: python commands
