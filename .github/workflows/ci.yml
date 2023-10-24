@@ -67,7 +67,8 @@ jobs:
         run: |
           set -vx
           poetry run buildui
-          poetry version $(git describe --tags --abbrev=0 2>/dev/null)
+          poetry run poetry-dynamic-versioning
+          #poetry version $(git describe --tags --abbrev=0 2>/dev/null)
           poetry run black --check --diff .
           poetry run python download_fonts.py src/libs
           poetry run genbuildinfo "src/epyq/_build.py"
