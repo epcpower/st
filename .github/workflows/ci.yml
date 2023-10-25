@@ -58,6 +58,7 @@ jobs:
           poetry config http-basic.epc-power aws $CODEARTIFACT_AUTH_TOKEN
           poetry config repositories.third-party https://epc-power-us-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.us-east-2.amazonaws.com/pypi/third-party/
           poetry config http-basic.third-party aws $CODEARTIFACT_AUTH_TOKEN
+          # https://github.com/python-poetry/poetry/issues/7611
           poetry config installer.max-workers 1
 
           poetry install
