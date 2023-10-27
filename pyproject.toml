@@ -13,8 +13,8 @@ enable = true
 vcs = "git"
 style = "pep440"
 
-#[tool.poetry-dynamic-versioning.substitution]
-#files = ["src/epyq/__init__.py"]
+[tool.poetry-dynamic-versioning.substitution]
+files = ["src/epyq/__init__.py"]
 
 [[tool.poetry.source]]
 name = "epc-power"
