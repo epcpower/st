@@ -13,8 +13,8 @@ enable = true
 vcs = "git"
 style = "pep440"
 
-[tool.poetry-dynamic-versioning.substitution]
-files = ["src/epyq/__init__.py"]
+#[tool.poetry-dynamic-versioning.substitution]
+#files = ["src/epyq/__init__.py"]
 
 [[tool.poetry.source]]
 name = "epc-power"
@@ -74,7 +74,6 @@ pytest-faulthandler = "1.5.0"
 pytest-rerunfailures = "5.0"
 pytest-qt = "3.3.0"
 pytest-twisted = "<=1.13.4"
-poetry-dynamic-versioning = "^0.13.1"
 
 [tool.poetry.scripts]
 buildui = 'buildui:compile_ui'
@@ -100,6 +99,6 @@ requires = [
     "setuptools",
     "wheel",
     "poetry-core>=1.0.0",
-    "poetry-dynamic-versioning",
+    "poetry-dynamic-versioning>=1.0.0,<2.0.0",
 ]
 build-backend = "poetry_dynamic_versioning.backend"
