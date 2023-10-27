@@ -481,6 +481,21 @@ pgp = ["gpg"]
 watch = ["pyinotify"]
 
 [[package]]
+name = "dunamai"
+version = "1.19.0"
+description = "Dynamic version generation"
+optional = false
+python-versions = ">=3.5,<4.0"
+files = [
+    {file = "dunamai-1.19.0-py3-none-any.whl", hash = "sha256:1ed948676bbf0812bfaafe315a134634f8d6eb67138513c75aa66e747404b9c6"},
+    {file = "dunamai-1.19.0.tar.gz", hash = "sha256:6ad99ae34f7cd290550a2ef1305d2e0292e6e6b5b1b830dfc07ceb7fd35fec09"},
+]
+
+[package.dependencies]
+importlib-metadata = {version = ">=1.6.0", markers = "python_version < \"3.8\""}
+packaging = ">=20.9"
+
+[[package]]
 name = "epyqlib"
 version = "0.0.0"
 description = ""
@@ -1826,47 +1841,11 @@ description = "Tested, performant SipHash bindings for Python 3 with support for
 optional = false
 python-versions = "*"
 files = [
-    {file = "siphash_cffi-0.1.4-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:7a3e9831c4d1bb1d569a46c1af57d8e670df537732b7b474d18583727d8bc2d0"},
-    {file = "siphash_cffi-0.1.4-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:24ca0aacc7b08b2fb9fe5765d5b2815e1bf5d1c5f6902dc495e0a9181c3c4492"},
-    {file = "siphash_cffi-0.1.4-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:387b777584ccc0607f72baba910b544cbeeed2303f64ed7e29d06d6cd5d5a8fb"},
-    {file = "siphash_cffi-0.1.4-cp35-cp35m-manylinux2010_i686.whl", hash = "sha256:ecfd7089626204733a2945d68d1ec72ba2466e4268f21444e971f5432454ab02"},
-    {file = "siphash_cffi-0.1.4-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:605a6a38bdcb2bcdf206b30160747a40ae0d867f509fd7a87967d5cfc098a42c"},
-    {file = "siphash_cffi-0.1.4-cp35-cp35m-win32.whl", hash = "sha256:57d4ef68415ce880b865c72584d523181ce376fbe0d520881a150129fd9db035"},
-    {file = "siphash_cffi-0.1.4-cp35-cp35m-win_amd64.whl", hash = "sha256:0531060e8cfe93d6ee8bfb9dc72e472921383200a6269dc4ed7788d07ef18866"},
-    {file = "siphash_cffi-0.1.4-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:12ce7a87f3949d7a2b8d07184cdbd0dd582258b60b1844152e8e430e65280a89"},
-    {file = "siphash_cffi-0.1.4-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:10007e430779604f483d5aea609145435c5724033e87929f3d9e721262f148f4"},
-    {file = "siphash_cffi-0.1.4-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:c779c7e68e7bab8b7bc94859e9a1d7871563b2eb9cc1f32a393a6004a0ba6134"},
-    {file = "siphash_cffi-0.1.4-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:a5c0eadc34f30b4be1c0088565861254949a52801b2bc02c2cc49747405b0be5"},
-    {file = "siphash_cffi-0.1.4-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:58d4c1fe93a4fd8dfb6f04728400d7da16833ce3eb746ddb259f9762a559e5ac"},
-    {file = "siphash_cffi-0.1.4-cp36-cp36m-win32.whl", hash = "sha256:19cb51be8614b602dffaa43cce42603bcf99cf33a6962e729b4a23e61f699f0c"},
-    {file = "siphash_cffi-0.1.4-cp36-cp36m-win_amd64.whl", hash = "sha256:b4d0a742561d02e95dcf57ab5c1e00f39feebdaf34e4ff64fc990bc107987d19"},
-    {file = "siphash_cffi-0.1.4-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:1c43e2a860c07f47ef055531d738a11bbf9ddbf7bd2909a90e4cbc2813171831"},
-    {file = "siphash_cffi-0.1.4-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:5fe1edd79506371908b658516000b473c8e068bb55158339579e05256fcd25ae"},
-    {file = "siphash_cffi-0.1.4-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:4350ec50c82c3707dea67d3b77de38638c8cbfe80e418489da0bdbfd9677cee9"},
-    {file = "siphash_cffi-0.1.4-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:9f79fc8f212544e5620975960a7af497b39124a6c50212f0c53ff8925d8b439d"},
-    {file = "siphash_cffi-0.1.4-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:e0fe7ac9655881c9294d76b54736155afec5f8483e1f6df669b73e42c507fc36"},
-    {file = "siphash_cffi-0.1.4-cp37-cp37m-win32.whl", hash = "sha256:d74675952f54655d69c0a87f83f97ed58c4f078e3f8501f2dd095303b6f1d950"},
-    {file = "siphash_cffi-0.1.4-cp37-cp37m-win_amd64.whl", hash = "sha256:7d851e2f00afd6212bbca832392ab0a47b97ac1d3db62f15854982b8deb4b386"},
-    {file = "siphash_cffi-0.1.4-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:da01093604586f5f179c3f7ba112c58931910270f56e940040cc1f6f32d240be"},
-    {file = "siphash_cffi-0.1.4-cp38-cp38-manylinux1_i686.whl", hash = "sha256:ed365bd72a9cab886a6495fa8f3a08c7e340bcc07b2aacb2346d69721dcd7580"},
-    {file = "siphash_cffi-0.1.4-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:744b44efc8edd59a8901f8e48a1f42d17867591a6afde625edeed16e3dae2d19"},
-    {file = "siphash_cffi-0.1.4-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:12530d2c39ed2d56d3a3d10deb01b202ae59e6e74b3ad3ae14ba780199ec8a7c"},
-    {file = "siphash_cffi-0.1.4-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:ad94c8edf60cfae2a68017d0d7c53baf40ae4b340c5fb7d75407b32fd79f12ad"},
-    {file = "siphash_cffi-0.1.4-cp38-cp38-win32.whl", hash = "sha256:5ec45f7ed880f8794475b1097258f1b3848b94433ee17c7c719b40e03b36c55b"},
-    {file = "siphash_cffi-0.1.4-cp38-cp38-win_amd64.whl", hash = "sha256:6063dcb9a94f8bfdeb2c0bbc5e8ef97046f5be0a4015da99a234218ffd9459c2"},
-    {file = "siphash_cffi-0.1.4-pp36-pypy36_pp73-macosx_10_9_x86_64.whl", hash = "sha256:34843b8078bd74c90ec3f55217bdb5d558b2bbfc8dc9d942753ec04d88483041"},
-    {file = "siphash_cffi-0.1.4-pp36-pypy36_pp73-manylinux1_x86_64.whl", hash = "sha256:0f095fe4f95fe4a464c312a70905ef387f120ffb6f6165f7a2bac76997e7a36d"},
-    {file = "siphash_cffi-0.1.4-pp36-pypy36_pp73-manylinux2010_x86_64.whl", hash = "sha256:06f23c4ef0227acdab0a14737f1e2b499ba59a07f9fe2000234f1a41292fcaa7"},
-    {file = "siphash_cffi-0.1.4-pp36-pypy36_pp73-win32.whl", hash = "sha256:caa798f48f75b821ba27e1c9bd89d790dbbf0063aedfb804195bec9c25331851"},
+    {file = "siphash-cffi-0.1.4.zip", hash = "sha256:76c2af7e2c9b57f79703fa7ea63d19b79c3acef67ce1c21e731efd58e7aa01dd"},
 ]
 
 [package.dependencies]
 cffi = ">=1.4.0"
-
-[package.source]
-type = "legacy"
-url = "https://epc-power-us-890711758583.d.codeartifact.us-east-2.amazonaws.com/pypi/third-party/simple"
-reference = "third-party"
 
 [[package]]
 name = "six"
@@ -2316,4 +2295,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.9,<3.11"
-content-hash = "cefda2de8739ca4a964434e3d34175828d12797cf83a7f65800eb268d53adecd"
+content-hash = "d961a5e0c86366e59a54543ee44814ea936965c105ca531a4cc98ff4db4fa937"

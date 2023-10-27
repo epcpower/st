@@ -64,6 +64,7 @@ PyQt5 = "5.14.1"
 requests = "2.27.1"
 canmatrix = "0.9.1"
 click = "7.1.2"
+dunamai = "^1.19.0"
 
 [tool.poetry.dev-dependencies]
 black = "20.8b1"
