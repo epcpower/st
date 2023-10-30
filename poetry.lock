@@ -481,21 +481,6 @@ pgp = ["gpg"]
 watch = ["pyinotify"]
 
 [[package]]
-name = "dunamai"
-version = "1.19.0"
-description = "Dynamic version generation"
-optional = false
-python-versions = ">=3.5,<4.0"
-files = [
-    {file = "dunamai-1.19.0-py3-none-any.whl", hash = "sha256:1ed948676bbf0812bfaafe315a134634f8d6eb67138513c75aa66e747404b9c6"},
-    {file = "dunamai-1.19.0.tar.gz", hash = "sha256:6ad99ae34f7cd290550a2ef1305d2e0292e6e6b5b1b830dfc07ceb7fd35fec09"},
-]
-
-[package.dependencies]
-importlib-metadata = {version = ">=1.6.0", markers = "python_version < \"3.8\""}
-packaging = ">=20.9"
-
-[[package]]
 name = "epyqlib"
 version = "0.0.0"
 description = ""
@@ -2331,4 +2316,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.9,<3.11"
-content-hash = "d961a5e0c86366e59a54543ee44814ea936965c105ca531a4cc98ff4db4fa937"
+content-hash = "cefda2de8739ca4a964434e3d34175828d12797cf83a7f65800eb268d53adecd"
