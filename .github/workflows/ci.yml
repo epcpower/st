@@ -39,7 +39,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}          
+          aws-region: ${{ env.AWS_REGION }}
       - name: Setup Venv
         run: |
           #install Poetry
@@ -47,7 +47,7 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install poetry==1.5.1
 
-          poetry --version 
+          poetry --version
 
           poetry config virtualenvs.in-project true
           poetry config virtualenvs.path .
@@ -69,7 +69,13 @@ jobs:
         run: |
           set -vx
           poetry run buildui
+          cat src/epyq/__init__.py
+          echo "RUNNING POETRY DYNAMIC VERSIoNING"
           poetry self add "poetry-dynamic-versioning[plugin]"
+          echo "AFTER: INIT="
+          cat src/epyq/__init__.py
+          echo "pyproject.toml = "
+          cat pyproject.toml
           poetry run black --check --diff .
           poetry run python download_fonts.py src/libs
           poetry run genbuildinfo "src/epyq/_build.py"
