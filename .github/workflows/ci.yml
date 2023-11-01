@@ -72,6 +72,7 @@ jobs:
           cat src/epyq/__init__.py
           echo "RUNNING POETRY DYNAMIC VERSIoNING"
           poetry self add "poetry-dynamic-versioning[plugin]"
+          poetry run poetry-dynamic-versioning
           echo "AFTER: INIT="
           cat src/epyq/__init__.py
           echo "pyproject.toml = "
