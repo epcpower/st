@@ -61,7 +61,7 @@ jobs:
           # https://github.com/python-poetry/poetry/issues/7611
           poetry config installer.max-workers 1
 
-          poetry self add "poetry-dynamic-versioning[plugin]"
+          #poetry self add "poetry-dynamic-versioning[plugin]"
           poetry install
       - name: python commands
         env:
@@ -69,6 +69,7 @@ jobs:
         run: |
           set -vx
           poetry run buildui
+          poetry self add "poetry-dynamic-versioning[plugin]"
           poetry run black --check --diff .
           poetry run python download_fonts.py src/libs
           poetry run genbuildinfo "src/epyq/_build.py"
