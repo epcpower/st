@@ -7,7 +7,6 @@ version = "0.0.0"
 description = "EPyQ (EPC Service Tool)"
 authors = ["alex anker <alex.anker@epcpower.com>"]
 license = "GPL-2.0-or-later"
-include = ["src/*"]
 
 [tool.poetry-dynamic-versioning]
 enable = true
