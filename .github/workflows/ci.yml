@@ -73,6 +73,7 @@ jobs:
           poetry self add "poetry-dynamic-versioning[plugin]"
           echo "AFTER: INIT="
           cat src/epyq/__init__.py
+          
           poetry run black --check --diff .
           poetry run python download_fonts.py src/libs
           poetry run genbuildinfo "src/epyq/_build.py"
