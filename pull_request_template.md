@@ -4,12 +4,8 @@
 
 ## Associated Pull Requests
 
-*   [ ] _
-*   [ ] _
-
-## Update Changelog
-
-*   [ ] Changelog updated
+* [ ] _
+* [ ] _
 
 ## Reproduction Steps
 
