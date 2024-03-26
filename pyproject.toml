@@ -24,7 +24,7 @@ url = "https://epc-power-us-890711758583.d.codeartifact.us-east-2.amazonaws.com/
 secondary = true
 
 [tool.poetry.dependencies]
-python = ">=3.7.9,<3.11"
+python = ">=3.8,<3.11"
 
 #### EPC Repos ####
 epyqlib = {path = "./sub/epyqlib",  develop = true}
@@ -61,6 +61,7 @@ PyQt5 = "5.14.1"
 requests = "2.27.1"
 canmatrix = "0.9.1"
 click = "7.1.2"
+pylint-runner = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 poetry-dynamic-versioning = "^0.13.1"
