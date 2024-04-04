@@ -61,7 +61,6 @@ PyQt5 = "5.14.1"
 requests = "2.27.1"
 canmatrix = "0.9.1"
 click = "7.1.2"
-pylint-runner = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 poetry-dynamic-versioning = "^0.13.1"
