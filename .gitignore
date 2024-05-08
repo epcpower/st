@@ -17,6 +17,10 @@ generated/
 # PyCharm (consider using the PyCharm gitignore.io template)
 .idea/**/workspace.xml
 
+#Visual Studio and Visual Studio Code
+#The templates are not currently adequate.
+.vs/
+.vscode/
 
 # Created by https://www.toptal.com/developers/gitignore/api/vim,python,Vagrant,git,VisualStudioCode,Patch
 # Edit at https://www.toptal.com/developers/gitignore?templates=vim,python,Vagrant,git,VisualStudioCode,Patch
