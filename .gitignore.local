@@ -10,3 +10,8 @@ generated/
 
 # PyCharm (consider using the PyCharm gitignore.io template)
 .idea/**/workspace.xml
+
+#Visual Studio and Visual Studio Code
+#The templates are not currently adequate.
+.vs/
+.vscode/
