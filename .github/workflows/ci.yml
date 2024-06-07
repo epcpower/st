@@ -3,9 +3,9 @@ name: CI
 on:
   push:
     branches:
-      - "**" #double star includes a '/'.  single star doesnt match a '/'
+      - '**' #double star includes a '/'.  single star doesnt match a '/'
     tags:
-      - "**" #double star includes a '/'.  single star doesnt match a '/'
+      - '**' #double star includes a '/'.  single star doesnt match a '/'
   schedule:
     # Daily at 05:44
     - cron: '44 5 * * *'
@@ -19,7 +19,6 @@ env:
   AWS_REGION: us-east-2
   #Supports deploy_win finding python license for the epyq installer
   PYTHON: c:/hostedtoolcache/windows/Python/3.7.9/x64
-
 
 jobs:
   build:
@@ -39,7 +38,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}          
+          aws-region: ${{ env.AWS_REGION }}
       - name: Setup Venv
         run: |
           #install Poetry
@@ -47,7 +46,7 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install poetry==1.5.1
 
-          poetry --version 
+          poetry --version
 
           poetry config virtualenvs.in-project true
           poetry config virtualenvs.path .
@@ -79,7 +78,7 @@ jobs:
 
           readlink --canonicalize-missing qtifw
 
-          curl --location --output qtifw.exe "https://download.qt.io/official_releases/qt-installer-framework/4.1.1/QtInstallerFramework-windows-x86-4.1.1.exe"
+          curl --location --output qtifw.exe "https://download.qt.io/archive/qt-installer-framework/4.1.1/QtInstallerFramework-windows-x86-4.1.1.exe"
           ./qtifw.exe in --al -c --root $(readlink --canonicalize-missing qtifw)
 
           poetry run python pinsis.py --qtifw
