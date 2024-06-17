@@ -11,11 +11,11 @@ Most of the interesting parts of the GUI are loaded from device configuration fi
 
 ## Running From Source
 
-Instructions are for Python 3.7, but they should work with higher versions.
+Instructions are for Python 3.8, but they should work with higher versions.
 
 ### Windows
 
-- Install [Python 3.7](https://www.python.org/downloads/)
+- Install [Python 3.8](https://www.python.org/downloads/)
 - Install [Git](https://git-scm.com/download)
 - `git clone https://github.com/epcpower/st`
 - `cd st`
@@ -35,7 +35,7 @@ EPyQ widgets should be visible at the bottom of the widget box on the left.
 
 ### Linux
 
-- Install Python 3.7
+- Install Python 3.8
   - Consider [pyenv](https://github.com/pyenv/pyenv) to get Python versions
 - Install git
 - `git clone https://github.com/epcpower/st`
