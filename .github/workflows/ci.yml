@@ -60,6 +60,7 @@ jobs:
           # https://github.com/python-poetry/poetry/issues/7611
           poetry config installer.max-workers 1
 
+          poetry self add "poetry-dynamic-versioning[plugin]"
           poetry install
       - name: python commands
         env:
