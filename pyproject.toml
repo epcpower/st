@@ -1,12 +1,15 @@
 [tool.poetry]
 name = "epyq"
+# The version variable below is set to the generic build placeholder "0.0.0".
+# (In other words: leave alone!) During CI, poetry dynamic versioning
+# modifies the __version__ variable in the applicable __init__.py file.
 version = "0.0.0"
 description = "EPyQ (EPC Service Tool)"
 authors = ["alex anker <alex.anker@epcpower.com>"]
 license = "GPL-2.0-or-later"
 
 [tool.poetry-dynamic-versioning]
-enable = false
+enable = true
 vcs = "git"
 style = "pep440"
 
@@ -16,12 +19,12 @@ files = ["src/epyq/__init__.py"]
 [[tool.poetry.source]]
 name = "epc-power"
 url = "https://epc-power-us-890711758583.d.codeartifact.us-east-2.amazonaws.com/pypi/epc-power/simple"
-secondary = true
+priority = "explicit"
 
 [[tool.poetry.source]]
 name = "third-party"
 url = "https://epc-power-us-890711758583.d.codeartifact.us-east-2.amazonaws.com/pypi/third-party/simple"
-secondary = true
+priority = "explicit"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
@@ -56,8 +59,7 @@ requests = "2.27.1"
 canmatrix = "0.9.1"
 click = "7.1.2"
 
-[tool.poetry.dev-dependencies]
-poetry-dynamic-versioning = "^0.13.1"
+[tool.poetry.group.dev.dependencies]
 black = "20.8b1"
 gitignoreio = "0.1.5"
 pyinstaller = "~=4.5"
@@ -71,8 +73,6 @@ pytest-twisted = "<=1.13.4"
 [tool.poetry.scripts]
 buildui = 'buildui:compile_ui'
 epyq = 'epyq.__main__:main'
-genbuildinfo = 'epyqlib.genbuildinfo:write_build_file'
-autodevice = 'epyqlib.autodevice.cli:cli'
 
 [tool.black]
 target-version =  ['py37']
@@ -88,10 +88,9 @@ exclude = './.venv'
 
 [build-system]
 requires = [
-    "alqtendpy",
     "setuptools",
     "wheel",
     "poetry-core>=1.0.0",
-    "poetry-dynamic-versioning",
+    "poetry-dynamic-versioning>=1.0.0,<2.0.0",
 ]
-build-backend = "poetry.core.masonry.api"
+build-backend = "poetry_dynamic_versioning.backend"
