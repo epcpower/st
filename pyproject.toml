@@ -38,13 +38,13 @@ graham = "0.1.11"
 python-can = "4.0.0"
 bitstruct = "6.0.0"
 Twisted = "21.2.0"
-qt5reactor = "0.5"
+qt5reactor = "0.6.3"
 pyelftools = { git = "https://github.com/eliben/pyelftools", rev = "27941c50fef8cff8ef991419511664154c8cdf52" }
 attrs = ">=19.3.0"
 natsort = "5.5.0"
 arrow = "0.12.1"
 PyQtChart = "5.14.0"
-pywin32 = { version = "225", markers = "sys_platform == 'win32'" }
+pywin32 = { version = "306", markers = "sys_platform == 'win32'" }
 certitude = { version = "1.0.1", markers = "sys_platform == 'Darwin'" }
 pysunspec = "2.1.1"
 pluggy = "0.12.0"
@@ -64,10 +64,9 @@ black = "20.8b1"
 gitignoreio = "0.1.5"
 pyinstaller = "~=4.5"
 pyinstaller-hooks-contrib = "2022.10" # Locks the version to avoid updating during `poetry update`
-pytest = "5.3.5"
-pytest-faulthandler = "1.5.0"
-pytest-rerunfailures = "5.0"
-pytest-qt = "3.3.0"
+pytest = "6.2.4"
+pytest-rerunfailures = "10.3"
+pytest-qt = "4.0.2"
 pytest-twisted = "<=1.13.4"
 
 [tool.poetry.scripts]
