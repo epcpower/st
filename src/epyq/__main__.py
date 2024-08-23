@@ -121,8 +121,8 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.collapse_button.clicked.connect(self.collapse_expand)
         size_hint = self.ui.collapse_button.sizeHint()
-        size_hint.setWidth(0.75 * size_hint.width())
-        size_hint.setHeight(6 * size_hint.width())
+        size_hint.setWidth(int(0.75 * size_hint.width()))
+        size_hint.setHeight(int(6 * size_hint.width()))
         self.ui.collapse_button.setMinimumSize(size_hint)
         self.ui.collapse_button.setMaximumSize(size_hint)
 

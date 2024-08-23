@@ -27,7 +27,7 @@ url = "https://epc-power-us-890711758583.d.codeartifact.us-east-2.amazonaws.com/
 priority = "explicit"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = ">=3.10,<3.11"
 
 #### EPC Repos ####
 epyqlib = {path = "./sub/epyqlib",  develop = true}
@@ -39,11 +39,14 @@ python-can = "4.0.0"
 bitstruct = "6.0.0"
 Twisted = "21.2.0"
 qt5reactor = "0.6.3"
-pyelftools = { git = "https://github.com/eliben/pyelftools", rev = "27941c50fef8cff8ef991419511664154c8cdf52" }
+pyelftools = "0.31"
+# pyelftools = { git = "https://github.com/eliben/pyelftools", rev = "27941c50fef8cff8ef991419511664154c8cdf52" }
 attrs = ">=19.3.0"
 natsort = "5.5.0"
 arrow = "0.12.1"
-PyQtChart = "5.14.0"
+PyQtChart = "5.15.7"
+# PyQtChart = "5.14.0"
+PyQtChart-Qt5 = "5.15.2"
 pywin32 = { version = "306", markers = "sys_platform == 'win32'" }
 certitude = { version = "1.0.1", markers = "sys_platform == 'Darwin'" }
 pysunspec = "2.1.1"
@@ -54,7 +57,8 @@ boto3-type-annotations = "0.3.1"
 certifi = "2020.6.20"
 paho-mqtt = "1.4.0"
 treq = "21.1.0"
-PyQt5 = "5.14.1"
+PyQt5 = ">=5.15.9"
+PyQt5-Qt5 = "5.15.2"  # only one with win build
 requests = "2.27.1"
 canmatrix = "0.9.1"
 click = "7.1.2"
