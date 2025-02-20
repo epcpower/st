@@ -39,7 +39,7 @@ python-can = "4.0.0"
 bitstruct = "6.0.0"
 Twisted = "21.2.0"
 qt5reactor = "0.6.3"
-pyelftools = { git = "https://github.com/eliben/pyelftools", rev = "27941c50fef8cff8ef991419511664154c8cdf52" }
+pyelftools = { git = "https://github.com/eliben/pyelftools", rev = "a612ffead684f67674a109b60b0dc8f20770308a" } # Supports Dwarf4 Type Signature Traversal
 attrs = ">=19.3.0"
 natsort = "5.5.0"
 arrow = "0.12.1"
