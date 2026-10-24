@@ -52,11 +52,23 @@ jobs:
           poetry config virtualenvs.path .
 
           #Setup AWS Connection
-          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain epc-power-us --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --query authorizationToken --output text`
+          CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain epc-power-us --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --query authorizationToken --output text)
+          echo "::add-mask::$CODEARTIFACT_AUTH_TOKEN"
           poetry config repositories.epc-power https://epc-power-us-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.us-east-2.amazonaws.com/pypi/epc-power/
-          poetry config http-basic.epc-power aws $CODEARTIFACT_AUTH_TOKEN
           poetry config repositories.third-party https://epc-power-us-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.us-east-2.amazonaws.com/pypi/third-party/
-          poetry config http-basic.third-party aws $CODEARTIFACT_AUTH_TOKEN
+          # Pass credentials via env vars instead of `poetry config http-basic`, which on Windows
+          # stores them in Credential Manager and fails for tokens over ~1280 chars (CredWrite 1783).
+          # Written to $GITHUB_ENV so the publish step also has them.
+          {
+            echo "POETRY_HTTP_BASIC_EPC_POWER_USERNAME=aws"
+            echo "POETRY_HTTP_BASIC_EPC_POWER_PASSWORD=$CODEARTIFACT_AUTH_TOKEN"
+            echo "POETRY_HTTP_BASIC_THIRD_PARTY_USERNAME=aws"
+            echo "POETRY_HTTP_BASIC_THIRD_PARTY_PASSWORD=$CODEARTIFACT_AUTH_TOKEN"
+          } >> "$GITHUB_ENV"
+          export POETRY_HTTP_BASIC_EPC_POWER_USERNAME=aws
+          export POETRY_HTTP_BASIC_EPC_POWER_PASSWORD=$CODEARTIFACT_AUTH_TOKEN
+          export POETRY_HTTP_BASIC_THIRD_PARTY_USERNAME=aws
+          export POETRY_HTTP_BASIC_THIRD_PARTY_PASSWORD=$CODEARTIFACT_AUTH_TOKEN
           # https://github.com/python-poetry/poetry/issues/7611
           poetry config installer.max-workers 1
 
